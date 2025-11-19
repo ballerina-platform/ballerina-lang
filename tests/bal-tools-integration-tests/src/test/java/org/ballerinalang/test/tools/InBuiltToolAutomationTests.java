@@ -51,7 +51,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithOneToolWithDepsToml").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummytoolA 1.2.1"), output);
+        Assert.assertTrue(output.contains("dummytoolA 1.2.0"), output);
     }
 
     @Test

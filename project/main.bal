@@ -1,4 +1,4 @@
-
+import ballerina/io;
 
 service class Person {
     resource function get age() returns int {

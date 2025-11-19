@@ -237,7 +237,7 @@ public enum NodeKind {
     NAMED_ARG_MATCH_PATTERN,
     SIMPLE_MATCH_PATTERN,
 
-    /* Binding patterns*/
+    /* Binding patterns */
     WILDCARD_BINDING_PATTERN,
     CAPTURE_BINDING_PATTERN,
     LIST_BINDING_PATTERN,

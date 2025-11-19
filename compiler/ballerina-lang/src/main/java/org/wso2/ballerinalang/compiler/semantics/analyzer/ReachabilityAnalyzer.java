@@ -116,8 +116,8 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  * @since 2.0.0
  */
 public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAnalyzer.AnalyzerData> {
-    private static final CompilerContext.Key<ReachabilityAnalyzer> REACHABILITY_ANALYZER_KEY =
-            new CompilerContext.Key<>();
+    private static final CompilerContext.Key<ReachabilityAnalyzer> REACHABILITY_ANALYZER_KEY 
+    = new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
@@ -343,10 +343,11 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private boolean checkAllBranchesTerminate(boolean ifStmtReturnsPanicsOrFails, boolean ifStmtBreakAsLastStatement,
-                                              boolean ifStmtContinueAsLastStatement, AnalyzerData data) {
+            boolean ifStmtContinueAsLastStatement, AnalyzerData data) {
         return (ifStmtReturnsPanicsOrFails || ifStmtBreakAsLastStatement
-                || ifStmtContinueAsLastStatement) && (data.statementReturnsPanicsOrFails
-                || data.breakAsLastStatement || data.continueAsLastStatement);
+                || ifStmtContinueAsLastStatement)
+                && (data.statementReturnsPanicsOrFails
+                        || data.breakAsLastStatement || data.continueAsLastStatement);
     }
 
     @Override
@@ -573,15 +574,27 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         }
         if (funcNode.body != null) {
             analyzeReachability(funcNode.body, data);
-            boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
-                    (funcNode.symbol.type.getReturnType());
-            // If the return signature is nil-able, an implicit return will be added in Desugar.
-            // Hence, this only checks for non-nil-able return signatures and uncertain return in the body.
+            boolean isNeverReturn = types
+                    .isNeverTypeOrStructureTypeWithARequiredNeverMember(funcNode.symbol.type.getReturnType());
+            // If the return signature is nil-able, an implicit return will be added in
+            // Desugar.
+            // Hence, this only checks for non-nil-able return signatures and uncertain
+            // return in the body.
             if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn &&
                     !data.hasFunctionTerminated) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
-                this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
-                        funcNode.getKind().toString().toLowerCase());
+
+                String invokableName;
+                if (funcNode.getKind() == NodeKind.RESOURCE_FUNC) {
+                    invokableName = "resource_function";
+                } else {
+                    invokableName = funcNode.getKind().toString().toLowerCase();
+                }
+
+                this.dlog.error(closeBracePos,
+                        DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
+                        invokableName);
+
             } else if (isNeverReturn && !data.hasFunctionTerminated) {
                 this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
@@ -697,8 +710,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         for (BLangStatement stmt : body.stmts) {
             data.env = blockEnv;
             analyzeReachability(stmt, data);
-            hasFunctionTerminated |=
-                    data.statementReturnsPanicsOrFails || (data.isBlockUnreachable && stmt.getKind() == NodeKind.BLOCK);
+            hasFunctionTerminated |= data.statementReturnsPanicsOrFails
+                    || (data.isBlockUnreachable && stmt.getKind() == NodeKind.BLOCK);
         }
         data.hasFunctionTerminated = hasFunctionTerminated;
     }
@@ -755,7 +768,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     @Override
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         // This is to support when let expressions are used in return statements
-        // Since variable declarations are visited after return node, this stops false positive unreachable code error
+        // Since variable declarations are visited after return node, this stops false
+        // positive unreachable code error
         boolean returnStateBefore = data.statementReturnsPanicsOrFails;
         data.statementReturnsPanicsOrFails = false;
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
@@ -838,7 +852,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location,
-                                                       AnalyzerData data) {
+            AnalyzerData data) {
         for (BLangExpression expr : exprs) {
             if (expr == null) {
                 continue;
@@ -900,7 +914,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                 if (loopNode.getKind() == NodeKind.WHILE &&
                         ((BLangWhile) loopNode).expr.narrowedTypeInfo.containsKey(
                                 typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol))) {
-                    // A while loop may narrow an already narrowed variable, so checking specifically if the loop
+                    // A while loop may narrow an already narrowed variable, so checking
+                    // specifically if the loop
                     // itself narrows the variable too.
                     return;
                 }
@@ -915,7 +930,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private void handleInvalidAssignmentToTypeNarrowedVariableInLoop(List<Location> locations,
-                                                                     DiagnosticErrorCode errorCode) {
+            DiagnosticErrorCode errorCode) {
         for (Location location : locations) {
             dlog.error(location, errorCode);
         }
@@ -934,8 +949,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt, DiagnosticErrorCode errorCode,
             Deque<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo) {
 
-        PotentiallyInvalidAssignmentInfo
-                currentBranchInfo = potentiallyInvalidAssignmentInLoopsInfo.pop();
+        PotentiallyInvalidAssignmentInfo currentBranchInfo = potentiallyInvalidAssignmentInLoopsInfo.pop();
 
         if (branchTerminates) {
             return;
@@ -1000,8 +1014,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         List<Location> locations;
         BLangInvokableNode enclInvokable;
 
-        private PotentiallyInvalidAssignmentInfo(List<Location>  locations,
-                                                 BLangInvokableNode enclInvokable) {
+        private PotentiallyInvalidAssignmentInfo(List<Location> locations,
+                BLangInvokableNode enclInvokable) {
             this.locations = locations;
             this.enclInvokable = enclInvokable;
         }
