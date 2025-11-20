@@ -51,6 +51,7 @@ public class BMainInstance implements BMain {
     private String agentArgs = "";
     private BalServer balServer;
     public static final int TIMEOUT = 10000;
+    public  int exitCode = 0;
 
     private static class StreamGobbler extends Thread {
         private final InputStream inputStream;
@@ -667,7 +668,7 @@ public class BMainInstance implements BMain {
             StreamGobbler outputGobbler =
                     new StreamGobbler(process.getInputStream(), out);
             outputGobbler.start();
-            process.waitFor();
+            exitCode = process.waitFor();
             outputGobbler.join();
             String output = baos.toString();
             if (output.endsWith("\n")) {
@@ -681,6 +682,9 @@ public class BMainInstance implements BMain {
         }
     }
 
+    public int getLastExitCode() {
+        return exitCode;
+    }
     /**
      * Write client clientArgs to process.
      *

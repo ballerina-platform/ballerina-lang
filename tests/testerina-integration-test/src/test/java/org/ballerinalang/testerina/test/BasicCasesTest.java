@@ -21,6 +21,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,6 +50,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAssertions.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -57,6 +59,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAssertDiffError.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -65,6 +68,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAssertionErrorMessage.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -73,6 +77,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAssertBehavioralTypes.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -81,6 +86,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAssertStructuralTypes.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -89,6 +95,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAssertSequenceTypes.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -97,6 +104,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAnnotationAccess.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -105,6 +113,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testJavaInterops.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -113,6 +122,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testRuntimeApi.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -121,6 +131,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testBeforeAfter.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -129,6 +140,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testBeforeEachAfterEach.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
@@ -137,6 +149,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testDependsOn.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test(dependsOnMethods = "testDependsOn")
@@ -145,6 +158,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAnnotations.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -153,6 +167,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testIsolatedFunctions.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -161,6 +176,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testIntersectionTypes.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -169,6 +185,7 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAnydataType.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 
     @Test
@@ -177,5 +194,6 @@ public class BasicCasesTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertOutput("BasicCasesTest-testAsyncInvocation.txt", output);
+        Assert.assertEquals(balClient.getLastExitCode(), 0, "The exit code is not as expected.");
     }
 }

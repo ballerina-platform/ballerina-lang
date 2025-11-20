@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -55,6 +56,7 @@ public class RerunFailedTest extends BaseTestCase {
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("RerunFailedTest-testFullTest.txt", output.replaceAll("\r", ""));
+        Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
     }
 
     @Test (dependsOnMethods = "testFullTest")
@@ -66,6 +68,7 @@ public class RerunFailedTest extends BaseTestCase {
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTest.txt", output.replaceAll("\r", ""));
+        Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
     }
 
     @Test (dependsOnMethods = "testRerunFailedTest")
@@ -78,6 +81,7 @@ public class RerunFailedTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithoutAnInitialRun.txt",
                 output.replaceAll("\r", ""));
+        Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
     }
 
     @Test
