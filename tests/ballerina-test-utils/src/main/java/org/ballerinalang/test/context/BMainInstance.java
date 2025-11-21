@@ -51,7 +51,7 @@ public class BMainInstance implements BMain {
     private String agentArgs = "";
     private BalServer balServer;
     public static final int TIMEOUT = 10000;
-    public  int exitCode = 0;
+    private  int exitCode = 0;
 
     private static class StreamGobbler extends Thread {
         private final InputStream inputStream;
@@ -682,6 +682,11 @@ public class BMainInstance implements BMain {
         }
     }
 
+    /**
+     * Returns the exit code of the last executed process.
+     *
+     * @return the exit code from the most recent call to {@link #runMainAndReadStdOut}
+     */
     public int getLastExitCode() {
         return exitCode;
     }

@@ -87,7 +87,7 @@ public final class Main {
             Runtime.getRuntime().exit(e.getExitCode());
         } catch (Throwable e) {
             RuntimeUtils.logBadSad(e);
-            Runtime.getRuntime().exit(1);
+            Runtime.getRuntime().exit(1);;
         }
     }
 
