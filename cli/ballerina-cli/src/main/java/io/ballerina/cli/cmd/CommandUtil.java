@@ -980,7 +980,7 @@ public final class CommandUtil {
      * Get the path to the given template.
      *
      * @return path of the given template
-     * @throws URISyntaxException if any URISyntaxException occured
+     * @throws URISyntaxException if any URISyntaxException occurred
      */
     private static Path getTemplatePath() throws URISyntaxException {
         URI uri = CommandUtil.class.getClassLoader().getResource(CREATE_CMD_TEMPLATES).toURI();

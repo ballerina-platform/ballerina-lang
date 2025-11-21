@@ -1,27 +1,27 @@
 import ballerina/lang.test as test;
 
 function testIntRanges(int a) returns (int) {
-    int retunType = 0;
+    int returnType = 0;
     if (a <= 0) {
-        retunType = 1;
+        returnType = 1;
     } else if ((a > 0) && (a < 100)) {
-        retunType = 2;
+        returnType = 2;
     } else if (a >= 100) {
-        retunType = 3;
+        returnType = 3;
     }
-    return retunType;
+    return returnType;
 }
 
 function testFloatRanges(float a) returns (int) {
-    int retunType = 0;
+    int returnType = 0;
     if (a <= 0.0) {
-        retunType = 1;
+        returnType = 1;
     } else if ((a > 0.0) && (a < 100.0)) {
-        retunType = 2;
+        returnType = 2;
     } else if (a >= 101.0) {
-        retunType = 3;
+        returnType = 3;
     }
-    return retunType;
+    return returnType;
 }
 
 function compareByteValues(byte lowValue, byte highValue) {
