@@ -79,7 +79,7 @@ public final class Main {
                 errStream.println(prepareCompilerErrorMessage(e.getMessage()));
             }
             // These are compiler errors, and are already logged. Hence simply exit.
-            Runtime.getRuntime().exit(1);
+            System.exit(1);
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, errStream);
             Runtime.getRuntime().exit(1);
@@ -87,7 +87,7 @@ public final class Main {
             Runtime.getRuntime().exit(e.getExitCode());
         } catch (Throwable e) {
             RuntimeUtils.logBadSad(e);
-            Runtime.getRuntime().exit(1);;
+            Runtime.getRuntime().exit(1);
         }
     }
 

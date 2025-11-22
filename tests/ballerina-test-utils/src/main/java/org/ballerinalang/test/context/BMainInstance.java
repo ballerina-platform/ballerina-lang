@@ -51,7 +51,7 @@ public class BMainInstance implements BMain {
     private String agentArgs = "";
     private BalServer balServer;
     public static final int TIMEOUT = 10000;
-    private  int exitCode = 0;
+    private int exitCode = 0;
 
     private static class StreamGobbler extends Thread {
         private final InputStream inputStream;
@@ -280,7 +280,7 @@ public class BMainInstance implements BMain {
             if (clientArgs != null && clientArgs.length > 0) {
                 writeClientArgsToProcess(clientArgs, process);
             }
-            process.waitFor();
+            exitCode = process.waitFor();
 
             serverInfoLogReader.stop();
             serverInfoLogReader.removeAllLeechers();
