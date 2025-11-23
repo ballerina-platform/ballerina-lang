@@ -672,6 +672,15 @@ public class ReachabilityAnalysisTest {
         Assert.assertEquals(result.getHintCount(), 24);
     }
 
+    @Test
+    public void testResourceFunctionMustReturn() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/reachability-analysis/resource_function_must_return_negative.bal");
+        int i = 0;
+        validateError(result, i++, "this resource function must return a result", 24, 5);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
