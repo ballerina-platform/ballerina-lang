@@ -442,11 +442,32 @@ public class BUnionType extends BType implements UnionType {
             }
             String memToString = bType.toString();
 
-            if (bType.tag == TypeTags.UNION && memToString.startsWith("(") && memToString.endsWith(")")) {
-                joiner.add(memToString.substring(1, memToString.length() - 1));
-            } else {
-                joiner.add(memToString);
+            if (bType.tag == TypeTags.UNION && memToString.startsWith("(")) {
+                int closeIdx = findMatchingParenIndex(memToString);
+
+                if (closeIdx > 0) {
+                    boolean hasSuffix = closeIdx < memToString.length() - 1;
+                    String inner = memToString.substring(1, closeIdx);
+                    String suffix =
+                        hasSuffix ? memToString.substring(closeIdx + 1) : "";
+
+                    if (inner.contains("|")) {
+                        joiner.add(inner + suffix);
+                    } else if (!hasSuffix) {
+                        joiner.add(inner);
+                    } else {
+                        joiner.add(memToString);
+                    }
+                    numberOfNotNilTypes++;
+                    if (!hasNilableMember && bType.isNullable()) {
+                        hasNilableMember = true;
+                    }
+                    continue;
+                }
             }
+
+            // NON-UNION or no parentheses-unwrapping case
+            joiner.add(memToString);
             numberOfNotNilTypes++;
 
             if (!hasNilableMember && bType.isNullable()) {
@@ -458,6 +479,26 @@ public class BUnionType extends BType implements UnionType {
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
         cachedToString = (this.isNullable() && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value)
                 : typeStr;
+    }
+    /**
+    * Find the index of the matching closing parenthesis for the first '(' in the string.
+    * Returns -1 if not found / malformed.
+    */
+    private int findMatchingParenIndex(String s) {
+        int depth = 0;
+        for (int i = 0; i < s.length(); i++) {
+         char c = s.charAt(i);
+         if (c == '(') {
+            depth++;
+         } else if (c == ')') {
+            depth--;
+            if (depth == 0) {
+                return i;
+            }
+            // if depth < 0 it's malformed; continue and fallback later
+         }
+        }
+        return -1;
     }
 
     private static boolean isNeverType(BType type) {
