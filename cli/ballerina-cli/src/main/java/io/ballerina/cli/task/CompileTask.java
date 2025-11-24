@@ -88,7 +88,8 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
-        if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
+        if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project) &&
+                project.currentPackage().balToolToml().isEmpty()) {
             throw createLauncherException("package is empty. Please add at least one .bal file.");
         }
         if (project.workspaceProject().isPresent()) {
