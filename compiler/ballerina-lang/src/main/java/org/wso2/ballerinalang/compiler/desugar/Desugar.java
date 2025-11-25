@@ -367,7 +367,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
     private static final String TO_STRING_FUNCTION_NAME = "toString";
     private static final String LENGTH_FUNCTION_NAME = "length";
-    private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
     private static final String CLONE_WITH_TYPE = "cloneWithType";
     private static final String PUSH_LANGLIB_METHOD = "push";
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
@@ -5442,10 +5441,6 @@ public class Desugar extends BLangNodeVisitor {
     private void swapAndResetEnclosingOnFail(BLangOnFailClause onFailClause) {
         this.enclosingOnFailClause.remove(onFailClause);
         this.onFailClause = onFailClause;
-    }
-
-    public void resetSkipFailStmtRewrite() {
-        this.isVisitingQuery = false;
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
@@ -11007,5 +11002,15 @@ public class Desugar extends BLangNodeVisitor {
 
     private void clearGlobalVariables() {
         this.typedescList = null;
+        this.lambdaFunctionCount = 0;
+        this.recordCount = 0;
+        this.errorCount = 0;
+        this.errorDetailCount = 0;
+        this.annonVarCount = 0;
+        this.indexExprCount = 0;
+        this.letCount = 0;
+        this.varargCount = 0;
+        this.funcParamCount = 1;
+        this.typedescCount = 0;
     }
 }
