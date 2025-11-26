@@ -1304,6 +1304,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         long flags = symbol.flags;
+        if ((recordFieldDefaultValue || objectFieldDefaultValueRequiringIsolation) &&
+                Symbols.isFlagOn(flags, Flags.CONFIGURABLE)) {
+            return;
+        }
         if (Symbols.isFlagOn(flags, Flags.CONSTANT)) {
             return;
         }
