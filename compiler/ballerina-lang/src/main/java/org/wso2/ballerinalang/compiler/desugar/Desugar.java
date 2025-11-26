@@ -426,7 +426,7 @@ public class Desugar extends BLangNodeVisitor {
     private int recordCount = 0;
     private int errorCount = 0;
     private int errorDetailCount = 0;
-    private int annonVarCount = 0;
+    private int anonVarCount = 0;
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
@@ -2174,7 +2174,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangExpression typeCastExpr = types.addConversionExprIfRequired(mapVarRef, targetType);
 
-        int restNum = annonVarCount++;
+        int restNum = anonVarCount++;
         String name = "$map$ref$" + UNDERSCORE + restNum;
         BLangSimpleVariable mapVariable = defVariable(pos, targetType, parentBlockStmt, typeCastExpr, name);
 
@@ -6633,7 +6633,7 @@ public class Desugar extends BLangNodeVisitor {
             receiverSymbol.closure = true;
             func.closureVarSymbols.add(new ClosureVarSymbol(receiverSymbol, pos));
         } else {
-            BLangSimpleVariableDef varDef = createVarDef("$$temp$obj$" + annonVarCount++, receiver.getBType(),
+            BLangSimpleVariableDef varDef = createVarDef("$$temp$obj$" + anonVarCount++, receiver.getBType(),
                                                          receiver, pos);
             intermediateObjDef = varDef;
             varDef.var.symbol.closure = true;
@@ -11051,13 +11051,13 @@ public class Desugar extends BLangNodeVisitor {
         this.lambdaFunctionCount = 0;
         this.recordCount = 0;
         this.errorCount = 0;
-        this.errorDetailCount = 0;
-        this.annonVarCount = 0;
+        this.anonVarCount = 0;
         this.indexExprCount = 0;
         this.letCount = 0;
         this.varargCount = 0;
         this.funcParamCount = 1;
         this.typedescCount = 0;
+        this.transactionBlockCount = 0;
     }
 
     private BLangSimpleVariableDef createGeneratorVariableDefinition(BLangNaturalExpression naturalExpression,
