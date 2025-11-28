@@ -89,6 +89,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import org.testng.Assert;
 
 /**
  * Resolves sem-types for module definitions using runtime side semtype implementation.
@@ -264,8 +265,8 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
     private ObjectQualifiers getQualifiers(BLangObjectTypeNode td) {
         Set<Flag> flags = td.symbol.getFlags();
         ObjectQualifiers.NetworkQualifier networkQualifier;
-        assert !(flags.contains(Flag.CLIENT) && flags.contains(Flag.SERVICE)) :
-                "object can't be both client and service";
+        Assert.assertFalse(flags.contains(Flag.CLIENT) && flags.contains(Flag.SERVICE), 
+                   "object can't be both client and service");
         if (flags.contains(Flag.CLIENT)) {
             networkQualifier = ObjectQualifiers.NetworkQualifier.Client;
         } else if (flags.contains(Flag.SERVICE)) {
@@ -563,7 +564,7 @@ class RuntimeSemTypeResolver extends SemTypeResolver<SemType> {
             case NIL -> Optional.of(Builder.getNilType());
             case BOOLEAN -> Optional.of(Builder.getBooleanConst((Boolean) value));
             case INT, BYTE -> {
-                assert !(value instanceof Byte);
+                Assert.assertFalse(value instanceof Byte);
                 yield Optional.of(Builder.getIntConst(((Number) value).longValue()));
             }
             case FLOAT -> {
