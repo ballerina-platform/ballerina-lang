@@ -237,6 +237,7 @@ public class RunTestsTask implements Task {
             if (testResult != 0) {
                 cleanTempCache(project, cachesRoot);
                 this.testResult.set(testResult);
+                throw createLauncherException("there are test failures");
             }
         } else {
             out.println("\tNo tests found");

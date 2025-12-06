@@ -19,8 +19,10 @@ package org.ballerinalang.testerina.test.negative;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.testerina.test.BaseTestCase;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,6 +52,10 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenDependsOnFunctionFails.txt", output);
+        if (!Utils.isWindowsOS()) {
+            //  Skip the exit code check on Windows due to PowerShell always setting the exit code to 0.
+            Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
+        }
     }
 
     @Test
@@ -61,6 +67,10 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeFails.txt", output);
+        if (!Utils.isWindowsOS()) {
+            //  Skip the exit code check on Windows due to PowerShell always setting the exit code to 0.
+            Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
+        }
     }
 
     @Test
@@ -72,6 +82,10 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenAfterFails.txt", output);
+        if (!Utils.isWindowsOS()) {
+            //  Skip the exit code check on Windows due to PowerShell always setting the exit code to 0.
+            Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
+        }
     }
 
     @Test
@@ -83,6 +97,10 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeEachFails.txt", output);
+        if (!Utils.isWindowsOS()) {
+            //  Skip the exit code check on Windows due to PowerShell always setting the exit code to 0.
+            Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
+        }
     }
 
 
@@ -95,6 +113,10 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenAfterEachFails.txt", output);
+        if (!Utils.isWindowsOS()) {
+            //  Skip the exit code check on Windows due to PowerShell always setting the exit code to 0.
+            Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
+        }
     }
 
     @Test
@@ -106,6 +128,10 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeSuiteFails.txt", output);
+        if (!Utils.isWindowsOS()) {
+            //  Skip the exit code check on Windows due to PowerShell always setting the exit code to 0.
+            Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
+        }
     }
 
     @Test
@@ -117,6 +143,10 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeGroupsFails.txt", output);
+        if (!Utils.isWindowsOS()) {
+            //  Skip the exit code check on Windows due to PowerShell always setting the exit code to 0.
+            Assert.assertEquals(balClient.getLastExitCode(), 1, "The exit code is not as expected.");
+        }
     }
 
 }

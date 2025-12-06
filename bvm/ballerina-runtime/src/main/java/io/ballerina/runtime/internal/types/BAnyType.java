@@ -50,6 +50,11 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
     public BAnyType(String typeName, Module pkg, boolean readonly) {
         super(new ConcurrentLazySupplier<>(() -> new BAnyTypeImpl(typeName, pkg, readonly)),
                 typeName, pkg, TypeTags.ANY_TAG, pickSemType(readonly));
+        if (!readonly) {
+            BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
+            this.getbType().immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+                    immutableAnyType, TypeFlags.asMask(TypeFlags.NILABLE), true);
+        }
     }
 
     @Override
@@ -91,12 +96,6 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
         private BAnyTypeImpl(String typeName, Module pkg, boolean readonly) {
             super(typeName, pkg, RefValue.class, false);
             this.readonly = readonly;
-
-            if (!readonly) {
-                BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
-                this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
-                        immutableAnyType, TypeFlags.asMask(TypeFlags.NILABLE), true);
-            }
         }
 
         @Override
