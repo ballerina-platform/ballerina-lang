@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.security;
 
-import kafka.server.KafkaConfig;
 import org.ballerinalang.messaging.kafka.utils.KafkaCluster;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -170,7 +169,7 @@ public class SslConsumerAndProducerTest {
                        keystoreAndTruststore + File.separator + "kafka.server.truststore.jks");
         properties.put("ssl.truststore.password", "test1234");
         properties.put("zookeeper.session.timeout.ms", "30000");
-        properties.put(KafkaConfig.ZkConnectionTimeoutMsProp(), ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
+        properties.put("zookeeper.connection.timeout.ms", ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
 
         return properties;
     }

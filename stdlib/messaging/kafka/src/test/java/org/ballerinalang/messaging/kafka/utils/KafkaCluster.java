@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
-import kafka.server.KafkaConfig;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
@@ -154,18 +153,18 @@ public class KafkaCluster {
             properties.putAll(customProperties);
         }
 
-        if (properties.getProperty(KafkaConfig.ListenersProp()) == null) {
+        if (properties.getProperty("listeners") == null) {
             String listeners = protocol + "://" + this.host + ":" + port;
-            properties.setProperty(KafkaConfig.ListenersProp(), listeners);
+            properties.setProperty("listeners", listeners);
         }
 
         String kafkaDataDir = Paths.get(dataDir, kafkaSuffix).toString();
         String zookeeperConfig = this.host + ":" + this.zookeeperPort;
-        properties.setProperty(KafkaConfig.ZkConnectProp(), zookeeperConfig);
-        properties.setProperty(KafkaConfig.LogDirProp(), kafkaDataDir);
-        properties.setProperty(KafkaConfig.LogDirsProp(), kafkaDataDir);
+        properties.setProperty("zookeeper.connect", zookeeperConfig);
+        properties.setProperty("log.dir", kafkaDataDir);
+        properties.setProperty("log.dirs", kafkaDataDir);
         // Assign next broker index as the broker ID
-        properties.setProperty(KafkaConfig.BrokerIdProp(), Integer.toString(brokerList.size()));
+        properties.setProperty("broker.id", Integer.toString(brokerList.size()));
         KafkaLocal kafkaServer = new KafkaLocal(properties);
         this.brokerList.add(kafkaServer);
         this.brokerPort = port;

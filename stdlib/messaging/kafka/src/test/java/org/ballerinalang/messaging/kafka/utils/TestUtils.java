@@ -18,7 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
-import kafka.server.KafkaConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.ballerinalang.model.values.BError;
@@ -71,7 +70,7 @@ public class TestUtils {
 
     public static Properties getZookeeperTimeoutProperty() {
         Properties properties = new Properties();
-        properties.setProperty(KafkaConfig.ZkConnectionTimeoutMsProp(), ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
+        properties.setProperty("zookeeper.connection.timeout.ms", ZOOKEEPER_CONNECTION_TIMEOUT_CONFIG);
         return properties;
     }
 
