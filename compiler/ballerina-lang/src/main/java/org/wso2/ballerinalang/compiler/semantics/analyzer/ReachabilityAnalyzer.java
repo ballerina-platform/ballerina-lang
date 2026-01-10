@@ -1032,17 +1032,10 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         Deque<SymbolEnv> loopAndDoClauseEnvs = new ArrayDeque<>();
         Deque<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new ArrayDeque<>();
     }
-    /**
-     * Returns a user-friendly name for the function kind.
-     * Converts internal enum representation to readable format for error messages.
-     *
-     * @param funcNode the function node
-     * @return formatted function kind name
-     */
-    private String getFunctionKindName(BLangFunction funcNode) {
-        if (funcNode.getKind() == NodeKind.RESOURCE_FUNC) {
+private String getFunctionKindName(BLangFunction funcNode) {
+        NodeKind kind = funcNode.getKind();
+        if (kind == NodeKind.RESOURCE_FUNC) {
             return "resource function";
         }
-        return funcNode.getKind().toString().toLowerCase();
+        return kind.toString().toLowerCase();
     }
-}
