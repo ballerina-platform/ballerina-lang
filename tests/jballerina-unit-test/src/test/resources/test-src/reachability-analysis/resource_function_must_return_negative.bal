@@ -15,11 +15,16 @@
 // under the License.
 
 service class TestService {
-    resource function get testPath() returns int {
+    resource function get testPath() returns int|error {
         do {
-            return 1;
+            int x = check getNumber();
+	    return x;
         } on fail error err {
             // Missing return statement - should trigger "this resource function must return a result" error
         }
     }
+}
+
+function getNumber() returns int|error {
+    return error("test error");
 }
