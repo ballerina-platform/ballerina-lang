@@ -18,7 +18,7 @@ service class TestService {
     resource function get testPath() returns int|error {
         do {
             int x = check getNumber();
-	    return x;
+            return x;
         } on fail error err {
             // Missing return statement - should trigger "this resource function must return a result" error
         }
