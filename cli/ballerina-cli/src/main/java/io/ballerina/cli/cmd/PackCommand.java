@@ -110,15 +110,9 @@ public class PackCommand implements BLauncherCmd {
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
 
-<<<<<<< HEAD
     @CommandLine.Option(names = "--locking-mode", hidden = true,
             description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
     private PackageLockingMode lockingMode;
-=======
-    @CommandLine.Option(names = "--locking-mode", hidden = true, 
-            description = "allow passing the package locking mode.")
-    private String lockingMode;
->>>>>>> 5d6e2d57b73 (Warn if Package.md is missing or empty during push)
 
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
