@@ -135,7 +135,7 @@ public class ResolutionEngine {
                     depVersion = directPkgDependency.pkgDesc().version();
                     repository = blendedDepOptional
                             .map(BlendedManifest.Dependency::repository)
-                            .orElse(null);
+                            .orElse(directPkgDependency.pkgDesc().repository().orElse(null));
                 } else if (blendedDepOptional.isPresent()) {
                     BlendedManifest.Dependency blendedDep = blendedDepOptional.get();
                     repository = blendedDep.repository();

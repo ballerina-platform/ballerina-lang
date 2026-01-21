@@ -1,0 +1,5 @@
+[package]
+org = "testorg"
+name = "cachingProjectWithGeneratedDir"
+version = "0.1.0"
+

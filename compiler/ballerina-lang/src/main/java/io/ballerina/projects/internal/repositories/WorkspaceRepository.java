@@ -27,6 +27,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -102,17 +103,26 @@ public class WorkspaceRepository extends AbstractPackageRepository {
 
     @Override
     public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
-
+        List<ModuleDescriptor> moduleDescriptors = new ArrayList<>();
         if (version == null) {
-            return this.workspaceProject.projects().stream().filter(project ->
-                    project.currentPackage().packageOrg().equals(org)
-                            && project.currentPackage().packageName().equals(name)).findFirst().map(project ->
-                    project.currentPackage().moduleDependencyGraph().getNodes()).orElse(Collections.emptyList());
+            for (BuildProject buildProject : this.workspaceProject.projects()) {
+                if (buildProject.currentPackage().packageOrg().equals(org)
+                        && buildProject.currentPackage().packageName().equals(name)) {
+                    buildProject.currentPackage().moduleIds().stream().map(moduleId -> buildProject.currentPackage().
+                            module(moduleId).descriptor()).forEach(moduleDescriptors::add);
+                    break;
+                }
+            }
+            return moduleDescriptors;
         }
-        return this.workspaceProject.projects().stream().filter(project ->
-                project.currentPackage().descriptor().equals(PackageDescriptor.from(org, name, version))).findFirst()
-                .map(project -> project.currentPackage().moduleDependencyGraph().getNodes())
-                .orElse(Collections.emptyList());
+        for (BuildProject buildProject : this.workspaceProject.projects()) {
+            if (buildProject.currentPackage().descriptor().equals(PackageDescriptor.from(org, name, version))) {
+                buildProject.currentPackage().moduleIds().stream().map(moduleId ->
+                        buildProject.currentPackage().module(moduleId).descriptor()).forEach(moduleDescriptors::add);
+                break;
+            }
+        }
+        return moduleDescriptors;
     }
 
     @Override

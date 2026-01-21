@@ -104,10 +104,10 @@ public class ModuleResolver {
                         moduleLoadRequest.dependencyResolvedType());
             } else {
                 // This block is executed when there are two or more import module declarations requests
-                //  for modules in the same package.
+                // for modules in the same package.
                 // Say package foo contains two modules foo and foo.bar and
-                //  module foo is already added to the pkgContainer,
-                //  and in a new version of package foo there exists module foo.bar
+                // module foo is already added to the pkgContainer,
+                // and in a new version of package foo there exists module foo.bar
                 DirectPackageDependency currentPkgDep = pkgDepOptional.get();
 
                 // Do not override the scope, if the current scope is PackageDependencyScope.DEFAULT,

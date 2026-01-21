@@ -68,7 +68,7 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  *
  * @since 2.0.0
  */
-public class    BuildCommandTest extends BaseCommandTest {
+public class BuildCommandTest extends BaseCommandTest {
     private Path testResources;
     private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
     private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
@@ -1791,6 +1791,117 @@ public class    BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-wrong-path.txt"));
     }
 
+    @Test(description = "Build a project twice to test caching when Cloud.toml file is modified")
+    public void testCachingForCloudToml() throws IOException {
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/cachingProjectWithResources");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("cachingProjectWithResources.jar"));
+        Assert.assertFalse(firstBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "First build cannot be up-to-date");
+
+        // Second build
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "Second build is not up-to-date");
+
+        // Modify the Cloud.toml file
+        Path resourceFilePath = projectPath.resolve("Cloud.toml");
+        List<String> lines = Files.readAllLines(resourceFilePath);
+        lines.add("# Added a comment to invalidate cache");
+        Files.write(resourceFilePath, lines);
+
+        // Third build
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String thirdBuildLog = readOutput(true);
+        Assert.assertTrue(thirdBuildLog.contains("cachingProjectWithResources.jar"));
+        Assert.assertFalse(thirdBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "Third build should not be up-to-date after modifying the Cloud.toml file");
+    }
+
+    @Test(description = "Build a project twice to test caching when resource files are modified")
+    public void testCachingForResourcesDir() throws IOException {
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/cachingProjectWithResources");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("cachingProjectWithResources.jar"));
+        Assert.assertFalse(firstBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "First build cannot be up-to-date");
+
+        // Second build
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "Second build is not up-to-date");
+
+        // Modify the resources/test.yaml file
+        Path resourceFilePath = projectPath.resolve("resources").resolve("test.yaml");
+        List<String> lines = Files.readAllLines(resourceFilePath);
+        lines.add("# Added a comment to invalidate cache");
+        Files.write(resourceFilePath, lines);
+
+        // Third build
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String thirdBuildLog = readOutput(true);
+        Assert.assertTrue(thirdBuildLog.contains("cachingProjectWithResources.jar"));
+        Assert.assertFalse(thirdBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "Third build should not be up-to-date after modifying resource file");
+    }
+
+    @Test (description = "Build a project twice to test caching when generated files are modified")
+    public void testCachingForGeneratedDir() throws IOException {
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/cachingProjectWithGeneratedDir");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("cachingProjectWithGeneratedDir.jar"));
+        Assert.assertFalse(firstBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "First build cannot be up-to-date");
+
+        // Second build
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "Second build is not up-to-date");
+
+        // Modify the generated/config/config.bal file
+        Path resourceFilePath = projectPath.resolve("generated/config/config.bal");
+        List<String> lines = Files.readAllLines(resourceFilePath);
+        lines.add("// Added a comment to invalidate cache");
+        Files.write(resourceFilePath, lines);
+
+        // Third build
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String thirdBuildLog = readOutput(true);
+        Assert.assertTrue(thirdBuildLog.contains("cachingProjectWithGeneratedDir.jar"));
+        Assert.assertFalse(thirdBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                "Third build should not be up-to-date after modifying resource file");
+    }
+
     @Test(description = "Build a project twice with the same flags and different flags")
     public void testBuildAProjectTwiceWithFlags() throws IOException {
         String[] argsList1 = {
@@ -1805,7 +1916,7 @@ public class    BuildCommandTest extends BaseCommandTest {
 
         // Use the same flag that affects jar generation similarly in the consecutive builds
         for (String arg : argsList1) {
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -1828,7 +1939,7 @@ public class    BuildCommandTest extends BaseCommandTest {
                 // Skip --offline since tests are always run offline
                 continue;
             }
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -1861,7 +1972,7 @@ public class    BuildCommandTest extends BaseCommandTest {
 
         // Use different flags that doesn't affect jar generation in the consecutive builds
         for (String arg : argsList2) {
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -1893,7 +2004,7 @@ public class    BuildCommandTest extends BaseCommandTest {
         };
 
         for (String arg : argsList3) {
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -1913,7 +2024,7 @@ public class    BuildCommandTest extends BaseCommandTest {
 
     @Test(description = "Build a project after 24 hours of the last build")
     public void testBuildAProjectTwiceBeforeAfter24Hr() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         cleanTarget(projectPath);
@@ -1958,7 +2069,7 @@ public class    BuildCommandTest extends BaseCommandTest {
 
     @Test(description = "Build a project with a new file within 24 hours of the last build")
     public void testBuildAProjectWithFileAddition() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -1989,7 +2100,7 @@ public class    BuildCommandTest extends BaseCommandTest {
 
     @Test(description = "Build a project with a new file within 24 hours of the last build")
     public void testBuildAProjectWithFileModification() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -2020,7 +2131,7 @@ public class    BuildCommandTest extends BaseCommandTest {
 
     @Test(description = "Build a project with no content change. The file is modified with same content")
     public void testBuildAProjectWithFileNoContentChange() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);

@@ -437,7 +437,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         //Use the same flag that affects jar generation similarly in the consecutive builds
         for (String arg : argsList1) {
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -461,7 +461,7 @@ public class RunCommandTest extends BaseCommandTest {
                 // Skip --offline since tests are always run offline
                 continue;
             }
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -491,7 +491,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         // Use different flags that doesn't affect jar generation in the consecutive builds
         for (String arg : argsList2) {
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -519,7 +519,7 @@ public class RunCommandTest extends BaseCommandTest {
         };
 
         for (String arg : argsList3) {
-            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
             RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -539,7 +539,7 @@ public class RunCommandTest extends BaseCommandTest {
 
     @Test(description = "Run a project after 24 hours of the last build")
     public void testRunAProjectTwiceBeforeAfter24Hr() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -570,7 +570,7 @@ public class RunCommandTest extends BaseCommandTest {
 
     @Test(description = "Run a project with a new file within 24 hours of the last build")
     public void testRunAProjectWithFileAddition() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -592,7 +592,7 @@ public class RunCommandTest extends BaseCommandTest {
 
     @Test(description = "Run a project with a file modification within 24 hours of the last build")
     public void testRunAProjectWithFileModification() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -614,7 +614,7 @@ public class RunCommandTest extends BaseCommandTest {
 
     @Test(description = "Run a project with no content change")
     public void testRunAProjectWithFileNoContentChange() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
@@ -638,7 +638,7 @@ public class RunCommandTest extends BaseCommandTest {
 
     @Test(description = "Run a project after a build")
     public void testRunAProjectAfterABuild() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        Path projectPath = this.testResources.resolve("projects-for-caching-tests/buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream , printStream, false);

@@ -42,9 +42,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -88,12 +90,55 @@ public class DefaultPackageResolver implements PackageResolver {
     @Override
     public Collection<ImportModuleResponse> resolvePackageNames(Collection<ImportModuleRequest> requests,
                                                                 ResolutionOptions options) {
+        Set<ImportModuleRequest> unresolvedRequests = new HashSet<>(requests);
+
         // We will only receive hierarchical imports in requests
-        Collection<ImportModuleResponse> responseListInDist = distributionRepo.getPackageNames(requests, options);
-        Collection<ImportModuleResponse> responseListInCentral = centralRepo.getPackageNames(requests, options);
+        Collection<ImportModuleResponse> responseListInWorkspace = new ArrayList<>();
+        if (workspaceRepo != null) {
+            responseListInWorkspace.addAll(workspaceRepo.getPackageNames(requests, options));
+        }
+
+        // Remove requests resolved from the workspace before resolving from the dist and central repos
+        unresolvedRequests.addAll(responseListInWorkspace.stream()
+                .filter(r -> r.resolutionStatus().equals(ResolutionStatus.UNRESOLVED))
+                .map(ImportModuleResponse::importModuleRequest)
+                .toList());
+
+        Collection<ImportModuleResponse> responseListInCustomRepos = new ArrayList<>();
+        for (Map.Entry<String, PackageRepository> repositoryEntry : customRepos.entrySet()) {
+            if (unresolvedRequests.isEmpty()) {
+                break;
+            }
+            Collection<ImportModuleResponse> importModuleResponses = repositoryEntry.getValue()
+                    .getPackageNames(requests, options);
+            for (ImportModuleResponse response : importModuleResponses) {
+                if (response.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                    responseListInCustomRepos.add(new ImportModuleResponse(response.importModuleRequest()));
+                    continue;
+                }
+                PackageDescriptor packageDescriptor = PackageDescriptor.from(
+                        response.packageDescriptor().org(),
+                        response.packageDescriptor().name(),
+                        response.packageDescriptor().version(),
+                        repositoryEntry.getKey());
+                responseListInCustomRepos.add(new ImportModuleResponse(
+                        packageDescriptor, response.importModuleRequest()));
+            }
+
+            // Remove requests resolved from the custom repo before resolving from the dist and central repos
+            unresolvedRequests = responseListInCustomRepos.stream()
+                    .filter(r -> r.resolutionStatus().equals(ResolutionStatus.UNRESOLVED))
+                    .map(ImportModuleResponse::importModuleRequest)
+                    .collect(Collectors.toSet());
+        }
+
+        Collection<ImportModuleResponse> responseListInDist = distributionRepo
+                .getPackageNames(unresolvedRequests, options);
+        Collection<ImportModuleResponse> responseListInCentral = centralRepo
+                .getPackageNames(unresolvedRequests, options);
 
         return new ArrayList<>(
-                Stream.of(responseListInDist, responseListInCentral)
+                Stream.of(responseListInWorkspace, responseListInCustomRepos, responseListInDist, responseListInCentral)
                         .flatMap(Collection::stream).collect(Collectors.toMap(
                         ImportModuleResponse::importModuleRequest, Function.identity(),
                         (ImportModuleResponse x, ImportModuleResponse y) -> {
@@ -185,7 +230,7 @@ public class DefaultPackageResolver implements PackageResolver {
             allCustomRepoPackages.addAll(customFSRepoPackages);
         }
 
-        Collection<PackageMetadataResponse> workspacePackages = workspaceRequests.isEmpty() ?
+        Collection<PackageMetadataResponse> workspacePackages = (workspaceRepo == null || workspaceRequests.isEmpty()) ?
                 Collections.emptyList() :
                 workspaceRepo.getPackageMetadata(workspaceRequests, options);
 
@@ -214,11 +259,60 @@ public class DefaultPackageResolver implements PackageResolver {
         centralLoadRequests = centralLoadRequests.stream()
                 .filter(r -> !r.packageDescriptor().isBuiltInPackage())
                 .toList();
+
+        // Remove already local repo resolved requests from the central request list
+        centralLoadRequests = centralLoadRequests.stream().filter(r -> localRepoPackages.stream()
+                        .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
+                .toList();
+
+        // Remove already custom repo resolved requests from the central request list
+        centralLoadRequests = centralLoadRequests.stream().filter(r -> allCustomRepoPackages.stream()
+                        .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
+                .toList();
+
+        // Resolve packages from custom repos before resolving from the central
+        List<ResolutionRequest> unresolvedNonBalOrgRequests = centralLoadRequests.stream()
+                .filter(r -> !r.packageDescriptor().org().toString().startsWith(ProjectConstants.BALLERINA_ORG))
+                .collect(Collectors.toList());
+
+        for (Map.Entry<String, PackageRepository> customRepoRequestEntry : customRepos.entrySet()) {
+            PackageRepository customRepository = customRepoRequestEntry.getValue();
+
+            Collection<ResolutionRequest> nonBalOrgRequests = new ArrayList<>();
+            for (ResolutionRequest unresolvedNonBalOrgRequest : unresolvedNonBalOrgRequests) {
+                PackageDescriptor packageDescriptor = PackageDescriptor.from(
+                        unresolvedNonBalOrgRequest.packageDescriptor().org(),
+                        unresolvedNonBalOrgRequest.packageDescriptor().name(),
+                        unresolvedNonBalOrgRequest.packageDescriptor().version(),
+                        customRepoRequestEntry.getKey());
+                ResolutionRequest modifiedResolutionRequest = ResolutionRequest.from(packageDescriptor,
+                        unresolvedNonBalOrgRequest.scope(),
+                        unresolvedNonBalOrgRequest.resolutionType(),
+                        unresolvedNonBalOrgRequest.packageLockingMode());
+                nonBalOrgRequests.add(modifiedResolutionRequest);
+            }
+
+            Collection<PackageMetadataResponse> customRepoPackages = customRepository
+                    .getPackageMetadata(nonBalOrgRequests, options);
+            allCustomRepoPackages.addAll(customRepoPackages.stream()
+                    .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED)).toList());
+
+            unresolvedNonBalOrgRequests.removeAll(customRepoPackages.stream()
+                    .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
+                    .map(PackageMetadataResponse::packageLoadRequest)
+                    .toList());
+        }
+
         Collection<PackageMetadataResponse> latestVersionsInCentral =
                 centralRepo.getPackageMetadata(centralLoadRequests, options);
 
         // TODO Unit test following merge
-        List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
+        // Since packages can be resolved from multiple repos
+        // the repos should be provided to the stream in the order of priority.
+        // There will be 2 iterations (number of repos-1) and the returned
+        // value of the first iteration will be the 'x' for the next iteration.
+
+        return new ArrayList<>(
                 // Since packages can be resolved from multiple repos
                 // the repos should be provided to the stream in the order of priority.
                 Stream.of(localRepoPackages, allCustomRepoPackages, latestVersionsInDist,
@@ -243,8 +337,6 @@ public class DefaultPackageResolver implements PackageResolver {
                             }
                             return x;
                         })).values());
-
-        return responseDescriptors;
     }
 
     @Override

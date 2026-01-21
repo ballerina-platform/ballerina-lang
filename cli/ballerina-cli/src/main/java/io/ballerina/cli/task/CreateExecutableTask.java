@@ -134,6 +134,9 @@ public class CreateExecutableTask implements Task {
             if (!emitResult.diagnostics().diagnostics().isEmpty() && !isHideTaskOutput) {
                 emitResult.diagnostics().diagnostics().forEach(d -> out.println("\n" + d.toString()));
             }
+            if (emitResult.diagnostics().hasErrors()) {
+                throw createLauncherException("build failed due to errors");
+            }
 
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
