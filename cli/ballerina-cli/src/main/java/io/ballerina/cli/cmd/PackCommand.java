@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -258,6 +260,20 @@ public class PackCommand implements BLauncherCmd {
                 return;
             }
 
+        }
+
+        // Check if Package.md exists or is empty
+        Path packageMdPath = project.sourceRoot().resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+        if (Files.notExists(packageMdPath)) {
+            this.errStream.println("warning: " + ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing.");
+        } else {
+            try {
+                if (Files.size(packageMdPath) == 0) {
+                    this.errStream.println("warning: " + ProjectConstants.PACKAGE_MD_FILE_NAME + " is empty.");
+                }
+            } catch (IOException e) {
+                // ignore
+            }
         }
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
