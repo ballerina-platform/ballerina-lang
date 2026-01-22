@@ -1100,7 +1100,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         // Ensure Package.md does not exist
         Files.deleteIfExists(projectPath.resolve(PACKAGE_MD_FILE_NAME));
-        
+
         System.setProperty(USER_DIR, projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
@@ -1114,7 +1114,7 @@ public class PackCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         // Create empty Package.md
         Files.writeString(projectPath.resolve(PACKAGE_MD_FILE_NAME), "");
-        
+
         System.setProperty(USER_DIR, projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
