@@ -225,6 +225,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -2282,10 +2283,26 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                         compoundAssignment.varRef = simpleVarRef;
                     }
                 }
-
                 compoundAssignment.modifiedExpr.parent = compoundAssignment;
-                this.types.checkType(compoundAssignment.modifiedExpr,
+
+                // Fix for #44416: Allow implicit narrowing for Unsigned32 compound assignments.
+                // The addition operation returns an 'int', but for '+=' on an Unsigned32 variable,
+                // Allow the result to be assigned back without an explicit cast.
+                BType lhsType = compoundAssignment.varRef.getBType();
+                BType rhsType = compoundAssignment.modifiedExpr.getBType();
+
+                BType effectiveLhsType = lhsType;
+                while (effectiveLhsType instanceof BTypeReferenceType) {
+                    effectiveLhsType = ((BTypeReferenceType) effectiveLhsType).referredType;
+                }
+
+                boolean isUnsigned32Adjustment = (effectiveLhsType.tag == TypeTags.UNSIGNED32_INT 
+                                                  && rhsType.tag == TypeTags.INT);
+
+                if (!isUnsigned32Adjustment) {
+                    this.types.checkType(compoundAssignment.modifiedExpr,
                                      compoundAssignment.modifiedExpr.getBType(), compoundAssignment.varRef.getBType());
+                }
             }
         }
 
