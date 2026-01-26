@@ -56,11 +56,11 @@ You can use the following resources to learn Ballerina.
 
 ### Open an issue
 
-  - Language, Tooling, Website: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
-  - Ballerina library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-library</a> repo
+  - Language, Tooling, Website: [ballerina-lang](https://github.com/ballerina-platform/ballerina-lang/issues) repo
+  - Ballerina library: [ballerina-library](https://github.com/ballerina-platform/ballerina-standard-library/issues) repo
 
 ### Report security issues
-  - Send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security-policy/">security policy</a>.
+  - Send an email to security@ballerina.io. For details, see the [security policy](https://ballerina.io/security-policy/).
 
 ## Contribute to Ballerina
 
