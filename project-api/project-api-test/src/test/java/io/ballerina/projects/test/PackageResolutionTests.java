@@ -44,7 +44,11 @@ import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageMetadataResponse;
+import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.bala.PackageJson;
@@ -79,6 +83,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -898,6 +903,53 @@ public class PackageResolutionTests extends BaseTest {
                         node -> node.packageInstance().manifest().name().toString().equals("foo.bar")
                 ).findFirst().orElseThrow();
         Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.0");
+    }
+
+    @Test
+    public void testCustomRepository() throws IOException {
+        Path userHome = Path.of("build", "userHome").toAbsolutePath();
+        Files.copy(RESOURCE_DIRECTORY.resolve("pkg-customfs-bar/resources")
+                        .resolve(ProjectConstants.SETTINGS_FILE_NAME),
+                userHome.resolve(ProjectConstants.SETTINGS_FILE_NAME),
+                StandardCopyOption.REPLACE_EXISTING);
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(userHome).build();
+        Path customRepoPath = userHome.resolve("repositories/customRepo");
+        Path centralRepoPath = userHome.resolve("repositories/central.ballerina.io");
+
+        // Cache dependencies
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/pkg-customfs-foo", customRepoPath);
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/pkg-customfs-foo-130",
+                centralRepoPath);
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/pkg-customfs-bar", customRepoPath);
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/pkg-customfs-bar-110",
+                centralRepoPath);
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/projectB2");
+
+        PackageDescriptor packageDescriptor1 = PackageDescriptor.from(PackageOrg.from("testorg"),
+                PackageName.from("foo"));
+        PackageDescriptor packageDescriptor2 = PackageDescriptor.from(PackageOrg.from("testorg"),
+                PackageName.from("bar.winery"));
+        PackageDescriptor packageDescriptor3 = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("projectB"));
+        List<ResolutionRequest> requests = new ArrayList<>();
+        requests.add(ResolutionRequest.from(packageDescriptor1));
+        requests.add(ResolutionRequest.from(packageDescriptor2));
+        requests.add(ResolutionRequest.from(packageDescriptor3));
+
+        PackageResolver packageResolver = environment.getService(PackageResolver.class);
+        Collection<PackageMetadataResponse> packageMetadataResponses = packageResolver
+                .resolvePackageMetadata(requests, ResolutionOptions.builder().build());
+        Assert.assertEquals(packageMetadataResponses.size(), 3);
+
+        // Both the dependencies should be resolved successfully since the custom repo contains both the dependencies
+        Assert.assertTrue(packageMetadataResponses.stream().noneMatch(response ->
+                response.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED));
+        packageMetadataResponses.forEach(response -> {
+            Assert.assertSame(response.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
+            Assert.assertTrue("testorg/foo:1.0.0".equals(response.resolvedDescriptor().toString()) ||
+                    "testorg/bar.winery:1.0.0".equals(response.resolvedDescriptor().toString()) ||
+                    "samjs/projectB:1.0.0".equals(response.resolvedDescriptor().toString()));
+        });
     }
 
     private void replaceDependenciesTomlVersion(Path projectPath) throws IOException {
