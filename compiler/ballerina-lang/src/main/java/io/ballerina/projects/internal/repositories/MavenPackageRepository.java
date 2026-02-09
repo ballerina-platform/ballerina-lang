@@ -189,7 +189,7 @@ public class MavenPackageRepository implements PackageRepository {
             return filesystem;
         }
 
-        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
+        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>(filesystem);
         try {
             for (ImportModuleRequest importModuleRequest : requests) {
                 String orgName = importModuleRequest.packageOrg().value();
@@ -204,8 +204,17 @@ public class MavenPackageRepository implements PackageRepository {
                         PackageVersion latest = findLatest(packageVersionsList);
                         PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
                                 PackageOrg.from(orgName), PackageName.from(packageName.toString()), latest);
-                        importModuleResponseList.add(
-                                new ImportModuleResponse(resolvedDescriptor, importModuleRequest));
+                        // add the response from the remote repo only if it is not already present
+                        // in the filesystem responses
+                        importModuleResponseList.stream()
+                                .filter(response -> response.packageDescriptor().equals(resolvedDescriptor))
+                                .findFirst()
+                                .orElseGet(() -> {
+                                    ImportModuleResponse importModuleResponse =
+                                            new ImportModuleResponse(resolvedDescriptor, importModuleRequest);
+                                    importModuleResponseList.add(importModuleResponse);
+                                    return importModuleResponse;
+                                });
                         break;
                     }
                 }

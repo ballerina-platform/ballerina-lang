@@ -1,0 +1,4 @@
+[package]
+org = "testorg2"
+name = "bazz"
+version = "1.0.0"

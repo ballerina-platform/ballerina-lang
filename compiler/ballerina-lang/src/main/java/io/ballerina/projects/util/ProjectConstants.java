@@ -142,6 +142,7 @@ public final class ProjectConstants {
     public static final String MAVEN_REPOSITORY_CACHE_NAME = "maven";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
+    public static final String BALLERINAX_ORG = "ballerinax";
     public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
     public static final String CONFIG_DIR = ".config";
