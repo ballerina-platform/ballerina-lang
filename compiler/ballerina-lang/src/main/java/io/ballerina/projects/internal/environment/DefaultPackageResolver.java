@@ -94,6 +94,7 @@ public class DefaultPackageResolver implements PackageResolver {
 
         // We will only receive hierarchical imports in requests
         Collection<ImportModuleResponse> responseListInWorkspace = new ArrayList<>();
+        Collection<ImportModuleResponse> responseListInCustomFSRepo = new ArrayList<>();
         if (workspaceRepo != null) {
             responseListInWorkspace.addAll(workspaceRepo.getPackageNames(requests, options));
         }
@@ -132,13 +133,25 @@ public class DefaultPackageResolver implements PackageResolver {
                     .collect(Collectors.toSet());
         }
 
+        for (Map.Entry<String, PackageRepository> entry : customRepos.entrySet()) {
+            if (entry.getValue() instanceof FileSystemRepository fsRepo) {
+                List<ImportModuleRequest> filteredReq = requests.stream().filter(re ->
+                        re.packageOrg().toString().equals(entry.getKey())).toList();
+                if (filteredReq.isEmpty()) {
+                    continue;
+                }
+                responseListInCustomFSRepo.addAll(fsRepo.getPackageNames(filteredReq, options));
+            }
+        }
+
         Collection<ImportModuleResponse> responseListInDist = distributionRepo
                 .getPackageNames(unresolvedRequests, options);
         Collection<ImportModuleResponse> responseListInCentral = centralRepo
                 .getPackageNames(unresolvedRequests, options);
 
         return new ArrayList<>(
-                Stream.of(responseListInWorkspace, responseListInCustomRepos, responseListInDist, responseListInCentral)
+                Stream.of(responseListInCustomFSRepo, responseListInWorkspace, responseListInCustomRepos, responseListInDist,
+                                responseListInCentral)
                         .flatMap(Collection::stream).collect(Collectors.toMap(
                         ImportModuleResponse::importModuleRequest, Function.identity(),
                         (ImportModuleResponse x, ImportModuleResponse y) -> {
@@ -255,6 +268,11 @@ public class DefaultPackageResolver implements PackageResolver {
                         .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
                 .toList();
 
+        // Remove customFS resolved packages from the central requests
+        centralLoadRequests = centralLoadRequests.stream().filter(r -> allCustomRepoPackages.stream()
+                        .noneMatch(resolvedReq -> resolvedReq.resolutionStatus().equals(ResolutionStatus.RESOLVED)
+                                && resolvedReq.packageLoadRequest().equals(r))).toList();
+
         // Remove built-in packages from the central requests
         centralLoadRequests = centralLoadRequests.stream()
                 .filter(r -> !r.packageDescriptor().isBuiltInPackage())
@@ -265,42 +283,38 @@ public class DefaultPackageResolver implements PackageResolver {
                         .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
                 .toList();
 
-        // Remove already custom repo resolved requests from the central request list
+        // Remove already custom repo resolved requests from the central request list - old impl where
+        // the repository is specified in th Ballerina.toml
         centralLoadRequests = centralLoadRequests.stream().filter(r -> allCustomRepoPackages.stream()
                         .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
                 .toList();
 
         // Resolve packages from custom repos before resolving from the central
-        List<ResolutionRequest> unresolvedNonBalOrgRequests = centralLoadRequests.stream()
-                .filter(r -> !r.packageDescriptor().org().toString().startsWith(ProjectConstants.BALLERINA_ORG))
-                .collect(Collectors.toList());
-
+        // Custom repo resolution is prioritized OOTB
         for (Map.Entry<String, PackageRepository> customRepoRequestEntry : customRepos.entrySet()) {
             PackageRepository customRepository = customRepoRequestEntry.getValue();
-
-            Collection<ResolutionRequest> nonBalOrgRequests = new ArrayList<>();
-            for (ResolutionRequest unresolvedNonBalOrgRequest : unresolvedNonBalOrgRequests) {
+            Collection<ResolutionRequest> resolutionRequests = new ArrayList<>();
+            for (ResolutionRequest resolutionRequest : centralLoadRequests) {
                 PackageDescriptor packageDescriptor = PackageDescriptor.from(
-                        unresolvedNonBalOrgRequest.packageDescriptor().org(),
-                        unresolvedNonBalOrgRequest.packageDescriptor().name(),
-                        unresolvedNonBalOrgRequest.packageDescriptor().version(),
+                        resolutionRequest.packageDescriptor().org(),
+                        resolutionRequest.packageDescriptor().name(),
+                        resolutionRequest.packageDescriptor().version(),
                         customRepoRequestEntry.getKey());
                 ResolutionRequest modifiedResolutionRequest = ResolutionRequest.from(packageDescriptor,
-                        unresolvedNonBalOrgRequest.scope(),
-                        unresolvedNonBalOrgRequest.resolutionType(),
-                        unresolvedNonBalOrgRequest.packageLockingMode());
-                nonBalOrgRequests.add(modifiedResolutionRequest);
+                        resolutionRequest.scope(),
+                        resolutionRequest.resolutionType(),
+                        resolutionRequest.packageLockingMode());
+                resolutionRequests.add(modifiedResolutionRequest);
             }
 
             Collection<PackageMetadataResponse> customRepoPackages = customRepository
-                    .getPackageMetadata(nonBalOrgRequests, options);
+                    .getPackageMetadata(resolutionRequests, options);
             allCustomRepoPackages.addAll(customRepoPackages.stream()
                     .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED)).toList());
 
-            unresolvedNonBalOrgRequests.removeAll(customRepoPackages.stream()
-                    .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
-                    .map(PackageMetadataResponse::packageLoadRequest)
-                    .toList());
+            centralLoadRequests = centralLoadRequests.stream().filter(r -> customRepoPackages.stream()
+                            .noneMatch(resolvedReq -> resolvedReq.resolutionStatus().equals(ResolutionStatus.RESOLVED)
+                                    && resolvedReq.packageLoadRequest().equals(r))).toList();
         }
 
         Collection<PackageMetadataResponse> latestVersionsInCentral =
