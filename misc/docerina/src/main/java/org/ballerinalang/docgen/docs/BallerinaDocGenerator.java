@@ -578,8 +578,8 @@ public final class BallerinaDocGenerator {
                     summary = modulesMap.get(module.moduleName().toString()).description();
                 }
             }
-            // Skip modules that are not exported
-            if (!project.currentPackage().manifest().exportedModules().contains(moduleName)) {
+            // Skip modules that are not exported, UNLESS it is the default module
+            if (!module.isDefaultModule() && !project.currentPackage().manifest().exportedModules().contains(moduleName)) {
                 continue;
             }
             // find the resources of the package
