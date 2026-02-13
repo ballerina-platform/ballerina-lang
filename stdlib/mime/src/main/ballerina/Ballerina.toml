@@ -22,7 +22,7 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "mimepull"
     version = "1.9.11"
-    path = "./lib/mimepull-1.9.7.jar"
+    path = "./lib/mimepull-1.9.11.jar"
     groupId = "org.jvnet.mimepull"
     modules = ["mime"]
 
