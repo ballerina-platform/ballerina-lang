@@ -108,7 +108,7 @@ protobuf-java-3.25.5.jar                                                        
 module_search.jar                                                                                   jar            apache2
 broker-core-0.970.5.jar                                                                             bundle         apache2
 ballerina-grpc-1.1.0.jar                                                                            jar            apache2
-mimepull-1.9.7.jar                                                                                  bundle         cddl1
+mimepull-1.9.11.jar                                                                                 bundle         cddl1
 annotations-1.1.0.jar                                                                               jar            apache2
 compiler_backend_jvm.jar                                                                            jar            apache2
 netty-handler-4.1.129.Final.jar                                                                     bundle         apache2
