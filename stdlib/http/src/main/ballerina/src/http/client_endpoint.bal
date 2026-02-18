@@ -275,7 +275,7 @@ public type ClientHttp1Settings record {|
 #                       restriction `maxEntityBodySize`, On the Exceeding this limit will result in a `ClientError`
 public type ResponseLimitConfigs record {|
     int maxStatusLineLength = 4096;
-    int maxHeaderSize = 8192;
+    int maxHeaderSize = 16384;
     int maxEntityBodySize = -1;
 |};
 

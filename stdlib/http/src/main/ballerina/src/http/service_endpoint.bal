@@ -239,7 +239,7 @@ public type ListenerHttp1Settings record {|
 #                       `413 - Payload Too Large` response
 public type RequestLimitConfigs record {|
     int maxUriLength = 4096;
-    int maxHeaderSize = 8192;
+    int maxHeaderSize = 16384;
     int maxEntityBodySize = -1;
 |};
 
