@@ -203,7 +203,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "org.wso2.carbon.secvault"
-    version = "1.0.0"
+    version = "1.0.0-wso2v2"
     path = "./lib/org.wso2.securevault-1.0.0-wso2v2.jar"
     groupId = "org.wso2.carbon.secvault"
     modules = ["grpc"]

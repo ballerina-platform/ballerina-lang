@@ -182,29 +182,29 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "broker-common"
-    version = "0.970.0"
-    path = "./lib/broker-common-0.970.0.jar"
+    version = "0.970.5"
+    path = "./lib/broker-common-0.970.5.jar"
     groupId = "io.ballerina.messaging"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "broker-auth"
-    version = "0.970.0"
-    path = "./lib/broker-auth-0.970.0.jar"
+    version = "0.970.5"
+    path = "./lib/broker-auth-0.970.5.jar"
     groupId = "io.ballerina.messaging"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "broker-rest-runner"
-    version = "0.970.0"
-    path = "./lib/broker-rest-runner-0.970.0.jar"
+    version = "0.970.5"
+    path = "./lib/broker-rest-runner-0.970.5.jar"
     groupId = "io.ballerina.messaging"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "broker-coordination"
-    version = "0.970.0"
-    path = "./lib/broker-coordination-0.970.0.jar"
+    version = "0.970.5"
+    path = "./lib/broker-coordination-0.970.5.jar"
     groupId = "io.ballerina.messaging"
     modules = ["web-sub"]
 
@@ -217,7 +217,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "guava"
-    version = "19.0"
+    version = "32.1.1-jre"
     path = "./lib/guava-32.1.1-jre.jar"
     groupId = "com.google.guava"
     modules = ["web-sub"]
