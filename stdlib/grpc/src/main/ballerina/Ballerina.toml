@@ -21,8 +21,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "org.wso2.transport.http.netty"
-    version = "6.3.54"
-    path = "./lib/org.wso2.transport.http.netty-6.3.54.jar"
+    version = "6.3.60"
+    path = "./lib/org.wso2.transport.http.netty-6.3.60.jar"
     groupId = "org.wso2.transport.http"
     modules = ["grpc"]
 
@@ -119,7 +119,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "bcpkix-jdk18on"
-    version = "1.78.1"
+    version = "1.79"
     path = "./lib/bcpkix-jdk18on-1.79.jar"
     groupId = "org.bouncycastle"
     modules = ["grpc"]
@@ -203,7 +203,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "org.wso2.carbon.secvault"
-    version = "1.0.0"
+    version = "1.0.0-wso2v2"
     path = "./lib/org.wso2.securevault-1.0.0-wso2v2.jar"
     groupId = "org.wso2.carbon.secvault"
     modules = ["grpc"]
