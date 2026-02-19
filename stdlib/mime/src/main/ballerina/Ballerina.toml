@@ -126,7 +126,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "bcpkix-jdk18on"
-    version = "1.78.1"
+    version = "1.79"
     path = "./lib/bcpkix-jdk18on-1.79.jar"
     groupId = "org.bouncycastle"
     modules = ["mime"]
