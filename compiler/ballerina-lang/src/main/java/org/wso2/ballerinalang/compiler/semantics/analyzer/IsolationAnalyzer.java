@@ -1304,16 +1304,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         long flags = symbol.flags;
-        if ((recordFieldDefaultValue || objectFieldDefaultValueRequiringIsolation) &&
-                Symbols.isFlagOn(flags, Flags.CONFIGURABLE)) {
-            return;
-        }
         if (Symbols.isFlagOn(flags, Flags.CONSTANT)) {
             return;
         }
 
         if ((Symbols.isFlagOn(flags, Flags.FINAL) || Symbols.isFlagOn(flags, Flags.FUNCTION_FINAL)) &&
-                types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType)) {
+                (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType) ||
+                 types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(symbol.type))) {
             return;
         }
 
