@@ -20,7 +20,9 @@ function executeTest(TestFunction testFunction) {
     }
 
     executeBeforeGroupFunctions(testFunction);
-    executeBeforeEachFunctions();
+    if !isEvaluationTest(testFunction) {
+        executeBeforeEachFunctions();
+    }
 
     boolean shouldSkipDependents = false;
     if !isSkipFunction(testFunction) {
@@ -34,7 +36,9 @@ function executeTest(TestFunction testFunction) {
         shouldSkipDependents = true;
     }
     testFunction.groups.forEach('group => groupStatusRegistry.incrementExecutedTest('group));
-    executeAfterEachFunctions();
+    if !isEvaluationTest(testFunction) {
+        executeAfterEachFunctions();
+    }
     executeAfterGroupFunctions(testFunction);
     finishTestExecution(testFunction, shouldSkipDependents);
 }
@@ -52,6 +56,11 @@ function executeBeforeEachFunctions() =>
     handleBeforeEachOutput(executeFunctions(beforeEachRegistry.getFunctions(), getShouldSkip()));
 
 function executeDataDrivenTestSet(TestFunction testFunction) {
+    if isEvaluationTest(testFunction) {
+        executeDataDrivenEvaluation(testFunction);
+        return;
+    }
+
     DataProviderReturnType? params = dataDrivenTestParams[testFunction.name];
     string[] keys = [];
     AnyOrError[][] values = [];
@@ -64,7 +73,99 @@ function executeDataDrivenTestSet(TestFunction testFunction) {
     }
 }
 
+function executeDataDrivenEvaluation(TestFunction testFunction) {
+    EvaluationConfig evalConfig = getEvalConfig(testFunction);
+    int iterations = evalConfig.iterations;
+    EvaluationRunWithDataSet[] entries = [];
+
+    string[] keys = [];
+    AnyOrError[][] values = [];
+    DataProviderReturnType? params = dataDrivenTestParams[testFunction.name];
+    _ = prepareDataSet(params, keys, values);
+
+    foreach int iteration in 1 ... iterations {
+        executeBeforeEachFunctions();
+        if executeBeforeFunction(testFunction) {
+            executionManager.setSkip(testFunction.name);
+            reportData.onSkipped(name = testFunction.name, testType = EVAL_TEST);
+            return;
+        }
+        int totalEntries = 0;
+        int passedEntries = 0;
+        EvaluationOutcome[] outcomes = [];
+        foreach int i in 0 ..< keys.length() {
+            AnyOrError[] value = values[i];
+            final readonly & readonly[] readonlyArgs = from any|error item in value
+                where item is readonly
+                select item;
+
+            if readonlyArgs.length() != value.length() {
+                reportData.onFailed(name = testFunction.name, testType = EVAL_TEST,
+                message = string `[fail data provider for the function ${testFunction.name}]${"\n"}` +
+                    "data provider returned non-readonly values"
+                );
+                enableExit();
+                return;
+            }
+
+            ExecutionError|TestError? result = executeEvaluation(testFunction, readonlyArgs);
+            error? cause = result is error ? result.cause() : ();
+            if result is InvalidArgumentError && cause is error {
+                string errMsg = string `[fail data provider for the function ${testFunction.name}]${"\n"}`
+                    + getErrorMessage(cause);
+                reportData.onFailed(name = testFunction.name, message = errMsg, testType = EVAL_TEST);
+                enableExit();
+                return;
+            }
+
+            if result is () {
+                passedEntries += 1;
+            }
+            outcomes.push({id: keys[totalEntries], errorMessage: getErrorMessageFromResult(result)});
+            totalEntries += 1;
+        }
+
+        if totalEntries == 0 {
+            reportData.onFailed(name = testFunction.name,
+                    message = string `[fail data provider for the function ${testFunction.name}]${"\n"}`
+                    + "the data provider returned no data.", testType = EVAL_TEST);
+            enableExit();
+            return;
+        }
+
+        float passRate = <float>passedEntries / totalEntries;
+        entries.push({id: iteration, outcomes: outcomes.cloneReadOnly(), passRate});
+        _ = executeAfterFunctionIsolated(testFunction);
+        executeAfterEachFunctions();
+    }
+
+    float cumulativePassRateSum = entries.'map(entry => entry.passRate)
+        .reduce(isolated function(float total, float next) returns float => total + next, 0);
+    float averagePassRate = cumulativePassRateSum / iterations;
+
+    EvaluationSummary evaluationSummary = {
+        targetConfidence: evalConfig.confidence,
+        observedConfidence: averagePassRate,
+        evaluationRuns: entries
+    };
+    if averagePassRate >= evalConfig.confidence {
+        reportData.onPassed(name = testFunction.name,
+        message = string `evaluation passed with an average confidence of ${averagePassRate}`,
+            evaluationSummary = evaluationSummary.cloneReadOnly(), testType = EVAL_TEST
+        );
+        return;
+    }
+    reportData.onFailed(name = testFunction.name,
+    message = string `evaluation failed with an average confidence of ${averagePassRate}`,
+        evaluationSummary = evaluationSummary.cloneReadOnly(), testType = EVAL_TEST
+    );
+    enableExit();
+}
+
 function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
+    if isEvaluationTest(testFunction) {
+        return executeNonDataDrivenEvaluation(testFunction);
+    }
     if executeBeforeFunction(testFunction) {
         executionManager.setSkip(testFunction.name);
         reportData.onSkipped(name = testFunction.name, testType = getTestType(
@@ -74,6 +175,58 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
     boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunction(testFunction, "",
                     GENERAL_TEST));
     return executeAfterFunction(testFunction) || failed;
+}
+
+function executeNonDataDrivenEvaluation(TestFunction testFunction) returns boolean {
+    EvaluationConfig evalConfig = getEvalConfig(testFunction);
+    int iterations = evalConfig.iterations;
+    float requiredConfidence = evalConfig.confidence;
+    int passedIterations = 0;
+    EvaluationRunWithoutDataSet[] entries = [];
+    boolean[] afterFunctionResults = [];
+
+    foreach int i in 1 ... iterations {
+        executeBeforeEachFunctions();
+        if executeBeforeFunction(testFunction) {
+            executionManager.setSkip(testFunction.name);
+            reportData.onSkipped(name = testFunction.name, testType = EVAL_TEST);
+            return true;
+        }
+        ExecutionError|TestError? result = executeEvaluation(testFunction);
+        if result is InvalidArgumentError && result.cause() is error {
+            reportData.onFailed(name = testFunction.name,
+                message = string `[fail evaluation for the function ${testFunction.name}]${"\n"}`
+                + getErrorMessage(<error>result.cause()), testType = EVAL_TEST
+            );
+            enableExit();
+            return true;
+        } else if result is () {
+            passedIterations += 1;
+        }
+        entries.push({id: i, errorMessage: getErrorMessageFromResult(result)});
+        boolean afterFunctionResult = executeAfterFunction(testFunction);
+        afterFunctionResults.push(afterFunctionResult);
+        executeAfterEachFunctions();
+    }
+
+    float passRate = <float>passedIterations / iterations;
+    EvaluationSummary evaluationSummary = {
+        targetConfidence: evalConfig.confidence,
+        observedConfidence: passRate,
+        evaluationRuns: entries
+    };
+    if passRate >= requiredConfidence {
+        reportData.onPassed(name = testFunction.name,
+            message = string `evaluation passed with an average confidence of ${passRate}`,
+            evaluationSummary = evaluationSummary.cloneReadOnly(), testType = EVAL_TEST);
+        return afterFunctionResults.some(res => res);
+    }
+
+    reportData.onFailed(name = testFunction.name,
+        message = string `evaluation failed with an average confidence of ${passRate}`,
+        evaluationSummary = evaluationSummary.cloneReadOnly(), testType = EVAL_TEST);
+    enableExit();
+    return true;
 }
 
 function executeAfterEachFunctions() =>
@@ -123,6 +276,22 @@ function executeBeforeFunction(TestFunction testFunction) returns boolean {
     return failed;
 }
 
+function executeEvaluation(TestFunction testFunction, AnyOrError[]? params = ()) returns ExecutionError|TestError? {
+    record {any|error result;}|error output = trap callEvaluationFunction(testFunction.executableFunction, params);
+    if output is error && output !is TestError {
+        return error InvalidArgumentError(output.message(), output, functionName = testFunction.name);
+    }
+    any|error result = output is TestError ? output : output.result;
+    return getEvaluationOutput(result, testFunction);
+}
+
+function callEvaluationFunction(function executableFunction, AnyOrError[]? params = ())
+    returns record {any|error result;} {
+    any|error result = params == () ? function:call(executableFunction)
+        : function:call(executableFunction, ...params);
+    return {result};
+}
+
 function executeTestFunction(TestFunction testFunction, string suffix, TestType testType,
         AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
@@ -146,4 +315,11 @@ function executeFunction(TestFunction|function testFunction) returns ExecutionEr
         return error(getErrorMessage(output), functionName = testFunction is function ? "" :
             testFunction.name);
     }
+}
+
+isolated function getErrorMessageFromResult(any|error result) returns string? {
+    if result is TestError|ExecutionError|InvalidArgumentError {
+        return result.message();
+    }
+    return result is error ? result.toString() : ();
 }

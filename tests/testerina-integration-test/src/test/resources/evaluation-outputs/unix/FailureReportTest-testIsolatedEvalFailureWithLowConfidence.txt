@@ -1,0 +1,51 @@
+WARNING: Running tests in parallel is an experimental feature
+Compiling source
+	evaluation/failures:0.0.0
+
+Running Tests with Coverage
+
+	failures
+WARNING: Test function 'testNonIsolatedEvalFailureWithLowConfidence' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureWithLowConfidenceWithDataProvider' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForInvalidInput' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForInvalidInputWithDataProvider' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForEmptyDataProvider' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForNonReadOnlyDataEntry' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalReturningError' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalReturningErrorWithDataProvider' cannot be parallelized, reason: non-isolated test function
+
+		[fail] testIsolatedEvalFailureWithLowConfidence:
+
+		    evaluation failed with an average confidence of 0.0
+			
+			    evaluation runs:
+
+				    iteration: 1
+					    message: Assertion Failed!
+							 
+							expected: '2'
+							actual	: '1'
+
+				    iteration: 2
+					    message: Assertion Failed!
+							 
+							expected: '2'
+							actual	: '1'
+
+				    iteration: 3
+					    message: Assertion Failed!
+							 
+							expected: '2'
+							actual	: '1'
+
+
+		0 passing
+		1 failing
+		0 skipped
+
+		Test execution time :*****s
+
+Generating Test Report*****evaluation-tests/evaluation-failures/target/report/test_results.json
+
+warning: Could not find the required HTML report tools for code coverage at*****lib/tools/coverage/report.zip
+error: there are test failures

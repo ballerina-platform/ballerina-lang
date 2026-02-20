@@ -1,19 +1,20 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package io.ballerina.projects.internal.repositories;
 
 import com.google.gson.Gson;
@@ -21,53 +22,64 @@ import com.google.gson.JsonObject;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageMetadataResponse;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
+import static io.ballerina.projects.util.ProjectUtils.getLatest;
 
 /**
- * This class represents the maven package repositories.
+ * This class represents the remote package repository.
  *
- * @since 2201.8.0
+ * @since 2.0.0
  */
-
-public class MavenPackageRepository extends AbstractPackageRepository {
+public class MavenPackageRepository implements PackageRepository {
 
     public static final String PLATFORM = "platform";
-    private final FileSystemRepository fileSystemCache;
+    private final FileSystemRepository fileSystemRepo;
     private final MavenResolverClient client;
     private final String repoLocation;
 
-
     public MavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
-                                  MavenResolverClient client, String repoLocation) {
-        this.fileSystemCache = new FileSystemRepository(environment, cacheDirectory, distributionVersion);
+                                     MavenResolverClient client, String repoLocation) {
+        this.fileSystemRepo = new FileSystemRepository(environment, cacheDirectory, distributionVersion);;
         this.client = client;
         this.repoLocation = repoLocation;
     }
@@ -101,75 +113,129 @@ public class MavenPackageRepository extends AbstractPackageRepository {
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
-        isPackageExists(request.orgName(), request.packageName(), request.version().orElse(null),
-                options.offline());
-        return this.fileSystemCache.getPackage(request, options);
+        // Check if the package is in cache
+        Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(request, options);
+        if (cachedPackage.isPresent()) {
+            return cachedPackage;
+        }
+
+        if (options.offline()) {
+            return Optional.empty();
+        }
+
+        String packageName = request.packageName().value();
+        String orgName = request.orgName().value();
+        if (request.version().isEmpty()) {
+            boolean enableOutputStream =
+                    Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+            if (enableOutputStream) {
+                final PrintStream out = System.out;
+                out.println("Version not found for package [" + orgName + "/" + packageName + "]: ");
+            }
+            return Optional.empty();
+        }
+        String version = request.version().get().value().toString();
+        boolean isSuccess = getPackageFromRemoteRepo(orgName, packageName, version);
+        if (!isSuccess) {
+            return cachedPackage;
+        }
+
+        return this.fileSystemRepo.getPackage(request, options);
     }
 
     @Override
     public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
-        isPackageExists(request.orgName(), request.packageName(), request.version().orElse(null),
-                options.offline());
-        return getPackageVersions(request.orgName(), request.packageName(),
-                request.version().orElse(null));
+        String orgName = request.orgName().value();
+        String packageName = request.packageName().value();
+
+        // First, Get local versions
+        Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(request, options));
+
+        // If the resolution request specifies to resolve offline, we return the local version
+        if (!options.offline()) {
+            try {
+                List<String> remotePackageVersions = this.client.getPackageVersions(orgName, packageName,
+                        Paths.get(repoLocation));
+                remotePackageVersions.stream().map(PackageVersion::from).forEach(packageVersions::add);
+            } catch (MavenResolverClientException e) {
+                // ignore and return the list from the FS cache location
+            }
+        }
+        SemanticVersion minSemVer = null;
+        PackageVersion packageVersion = request.version().orElse(null);
+        if (packageVersion != null) {
+            minSemVer = SemanticVersion.from(packageVersion.toString());
+        }
+        List<SemanticVersion> semVers = packageVersions.stream()
+                .map(version -> SemanticVersion.from(version.toString())).toList();
+        ProjectUtils.CompatibleRange compatibilityRange = ProjectUtils.getCompatibleRange(
+                minSemVer, options.packageLockingMode());
+        List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
+                minSemVer, semVers, compatibilityRange);
+        return compatibleVersions.stream().map(PackageVersion::from).collect(Collectors.toList());
     }
 
     @Override
     public Map<String, List<String>> getPackages() {
-        return this.fileSystemCache.getPackages();
+        // We only return locally cached packages
+        return fileSystemRepo.getPackages();
+    }
+
+    @Override
+    public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                            ResolutionOptions options) {
+        Set<ImportModuleResponse> filesystem = new HashSet<>(fileSystemRepo.getPackageNames(requests, options));
+        if (options.offline()) {
+            return filesystem;
+        }
+
+        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
+        try {
+            for (ImportModuleRequest importModuleRequest : requests) {
+                String orgName = importModuleRequest.packageOrg().value();
+                List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(
+                        importModuleRequest.packageOrg(), importModuleRequest.moduleName());
+                for (PackageName packageName : possiblePackageNames) {
+                    List<String> packageVersions = this.client.getPackageVersions(
+                            orgName, packageName.toString(), Paths.get(repoLocation));
+                    if (!packageVersions.isEmpty()) {
+                        List<PackageVersion> packageVersionsList = new ArrayList<>();
+                        packageVersions.stream().map(PackageVersion::from).forEach(packageVersionsList::add);
+                        PackageVersion latest = findLatest(packageVersionsList);
+                        PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
+                                PackageOrg.from(orgName), PackageName.from(packageName.toString()), latest);
+                        importModuleResponseList.add(
+                                new ImportModuleResponse(resolvedDescriptor, importModuleRequest));
+                        break;
+                    }
+                }
+            }
+        } catch (MavenResolverClientException e) {
+            // ignore and return the list from the FS cache location
+        }
+        return importModuleResponseList;
     }
 
 
     @Override
-    public boolean isPackageExists(PackageOrg org,
-                                   PackageName name,
-                                   PackageVersion version) {
-        return this.fileSystemCache.isPackageExists(org, name, version);
-    }
-
-    // This method should be called before calling other methods
-    public boolean isPackageExists(PackageOrg org,
-                                   PackageName name,
-                                   PackageVersion version, boolean offline) {
-        boolean isPackageExist = this.fileSystemCache.isPackageExists(org, name, version);
-        if (!isPackageExist && !offline) {
-            return getPackageFromRemoteRepo(org.value(), name.value(), version.value().toString());
+    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+                                                                  ResolutionOptions options) {
+        List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
+        for (ResolutionRequest request : requests) {
+            Collection<PackageVersion> packageVersions = getPackageVersions(request, options);
+            if (packageVersions.isEmpty()) {
+                descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(request));
+                continue;
+            }
+            // get the latest package version
+            PackageVersion latest = findLatest(packageVersions);
+            descriptorSet.add(createMetadataResponse(request, latest));
         }
-        return isPackageExist;
+        return descriptorSet;
+
     }
 
-    @Override
-    protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
-        if (version == null) {
-            return Collections.emptyList();
-        }
-
-        Path balaPath = this.fileSystemCache.getPackagePath(org.toString(), name.toString(), version.toString());
-        if (Files.exists(balaPath)) {
-            return Collections.singletonList(version);
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
-                                                                    PackageVersion version) {
-        return this.fileSystemCache.getDependencyGraph(org, name, version);
-    }
-
-    @Override
-    public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
-        boolean packageExists = isPackageExists(org, name, version);
-        if (!packageExists) {
-            return Collections.emptyList();
-        }
-        return this.fileSystemCache.getModules(org, name, version);
-    }
-
-    public boolean getPackageFromRemoteRepo(String org,
-                                            String name,
-                                            String version) {
+    public boolean getPackageFromRemoteRepo(String org, String name, String version) {
         try {
             Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
             client.pullPackage(org, name, version,
@@ -192,5 +258,49 @@ public class MavenPackageRepository extends AbstractPackageRepository {
             return false;
         }
         return true;
+    }
+
+    private PackageVersion findLatest(Collection<PackageVersion> packageVersions) {
+        if (packageVersions.isEmpty()) {
+            return null;
+        }
+
+        PackageVersion latestVersion = packageVersions.iterator().next();
+        for (PackageVersion pkgVersion : packageVersions) {
+            latestVersion = getLatest(latestVersion, pkgVersion);
+        }
+        return latestVersion;
+    }
+
+    private PackageMetadataResponse createMetadataResponse(ResolutionRequest resolutionRequest,
+                                                           PackageVersion latest) {
+        PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
+                resolutionRequest.orgName(), resolutionRequest.packageName(), latest,
+                resolutionRequest.repositoryName().orElse(null));
+        DependencyGraph<PackageDescriptor> dependencyGraph = getDependencyGraph(resolutionRequest.orgName(),
+                resolutionRequest.packageName(), latest);
+        return PackageMetadataResponse.from(resolutionRequest, resolvedDescriptor, dependencyGraph);
+    }
+
+    private DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
+                                                                  PackageVersion version) {
+        boolean packageExists = isPackageExists(org, name, version);
+        if (!packageExists) {
+            PackageDescriptor pkdDesc = PackageDescriptor.from(org, name, version);
+            ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+            Optional<Package> pkg = getPackage(request, ResolutionOptions.builder().build());
+            if (pkg.isEmpty()) {
+                return DependencyGraph.emptyGraph();
+            }
+        }
+        return this.fileSystemRepo.getDependencyGraph(org, name, version);
+    }
+
+    public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
+        return this.fileSystemRepo.getModules(org, name, version);
+    }
+
+    public boolean isPackageExists(PackageOrg org, PackageName name, PackageVersion version) {
+        return this.fileSystemRepo.isPackageExists(org, name, version);
     }
 }

@@ -32,19 +32,26 @@ import org.eclipse.aether.repository.Authentication;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.Proxy;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.VersionRangeRequest;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.SubArtifact;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
+import org.eclipse.aether.version.Version;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -124,6 +131,37 @@ public class MavenResolverClient {
             deployRequest.addArtifact(new SubArtifact(mainArtifact, "", POM, temporaryPom));
             system.deploy(session, deployRequest);
         } catch (DeploymentException | IOException e) {
+            throw new MavenResolverClientException(e.getMessage());
+        }
+    }
+
+    /**
+     * Get all versions of a package from the Maven repository.
+     *
+     * @param groupId       group ID of the package
+     * @param artifactId    artifact ID of the package
+     * @param localRepoPath path to the local Maven repository
+     * @return list of version strings
+     * @throws MavenResolverClientException when version resolution fails
+     */
+    public List<String> getPackageVersions(String groupId, String artifactId, Path localRepoPath) throws
+            MavenResolverClientException {
+        LocalRepository localRepo = new LocalRepository(localRepoPath.toAbsolutePath().toString());
+        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+        session.setOffline(false);
+        session.setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+
+        Artifact artifact = new DefaultArtifact(groupId, artifactId, BALA_EXTENSION, "[0,)");
+        VersionRangeRequest versionRangeRequest = new VersionRangeRequest();
+        versionRangeRequest.setArtifact(artifact);
+        versionRangeRequest.addRepository(repository.build());
+
+        try {
+            VersionRangeResult versionRangeResult = system.resolveVersionRange(session, versionRangeRequest);
+            return versionRangeResult.getVersions().stream()
+                    .map(Version::toString)
+                    .collect(Collectors.toList());
+        } catch (VersionRangeResolutionException e) {
             throw new MavenResolverClientException(e.getMessage());
         }
     }

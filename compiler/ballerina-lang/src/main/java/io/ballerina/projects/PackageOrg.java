@@ -39,13 +39,13 @@ public class PackageOrg {
         this.packageOrgStr = packageOrgStr;
     }
 
-    public static PackageOrg from(String packageNameStr) {
-        if (BALLERINA_ORG_NAME.equals(packageNameStr)) {
+    public static PackageOrg from(String packageOrgStr) {
+        if (BALLERINA_ORG_NAME.equals(packageOrgStr)) {
             return BALLERINA_ORG;
         }
 
         // TODO Check whether the packageOrg is a valid Ballerina identifier
-        return new PackageOrg(packageNameStr);
+        return new PackageOrg(packageOrgStr);
     }
 
     public String value() {

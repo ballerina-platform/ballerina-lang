@@ -1,0 +1,35 @@
+WARNING: Running tests in parallel is an experimental feature
+Compiling source
+	evaluation/before_hook:0.0.0
+
+Running Tests with Coverage
+
+	before_hook
+WARNING: Test function 'testNonIsolatedEval' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalWithDataProvider' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalBeforeFunctionFailure' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalBeforeFunctionFailureWithDataProvider' cannot be parallelized, reason: non-isolated test function
+	[fail] [before test function for the test]:
+	    error("before hook method failed")
+			callableName: beforeHookFail moduleName: evaluation.before_hook$test.0.tests.test fileName: tests/test.bal lineNumber: 21
+			callableName: beforeHookFail$lambda6$ moduleName: evaluation.before_hook$test.0.tests.test fileName: tests/test.bal lineNumber: 74
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 348
+			callableName: executeBeforeFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 304
+			callableName: executeNonDataDrivenEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 213
+			callableName: executeNonDataDrivenTestIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 187
+			callableName: executeTestIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 30
+			callableName: executeTestIsolated$lambda$1$ moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 86
+		
+
+
+		0 passing
+		0 failing
+		1 skipped
+
+		Test execution time :*****s
+
+Generating Test Report*****evaluation-tests/evaluation-before-hook/target/report/test_results.json
+
+warning: Could not find the required HTML report tools for code coverage at*****lib/tools/coverage/report.zip
+error: there are test failures

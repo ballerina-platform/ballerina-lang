@@ -16,51 +16,69 @@ jobs:
     timeout-minutes: 240
     if: github.repository_owner == 'ballerina-platform'
     steps:
-      -   name: Checkout Repository
-          uses: actions/checkout@v4
-          with:
-            ref: ${{ matrix.branch }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+          fetch-depth: 0
 
-      -   name: Set up JDK 21
-          uses: actions/setup-java@v4
-          with:
-            distribution: 'temurin'
-            java-version: '21.0.3'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21.0.3'
 
-      -   name: Initialize Sub Modules
-          run: git submodule update --init
+      - id: check_recent_commits
+        name: Check for commits in last 24 hours
+        run: |
+          # Count commits in the current checked-out branch within the last 24 hours
+          count=$(git rev-list --count --since="24 hours ago" HEAD || echo 0)
+          if [ "$count" -eq 0 ]; then
+            echo "No commits in the last 24 hours. Skipping the rest of the job."
+            echo "recent_commits=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found $count commit(s) in the last 24 hours."
+            echo "recent_commits=true" >> $GITHUB_OUTPUT
+          fi
 
-      -   name: Change to Timestamped Version
-          run: |
-            startTime=$(TZ="Asia/Kolkata" date +'%Y%m%d-%H%M00')
-            latestCommit=$(git log -n 1 --pretty=format:"%h")
-            VERSION=$((grep -w 'version' | cut -d= -f2) < gradle.properties | rev | cut --complement -d- -f1 | rev)
-            updatedVersion=$VERSION-$startTime-$latestCommit
-            echo $updatedVersion
-            echo TIMESTAMPED_VERSION=$updatedVersion >> $GITHUB_ENV
-            sed -i "s/version=\(.*\)/version=$updatedVersion/g" gradle.properties
+      - name: Initialize Sub Modules
+        if: ${{ steps.check_recent_commits.outputs.recent_commits == 'true' }}
+        run: git submodule update --init
 
-      -   name: Build and Publish
-          env:
-            publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
-            publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          run: |
-            ./gradlew clean build -x javadoc --scan --continue --rerun-tasks -x test
-            ./gradlew publish
-            ./gradlew createCodeCoverageReport
-            curl -X POST \
-            'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
-            -H 'Accept: application/vnd.github.v3+json' \
-            -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
-            --data "{
-              \"event_type\": \"update_timestamped_version\",
-              \"client_payload\": {
-                \"branch\": \"${{ matrix.branch }}\",
-                \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
-              }
-            }"
+      - name: Change to Timestamped Version
+        if: ${{ steps.check_recent_commits.outputs.recent_commits == 'true' }}
+        run: |
+          startTime=$(TZ="Asia/Kolkata" date +'%Y%m%d-%H%M00')
+          latestCommit=$(git log -n 1 --pretty=format:"%h")
+          VERSION=$((grep -w 'version' | cut -d= -f2) < gradle.properties | rev | cut --complement -d- -f1 | rev)
+          updatedVersion=$VERSION-$startTime-$latestCommit
+          echo $updatedVersion
+          echo TIMESTAMPED_VERSION=$updatedVersion >> $GITHUB_ENV
+          sed -i "s/version=\(.*\)/version=$updatedVersion/g" gradle.properties
 
-      -   name: Generate Codecov Report
-          uses: codecov/codecov-action@v4
-          with:
-            files: ./.jacoco/reports/jacoco/report.xml
+      - name: Build and Publish
+        if: ${{ steps.check_recent_commits.outputs.recent_commits == 'true' }}
+        env:
+          publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+        run: |
+          ./gradlew clean build -x javadoc --scan --continue --rerun-tasks -x test
+          ./gradlew publish
+          ./gradlew createCodeCoverageReport
+          curl -X POST \
+          'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
+          -H 'Accept: application/vnd.github.v3+json' \
+          -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
+          --data "{
+            \"event_type\": \"update_timestamped_version\",
+            \"client_payload\": {
+              \"branch\": \"${{ matrix.branch }}\",
+              \"timestamped_version\": \"${TIMESTAMPED_VERSION}\"
+            }
+          }"
+
+      - name: Generate Codecov Report
+        if: ${{ steps.check_recent_commits.outputs.recent_commits == 'true' }}
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./.jacoco/reports/jacoco/report.xml

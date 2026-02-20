@@ -1,2 +1,8 @@
-Resolving workspace dependencies
 ERROR [Ballerina.toml:(1:1,2:33)] could not locate the package path 'pkgB'
+Resolving workspace dependencies
+
+Compiling source
+	asmaj/hello_app:0.1.0
+
+Generating executable
+	hello-app/target/bin/hello_app.jar

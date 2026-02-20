@@ -1,0 +1,3 @@
+[[repository.maven]]
+id = "maven-repo"
+url = "https://gitlab.com/api/v4/projects/1111111/packages/maven"

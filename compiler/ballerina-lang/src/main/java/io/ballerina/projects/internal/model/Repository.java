@@ -16,6 +16,11 @@
 
 package io.ballerina.projects.internal.model;
 
+import java.nio.file.Path;
+import java.util.Optional;
+
+import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
+
 /**
  * Represents the repository object.
  *
@@ -26,20 +31,28 @@ public class Repository {
     private final String url;
     private final String username;
     private final String password;
+    private final String type;
+    private final Path path;
 
-    private Repository(String id, String url, String username, String password) {
+    private Repository(String id, String url, String username, String password, String remoteType, Path path) {
         this.id = id;
         this.url = url;
         this.username = username;
         this.password = password;
+        this.type = remoteType;
+        this.path = path;
     }
 
     public static Repository from(String id, String url, String username, String password) {
-        return new Repository(id, url, username, password);
+        return new Repository(id, url, username, password, MAVEN, null);
+    }
+
+    public static Repository from(String id, String url, String username, String password, String type, Path path) {
+        return new Repository(id, url, username, password, type, path);
     }
 
     public static Repository from() {
-        return new Repository("", "", "", "");
+        return new Repository("", "", "", "", MAVEN, null);
     }
 
     public String id() {
@@ -56,5 +69,13 @@ public class Repository {
 
     public String password() {
         return password;
+    }
+
+    public String type() {
+        return type;
+    }
+
+    public Optional<Path> path() {
+        return Optional.ofNullable(path);
     }
 }

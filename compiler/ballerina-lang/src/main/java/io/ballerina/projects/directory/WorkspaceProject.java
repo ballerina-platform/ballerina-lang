@@ -141,8 +141,13 @@ public class WorkspaceProject extends Project {
         for (Project project : this.projectList) {
             projects.add((BuildProject) project.duplicate());
         }
-        return new WorkspaceProject(this.sourceRoot, this.buildOptions,
+        WorkspaceProject duplicateWp = new WorkspaceProject(this.sourceRoot, this.buildOptions,
                 this.workspaceBallerinaToml.tomlDocument(), projects);
+        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(duplicateWp).build();
+        for (BuildProject buildProject : projects) {
+            buildProject.setEnvironment(environment);
+        }
+        return duplicateWp;
     }
 
     @Override

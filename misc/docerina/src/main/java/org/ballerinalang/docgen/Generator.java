@@ -1001,7 +1001,11 @@ public final class Generator {
                 } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
                     String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (!docLineString.isEmpty()) {
-                        parameterDoc.append(docLineString);
+                        if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
+                            lookForMoreLines = false;
+                        } else {
+                            parameterDoc.append(docLineString);
+                        }
                     } else {
                         lookForMoreLines = false;
                     }

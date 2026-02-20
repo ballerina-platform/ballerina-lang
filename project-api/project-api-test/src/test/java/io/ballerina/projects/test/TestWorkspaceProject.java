@@ -132,6 +132,52 @@ public class TestWorkspaceProject extends BaseTest {
     }
 
     @Test
+    public void testWorkspaceWithHierarchicalNames() {
+        Path projectPath = tempResourceDir.resolve("wp-multiple-roots-with-hierarchical-names");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        Package depAPackage;
+        if (topologicallySortedList.get(0).currentPackage().descriptor().name().toString().equals("dep.b")) {
+            Assert.assertEquals(
+                    topologicallySortedList.get(0).currentPackage().descriptor().name().toString(), "dep.b");
+            Assert.assertEquals(
+                    topologicallySortedList.get(1).currentPackage().descriptor().name().toString(), "depA");
+            depAPackage = topologicallySortedList.get(1).currentPackage();
+            Assert.assertEquals(
+                    topologicallySortedList.get(2).currentPackage().descriptor().name().toString(), "hello_app");
+            Assert.assertEquals(
+                    topologicallySortedList.get(3).currentPackage().descriptor().name().toString(), "bye_app");
+        } else {
+            Assert.assertEquals(
+                    topologicallySortedList.get(0).currentPackage().descriptor().name().toString(), "bye_app");
+            Assert.assertEquals(
+                    topologicallySortedList.get(1).currentPackage().descriptor().name().toString(), "dep.b");
+            Assert.assertEquals(
+                    topologicallySortedList.get(2).currentPackage().descriptor().name().toString(), "depA");
+            depAPackage = topologicallySortedList.get(2).currentPackage();
+            Assert.assertEquals(
+                    topologicallySortedList.get(3).currentPackage().descriptor().name().toString(), "hello_app");
+        }
+
+        // Verify that the dependencies of depA contains dep.b
+        depAPackage.getResolution().dependencyGraph().toTopologicallySortedList()
+                .stream().filter(packageDependency -> packageDependency.packageInstance().descriptor().toString()
+                        .equals("testorg/dep.b:0.1.0")).findFirst()
+                .orElseThrow(() -> new AssertionError("dep.b not found in the dependencies of depA"));
+
+        Assert.assertEquals(topologicallySortedList.size(), 4);
+        for (BuildProject buildProject : topologicallySortedList) {
+            PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+            Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            Assert.assertFalse(jBallerinaBackend.diagnosticResult().hasErrors());
+        }
+    }
+
+    @Test
     public void testWorkspaceWithDifferentBuildOptions() {
         Path projectPath = tempResourceDir.resolve("wp-different-build-options");
         ProjectLoadResult projectLoadResult = ProjectLoader.load(projectPath);
@@ -393,7 +439,26 @@ public class TestWorkspaceProject extends BaseTest {
                 Assert.assertEquals(compilation.diagnosticResult().diagnostics(false, true).size(), 0);
                 Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnostics(false, true).size(), 0);
             }
-
         }
+    }
+
+    @Test
+    public void testDuplicateBuildProjectInWorkspace() {
+        Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        Assert.assertEquals(topologicallySortedList.size(), 4);
+
+        Project buildProject = project.projects().stream().filter(prj ->
+                prj.currentPackage().descriptor().name().toString().equals("hello_app")).findFirst().orElseThrow();
+        Assert.assertFalse(buildProject.currentPackage().getCompilation().diagnosticResult()
+                .hasErrors());
+        Project duplicateWp = buildProject.workspaceProject().orElseThrow().duplicate();
+        Project duplicate = ((WorkspaceProject) duplicateWp).projects().stream().filter(prj ->
+                prj.currentPackage().descriptor().name().toString().equals("hello_app")).findFirst().orElseThrow();
+        Assert.assertFalse(duplicate.currentPackage().getCompilation().diagnosticResult().hasErrors());
     }
 }

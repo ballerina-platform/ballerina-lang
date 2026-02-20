@@ -24,6 +24,8 @@ public type TestError distinct error;
 
 type ExecutionError distinct error<record {|string functionName;|}>;
 
+type InvalidArgumentError distinct ExecutionError;
+
 type ModuleRerunJson record {|
     string[] testNames;
     map<string?> testModuleNames;
@@ -33,7 +35,8 @@ type ModuleRerunJson record {|
 enum TestType {
     GENERAL_TEST,
     DATA_DRIVEN_TUPLE_OF_TUPLE,
-    DATA_DRIVEN_MAP_OF_TUPLE
+    DATA_DRIVEN_MAP_OF_TUPLE,
+    EVAL_TEST
 }
 
 enum TestCompletionStatus {

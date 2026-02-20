@@ -32,6 +32,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.ballerinalang.testerina.compiler.TesterinaCompilerPluginConstants.TEST_MODULE_NAME;
 
@@ -47,6 +48,7 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
 
     @Override
     public void init(CodeAnalysisContext analysisContext) {
+        analysisContext.addSyntaxNodeAnalysisTask(new EvalAnnotationAnalyzerTask(), List.of(SyntaxKind.ANNOTATION));
         analysisContext.addSyntaxNodeAnalysisTask(syntaxNodeAnalysisContext -> {
             // Traverses class and service definition nodes to check if test definitions are specified within
             // the class for functions

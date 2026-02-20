@@ -92,3 +92,14 @@ public annotation AfterEach on function;
 
 # Identifies the MockFunction object
 public const annotation MockConfig Mock on source var, function;
+
+# Configuration set for evaluation function.
+public type EvaluationConfig record {
+    # Minimum pass rate required for the dataset, expressed as a value between 0 and 1 inclusive
+    float confidence;
+    # Number of times the evaluation should repeat
+    int iterations = 1;
+};
+
+# Identifies evaluation function.
+public const annotation EvaluationConfig EvalConfig on function;

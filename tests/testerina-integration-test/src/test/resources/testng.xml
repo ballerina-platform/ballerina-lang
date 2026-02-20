@@ -56,5 +56,8 @@ under the License.
             <class name="org.ballerinalang.testerina.test.TestExecutionWithInitFailuresTest"/>
             <class name="org.ballerinalang.testerina.test.EscapedIdentifiersValidationTest"/>
         </classes>
+        <packages>
+            <package name="org.ballerinalang.testerina.test.evaluation"/>
+        </packages>
     </test>
 </suite>

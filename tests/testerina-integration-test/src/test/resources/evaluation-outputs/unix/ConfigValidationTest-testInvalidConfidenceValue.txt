@@ -1,0 +1,6 @@
+WARNING: Running tests in parallel is an experimental feature
+Compiling source
+	evaluation/config:0.0.0
+ERROR [tests/test.bal:(20:1,23:2)] invalid evaluation config: confidence must be between 0.0 and 1.0, found: 2
+ERROR [tests/test.bal:(28:1,31:2)] invalid evaluation config: iterations must be a positive integer, found: 0
+error: compilation contains errors
