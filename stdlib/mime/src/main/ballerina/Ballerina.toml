@@ -35,64 +35,64 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "netty-common"
-    version = "4.1.129.Final"
-    path = "./lib/netty-common-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-common-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-buffer"
-    version = "4.1.129.Final"
-    path = "./lib/netty-buffer-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-buffer-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-transport"
-    version = "4.1.129.Final"
-    path = "./lib/netty-transport-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-transport-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-resolver"
-    version = "4.1.129.Final"
-    path = "./lib/netty-resolver-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-resolver-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-handler"
-    version = "4.1.129.Final"
-    path = "./lib/netty-handler-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-handler-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-codec-http"
-    version = "4.1.129.Final"
-    path = "./lib/netty-codec-http-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-codec-http-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-codec"
-    version = "4.1.129.Final"
-    path = "./lib/netty-codec-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-codec-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-handler-proxy"
-    version = "4.1.129.Final"
-    path = "./lib/netty-handler-proxy-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-handler-proxy-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-codec-http2"
-    version = "4.1.129.Final"
-    path = "./lib/netty-codec-http2-4.1.129.Final.jar"
+    version = "4.1.130.Final"
+    path = "./lib/netty-codec-http2-4.1.130.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
@@ -133,49 +133,49 @@ target = "java8"
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-classes"
-    version = "2.0.65.Final"
-    path = "./lib/netty-tcnative-classes-2.0.65.Final.jar"
+    version = "2.0.74.Final"
+    path = "./lib/netty-tcnative-classes-2.0.74.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static"
-    version = "2.0.65.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final.jar"
+    version = "2.0.74.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.74.Final.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::windows-x86_64"
-    version = "2.0.65.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-windows-x86_64.jar"
+    version = "2.0.74.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.74.Final-windows-x86_64.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::linux-aarch_64"
-    version = "2.0.65.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-linux-aarch_64.jar"
+    version = "2.0.74.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.74.Final-linux-aarch_64.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::linux-x86_64"
-    version = "2.0.65.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-linux-x86_64.jar"
+    version = "2.0.74.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.74.Final-linux-x86_64.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::osx-aarch_64"
-    version = "2.0.65.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-osx-aarch_64.jar"
+    version = "2.0.74.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.74.Final-osx-aarch_64.jar"
     groupId = "io.netty"
     modules = ["mime"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::osx-x86_64"
-    version = "2.0.65.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.65.Final-osx-x86_64.jar"
+    version = "2.0.74.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.74.Final-osx-x86_64.jar"
     groupId = "io.netty"
     modules = ["mime"]
