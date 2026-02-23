@@ -64,7 +64,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -284,19 +283,20 @@ public class RunCommand implements BLauncherCmd {
             if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
                 diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
                 WorkspaceProject workspaceProject = (WorkspaceProject) project;
-                DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
-                        workspaceProject, this.outStream);
-                List<BuildProject> topologicallySortedList = new ArrayList<>(
-                        projectDependencyGraph.toTopologicallySortedList());
-                // If the project path is not the workspace root, filter the topologically sorted list to include only
-                // the projects that are dependencies of the project at the specified path.
-                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
-                        node.sourceRoot().equals(absProjectPath)).findFirst();
-                if (buildProjectOptional.isEmpty()) {
+
+                // Initial silent resolution to find the target project and its dependencies
+                DependencyGraph<BuildProject> initialGraph = CommandUtil.resolveWorkspaceDependencies(
+                        workspaceProject);
+                List<BuildProject> initialSortedList = new ArrayList<>(
+                        initialGraph.toTopologicallySortedList());
+
+                Optional<BuildProject> targetProjectOpt = initialGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                if (targetProjectOpt.isEmpty()) {
                     throw createLauncherException("no package found at the specified path: " + absProjectPath);
                 }
                 Path relativePath = Paths.get(System.getProperty("user.dir")).relativize(
-                        buildProjectOptional.get().sourceRoot());
+                        targetProjectOpt.get().sourceRoot());
                 if (project.sourceRoot().equals(absProjectPath)) {
                     CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
                             "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
@@ -304,20 +304,46 @@ public class RunCommand implements BLauncherCmd {
                     return;
                 }
 
-                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
-                        buildProjectOptional.orElseThrow());
-                // remove projects that are not dependencies of the project at the specified path
-                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
-                        && prj != buildProjectOptional.get());
+                Collection<BuildProject> initialDependencies = initialGraph.getAllDependencies(
+                        targetProjectOpt.orElseThrow());
+                initialSortedList.removeIf(prj -> !initialDependencies.contains(prj)
+                        && prj != targetProjectOpt.get());
 
+                // Phase 1: Execute build tools for filtered projects
+                boolean hasAnyTools = initialSortedList.stream()
+                        .anyMatch(p -> !p.currentPackage().manifest().tools().isEmpty());
+                if (hasAnyTools) {
+                    this.outStream.println("\nExecuting Build Tools");
+                }
+                Map<Path, List<Diagnostic>> buildToolDiagnosticsMap = new HashMap<>();
+                for (BuildProject buildProject : initialSortedList) {
+                    boolean rebuildNeeded = isRebuildNeeded(buildProject, true);
+                    List<Diagnostic> diagnostics = executeBuildToolsTask(buildProject, rebuildNeeded);
+                    buildToolDiagnosticsMap.put(buildProject.sourceRoot(), diagnostics);
+                }
+
+                // Re-resolve workspace dependencies (after build tools, so generated code is visible)
+                DependencyGraph<BuildProject> resolvedGraph = CommandUtil.resolveWorkspaceDependencies(
+                        workspaceProject, this.outStream);
+                List<BuildProject> topologicallySortedList = new ArrayList<>(
+                        resolvedGraph.toTopologicallySortedList());
+
+                // Re-filter with updated graph
+                Optional<BuildProject> resolvedTargetOpt = resolvedGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                Collection<BuildProject> resolvedDependencies = resolvedGraph.getAllDependencies(
+                        resolvedTargetOpt.orElseThrow());
+                topologicallySortedList.removeIf(prj -> !resolvedDependencies.contains(prj)
+                        && prj != resolvedTargetOpt.get());
+
+                // Phase 2: Execute remaining tasks in topological order
                 Map<BuildProject, Boolean> rebuildCache = new HashMap<>();
                 for (BuildProject buildProject : topologicallySortedList) {
-                    boolean skipExecution = buildProject != buildProjectOptional.get();
+                    boolean skipExecution = buildProject != resolvedTargetOpt.get();
                     boolean isRebuildNeeded = isRebuildNeeded(buildProject, skipExecution);
                     rebuildCache.put(buildProject, isRebuildNeeded);
                     if (!isRebuildNeeded) {
-                        // Check if any of the dependencies need to be rebuilt.
-                        for (BuildProject dependency : projectDependencyGraph.getDirectDependencies(buildProject)) {
+                        for (BuildProject dependency : resolvedGraph.getDirectDependencies(buildProject)) {
                             isRebuildNeeded = rebuildCache.get(dependency);
                             if (isRebuildNeeded) {
                                 rebuildCache.put(buildProject, true);
@@ -325,7 +351,9 @@ public class RunCommand implements BLauncherCmd {
                             }
                         }
                     }
-                    executeTasks(args, buildProject, skipExecution, isRebuildNeeded);
+                    List<Diagnostic> buildToolDiags = buildToolDiagnosticsMap.getOrDefault(
+                            buildProject.sourceRoot(), new ArrayList<>());
+                    executeRemainingTasks(args, buildProject, skipExecution, isRebuildNeeded, buildToolDiags);
                 }
             } else {
                 executeTasks(args, project, false, isRebuildNeeded(project, false));
@@ -365,6 +393,36 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);
+    }
+
+    private List<Diagnostic> executeBuildToolsTask(BuildProject buildProject, boolean rebuildNeeded) {
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetDirTask(), !rebuildNeeded)
+                .addTask(new RestoreCachedArtifactsTask(), rebuildNeeded)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildNeeded, buildToolDiagnostics, true))
+                .build();
+        taskExecutor.executeTasks(buildProject);
+        return buildToolDiagnostics;
+    }
+
+    private void executeRemainingTasks(String[] args, BuildProject buildProject, boolean skipExecution,
+                                       boolean rebuildNeeded, List<Diagnostic> buildToolDiagnostics)
+            throws IOException {
+        Target target = new Target(buildProject.targetDir());
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildNeeded))
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        !rebuildNeeded, buildToolDiagnostics))
+                .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildNeeded),
+                        skipExecution)
+                .addTask(new CacheArtifactsTask(RUN_COMMAND), !rebuildNeeded)
+                .addTask(new CreateFingerprintTask(false, skipExecution), !rebuildNeeded)
+                .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target),
+                        skipExecution)
+                .addTask(new DumpBuildTimeTask(outStream), !buildProject.buildOptions().dumpBuildTime())
+                .build();
+        taskExecutor.executeTasks(buildProject);
     }
 
     private boolean isRebuildNeeded(Project project, boolean skipExecutable) {

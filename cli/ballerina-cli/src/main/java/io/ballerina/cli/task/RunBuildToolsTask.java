@@ -74,12 +74,18 @@ public class RunBuildToolsTask implements Task {
     private final boolean exitWhenFinish;
     private final Map<Tool.Field, ToolContext> toolContextMap = new HashMap<>();
     private final boolean skipTask;
+    private final boolean isWorkspace;
 
     public RunBuildToolsTask(PrintStream out, boolean skipTask, List<Diagnostic> diagnostics) {
+        this(out, skipTask, diagnostics, false);
+    }
+
+    public RunBuildToolsTask(PrintStream out, boolean skipTask, List<Diagnostic> diagnostics, boolean isWorkspace) {
         this.skipTask = skipTask;
         this.outStream = out;
         this.diagnostics = diagnostics;
         this.exitWhenFinish = true;
+        this.isWorkspace = isWorkspace;
     }
 
     @Override
@@ -98,7 +104,14 @@ public class RunBuildToolsTask implements Task {
         if (toolEntries.isEmpty()) {
             return;
         }
-        this.outStream.println("\nExecuting Build Tools" + (skipTask ? " (UP-TO-DATE)" : ""));
+        if (isWorkspace) {
+            String sourceName = project.currentPackage().packageOrg().toString() + "/" +
+                    project.currentPackage().packageName().toString() + ":" +
+                    project.currentPackage().packageVersion();
+            this.outStream.println("\t" + sourceName + (skipTask ? " (UP-TO-DATE)" : ""));
+        } else {
+            this.outStream.println("\nExecuting Build Tools" + (skipTask ? " (UP-TO-DATE)" : ""));
+        }
         if (skipTask) {
             return;
         }

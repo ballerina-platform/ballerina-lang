@@ -1,0 +1,17 @@
+Executing Build Tools
+	asmaj/consolidator:0.1.0
+	sample-build-tool(generate-delivery-client)
+
+Resolving workspace dependencies
+
+Compiling source
+	asmaj/bar:0.1.0
+
+Compiling source
+	asmaj/foo:0.1.0
+
+Compiling source
+	asmaj/consolidator:0.1.0
+
+Generating executable
+	consolidator/target/bin/consolidator.jar

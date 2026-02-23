@@ -34,10 +34,11 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -271,18 +272,10 @@ public class PackCommand implements BLauncherCmd {
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
             diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
-            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
-                    workspaceProject, this.outStream);
-            if (!project.sourceRoot().equals(absProjectPath)) {
-                // If the project path is not the workspace root, filter the topologically sorted list to include only
-                // the projects that are dependencies of the project at the specified path.
-                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
-                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
-                executeTasks(buildProjectOptional.orElseThrow());
+            if (workspaceProject.sourceRoot().equals(absProjectPath)) {
+                executeWorkspaceFromRoot(workspaceProject);
             } else {
-                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
-                    executeTasks(buildProject);
-                }
+                executeWorkspaceFromProjectPath(workspaceProject, absProjectPath);
             }
         } else {
             // Check package files are modified after last build
@@ -309,6 +302,75 @@ public class PackCommand implements BLauncherCmd {
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);
+    }
+
+    private void executeWorkspaceFromRoot(WorkspaceProject workspaceProject) {
+        // Phase 1: Execute build tools for all projects
+        boolean hasAnyTools = workspaceProject.projects().stream()
+                .anyMatch(p -> !p.currentPackage().manifest().tools().isEmpty());
+        if (hasAnyTools) {
+            this.outStream.println("\nExecuting Build Tools");
+        }
+        Map<Path, List<Diagnostic>> buildToolDiagnosticsMap = new HashMap<>();
+        for (BuildProject buildProject : workspaceProject.projects()) {
+            List<Diagnostic> diagnostics = executeBuildToolsTask(buildProject);
+            buildToolDiagnosticsMap.put(buildProject.sourceRoot(), diagnostics);
+        }
+
+        // Resolve workspace dependencies (after build tools, so generated code is visible)
+        DependencyGraph<BuildProject> projectDependencyGraph = CommandUtil.resolveWorkspaceDependencies(
+                workspaceProject, this.outStream);
+
+        // Phase 2: Execute remaining tasks in topological order
+        for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
+            List<Diagnostic> buildToolDiags = buildToolDiagnosticsMap.getOrDefault(
+                    buildProject.sourceRoot(), new ArrayList<>());
+            executeRemainingTasks(buildProject, buildToolDiags);
+        }
+    }
+
+    private void executeWorkspaceFromProjectPath(WorkspaceProject workspaceProject, Path absProjectPath) {
+        // Initial resolution to find the target project (silent, no output)
+        DependencyGraph<BuildProject> initialGraph = CommandUtil.resolveWorkspaceDependencies(
+                workspaceProject);
+        Optional<BuildProject> targetProjectOpt = initialGraph.getNodes().stream()
+                .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+        BuildProject targetProject = targetProjectOpt.orElseThrow();
+
+        // Phase 1: Execute build tools for target project only
+        if (!targetProject.currentPackage().manifest().tools().isEmpty()) {
+            this.outStream.println("\nExecuting Build Tools");
+        }
+        List<Diagnostic> buildToolDiagnostics = executeBuildToolsTask(targetProject);
+
+        // Re-resolve workspace dependencies (after build tools, so generated code is visible)
+        DependencyGraph<BuildProject> resolvedGraph = CommandUtil.resolveWorkspaceDependencies(
+                workspaceProject, this.outStream);
+        Optional<BuildProject> resolvedTargetOpt = resolvedGraph.getNodes().stream()
+                .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+
+        // Phase 2: Execute remaining tasks for target project only
+        executeRemainingTasks(resolvedTargetOpt.orElseThrow(), buildToolDiagnostics);
+    }
+
+    private List<Diagnostic> executeBuildToolsTask(BuildProject buildProject) {
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetDirTask())
+                .addTask(new RunBuildToolsTask(outStream, false, buildToolDiagnostics, true))
+                .build();
+        taskExecutor.executeTasks(buildProject);
+        return buildToolDiagnostics;
+    }
+
+    private void executeRemainingTasks(BuildProject buildProject, List<Diagnostic> buildToolDiagnostics) {
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new ResolveMavenDependenciesTask(outStream))
+                .addTask(new CompileTask(outStream, errStream, true, false, false, buildToolDiagnostics))
+                .addTask(new CreateBalaTask(outStream))
+                .addTask(new DumpBuildTimeTask(outStream), !buildProject.buildOptions().dumpBuildTime())
+                .build();
+        taskExecutor.executeTasks(buildProject);
     }
 
     private BuildOptions constructBuildOptions() {

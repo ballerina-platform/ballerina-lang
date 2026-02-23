@@ -662,6 +662,92 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
     }
 
+    @Test(description = "Run consolidator package in workspace with build tool that imports other workspace packages")
+    public void testRunWorkspaceWithConsolidator() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator.txt"));
+    }
+
+    @Test(description = "Run consolidator workspace twice - second run should be up-to-date")
+    public void testRunWorkspaceWithConsolidatorUpToDate() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator.txt"));
+
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator-up-to-date.txt"));
+    }
+
+    @Test(description = "Run consolidator workspace - modifying a dependency source invalidates cache")
+    public void testRunWorkspaceWithConsolidatorCacheInvalidation() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator.txt"));
+
+        Path fooSource = projectPath.resolve("foo").resolve("lib.bal");
+        String originalContent = Files.readString(fooSource);
+        List<String> lines = Files.readAllLines(fooSource);
+        lines.add("// Modified to invalidate cache");
+        Files.write(fooSource, lines);
+
+        try {
+            runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+            runCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+                    getOutput("run-wp-with-consolidator-cache-invalidated.txt"));
+        } finally {
+            Files.writeString(fooSource, originalContent);
+        }
+    }
+
+    @Test(description = "Run consolidator workspace after deleting a dependency package")
+    public void testRunWorkspaceWithConsolidatorDeleteDependency() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator-deleted-pkg");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        try {
+            runCommand.execute();
+            Assert.fail("Run should fail when dependency package is deleted");
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.assertEquals(failureLog, getOutput("run-wp-with-consolidator-dep-deleted.txt"));
+        }
+    }
+
     @AfterSuite
     public void cleanUp() throws IOException {
         Files.deleteIfExists(logFile);

@@ -838,6 +838,92 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
 
+    @Test(description = "Test workspace with consolidator")
+    public void testWorkspaceWithConsolidator() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        cleanTarget(projectPath);
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand);
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("test-wp-with-consolidator.txt"));
+    }
+
+    @Test(description = "Test consolidator workspace twice - second test should recompile")
+    public void testWorkspaceWithConsolidatorTwice() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        cleanTarget(projectPath);
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("test-wp-with-consolidator.txt"));
+
+        testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("test-wp-with-consolidator.txt"));
+    }
+
+    @Test(description = "Test consolidator workspace - modifying a dependency source")
+    public void testWorkspaceWithConsolidatorCacheInvalidation() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        cleanTarget(projectPath);
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("test-wp-with-consolidator.txt"));
+
+        Path fooSource = projectPath.resolve("foo").resolve("lib.bal");
+        String originalContent = Files.readString(fooSource);
+        List<String> lines = Files.readAllLines(fooSource);
+        lines.add("// Modified to invalidate cache");
+        Files.write(fooSource, lines);
+
+        try {
+            testCommand = new TestCommand(projectPath, printStream, printStream, false);
+            new CommandLine(testCommand).parseArgs();
+            testCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+                    getOutput("test-wp-with-consolidator.txt"));
+        } finally {
+            Files.writeString(fooSource, originalContent);
+        }
+    }
+
+    @Test(description = "Test consolidator workspace after deleting a dependency package")
+    public void testWorkspaceWithConsolidatorDeleteDependency() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator-deleted-pkg");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        try {
+            testCommand.execute();
+            Assert.fail("Test should fail when dependency package is deleted");
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.assertEquals(failureLog, getOutput("test-wp-with-consolidator-dep-deleted.txt"));
+        }
+    }
+
     @Test(enabled = false, description = "Test a project twice with the same flags and different flags")
     public void testBuildAProjectTwiceWithFlags() throws IOException {
         String[] argsList1 = {
