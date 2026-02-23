@@ -29,7 +29,7 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-exporter-otlp:1.32.0"
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators:1.32.0"
     implementation "io.opentelemetry:opentelemetry-sdk-extension-jaeger-remote-sampler:1.32.0"
-    implementation "io.netty:netty-handler:4.1.129.Final"
+    implementation "io.netty:netty-handler:${nettyVersion}"
     implementation("io.grpc:grpc-core:1.54.1") {
         exclude group: 'io.grpc', module: 'grpc-context'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
