@@ -59,8 +59,8 @@ public class GlobalVarTest {
 
     @Test
     public void testConfigurableVarInRecordFieldDefaultValue() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
-                "/configurable_record_field_default.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/variabledef/configurable_record_field_default.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
         BRunUtil.invoke(result, "testConfigurableVarUsageInRecordDefault");
     }
