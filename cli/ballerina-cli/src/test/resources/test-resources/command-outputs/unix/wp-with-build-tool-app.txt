@@ -1,6 +1,6 @@
 Executing Build Tools
 	testorg/lib_with_tool:0.1.0
-	sample-build-tool(generate-delivery-client)
+	    sample-build-tool(generate-delivery-client)
 
 Resolving workspace dependencies
 

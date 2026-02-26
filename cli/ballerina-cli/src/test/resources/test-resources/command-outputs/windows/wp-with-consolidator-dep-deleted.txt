@@ -1,7 +1,7 @@
 ERROR [Ballerina.toml:(1:1,2:42)] could not locate the package path 'foo'
 Executing Build Tools
 	testorg/consolidator:0.1.0
-	sample-build-tool(consolidate)
+	    sample-build-tool(consolidate)
 
 Resolving workspace dependencies
 

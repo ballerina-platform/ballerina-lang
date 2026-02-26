@@ -113,6 +113,9 @@ public class RunBuildToolsTask implements Task {
             this.outStream.println("\nExecuting Build Tools" + (skipTask ? " (UP-TO-DATE)" : ""));
         }
         if (skipTask) {
+            if (isWorkspace) {
+                this.outStream.println();
+            }
             return;
         }
 
@@ -196,7 +199,8 @@ public class RunBuildToolsTask implements Task {
 
             // Execute the build tool
             try {
-                this.outStream.printf("\t%s(%s)%n", toolEntry.type().value(), toolEntry.id().value());
+                String indent = isWorkspace ? "\t    " : "\t";
+                this.outStream.printf("%s%s(%s)%n", indent, toolEntry.type().value(), toolEntry.id().value());
                 targetTool.get().execute(toolContext);
                 toolDiagnostics.addAll(toolContext.diagnostics());
                 for (Diagnostic d : toolContext.diagnostics()) {

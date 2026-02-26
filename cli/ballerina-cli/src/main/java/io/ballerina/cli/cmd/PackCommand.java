@@ -309,7 +309,7 @@ public class PackCommand implements BLauncherCmd {
         boolean hasAnyTools = workspaceProject.projects().stream()
                 .anyMatch(p -> !p.currentPackage().manifest().tools().isEmpty());
         if (hasAnyTools) {
-            this.outStream.println("\nExecuting Build Tools");
+            this.outStream.println("Executing Build Tools");
         }
         Map<Path, List<Diagnostic>> buildToolDiagnosticsMap = new HashMap<>();
         for (BuildProject buildProject : workspaceProject.projects()) {
@@ -339,7 +339,7 @@ public class PackCommand implements BLauncherCmd {
 
         // Phase 1: Execute build tools for target project only
         if (!targetProject.currentPackage().manifest().tools().isEmpty()) {
-            this.outStream.println("\nExecuting Build Tools");
+            this.outStream.println("Executing Build Tools");
         }
         List<Diagnostic> buildToolDiagnostics = executeBuildToolsTask(targetProject);
 

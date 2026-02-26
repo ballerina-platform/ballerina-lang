@@ -1,5 +1,6 @@
 Executing Build Tools
 	testorg/consolidator:0.1.0 (UP-TO-DATE)
+
 Resolving workspace dependencies
 
 Compiling source (UP-TO-DATE)
@@ -12,4 +13,4 @@ Compiling source (UP-TO-DATE)
 	testorg/consolidator:0.1.0
 
 Generating executable (UP-TO-DATE)
-	consolidator/target/bin/consolidator.jar
+	consolidator\target\bin\consolidator.jar

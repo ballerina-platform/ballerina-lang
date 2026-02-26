@@ -2,7 +2,7 @@
 org = "testorg"
 name = "lib_with_tool"
 version = "0.1.0"
-distribution = "2201.13.0-m3"
+distribution = "2201.13.0"
 
 [[tool.sample-build-tool]]
 id = "generate-delivery-client"

@@ -741,11 +741,12 @@ public class RunCommandTest extends BaseCommandTest {
         new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
         try {
             runCommand.execute();
-            Assert.fail("Run should fail when dependency package is deleted");
         } catch (BLauncherException e) {
-            String failureLog = readOutput(true);
+            String failureLog = readOutput(true).replace("\r", "");
             Assert.assertEquals(failureLog, getOutput("run-wp-with-consolidator-dep-deleted.txt"));
+            return;
         }
+        Assert.fail("Run should fail when dependency package is deleted");
     }
 
     @AfterSuite

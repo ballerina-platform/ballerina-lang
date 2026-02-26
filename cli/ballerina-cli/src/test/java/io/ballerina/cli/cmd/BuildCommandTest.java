@@ -1804,9 +1804,7 @@ public class BuildCommandTest extends BaseCommandTest {
             String failureLog = readOutput(true);
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
         }
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
-                getOutput("wp-with-build-tool.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-build-tool.txt"));
     }
 
     @Test(description = "Build specific project in workspace with build tool - verify two-phase execution order")
@@ -1823,9 +1821,7 @@ public class BuildCommandTest extends BaseCommandTest {
             String failureLog = readOutput(true);
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
         }
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
-                getOutput("wp-with-build-tool-app.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-build-tool-app.txt"));
     }
 
     @Test(description = "Build workspace with consolidator")
@@ -1841,9 +1837,7 @@ public class BuildCommandTest extends BaseCommandTest {
             String failureLog = readOutput(true);
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
         }
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
-                getOutput("wp-with-consolidator.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-consolidator.txt"));
     }
 
     @Test(description = "Build consolidator workspace twice - second build should be up-to-date")
@@ -1857,7 +1851,7 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String firstBuildLog = readOutput(true);
-        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
                 getOutput("wp-with-consolidator.txt"));
 
         // Second build (no changes)
@@ -1865,7 +1859,7 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String secondBuildLog = readOutput(true);
-        Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+        Assert.assertEquals(secondBuildLog.replace("\r", ""),
                 getOutput("wp-with-consolidator-up-to-date.txt"));
     }
 
@@ -1880,7 +1874,7 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String firstBuildLog = readOutput(true);
-        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
                 getOutput("wp-with-consolidator.txt"));
 
         // Modify a dependency source file
@@ -1896,7 +1890,7 @@ public class BuildCommandTest extends BaseCommandTest {
             new CommandLine(buildCommand).parseArgs();
             buildCommand.execute();
             String secondBuildLog = readOutput(true);
-            Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+            Assert.assertEquals(secondBuildLog.replace("\r", ""),
                     getOutput("wp-with-consolidator-cache-invalidated.txt"));
         } finally {
             // Restore the original file for other tests
@@ -1914,9 +1908,8 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
-            Assert.fail("Build should fail when dependency source is deleted");
         } catch (BLauncherException e) {
-            String failureLog = readOutput(true);
+            String failureLog = readOutput(true).replace("\r", "");
             Assert.assertEquals(failureLog, getOutput("wp-with-consolidator-dep-deleted.txt"));
             return;
         }

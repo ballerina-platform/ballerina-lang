@@ -313,7 +313,7 @@ public class RunCommand implements BLauncherCmd {
                 boolean hasAnyTools = initialSortedList.stream()
                         .anyMatch(p -> !p.currentPackage().manifest().tools().isEmpty());
                 if (hasAnyTools) {
-                    this.outStream.println("\nExecuting Build Tools");
+                    this.outStream.println("Executing Build Tools");
                 }
                 Map<Path, List<Diagnostic>> buildToolDiagnosticsMap = new HashMap<>();
                 for (BuildProject buildProject : initialSortedList) {

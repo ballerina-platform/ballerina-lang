@@ -852,7 +852,7 @@ public class TestCommandTest extends BaseCommandTest {
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
+        Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("test-wp-with-consolidator.txt"));
     }
 
@@ -866,14 +866,14 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String firstBuildLog = readOutput(true);
-        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
                 getOutput("test-wp-with-consolidator.txt"));
 
         testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String secondBuildLog = readOutput(true);
-        Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+        Assert.assertEquals(secondBuildLog.replace("\r", ""),
                 getOutput("test-wp-with-consolidator.txt"));
     }
 
@@ -887,7 +887,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String firstBuildLog = readOutput(true);
-        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
                 getOutput("test-wp-with-consolidator.txt"));
 
         Path fooSource = projectPath.resolve("foo").resolve("lib.bal");
@@ -901,7 +901,7 @@ public class TestCommandTest extends BaseCommandTest {
             new CommandLine(testCommand).parseArgs();
             testCommand.execute();
             String secondBuildLog = readOutput(true);
-            Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+            Assert.assertEquals(secondBuildLog.replace("\r", ""),
                     getOutput("test-wp-with-consolidator.txt"));
         } finally {
             Files.writeString(fooSource, originalContent);
@@ -917,11 +917,12 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parseArgs();
         try {
             testCommand.execute();
-            Assert.fail("Test should fail when dependency package is deleted");
         } catch (BLauncherException e) {
-            String failureLog = readOutput(true);
+            String failureLog = readOutput(true).replace("\r", "");
             Assert.assertEquals(failureLog, getOutput("test-wp-with-consolidator-dep-deleted.txt"));
+            return;
         }
+        Assert.fail("Test should fail when dependency package is deleted. Output:\n " + readOutput(true));
     }
 
     @Test(enabled = false, description = "Test a project twice with the same flags and different flags")

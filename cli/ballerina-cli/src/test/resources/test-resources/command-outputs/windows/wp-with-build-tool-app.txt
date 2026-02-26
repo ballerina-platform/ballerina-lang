@@ -1,15 +1,14 @@
-
 Executing Build Tools
-	asmaj/lib_with_tool:0.1.0
-	sample-build-tool(generate-delivery-client)
+	testorg/lib_with_tool:0.1.0
+	    sample-build-tool(generate-delivery-client)
 
 Resolving workspace dependencies
 
 Compiling source
-	asmaj/lib_with_tool:0.1.0
+	testorg/lib_with_tool:0.1.0
 
 Compiling source
-	asmaj/app:0.1.0
+	testorg/app:0.1.0
 
 Generating executable
-	app/target/bin/app.jar
+	app\target\bin\app.jar
