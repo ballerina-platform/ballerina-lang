@@ -193,10 +193,20 @@ public class ResolutionEngine {
             DependencyResolutionType resolutionType = resolutionReq.resolutionType();
             PackageDependencyScope scope = resolutionReq.scope();
 
+            // Capture the existing version before adding the resolved node
+            Optional<PackageVersion> existingVersion = graphBuilder.getVersionOfNode(
+                    resolvedPkgDesc.org(), resolvedPkgDesc.name());
+
             // Merge the dependency graph only if the node is accepted by the graphBuilder
             NodeStatus nodeStatus = graphBuilder.addResolvedDependency(rootPkgDesc,
                     resolvedPkgDesc, scope, resolutionType);
             if (nodeStatus == NodeStatus.ACCEPTED) {
+                // When a direct dependency is upgraded (e.g., pkgx 1.0.0 → 1.1.0), its old
+                // transitive deps become dangling. Clean them up before merging the new version's
+                // deps to prevent false incompatible version conflicts.
+                if (existingVersion.isPresent() && !existingVersion.get().equals(resolvedPkgDesc.version())) {
+                    graphBuilder.removeDanglingNodes();
+                }
                 mergeGraph(resolvedPkgDesc,
                         resolutionResp.dependencyGraph().orElseThrow(
                                 () -> new IllegalStateException("Graph cannot be null in the resolved dependency: " +
@@ -312,7 +322,22 @@ public class ResolutionEngine {
             ResolutionRequest resolutionRequest = getRequestForUnresolvedNode(unresolvedNode,
                     blendedDepOptional.orElse(null));
             if (resolutionRequest == null) {
-                // There is a version incompatibility.
+                // Check if the incompatibility is against a stale auto-locked version.
+                // When a parent package is upgraded, its old transitive deps are removed as dangling,
+                // and new transitive deps may have incompatible versions with the old lock.
+                // Since the lock (from Dependencies.toml) is auto-generated and the locked version's
+                // dependency path no longer exists, resolve without the lock constraint.
+                if (blendedDepOptional.isPresent() &&
+                        !blendedDepOptional.get().isError() &&
+                        blendedDepOptional.get().origin()
+                                != BlendedManifest.DependencyOrigin.USER_SPECIFIED) {
+                    resolutionRequest = ResolutionRequest.from(unresolvedNode.pkgDesc(),
+                            unresolvedNode.scope(), unresolvedNode.resolutionType(),
+                            resolutionOptions.packageLockingMode(), unresolvedNode.skipWorkspace());
+                }
+            }
+            if (resolutionRequest == null) {
+                // There is a genuine version incompatibility (user-specified).
                 // We mark it as an error node and skip to the next node.
                 errorNodes.add(new DependencyNode(
                         unresolvedNode.pkgDesc,
@@ -459,9 +484,43 @@ public class ResolutionEngine {
         PackageDependencyScope scope = resolutionReq.scope();
         DependencyResolutionType resolvedType = resolutionReq.resolutionType();
 
+        // Skip stale batch results: if a parent package was upgraded during this batch,
+        // its old transitive deps may have been removed or replaced with new versions.
+        PackageDescriptor requestedPkg = resolutionReq.packageDescriptor();
+        if (requestedPkg.version() != null) {
+            Optional<PackageVersion> currentVersion = graphBuilder.getVersionOfNode(
+                    requestedPkg.org(), requestedPkg.name());
+            if (currentVersion.isEmpty()) {
+                // Node was completely removed from the graph (parent upgraded and this
+                // transitive dep became dangling). Skip the stale batch result.
+                return;
+            }
+            VersionCompatibilityResult compat =
+                    requestedPkg.version().compareTo(currentVersion.get());
+            if (compat == VersionCompatibilityResult.INCOMPATIBLE) {
+                // Graph now has an incompatible version (parent upgraded and replaced
+                // this transitive dep with a new version). Skip the stale batch result.
+                return;
+            }
+        }
+
+        // Capture the current version before adding the resolved node, so we can detect upgrades.
+        Optional<PackageVersion> existingVersion = graphBuilder.getVersionOfNode(
+                pkgDesc.org(), pkgDesc.name());
+
         // Merge the dependency graph only if the node is accepted by the graphBuilder
         NodeStatus nodeStatus = graphBuilder.addResolvedNode(pkgDesc, scope, resolvedType);
         if (nodeStatus == NodeStatus.ACCEPTED) {
+            // Remove dangling nodes only when an actual version change occurred.
+            // When a package is upgraded (e.g., ftp 2.16.0 → 2.17.0), its old edges are cleared,
+            // making old transitive deps dangling. Cleaning them up prevents false incompatible
+            // version conflicts between the stale transitive deps and the new transitive deps.
+            // We must NOT do this for same-version re-accepts, because completeDependencyGraph
+            // accumulates responses across iterations, and re-processing would create an
+            // infinite cycle of removing and re-adding nodes.
+            if (existingVersion.isPresent() && !existingVersion.get().equals(pkgDesc.version())) {
+                graphBuilder.removeDanglingNodes();
+            }
             mergeGraph(pkgDesc, resolutionResp.dependencyGraph().orElseThrow(
                     () -> new IllegalStateException("Graph cannot be null in the resolved dependency: " +
                             pkgDesc.toString())),

@@ -1,0 +1,5 @@
+digraph "example1" {
+    "testorg1/app:0.1.0" -> "testorg/pkgx:1.1.0"
+    "testorg/pkgx:1.1.0" -> "testorg/pkgw:1.2.0"
+    "testorg/pkgw:1.2.0" -> "testorg/pkgz:0.3.0"
+}
