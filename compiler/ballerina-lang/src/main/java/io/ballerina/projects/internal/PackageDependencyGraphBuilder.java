@@ -142,7 +142,7 @@ public class PackageDependencyGraphBuilder {
         return dependencyNode.pkgDesc().version().equals(node.version());
     }
 
-    public Optional<PackageVersion> getVersionOfNode(PackageOrg org, PackageName name) {
+    public Optional<PackageVersion> getNodeVersion(PackageOrg org, PackageName name) {
         Vertex vertex = new Vertex(org, name);
         DependencyNode node = vertices.get(vertex);
         if (node == null) {

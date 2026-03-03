@@ -194,7 +194,7 @@ public class ResolutionEngine {
             PackageDependencyScope scope = resolutionReq.scope();
 
             // Capture the existing version before adding the resolved node
-            Optional<PackageVersion> existingVersion = graphBuilder.getVersionOfNode(
+            Optional<PackageVersion> existingVersion = graphBuilder.getNodeVersion(
                     resolvedPkgDesc.org(), resolvedPkgDesc.name());
 
             // Merge the dependency graph only if the node is accepted by the graphBuilder
@@ -488,7 +488,7 @@ public class ResolutionEngine {
         // its old transitive deps may have been removed or replaced with new versions.
         PackageDescriptor requestedPkg = resolutionReq.packageDescriptor();
         if (requestedPkg.version() != null) {
-            Optional<PackageVersion> currentVersion = graphBuilder.getVersionOfNode(
+            Optional<PackageVersion> currentVersion = graphBuilder.getNodeVersion(
                     requestedPkg.org(), requestedPkg.name());
             if (currentVersion.isEmpty()) {
                 // Node was completely removed from the graph (parent upgraded and this
@@ -505,7 +505,7 @@ public class ResolutionEngine {
         }
 
         // Capture the current version before adding the resolved node, so we can detect upgrades.
-        Optional<PackageVersion> existingVersion = graphBuilder.getVersionOfNode(
+        Optional<PackageVersion> existingVersion = graphBuilder.getNodeVersion(
                 pkgDesc.org(), pkgDesc.name());
 
         // Merge the dependency graph only if the node is accepted by the graphBuilder
