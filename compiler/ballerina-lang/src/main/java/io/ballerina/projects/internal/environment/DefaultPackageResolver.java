@@ -285,7 +285,8 @@ public class DefaultPackageResolver implements PackageResolver {
                         .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
                 .toList();
 
-        // Remove already custom repo resolved requests from the central request list
+        // Remove already custom repo resolved requests from the central request list - old impl where
+        // the repository is specified in the Ballerina.toml
         centralLoadRequests = centralLoadRequests.stream().filter(r -> allCustomRepoPackages.stream()
                         .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
                 .toList();
