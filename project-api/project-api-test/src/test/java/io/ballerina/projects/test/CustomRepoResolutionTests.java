@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 public class CustomRepoResolutionTests extends BaseTest {
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
@@ -134,6 +135,10 @@ public class CustomRepoResolutionTests extends BaseTest {
 
         Path bazzPath = TMP_RESOURCES_DIR.resolve("pkg-customfs-bazz");
         BCompileUtil.compileAndCacheBala(bazzPath, centralRepoPath, projectEnvironmentBuilder);
+
+        Path pkgAPath = TMP_RESOURCES_DIR.resolve("packageA");
+        BCompileUtil.compileAndCacheBala(pkgAPath, Paths.get("build").resolve(DIST_CACHE_DIRECTORY),
+                projectEnvironmentBuilder);
     }
 
     @BeforeMethod
@@ -325,7 +330,7 @@ public class CustomRepoResolutionTests extends BaseTest {
     }
 
     @Test
-    public void testCustomRepository() throws IOException {
+    public void testCustomFSRepository() throws IOException {
         Path settingsToml = CUSTOM_USER_HOME.resolve(ProjectConstants.SETTINGS_FILE_NAME);
         // Copy Settings.toml
         Files.copy(TMP_RESOURCES_DIR.resolve("Settings-FS.toml"),
@@ -341,16 +346,19 @@ public class CustomRepoResolutionTests extends BaseTest {
                 PackageName.from("bar.winery"));
         PackageDescriptor packageDescriptor3 = PackageDescriptor.from(PackageOrg.from("testorg2"),
                 PackageName.from("bazz"));
+        PackageDescriptor packageDescriptor4 = PackageDescriptor.from(PackageOrg.from("testorg"),
+                PackageName.from("pkgA"));
         List<ResolutionRequest> requests = new ArrayList<>();
         requests.add(ResolutionRequest.from(packageDescriptor1));
         requests.add(ResolutionRequest.from(packageDescriptor2));
         requests.add(ResolutionRequest.from(packageDescriptor3));
+        requests.add(ResolutionRequest.from(packageDescriptor4));
 
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(CUSTOM_USER_HOME).build();
         PackageResolver packageResolver = environment.getService(PackageResolver.class);
         Collection<PackageMetadataResponse> packageMetadataResponses = packageResolver
                 .resolvePackageMetadata(requests, ResolutionOptions.builder().build());
-        Assert.assertEquals(packageMetadataResponses.size(), 3);
+        Assert.assertEquals(packageMetadataResponses.size(), 4);
 
         // Both the dependencies should be resolved successfully since the custom repo contains both the dependencies
         Assert.assertTrue(packageMetadataResponses.stream().noneMatch(response ->
@@ -359,7 +367,8 @@ public class CustomRepoResolutionTests extends BaseTest {
             Assert.assertSame(response.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
             Assert.assertTrue("testorg/foo:1.0.0".equals(response.resolvedDescriptor().toString()) ||
                     "testorg/bar.winery:1.0.0".equals(response.resolvedDescriptor().toString()) ||
-                    "testorg2/bazz:1.0.0".equals(response.resolvedDescriptor().toString()));
+                    "testorg2/bazz:1.0.0".equals(response.resolvedDescriptor().toString()) ||
+                    "testorg/pkgA:1.0.0".equals(response.resolvedDescriptor().toString()));
         });
     }
 }

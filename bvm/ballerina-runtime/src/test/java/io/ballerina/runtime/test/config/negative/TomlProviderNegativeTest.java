@@ -134,7 +134,7 @@ public class TomlProviderNegativeTest {
                         "value not provided for required configurable variable 'intVar'",
                         "[PrimitiveStructureError.toml:(3:13,3:18)] configurable variable 'stringVar' is expected to " +
                                 "be of type 'string', but found 'boolean'"
-                }, 4},
+                }, 3},
         };
     }
 

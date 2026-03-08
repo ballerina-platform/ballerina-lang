@@ -382,8 +382,7 @@ public class LambdaGen {
         lambdaDetails.lookupKey = getPackageName(lambdaDetails.packageID) + lambdaDetails.encodedFuncName;
         lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);
         if (lambdaDetails.functionWrapper == null) {
-            BPackageSymbol symbol = jvmPackageGen.packageCache.getSymbol(
-                    lambdaDetails.packageID.orgName + "/" + lambdaDetails.packageID.name);
+            BPackageSymbol symbol = jvmPackageGen.packageCache.getSymbol(lambdaDetails.packageID);
             lambdaDetails.funcSymbol = (BInvokableSymbol) symbol.scope.lookup(
                     new Name(lambdaDetails.funcName)).symbol;
         }
