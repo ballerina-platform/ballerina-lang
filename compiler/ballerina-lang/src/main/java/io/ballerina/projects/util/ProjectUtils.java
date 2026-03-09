@@ -555,8 +555,35 @@ public final class ProjectUtils {
 
     public static Path getBallerinaRTJarPath() {
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
+        Path homeLibPath = getBalHomePath().resolve("bre").resolve("lib");
+        String threeSegmentVersion = normalizeToThreeSegmentVersion(ballerinaVersion);
+        String prefix = "ballerina-rt-" + threeSegmentVersion;
+        try (Stream<Path> stream = Files.list(homeLibPath)) {
+            List<Path> matches = stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> {
+                        String fileName = path.getFileName().toString();
+                        return fileName.startsWith(prefix) && fileName.endsWith(BLANG_COMPILED_JAR_EXT);
+                    })
+                    .sorted()
+                    .toList();
+            if (!matches.isEmpty()) {
+                return matches.get(0);
+            }
+        } catch (IOException ignored) {
+            // Keep the existing behavior when listing jars fails.
+        }
+        return homeLibPath.resolve("ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT);
+    }
+
+    private static String normalizeToThreeSegmentVersion(String version) {
+        int qualifierStart = version.indexOf('-');
+        String core = qualifierStart >= 0 ? version.substring(0, qualifierStart) : version;
+        String[] segments = core.split("\\.");
+        if (segments.length >= 3) {
+            return segments[0] + "." + segments[1] + "." + segments[2];
+        }
+        return core;
     }
 
     public static List<JarLibrary> testDependencies() {

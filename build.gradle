@@ -10,6 +10,20 @@ plugins {
     id 'repositories'
 }
 
+def withUpdateLevel = { String baseVersion, Object updateLevel ->
+    if (updateLevel == null || updateLevel.toString().trim().isEmpty()) {
+        return baseVersion
+    }
+    String level = updateLevel.toString().trim()
+    if (level.isInteger() && Integer.parseInt(level) == 0) {
+        return baseVersion
+    }
+    int qualifierStart = baseVersion.indexOf('-')
+    String core = qualifierStart >= 0 ? baseVersion.substring(0, qualifierStart) : baseVersion
+    String qualifier = qualifierStart >= 0 ? baseVersion.substring(qualifierStart) : ""
+    return core + "." + level + qualifier
+}
+
 allprojects {
     tasks.withType(JavaCompile).configureEach {
         options.fork = true
@@ -27,18 +41,29 @@ allprojects {
 
 subprojects {
     apply plugin: 'maven-publish'
+    def githubPackageRepo = System.getenv("publishRepository") ?: "ballerina-platform/ballerina-lang"
+    def updateLevel = rootProject.findProperty("updateLevel")
+    def useUpdateVersionForPublication = project.path == ':ballerina-runtime' ||
+            project.path == ':ballerina-rt' ||
+            project.path == ':jballerina-tools' ||
+            project.path == ':ballerina-lang' ||
+            project.path.startsWith(':ballerina-lang:')
+    if (useUpdateVersionForPublication && updateLevel) {
+        version = withUpdateLevel(project.version.toString(), updateLevel)
+    }
+    def publicationVersion = project.version
     publishing {
         publications {
             mavenJava(MavenPublication) {
                 groupId project.group
                 artifactId project.name
-                version = project.version
+                version = publicationVersion
             }
         }
         repositories {
             maven {
                 name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/ballerina-platform/ballerina-lang")
+                url = uri("https://maven.pkg.github.com/${githubPackageRepo}")
                 credentials {
                     username System.getenv("publishUser")
                     password System.getenv("publishPAT")
@@ -47,11 +72,33 @@ subprojects {
         }
     }
 
+    tasks.matching { it.name == "publishMavenJavaPublicationToGitHubPackagesRepository" }.configureEach {
+        onlyIf {
+            String configuredUpdateLevel = String.valueOf(rootProject.findProperty("updateLevel") ?: "0").trim()
+            boolean isUpdateLevelRelease = configuredUpdateLevel.isInteger() &&
+                    Integer.parseInt(configuredUpdateLevel) > 0
+            if (!isUpdateLevelRelease) {
+                return true
+            }
+
+            String versionString = publicationVersion.toString()
+            int qualifierStart = versionString.indexOf('-')
+            String coreVersion = qualifierStart >= 0 ? versionString.substring(0, qualifierStart) : versionString
+            if (coreVersion.split("\\.").length != 3) {
+                return true
+            }
+            logger.lifecycle("Skipping ${path}: ${project.group}:${project.name}:${publicationVersion} " +
+                    "(3-segment artifact during update-level release)")
+            return false
+        }
+    }
+
     release {
         // Disable check snapshots temporarily
         failOnSnapshotDependencies = false
         failOnCommitNeeded = false
-        tagTemplate = 'v${version}'
+        def releaseTagVersion = withUpdateLevel(rootProject.version.toString(), rootProject.findProperty("updateLevel"))
+        tagTemplate = "v${releaseTagVersion}"
         buildTasks = ['build']
         git {
             // To release from any branch

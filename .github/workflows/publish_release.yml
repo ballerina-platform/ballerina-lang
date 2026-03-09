@@ -29,26 +29,43 @@ jobs:
           set-java-home: 'false'
       - name: Set version env variable
         run: |
-          echo "VERSION=$(./gradlew properties | grep ^version: | cut -d\  -f2 | sed 's@-SNAPSHOT@@')" >> $GITHUB_ENV
+          VERSION=$(grep '^version=' gradle.properties | cut -d= -f2 | sed 's@-SNAPSHOT@@' | tr -d '[:space:]')
+          if [ -z "${VERSION}" ]; then
+            echo "VERSION is empty"; exit 1
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+          UPDATE_LEVEL=$(grep '^updateLevel=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          if [ -z "${UPDATE_LEVEL}" ]; then
+            UPDATE_LEVEL=0
+          fi
+          echo "UPDATE_LEVEL=${UPDATE_LEVEL}" >> $GITHUB_ENV
+          if [[ "${UPDATE_LEVEL}" =~ ^[0-9]+$ ]] && [ "${UPDATE_LEVEL}" -gt 0 ]; then
+            echo "RELEASE_VERSION=${VERSION}.${UPDATE_LEVEL}" >> $GITHUB_ENV
+          else
+            echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
+          fi
+          echo "Using VERSION=${VERSION}, UPDATE_LEVEL=${UPDATE_LEVEL}"
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Publish artifact
         env:
           publishUser: ${{ secrets.BALLERINA_BOT_USERNAME || github.actor }}
           publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          publishRepository: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "${{ secrets.BALLERINA_BOT_USERNAME || github.actor }}"
           git config user.email "${{ secrets.BALLERINA_BOT_EMAIL || format('{0}@users.noreply.github.com', github.actor) }}"
-          git checkout -b release-${VERSION}
-          ./gradlew build -x :jballerina-debugger-integration-test:test -Pversion=${VERSION}
-          ./gradlew -Pversion=${VERSION} publish -x test --continue
+          git checkout -b release-${RELEASE_VERSION}
+          ./gradlew assemble -Pversion=${VERSION} -PupdateLevel=${UPDATE_LEVEL}
+          ./gradlew publish -Pversion=${VERSION} -PupdateLevel=${UPDATE_LEVEL} -x test --continue
       - name: Create Release Tag
         run: |
           git config --local user.name "${{ secrets.BALLERINA_BOT_USERNAME || github.actor }}"
           git config --local user.email "${{ secrets.BALLERINA_BOT_EMAIL || format('{0}@users.noreply.github.com', github.actor) }}"
-          git tag -a v${VERSION} -m "Release v${VERSION}"
-          git push origin v${VERSION}
+          git tag -a v${RELEASE_VERSION} -m "Release v${RELEASE_VERSION}"
+          git push origin v${RELEASE_VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
       - name: Create Github release from the release tag
@@ -58,12 +75,12 @@ jobs:
           --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}' \
           --header 'Content-Type: application/json' \
           --data-raw '{
-              "tag_name": "v'"$VERSION"'",
-              "name": "ballerina-lang-v'"$VERSION"'"
+              "tag_name": "v'"$RELEASE_VERSION"'",
+              "name": "ballerina-lang-v'"$RELEASE_VERSION"'"
           }'
       - name: Post release PR
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
-          bin/hub pull-request -m "[Automated] Sync ${{ github.event.repository.default_branch }} after "$VERSION" release" -b "${{ github.event.repository.default_branch }}"
+          bin/hub pull-request -m "[Automated] Sync ${{ github.event.repository.default_branch }} after "$RELEASE_VERSION" release" -b "${{ github.event.repository.default_branch }}"

@@ -20,6 +20,22 @@ plugins {
     id 'repositories'
 }
 
+def withUpdateLevel = { String baseVersion, Object updateLevel ->
+    if (updateLevel == null || updateLevel.toString().trim().isEmpty()) {
+        return baseVersion
+    }
+    String level = updateLevel.toString().trim()
+    if (level.isInteger() && Integer.parseInt(level) == 0) {
+        return baseVersion
+    }
+    int qualifierStart = baseVersion.indexOf('-')
+    String core = qualifierStart >= 0 ? baseVersion.substring(0, qualifierStart) : baseVersion
+    String qualifier = qualifierStart >= 0 ? baseVersion.substring(qualifierStart) : ""
+    return core + "." + level + qualifier
+}
+
+def effectiveToolsVersion = withUpdateLevel(rootProject.version.toString(), rootProject.findProperty("updateLevel"))
+
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
@@ -423,11 +439,12 @@ tasks.register('generateDocs', JavaExec) {
 
 tasks.register('createApiDocsZip', Zip) {
     from generateDocs.outputs.files
-    archiveFileName = "ballerina-api-docs-${project.version}.zip"
+    archiveFileName = "ballerina-api-docs-${effectiveToolsVersion}.zip"
 }
 
 tasks.register('createZip', Zip) {
-    def basePath = '/' + project.name + '-' + project.version + '/'
+    archiveFileName = "${project.name}-${effectiveToolsVersion}.zip"
+    def basePath = '/' + project.name + '-' + effectiveToolsVersion + '/'
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
 //    with copyBirJarSpec(basePath)
@@ -474,7 +491,7 @@ tasks.register('updateBalHome', Copy) {
 
 tasks.register('createDistribution', Copy) {
     mustRunAfter(':language-server:language-server-core:createZip')
-    def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
+    def filePath = "$buildDir/extracted-distributions/${project.name}-${effectiveToolsVersion}"
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBirSpec("")
@@ -506,8 +523,8 @@ build {
 
 artifacts {
     bala configurations.distBal.files
-    zip file: file("$buildDir/distributions/${project.name}-${project.version}.zip"), builtBy: createZip
-    unzipped file: file("$buildDir/extracted-distributions/${project.name}-${project.version}"), builtBy: createDistribution
+    zip file: file("$buildDir/distributions/${project.name}-${effectiveToolsVersion}.zip"), builtBy: createZip
+    unzipped file: file("$buildDir/extracted-distributions/${project.name}-${effectiveToolsVersion}"), builtBy: createDistribution
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.
