@@ -1,0 +1,10 @@
+[package]
+org = "testorg"
+name = "consolidator"
+version = "0.1.0"
+distribution = "2201.13.0"
+
+[[tool.sample-build-tool]]
+id = "consolidate"
+options.mode = "consolidator"
+options.imports = ["testorg/foo", "testorg/bar"]
