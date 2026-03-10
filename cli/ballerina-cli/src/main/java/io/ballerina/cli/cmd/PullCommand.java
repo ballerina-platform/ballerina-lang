@@ -305,7 +305,10 @@ public class PullCommand implements BLauncherCmd {
             version = latest.toString();
         }
         Path mavenBalaCachePath = mavenPackageRootPath.resolve(version);
-
+        if (Files.exists(mavenBalaCachePath)) {
+            outStream.println("Package already exists.\n");
+            return version;
+        }
         try {
             //TODO: Optimize this by using maven metadata to get platform
             Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());

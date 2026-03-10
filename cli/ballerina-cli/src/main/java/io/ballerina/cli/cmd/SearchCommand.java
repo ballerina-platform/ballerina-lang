@@ -208,6 +208,7 @@ public class SearchCommand implements BLauncherCmd {
         Path homeReposPath = RepoUtils.createAndGetHomeReposPath().resolve(
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
         boolean foundSearch = false;
+        query = "q=" + query;
         PkgSearchMavenMetadata packageSearchResult =
                 client.getPkgSearchMetadata(query, homeReposPath);
         List<PackageSearchEntry> packages = packageSearchResult.getPackages();

@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Data class representing tool search results parsed from a Maven maven-metadata.xml file.
  *
- * @since 2201.8.0
+ * @since 2201.13.2
  */
 public class ToolSearchMavenMetadata {
     private String groupId;

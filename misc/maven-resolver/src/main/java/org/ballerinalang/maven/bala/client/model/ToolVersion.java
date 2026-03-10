@@ -20,7 +20,7 @@ package org.ballerinalang.maven.bala.client.model;
 /**
  * Data class representing a single tool version parsed from maven-metadata.xml.
  *
- * @since 2201.8.0
+ * @since 2201.13.2
  */
 public class ToolVersion {
     private String version;

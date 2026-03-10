@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Package Resolution response.
  *
- * @since 2201.14.0
+ * @since 2201.13.2
  */
 public class PackageResolutionResponse {
 

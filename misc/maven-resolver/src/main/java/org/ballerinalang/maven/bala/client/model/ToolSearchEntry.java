@@ -20,7 +20,7 @@ package org.ballerinalang.maven.bala.client.model;
 /**
  * Data class representing a single tool entry in tool search results from maven-metadata.xml.
  *
- * @since 2201.8.0
+ * @since 2201.13.2
  */
 public class ToolSearchEntry {
     private String org;

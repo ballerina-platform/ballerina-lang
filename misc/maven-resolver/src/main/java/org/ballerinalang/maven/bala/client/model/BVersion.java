@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Data class representing a single Ballerina package version parsed from maven-metadata.xml.
  *
- * @since 2201.8.0
+ * @since 2201.13.2
  */
 public class BVersion {
     private String number;

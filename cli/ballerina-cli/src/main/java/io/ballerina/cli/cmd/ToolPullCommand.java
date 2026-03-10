@@ -332,6 +332,13 @@ public class ToolPullCommand implements BLauncherCmd {
                     .orElseThrow();
         }
 
+        Optional<BalToolsManifest.Tool> toolAvailableLocally = getToolAvailableLocally(toolId, version,
+                repositoryName);
+        if (toolAvailableLocally.isPresent()) {
+            outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
+            return toolAvailableLocally.get();
+        }
+
         BalToolsUtil.pullAndExtractToolFromMavenProxy(org, name, version, mavenClient);
         outStream.println("tool '" + toolId + ":" + version + "' pulled successfully.");
         return new BalToolsManifest.Tool(toolId, org, name, version, true, null);

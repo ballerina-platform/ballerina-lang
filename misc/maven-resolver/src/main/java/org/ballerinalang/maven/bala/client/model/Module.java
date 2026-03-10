@@ -20,7 +20,7 @@ package org.ballerinalang.maven.bala.client.model;
 /**
  * Data class representing a module within a Ballerina version.
  *
- * @since 2201.8.0
+ * @since 2201.13.2
  */
 public class Module {
     private String name;
