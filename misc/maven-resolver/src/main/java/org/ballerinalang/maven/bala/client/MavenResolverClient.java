@@ -89,7 +89,8 @@ public class MavenResolverClient {
     public static final String ARTIFACT_SEPERATOR = "-";
     RepositorySystem system;
     DefaultRepositorySystemSession session;
-    Map<String, PackageMavenMetadata> metadataCache = new HashMap<>();
+    Map<String, PackageMavenMetadata> pkgMetadataCache = new HashMap<>();
+    Map<String, ToolMavenMetadata> toolMetadataCache = new HashMap<>();
 
     RemoteRepository.Builder repository;
 
@@ -207,11 +208,11 @@ public class MavenResolverClient {
             MavenResolverClientException {
          try {
             String cacheKey = groupId + ":" + artifactId;
-            if (!metadataCache.containsKey(cacheKey)) {
+            if (!pkgMetadataCache.containsKey(cacheKey)) {
                 PackageMavenMetadata metadata = getPackageMetadata(groupId, artifactId, localRepoPath);
-                metadataCache.put(cacheKey, metadata);
+                pkgMetadataCache.put(cacheKey, metadata);
             }
-            return metadataCache.get(cacheKey).getVersions().stream()
+            return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .map(BVersion::getNumber)
                     .collect(Collectors.toList());
         } catch (MavenResolverClientException e) {
@@ -223,11 +224,11 @@ public class MavenResolverClient {
             throws MavenResolverClientException {
         try {
             String cacheKey = org + ":" + pkgName;
-            if (!metadataCache.containsKey(cacheKey)) {
+            if (!pkgMetadataCache.containsKey(cacheKey)) {
                 PackageMavenMetadata metadata = getPackageMetadata(org, pkgName, localRepoPath);
-                metadataCache.put(cacheKey, metadata);
+                pkgMetadataCache.put(cacheKey, metadata);
             }
-            return metadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getNumber().equals(version))
+            return pkgMetadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getNumber().equals(version))
                     .map(BVersion::getBallerinaVersion)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
@@ -239,11 +240,11 @@ public class MavenResolverClient {
             throws MavenResolverClientException {
         try {
             String cacheKey = org + ":" + pkgName;
-            if (!metadataCache.containsKey(cacheKey)) {
+            if (!pkgMetadataCache.containsKey(cacheKey)) {
                 PackageMavenMetadata metadata = getPackageMetadata(org, pkgName, localRepoPath);
-                metadataCache.put(cacheKey, metadata);
+                pkgMetadataCache.put(cacheKey, metadata);
             }
-            return metadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getNumber().equals(version))
+            return pkgMetadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getNumber().equals(version))
                     .map(BVersion::isDeprecated)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
@@ -333,6 +334,124 @@ public class MavenResolverClient {
         throw new MavenResolverClientException("Metadata file not found or could not be resolved");
     }
 
+    /**
+     * Get tool metadata from the Maven repository, including all versions and their details, by parsing the
+     * maven-metadata.xml file.
+     *
+     * @param toolId        tool ID of the tool
+     * @param localRepoPath path to the local Maven repository
+     * @return ToolMavenMetadata object containing parsed XML metadata
+     * @throws MavenResolverClientException when metadata resolution or XML parsing fails
+     */
+    private ToolMavenMetadata getToolMetadata(String toolId, Path localRepoPath)
+            throws MavenResolverClientException {
+        LocalRepository localRepo = new LocalRepository(localRepoPath.toAbsolutePath().toString());
+        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+        session.setOffline(false);
+        session.setUpdatePolicy("interval:10"); // TODO :  use an interval as "interval:1"
+        session.setChecksumPolicy(org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE);
+        Metadata metadata = new DefaultMetadata(
+                "__tools__",
+                toolId,
+                "maven-metadata.xml",
+                Metadata.Nature.RELEASE_OR_SNAPSHOT
+        );
+        MetadataRequest metadataRequest = new MetadataRequest(
+                metadata,
+                this.repository.build(),
+                null
+        );
+        MetadataResult result = system.resolveMetadata(
+                session,
+                Collections.singletonList(metadataRequest)
+        ).get(0);
+        Metadata metadataResult = result.getMetadata();
+
+        // Parse the XML file
+        File metadataFile = metadataResult.getFile();
+        if (metadataFile != null && metadataFile.exists()) {
+            try {
+                Document document = parseXmlFile(metadataFile);
+                return parseToolMetadata(document);
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                throw new MavenResolverClientException("Failed to parse metadata XML: " + e.getMessage());
+            }
+        }
+        throw new MavenResolverClientException("Metadata file not found or could not be resolved");
+    }
+
+    /**
+     * Get tool metadata including organization and name information.
+     *
+     * @param toolId        tool ID to retrieve metadata for
+     * @param localRepoPath path to the local Maven repository
+     * @return ToolMavenMetadata containing org, name, and version information
+     * @throws MavenResolverClientException when metadata resolution fails
+     */
+    public ToolMavenMetadata getToolMetadataInfo(String toolId, Path localRepoPath)
+            throws MavenResolverClientException {
+        // Check cache first
+        ToolMavenMetadata metadata = toolMetadataCache.get(toolId);
+        if (metadata == null) {
+            metadata = getToolMetadata(toolId, localRepoPath);
+            toolMetadataCache.put(toolId, metadata);
+        }
+        return metadata;
+    }
+
+    /**
+     * Check if the current Ballerina distribution version is compatible with the tool's required distribution version.
+     * The current version must have the same major version and a minor version greater than or equal to the tool's required version.
+     *
+     * @param currentDistVersion  current Ballerina distribution version
+     * @param toolDistVersion     tool's required distribution version
+     * @return true if compatible, false otherwise
+     */
+    private boolean isCompatibleWithToolDistVersion(String currentDistVersion, String toolDistVersion) {
+        try {
+            String[] currentParts = currentDistVersion.split("\\.");
+            String[] toolParts = toolDistVersion.split("\\.");
+
+            if (currentParts.length < 2 || toolParts.length < 2) {
+                // If version format is unexpected, fall back to exact match
+                return currentDistVersion.equals(toolDistVersion);
+            }
+
+            int currentMajor = Integer.parseInt(currentParts[0]);
+            int currentMinor = Integer.parseInt(currentParts[1]);
+            int toolMajor = Integer.parseInt(toolParts[0]);
+            int toolMinor = Integer.parseInt(toolParts[1]);
+
+            return currentMajor == toolMajor && currentMinor >= toolMinor;
+        } catch (Exception e) {
+            // If version parsing fails, fall back to exact match
+            return currentDistVersion.equals(toolDistVersion);
+        }
+    }
+
+    /**
+     * Get all compatible tool versions that match the given Ballerina version.
+     * Returns all tool version strings that are compatible with the specified Ballerina version.
+     *
+     * @param toolId            tool ID to resolve
+     * @param ballerinaVersion  Ballerina version to match
+     * @param localRepoPath     path to the local Maven repository
+     * @return list of version strings that match the Ballerina version
+     * @throws MavenResolverClientException when metadata resolution fails
+     */
+    public List<String> getCompatibleToolVersions(String toolId, String ballerinaVersion, Path localRepoPath)
+            throws MavenResolverClientException {
+        ToolMavenMetadata metadata = toolMetadataCache.get(toolId);
+        if (metadata == null) {
+            metadata = getToolMetadata(toolId, localRepoPath);
+            toolMetadataCache.put(toolId, metadata);
+        }
+        return metadata.getVersions().stream()
+                .filter(v -> isCompatibleWithToolDistVersion(ballerinaVersion, v.getBallerinaVersion()))
+                .map(ToolVersion::getVersion)
+                .toList();
+    }
+
 
     /**
      * Get package search metadata from the Maven repository, including all packages and their details, by parsing the
@@ -373,6 +492,51 @@ public class MavenResolverClient {
             try {
                 Document document = parseXmlFile(metadataFile);
                 return parsePkgSearchMetadata(document, "__packagesearch__", query);
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                throw new MavenResolverClientException("Failed to parse metadata XML: " + e.getMessage());
+            }
+        }
+        throw new MavenResolverClientException("Metadata file not found or could not be resolved");
+    }
+
+    /**
+     * Resolve and retrieve tool search metadata from the remote Maven repository.
+     *
+     * @param query    artifact ID of the tool search query
+     * @param localRepoPath path to the local Maven repository
+     * @return ToolSearchMavenMetadata object containing parsed XML metadata
+     * @throws MavenResolverClientException when metadata resolution or XML parsing fails
+     */
+    public ToolSearchMavenMetadata getToolSearchMetadata(String query, Path localRepoPath)
+            throws MavenResolverClientException {
+        LocalRepository localRepo = new LocalRepository(localRepoPath.toAbsolutePath().toString());
+        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+        session.setOffline(false);
+        session.setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+        session.setChecksumPolicy(org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_IGNORE);
+        Metadata metadata = new DefaultMetadata(
+                "__toolsearch__",
+                query,
+                "maven-metadata.xml",
+                Metadata.Nature.RELEASE_OR_SNAPSHOT
+        );
+        MetadataRequest metadataRequest = new MetadataRequest(
+                metadata,
+                this.repository.build(),
+                null
+        );
+        MetadataResult result = system.resolveMetadata(
+                session,
+                Collections.singletonList(metadataRequest)
+        ).get(0);
+        Metadata metadataResult = result.getMetadata();
+
+        // Parse the XML file
+        File metadataFile = metadataResult.getFile();
+        if (metadataFile != null && metadataFile.exists()) {
+            try {
+                Document document = parseXmlFile(metadataFile);
+                return parseToolSearchMetadata(document, "__toolsearch__", query);
             } catch (ParserConfigurationException | IOException | SAXException e) {
                 throw new MavenResolverClientException("Failed to parse metadata XML: " + e.getMessage());
             }
@@ -438,6 +602,85 @@ public class MavenResolverClient {
         
         metadata.setPackages(packages);
         return metadata;
+    }
+
+    /**
+     * Parse the XML Document into a ToolSearchMavenMetadata object.
+     *
+     * @param document   the XML document
+     * @param groupId    the group ID
+     * @param artifactId the artifact ID
+     * @return ToolSearchMavenMetadata object with all parsed data
+     */
+    private ToolSearchMavenMetadata parseToolSearchMetadata(Document document, String groupId, String artifactId) {
+        ToolSearchMavenMetadata metadata = new ToolSearchMavenMetadata();
+        metadata.setGroupId(getTagValue(document, "groupId"));
+        metadata.setArtifactId(getTagValue(document, "artifactId"));
+
+        String countStr = getTagValue(document, "count");
+        if (countStr != null && !countStr.isEmpty()) {
+            try {
+                metadata.setCount(Integer.parseInt(countStr.trim()));
+            } catch (NumberFormatException e) {
+                metadata.setCount(0);
+            }
+        }
+        String limitStr = getTagValue(document, "limit");
+        if (limitStr != null && !limitStr.isEmpty()) {
+            try {
+                metadata.setLimit(Integer.parseInt(limitStr.trim()));
+            } catch (NumberFormatException e) {
+                metadata.setLimit(0);
+            }
+        }
+        String offsetStr = getTagValue(document, "offset");
+        if (offsetStr != null && !offsetStr.isEmpty()) {
+            try {
+                metadata.setOffset(Integer.parseInt(offsetStr.trim()));
+            } catch (NumberFormatException e) {
+                metadata.setOffset(0);
+            }
+        }
+
+        // Parse tools
+        NodeList toolNodes = document.getElementsByTagName("tool");
+        List<ToolSearchEntry> tools = new ArrayList<>();
+
+        for (int i = 0; i < toolNodes.getLength(); i++) {
+            Node node = toolNodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element toolElement = (Element) node;
+                ToolSearchEntry tool = parseToolSearchEntry(toolElement);
+                tools.add(tool);
+            }
+        }
+
+        metadata.setTools(tools);
+        return metadata;
+    }
+
+    /**
+     * Parse a single tool element into a ToolSearchEntry object.
+     *
+     * @param toolElement the tool XML element
+     * @return ToolSearchEntry object
+     */
+    private ToolSearchEntry parseToolSearchEntry(Element toolElement) {
+        ToolSearchEntry tool = new ToolSearchEntry();
+        tool.setOrg(getElementTextContent(toolElement, "org"));
+        tool.setName(getElementTextContent(toolElement, "name"));
+        tool.setVersion(getElementTextContent(toolElement, "version"));
+        tool.setSummary(getElementTextContent(toolElement, "summary"));
+        tool.setBalToolId(getElementTextContent(toolElement, "balToolId"));
+        String createdDateStr = getElementTextContent(toolElement, "createdDate");
+        if (!createdDateStr.isEmpty()) {
+            try {
+                tool.setCreatedDate(Long.parseLong(createdDateStr));
+            } catch (NumberFormatException e) {
+                tool.setCreatedDate(0);
+            }
+        }
+        return tool;
     }
 
     /**
@@ -509,6 +752,42 @@ public class MavenResolverClient {
         version.setModules(modules);
         
         return version;
+    }
+
+    /**
+     * Parse the XML Document into a ToolMavenMetadata object.
+     * Handles the tool-specific metadata XML structure.
+     *
+     * @param document the XML document
+     * @return ToolMavenMetadata object with all parsed data
+     */
+    private ToolMavenMetadata parseToolMetadata(Document document) {
+        ToolMavenMetadata metadata = new ToolMavenMetadata();
+        metadata.setGroupId(getTagValue(document, "groupId"));
+        metadata.setArtifactId(getTagValue(document, "artifactId"));
+        metadata.setOrg(getTagValue(document, "org"));
+        metadata.setName(getTagValue(document, "package"));
+
+        // Parse versions
+        NodeList versionNodes = document.getElementsByTagName("version");
+        List<ToolVersion> versions = new ArrayList<>();
+
+        for (int i = 0; i < versionNodes.getLength(); i++) {
+            Node node = versionNodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element versionElement = (Element) node;
+                String version = getElementTextContent(versionElement, "number");
+                String platform = getElementTextContent(versionElement, "platform");
+                String ballerinaVersion = getElementTextContent(versionElement, "ballerinaVersion");
+
+                if (!version.isEmpty()) {
+                    versions.add(new ToolVersion(version, platform, ballerinaVersion));
+                }
+            }
+        }
+
+        metadata.setVersions(versions);
+        return metadata;
     }
 
     /**
@@ -698,6 +977,120 @@ public class MavenResolverClient {
     }
 
     /**
+     * Data class representing tool metadata from the Maven XML.
+     */
+    public static class ToolMavenMetadata {
+        private String groupId;
+        private String artifactId;
+        private String org;
+        private String name;
+        private List<ToolVersion> versions;
+
+        public ToolMavenMetadata() {
+            this.versions = new ArrayList<>();
+        }
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        public void setArtifactId(String artifactId) {
+            this.artifactId = artifactId;
+        }
+
+        public String getOrg() {
+            return org;
+        }
+
+        public void setOrg(String org) {
+            this.org = org;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<ToolVersion> getVersions() {
+            return versions;
+        }
+
+        public void setVersions(List<ToolVersion> versions) {
+            this.versions = versions;
+        }
+
+        @Override
+        public String toString() {
+            return "ToolMavenMetadata{" +
+                    "groupId='" + groupId + '\'' +
+                    ", artifactId='" + artifactId + '\'' +
+                    ", org='" + org + '\'' +
+                    ", name='" + name + '\'' +
+                    ", versions=" + versions +
+                    '}';
+        }
+    }
+
+    /**
+     * Data class representing a single tool version.
+     */
+    public static class ToolVersion {
+        private String version;
+        private String platform;
+        private String ballerinaVersion;
+
+        public ToolVersion(String version, String platform, String ballerinaVersion) {
+            this.version = version;
+            this.platform = platform;
+            this.ballerinaVersion = ballerinaVersion;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public String getPlatform() {
+            return platform;
+        }
+
+        public void setPlatform(String platform) {
+            this.platform = platform;
+        }
+
+        public String getBallerinaVersion() {
+            return ballerinaVersion;
+        }
+
+        public void setBallerinaVersion(String ballerinaVersion) {
+            this.ballerinaVersion = ballerinaVersion;
+        }
+
+        @Override
+        public String toString() {
+            return "ToolVersion{" +
+                    "version='" + version + '\'' +
+                    ", platform='" + platform + '\'' +
+                    ", ballerinaVersion='" + ballerinaVersion + '\'' +
+                    '}';
+        }
+    }
+
+    /**
      * Data class representing package search metadata from the Maven XML.
      */
     public static class PkgSearchMavenMetadata {
@@ -739,6 +1132,157 @@ public class MavenResolverClient {
                     "groupId='" + groupId + '\'' +
                     ", artifactId='" + artifactId + '\'' +
                     ", packages=" + packages +
+                    '}';
+        }
+    }
+
+    /**
+     * Data class representing tool search metadata from the Maven XML.
+     */
+    public static class ToolSearchMavenMetadata {
+        private String groupId;
+        private String artifactId;
+        private List<ToolSearchEntry> tools;
+        private int count;
+        private int limit;
+        private int offset;
+
+        public ToolSearchMavenMetadata() {
+            this.tools = new ArrayList<>();
+        }
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        public void setArtifactId(String artifactId) {
+            this.artifactId = artifactId;
+        }
+
+        public List<ToolSearchEntry> getTools() {
+            return tools;
+        }
+
+        public void setTools(List<ToolSearchEntry> tools) {
+            this.tools = tools;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public void setLimit(int limit) {
+            this.limit = limit;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
+
+        @Override
+        public String toString() {
+            return "ToolSearchMavenMetadata{" +
+                    "groupId='" + groupId + '\'' +
+                    ", artifactId='" + artifactId + '\'' +
+                    ", tools=" + tools +
+                    ", count=" + count +
+                    ", limit=" + limit +
+                    ", offset=" + offset +
+                    '}';
+        }
+    }
+
+    /**
+     * Data class representing a single tool in the tool search metadata.
+     */
+    public static class ToolSearchEntry {
+        private String org;
+        private String name;
+        private String version;
+        private String summary;
+        private long createdDate;
+        private String balToolId;
+
+        public ToolSearchEntry() {
+        }
+
+        public String getOrg() {
+            return org;
+        }
+
+        public void setOrg(String org) {
+            this.org = org;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public String getSummary() {
+            return summary;
+        }
+
+        public void setSummary(String summary) {
+            this.summary = summary;
+        }
+
+        public long getCreatedDate() {
+            return createdDate;
+        }
+
+        public void setCreatedDate(long createdDate) {
+            this.createdDate = createdDate;
+        }
+
+        public String getBalToolId() {
+            return balToolId;
+        }
+
+        public void setBalToolId(String balToolId) {
+            this.balToolId = balToolId;
+        }
+
+        @Override
+        public String toString() {
+            return "ToolSearchEntry{" +
+                    "org='" + org + '\'' +
+                    ", name='" + name + '\'' +
+                    ", version='" + version + '\'' +
+                    ", summary='" + summary + '\'' +
+                    ", createdDate=" + createdDate +
+                    ", balToolId='" + balToolId + '\'' +
                     '}';
         }
     }
@@ -821,7 +1365,7 @@ public class MavenResolverClient {
     /**
      * Data class representing a single Ballerina version.
      */
-    static class BVersion {
+    public static class BVersion {
         private String number;
         private String platform;
         private String languageSpecificationVersion;

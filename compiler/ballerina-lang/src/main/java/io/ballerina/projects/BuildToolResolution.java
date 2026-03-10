@@ -23,8 +23,10 @@ import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.BalToolsUtil;
 import io.ballerina.projects.util.BuildToolsUtil;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
@@ -34,8 +36,11 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -124,11 +129,17 @@ public class BuildToolResolution {
             reportDiagnosticsForUnresolvedTools(unresolvedTools, toolResolutionResponseOffline);
             return toolResolutionResponseOffline;
         }
+        // Check if proxyCentral repository is configured
+        Settings settings = RepoUtils.readSettings();
+        Repository proxyCentralRepo = BalToolsUtil.findProxyCentralRepository(settings);
         Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, packageLockingMode);
-        ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionRequests(resolutionRequests);
         List<BuildTool> toolResolutionResponse;
         try {
-            toolResolutionResponse = getToolResolutionResponse(toolResolutionRequest);
+            if (proxyCentralRepo != null) {
+                toolResolutionResponse = resolveToolsViaMavenProxy(resolutionRequests, proxyCentralRepo, settings);
+            } else {
+                toolResolutionResponse = resolveToolsViaCentral(resolutionRequests);
+            }
         } catch (CentralClientException e) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.CENTRAL_CONNECTION_ERROR.diagnosticId(),
@@ -158,6 +169,13 @@ public class BuildToolResolution {
         // Report errors for unresolved tools
         reportDiagnosticsForUnresolvedTools(unresolvedTools, resolvedTools);
         return resolvedTools;
+    }
+
+    private List<BuildTool> resolveToolsViaCentral(Set<ToolResolutionRequest> resolutionRequests) throws CentralClientException {
+        List<BuildTool> toolResolutionResponse;
+        ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionCentralRequests(resolutionRequests);
+        toolResolutionResponse = getToolResolutionCentralResponse(toolResolutionRequest);
+        return toolResolutionResponse;
     }
 
     private void reportDiagnosticsForUnresolvedTools(
@@ -234,7 +252,7 @@ public class BuildToolResolution {
         return resolutionRequests;
     }
 
-    private ToolResolutionCentralRequest createToolResolutionRequests(Set<ToolResolutionRequest> resolutionRequests) {
+    private ToolResolutionCentralRequest createToolResolutionCentralRequests(Set<ToolResolutionRequest> resolutionRequests) {
         ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
         for (ToolResolutionRequest resolutionRequest : resolutionRequests) {
             ToolResolutionCentralRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
@@ -248,7 +266,7 @@ public class BuildToolResolution {
         return toolResolutionRequest;
     }
 
-    private List<BuildTool> getToolResolutionResponse(ToolResolutionCentralRequest toolResolutionRequest)
+    private List<BuildTool> getToolResolutionCentralResponse(ToolResolutionCentralRequest toolResolutionRequest)
             throws CentralClientException {
         ToolResolutionCentralResponse packageResolutionResponse =
                 BalToolsUtil.getLatestVersionsInCentral(toolResolutionRequest);
@@ -312,5 +330,141 @@ public class BuildToolResolution {
                 }
             }
         }
+    }
+
+    /**
+     * Resolve tools via Maven central proxy repository.
+     *
+     * @param toolResolutionRequest the tool resolution request
+     * @param proxyCentralRepo      the proxy central repository configuration
+     * @param settings              the settings containing proxy and other configs
+     * @return the resolved tools response
+     * @throws CentralClientException if resolution fails
+     */
+    private List<BuildTool> resolveToolsViaMavenProxy(
+            Set<ToolResolutionRequest> toolResolutionRequest,
+            Repository proxyCentralRepo,
+            Settings settings) throws CentralClientException {
+        List<BuildTool> resolvedTools = new ArrayList<>();
+        Path localRepoPath = getProxyCentralLocalRepoPath(proxyCentralRepo);
+        MavenResolverClient mavenClient;
+        try {
+            mavenClient = BalToolsUtil.initializeMavenClientWithProxyRepo(settings);
+        } catch (MavenResolverClientException e) {
+            throw new CentralClientException(e.getMessage());
+        }
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+
+        for (ToolResolutionRequest toolRequest : toolResolutionRequest) {
+            try {
+                BuildTool resolvedTool = resolveSingleToolViaMaven(
+                        mavenClient, toolRequest, ballerinaVersion, localRepoPath);
+                if (resolvedTool != null) {
+                    resolvedTools.add(resolvedTool);
+                    BalToolsUtil.pullAndExtractToolFromMavenProxy(
+                            resolvedTool.org().value(), resolvedTool.name().value(),
+                            resolvedTool.version().toString(), mavenClient);
+                }
+
+            } catch (MavenResolverClientException e) {
+                // Tool resolution failed via Maven, skip and continue with next tool
+            }
+        }
+
+        return resolvedTools;
+    }
+
+    private Path getProxyCentralLocalRepoPath(Repository proxyCentralRepo) {
+        return proxyCentralRepo.path().orElse(
+                ProjectUtils.createAndGetHomeReposPath()
+                        .resolve(ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME));
+    }
+
+    private BuildTool resolveSingleToolViaMaven(MavenResolverClient mavenClient,
+                                                ToolResolutionRequest toolRequest,
+                                                String ballerinaVersion,
+                                                Path localRepoPath) throws MavenResolverClientException {
+        String toolId = toolRequest.id().toString();
+        TomlNodeLocation location = BuildToolsUtil.getFirstToolEntryLocation(toolId,
+                packageContext.packageManifest().tools());
+        MavenResolverClient.ToolMavenMetadata toolMetadata =
+                mavenClient.getToolMetadataInfo(toolId, localRepoPath);
+        List<String> compatibleToolVersions = toolMetadata.getVersions().stream()
+                .filter(v -> isCompatibleWithToolDistVersion(ballerinaVersion, v.getBallerinaVersion()))
+                .map(MavenResolverClient.ToolVersion::getVersion)
+                .toList();
+        if (compatibleToolVersions.isEmpty()) {
+            return null;
+        }
+        PackageVersion latestVersion = getLatestCompatibleToolVersion(
+                toolRequest, compatibleToolVersions);
+
+        if (latestVersion == null) {
+            return null;
+        }
+
+        return BuildTool.from(
+                BuildToolId.from(toolId),
+                PackageOrg.from(toolMetadata.getOrg()),
+                PackageName.from(toolMetadata.getName()),
+                latestVersion,
+                location
+        );
+    }
+
+    /**
+     * Check if the current Ballerina distribution version is compatible with the tool's required distribution version.
+     * The current version must have the same major version and a minor version greater than or equal to the tool's required version.
+     *
+     * @param currentDistVersion  current Ballerina distribution version
+     * @param toolDistVersion     tool's required distribution version
+     * @return true if compatible, false otherwise
+     */
+    private boolean isCompatibleWithToolDistVersion(String currentDistVersion, String toolDistVersion) {
+        try {
+            SemanticVersion current = SemanticVersion.from(currentDistVersion);
+            SemanticVersion tool = SemanticVersion.from(toolDistVersion);
+            return current.major() == tool.major() && current.minor() >= tool.minor();
+        } catch (Exception e) {
+            // If version parsing fails, fall back to exact match
+            return currentDistVersion.equals(toolDistVersion);
+        }
+    }
+
+    private PackageVersion getLatestCompatibleToolVersion(ToolResolutionRequest toolRequest,
+                                                          List<String> allToolVersions) {
+        // Convert to SemanticVersion
+        List<SemanticVersion> toolSemVers = allToolVersions.stream()
+                .map(SemanticVersion::from)
+                .toList();
+
+        // Get the minimum version if specified
+        SemanticVersion minSemVer = null;
+        if (toolRequest.version().isPresent()) {
+            minSemVer = SemanticVersion.from(toolRequest.version().get().value().toString());
+        }
+
+        // Get compatible versions based on locking mode
+        ProjectUtils.CompatibleRange compatibilityRange = ProjectUtils.getCompatibleRange(
+                minSemVer, toolRequest.packageLockingMode());
+        List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
+                minSemVer, toolSemVers, compatibilityRange);
+
+        if (compatibleVersions.isEmpty()) {
+            return null;
+        }
+
+        // Find and return the latest compatible version
+        List<PackageVersion> toolVersions = compatibleVersions.stream()
+                .map(v -> PackageVersion.from(v.toString()))
+                .toList();
+
+        PackageVersion latestVersion = toolVersions.getFirst();
+        for (PackageVersion version : toolVersions) {
+            latestVersion = ProjectUtils.getLatest(latestVersion, version);
+        }
+
+        return latestVersion;
     }
 }
