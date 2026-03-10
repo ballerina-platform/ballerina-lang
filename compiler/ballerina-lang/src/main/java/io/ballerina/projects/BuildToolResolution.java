@@ -38,6 +38,8 @@ import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.maven.bala.client.model.ToolMavenMetadata;
+import org.ballerinalang.maven.bala.client.model.ToolVersion;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
@@ -388,11 +390,11 @@ public class BuildToolResolution {
         String toolId = toolRequest.id().toString();
         TomlNodeLocation location = BuildToolsUtil.getFirstToolEntryLocation(toolId,
                 packageContext.packageManifest().tools());
-        MavenResolverClient.ToolMavenMetadata toolMetadata =
-                mavenClient.getToolMetadataInfo(toolId, localRepoPath);
+        ToolMavenMetadata toolMetadata =
+                mavenClient.getToolMetadata(toolId, localRepoPath);
         List<String> compatibleToolVersions = toolMetadata.getVersions().stream()
                 .filter(v -> isCompatibleWithToolDistVersion(ballerinaVersion, v.getBallerinaVersion()))
-                .map(MavenResolverClient.ToolVersion::getVersion)
+                .map(ToolVersion::getVersion)
                 .toList();
         if (compatibleToolVersions.isEmpty()) {
             return null;

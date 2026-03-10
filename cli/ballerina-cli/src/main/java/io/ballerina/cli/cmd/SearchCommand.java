@@ -29,6 +29,8 @@ import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.maven.bala.client.model.PackageSearchEntry;
+import org.ballerinalang.maven.bala.client.model.PkgSearchMavenMetadata;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -206,11 +208,11 @@ public class SearchCommand implements BLauncherCmd {
         Path homeReposPath = RepoUtils.createAndGetHomeReposPath().resolve(
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
         boolean foundSearch = false;
-        MavenResolverClient.PkgSearchMavenMetadata packageSearchResult =
+        PkgSearchMavenMetadata packageSearchResult =
                 client.getPkgSearchMetadata(query, homeReposPath);
-        List<MavenResolverClient.Package> packages = packageSearchResult.getPackages();
+        List<PackageSearchEntry> packages = packageSearchResult.getPackages();
         List<Package> packageList = new ArrayList<>();
-        for (MavenResolverClient.Package mvnPkg : packages) {
+        for (PackageSearchEntry mvnPkg : packages) {
             Package centralPkg = new Package();
             centralPkg.setName(mvnPkg.getName());
             centralPkg.setOrganization(mvnPkg.getOrg());

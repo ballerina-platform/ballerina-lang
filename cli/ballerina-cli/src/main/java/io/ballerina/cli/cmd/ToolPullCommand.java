@@ -34,6 +34,7 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.maven.bala.client.model.ToolMavenMetadata;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -313,7 +314,7 @@ public class ToolPullCommand implements BLauncherCmd {
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
 
-        MavenResolverClient.ToolMavenMetadata toolMetadata = mavenClient.getToolMetadataInfo(toolId, localRepoPath);
+        ToolMavenMetadata toolMetadata = mavenClient.getToolMetadata(toolId, localRepoPath);
         String org = toolMetadata.getOrg();
         String name = toolMetadata.getName();
 
