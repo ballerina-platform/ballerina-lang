@@ -50,7 +50,6 @@ import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.SubArtifact;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
-import org.eclipse.aether.version.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -185,7 +184,7 @@ public class MavenResolverClient {
         try {
             VersionRangeResult versionRangeResult = system.resolveVersionRange(session, versionRangeRequest);
             return versionRangeResult.getVersions().stream()
-                    .map(Version::toString)
+                    .map(org.eclipse.aether.version.Version::toString)
                     .collect(Collectors.toList());
         } catch (VersionRangeResolutionException e) {
             throw new MavenResolverClientException(e.getMessage());
@@ -212,7 +211,7 @@ public class MavenResolverClient {
                 metadataCache.put(cacheKey, metadata);
             }
             return metadataCache.get(cacheKey).getVersions().stream()
-                    .map(BVersion::getNumber)
+                    .map(Version::getVersion)
                     .collect(Collectors.toList());
         } catch (MavenResolverClientException e) {
                     throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
@@ -227,8 +226,8 @@ public class MavenResolverClient {
                 PackageMavenMetadata metadata = getPackageMetadata(org, pkgName, localRepoPath);
                 metadataCache.put(cacheKey, metadata);
             }
-            return metadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getNumber().equals(version))
-                    .map(BVersion::getBallerinaVersion)
+            return metadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getVersion().equals(version))
+                    .map(Version::getBallerinaVersion)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
             throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
@@ -243,8 +242,8 @@ public class MavenResolverClient {
                 PackageMavenMetadata metadata = getPackageMetadata(org, pkgName, localRepoPath);
                 metadataCache.put(cacheKey, metadata);
             }
-            return metadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getNumber().equals(version))
-                    .map(BVersion::isDeprecated)
+            return metadataCache.get(cacheKey).getVersions().stream().filter(v -> v.getVersion().equals(version))
+                    .map(Version::isDeprecated)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
             throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
@@ -392,20 +391,21 @@ public class MavenResolverClient {
         PackageMavenMetadata metadata = new PackageMavenMetadata();
         metadata.setGroupId(getTagValue(document, "groupId"));
         metadata.setArtifactId(getTagValue(document, "artifactId"));
-        
-        // Parse Bversions
-        NodeList bversionNodes = document.getElementsByTagName("Bversion");
-        List<BVersion> versions = new ArrayList<>();
-        
-        for (int i = 0; i < bversionNodes.getLength(); i++) {
-            Node node = bversionNodes.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                Element bversionElement = (Element) node;
-                BVersion version = parseBVersion(bversionElement);
-                versions.add(version);
+
+        // Parse versions from <versions><version>...</version></versions>
+        List<Version> versions = new ArrayList<>();
+        NodeList versionsNodes = document.getElementsByTagName("versions");
+        if (versionsNodes.getLength() > 0 && versionsNodes.item(0).getNodeType() == Node.ELEMENT_NODE) {
+            Element versionsElement = (Element) versionsNodes.item(0);
+            NodeList versionNodes = versionsElement.getElementsByTagName("version");
+            for (int i = 0; i < versionNodes.getLength(); i++) {
+                Node node = versionNodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    versions.add(parseVersion((Element) node));
+                }
             }
         }
-        
+
         metadata.setVersions(versions);
         return metadata;
     }
@@ -478,36 +478,17 @@ public class MavenResolverClient {
     }
 
     /**
-     * Parse a single Bversion element into a BVersion object.
+     * Parse a single version element into a BVersion object.
      *
-     * @param bversionElement the Bversion XML element
+     * @param versionElement the version XML element
      * @return BVersion object
      */
-    private BVersion parseBVersion(Element bversionElement) {
-        BVersion version = new BVersion();
-        version.setNumber(getElementTextContent(bversionElement, "number"));
-        version.setPlatform(getElementTextContent(bversionElement, "platform"));
-        version.setLanguageSpecificationVersion(getElementTextContent(bversionElement, "languageSpecificationVersion"));
-        version.setIsDeprecated(Boolean.parseBoolean(getElementTextContent(bversionElement, "isDeprecated")));
-        version.setDeprecateMessage(getElementTextContent(bversionElement, "deprecateMessage"));
-        version.setBallerinaVersion(getElementTextContent(bversionElement, "ballerinaVersion"));
-        version.setBalToolId(getElementTextContent(bversionElement, "balToolId"));
-        version.setGraalvmCompatible(getElementTextContent(bversionElement, "graalvmCompatible"));
-        
-        // Parse modules
-        List<Module> modules = new ArrayList<>();
-        NodeList moduleNodes = bversionElement.getElementsByTagName("module");
-        for (int i = 0; i < moduleNodes.getLength(); i++) {
-            Node moduleNode = moduleNodes.item(i);
-            if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element moduleElement = (Element) moduleNode;
-                Module module = new Module();
-                module.setName(moduleElement.getTextContent());
-                modules.add(module);
-            }
-        }
-        version.setModules(modules);
-        
+    private Version parseVersion(Element versionElement) {
+        Version version = new Version();
+        version.setVersion(getElementTextContent(versionElement, "number"));
+        version.setPlatform(getElementTextContent(versionElement, "platform"));
+        version.setIsDeprecated(Boolean.parseBoolean(getElementTextContent(versionElement, "isDeprecated")));
+        version.setBallerinaVersion(getElementTextContent(versionElement, "ballerinaVersion"));
         return version;
     }
 
@@ -657,7 +638,7 @@ public class MavenResolverClient {
     static class PackageMavenMetadata {
         private String groupId;
         private String artifactId;
-        private List<BVersion> versions;
+        private List<Version> versions;
 
         public PackageMavenMetadata() {
             this.versions = new ArrayList<>();
@@ -679,11 +660,11 @@ public class MavenResolverClient {
             this.artifactId = artifactId;
         }
 
-        public List<BVersion> getVersions() {
+        public List<Version> getVersions() {
             return versions;
         }
 
-        public void setVersions(List<BVersion> versions) {
+        public void setVersions(List<Version> versions) {
             this.versions = versions;
         }
 
@@ -821,27 +802,18 @@ public class MavenResolverClient {
     /**
      * Data class representing a single Ballerina version.
      */
-    static class BVersion {
-        private String number;
+    static class Version {
+        private String version;
         private String platform;
-        private String languageSpecificationVersion;
         private boolean isDeprecated;
-        private String deprecateMessage;
         private String ballerinaVersion;
-        private String balToolId;
-        private String graalvmCompatible;
-        private List<Module> modules;
 
-        public BVersion() {
-            this.modules = new ArrayList<>();
+        public String getVersion() {
+            return version;
         }
 
-        public String getNumber() {
-            return number;
-        }
-
-        public void setNumber(String number) {
-            this.number = number;
+        public void setVersion(String version) {
+            this.version = version;
         }
 
         public String getPlatform() {
@@ -852,28 +824,12 @@ public class MavenResolverClient {
             this.platform = platform;
         }
 
-        public String getLanguageSpecificationVersion() {
-            return languageSpecificationVersion;
-        }
-
-        public void setLanguageSpecificationVersion(String languageSpecificationVersion) {
-            this.languageSpecificationVersion = languageSpecificationVersion;
-        }
-
         public boolean isDeprecated() {
             return isDeprecated;
         }
 
         public void setIsDeprecated(boolean deprecated) {
             isDeprecated = deprecated;
-        }
-
-        public String getDeprecateMessage() {
-            return deprecateMessage;
-        }
-
-        public void setDeprecateMessage(String deprecateMessage) {
-            this.deprecateMessage = deprecateMessage;
         }
 
         public String getBallerinaVersion() {
@@ -884,62 +840,13 @@ public class MavenResolverClient {
             this.ballerinaVersion = ballerinaVersion;
         }
 
-        public String getBalToolId() {
-            return balToolId;
-        }
-
-        public void setBalToolId(String balToolId) {
-            this.balToolId = balToolId;
-        }
-
-        public String getGraalvmCompatible() {
-            return graalvmCompatible;
-        }
-
-        public void setGraalvmCompatible(String graalvmCompatible) {
-            this.graalvmCompatible = graalvmCompatible;
-        }
-
-        public List<Module> getModules() {
-            return modules;
-        }
-
-        public void setModules(List<Module> modules) {
-            this.modules = modules;
-        }
-
         @Override
         public String toString() {
-            return "BVersion{" +
-                    "number='" + number + '\'' +
+            return "Version{" +
+                    "version='" + version + '\'' +
                     ", platform='" + platform + '\'' +
-                    ", languageSpecificationVersion='" + languageSpecificationVersion + '\'' +
                     ", isDeprecated=" + isDeprecated +
                     ", ballerinaVersion='" + ballerinaVersion + '\'' +
-                    ", graalvmCompatible='" + graalvmCompatible + '\'' +
-                    ", modules=" + modules +
-                    '}';
-        }
-    }
-
-    /**
-     * Data class representing a module within a Ballerina version.
-     */
-    static class Module {
-        private String name;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return "Module{" +
-                    "name='" + name + '\'' +
                     '}';
         }
     }
