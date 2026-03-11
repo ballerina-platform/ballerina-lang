@@ -208,7 +208,7 @@ public class MavenPackageRepository implements PackageRepository {
             return filesystem;
         }
 
-        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
+        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>(filesystem);
         try {
             for (ImportModuleRequest importModuleRequest : requests) {
                 String orgName = importModuleRequest.packageOrg().value();
