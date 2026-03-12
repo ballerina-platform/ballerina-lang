@@ -295,10 +295,7 @@ public class PullCommand implements BLauncherCmd {
             // or only compatible versions with the current ballerina version. If it returns all versions,
             // we need to filter the versions which are compatible with the current ballerina version.
             List<String> packageVersions = client.getPackageVersionsInCentralProxy(orgName,
-                    packageName, mavenPackageRootPath);
-            List<String> incompatibleVersions = getIncompatibleDistPkgVer(packageVersions, orgName,
-                    packageName, client, mavenPackageRootPath);
-            packageVersions.removeAll(incompatibleVersions);
+                    packageName, RepoUtils.getBallerinaShortVersion(), mavenPackageRootPath);
             List<PackageVersion> packageVersionsList = new ArrayList<>();
             packageVersions.stream().map(PackageVersion::from).forEach(packageVersionsList::add);
             PackageVersion latest = findLatest(packageVersionsList);

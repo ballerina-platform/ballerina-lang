@@ -168,9 +168,7 @@ public class MavenPackageRepository implements PackageRepository {
                 List<String> remotePackageVersions;
                 if  (isProxyCentral) {
                     remotePackageVersions = this.client.getPackageVersionsInCentralProxy(orgName, packageName,
-                            Paths.get(repoLocation));
-                    remotePackageVersions.removeAll(getIncompatibleDistPkgVer(remotePackageVersions, orgName,
-                            packageName));
+                            RepoUtils.getBallerinaShortVersion(), Paths.get(repoLocation));
                 } else {
                     remotePackageVersions = this.client.getPackageVersions(orgName, packageName,
                             Paths.get(repoLocation));
@@ -218,9 +216,8 @@ public class MavenPackageRepository implements PackageRepository {
                     List<String> packageVersions;
                     if (isProxyCentral) { // TODO : check central logic
                         packageVersions = this.client.getPackageVersionsInCentralProxy(
-                                orgName, packageName.toString(), Paths.get(repoLocation));
-                        packageVersions.removeAll(getIncompatibleDistPkgVer(packageVersions, orgName,
-                                packageName.toString()));
+                                orgName, packageName.toString(), RepoUtils.getBallerinaShortVersion(),
+                                Paths.get(repoLocation));
                     } else {
                         packageVersions = this.client.getPackageVersions(
                                 orgName, packageName.toString(), Paths.get(repoLocation));

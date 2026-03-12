@@ -26,6 +26,13 @@ import org.ballerinalang.maven.bala.client.model.PackageMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.PackageResolutionResponse;
 import org.ballerinalang.maven.bala.client.model.PackageSearchEntry;
 import org.ballerinalang.maven.bala.client.model.PkgSearchMavenMetadata;
+import org.ballerinalang.maven.bala.client.model.PkgSearchSolrEntry;
+import org.ballerinalang.maven.bala.client.model.PkgSearchSolrMavenMetadata;
+import org.ballerinalang.maven.bala.client.model.ConnectorPackageInfo;
+import org.ballerinalang.maven.bala.client.model.ConnectorSearchEntry;
+import org.ballerinalang.maven.bala.client.model.ConnectorSearchMavenMetadata;
+import org.ballerinalang.maven.bala.client.model.SymbolSearchEntry;
+import org.ballerinalang.maven.bala.client.model.SymbolSearchMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.ToolMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.ToolSearchEntry;
 import org.ballerinalang.maven.bala.client.model.ToolSearchMavenMetadata;
@@ -225,13 +232,15 @@ public class MavenResolverClient {
     /**
      * Get all versions of a package from the central proxy Maven repository, using a cached metadata lookup.
      *
-     * @param groupId       group ID of the package
-     * @param artifactId    artifact ID of the package
-     * @param localRepoPath path to the local Maven repository
+     * @param groupId            group ID of the package
+     * @param artifactId         artifact ID of the package
+     * @param ballerinaVersion   current Ballerina distribution version for compatibility filtering
+     * @param localRepoPath      path to the local Maven repository
      * @return list of version strings
      * @throws MavenResolverClientException when version resolution fails
      */
-    public List<String> getPackageVersionsInCentralProxy(String groupId, String artifactId, Path localRepoPath) throws
+    public List<String> getPackageVersionsInCentralProxy(String groupId, String artifactId,
+                                                         String ballerinaVersion, Path localRepoPath) throws
             MavenResolverClientException {
         try {
             String cacheKey = groupId + ":" + artifactId;
@@ -239,6 +248,7 @@ public class MavenResolverClient {
                 pkgMetadataCache.put(cacheKey, fetchPackageMetadata(groupId, artifactId, localRepoPath));
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
+                    .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
                     .map(BVersion::getNumber)
                     .collect(Collectors.toList());
         } catch (MavenResolverClientException e) {
@@ -367,7 +377,7 @@ public class MavenResolverClient {
             toolMetadataCache.put(toolId, metadata);
         }
         return metadata.getVersions().stream()
-                .filter(v -> isCompatibleWithToolDistVersion(ballerinaVersion, v.getBallerinaVersion()))
+                .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
                 .map(ToolVersion::getVersion)
                 .toList();
     }
@@ -393,6 +403,26 @@ public class MavenResolverClient {
     }
 
     /**
+     * Get Solr-based package search metadata from the Maven repository by parsing the maven-metadata.xml file.
+     *
+     * @param query         artifact ID of the package search query
+     * @param localRepoPath path to the local Maven repository
+     * @return PkgSearchSolrMavenMetadata object containing parsed XML metadata
+     * @throws MavenResolverClientException when metadata resolution or XML parsing fails
+     */
+    public PkgSearchSolrMavenMetadata getPkgSearchSolrMetadata(String query, Path localRepoPath)
+            throws MavenResolverClientException {
+        configureMetadataSession(localRepoPath);
+        try {
+            File metadataFile = resolveMetadataFile("__packagesearchsolr__", query);
+            Document document = parseXmlFile(metadataFile);
+            return parsePkgSearchSolrMetadata(document);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new MavenResolverClientException("Failed to parse metadata XML: " + e.getMessage());
+        }
+    }
+
+    /**
      * Get tool search metadata from the Maven repository by parsing the maven-metadata.xml file.
      *
      * @param query         artifact ID of the tool search query
@@ -407,6 +437,46 @@ public class MavenResolverClient {
             File metadataFile = resolveMetadataFile("__toolsearch__", query);
             Document document = parseXmlFile(metadataFile);
             return parseToolSearchMetadata(document);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new MavenResolverClientException("Failed to parse metadata XML: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get symbol search metadata from the Maven repository by parsing the maven-metadata.xml file.
+     *
+     * @param query         artifact ID of the symbol search query
+     * @param localRepoPath path to the local Maven repository
+     * @return SymbolSearchMavenMetadata object containing parsed XML metadata
+     * @throws MavenResolverClientException when metadata resolution or XML parsing fails
+     */
+    public SymbolSearchMavenMetadata getSymbolSearchMetadata(String query, Path localRepoPath)
+            throws MavenResolverClientException {
+        configureMetadataSession(localRepoPath);
+        try {
+            File metadataFile = resolveMetadataFile("__symbolsearch__", query);
+            Document document = parseXmlFile(metadataFile);
+            return parseSymbolSearchMetadata(document);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new MavenResolverClientException("Failed to parse metadata XML: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get connector search metadata from the Maven repository by parsing the maven-metadata.xml file.
+     *
+     * @param query         artifact ID of the connector search query
+     * @param localRepoPath path to the local Maven repository
+     * @return ConnectorSearchMavenMetadata object containing parsed XML metadata
+     * @throws MavenResolverClientException when metadata resolution or XML parsing fails
+     */
+    public ConnectorSearchMavenMetadata getConnectorSearchMetadata(String query, Path localRepoPath)
+            throws MavenResolverClientException {
+        configureMetadataSession(localRepoPath);
+        try {
+            File metadataFile = resolveMetadataFile("__connectorsearch__", query);
+            Document document = parseXmlFile(metadataFile);
+            return parseConnectorSearchMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new MavenResolverClientException("Failed to parse metadata XML: " + e.getMessage());
         }
@@ -540,7 +610,7 @@ public class MavenResolverClient {
      * Check if the current Ballerina distribution version is compatible with the tool's required distribution version.
      * The current version must have the same major version and a minor version greater than or equal to the tool's.
      */
-    private boolean isCompatibleWithToolDistVersion(String currentDistVersion, String toolDistVersion) {
+    private boolean isPkgDistVersionCompatible(String currentDistVersion, String toolDistVersion) {
         try {
             String[] currentParts = currentDistVersion.split("\\.");
             String[] toolParts = toolDistVersion.split("\\.");
@@ -592,6 +662,211 @@ public class MavenResolverClient {
         }
         metadata.setPackages(packages);
         return metadata;
+    }
+
+    private PkgSearchSolrMavenMetadata parsePkgSearchSolrMetadata(Document document) {
+        PkgSearchSolrMavenMetadata metadata = new PkgSearchSolrMavenMetadata();
+        metadata.setGroupId(getTagValue(document, "groupId"));
+        metadata.setArtifactId(getTagValue(document, "artifactId"));
+        metadata.setCount(parseIntTag(document, "count"));
+        metadata.setLimit(parseIntTag(document, "limit"));
+        metadata.setOffset(parseIntTag(document, "offset"));
+
+        NodeList packageNodes = document.getElementsByTagName("package");
+        List<PkgSearchSolrEntry> packages = new ArrayList<>();
+        for (int i = 0; i < packageNodes.getLength(); i++) {
+            Node node = packageNodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                packages.add(parsePkgSearchSolrEntry((Element) node));
+            }
+        }
+        metadata.setPackages(packages);
+        return metadata;
+    }
+
+    private PkgSearchSolrEntry parsePkgSearchSolrEntry(Element element) {
+        PkgSearchSolrEntry pkg = new PkgSearchSolrEntry();
+        pkg.setId(parseLongContent(getElementTextContent(element, "id")));
+        pkg.setOrg(getElementTextContent(element, "org"));
+        pkg.setName(getElementTextContent(element, "name"));
+        pkg.setVersion(getElementTextContent(element, "version"));
+        pkg.setSummary(getElementTextContent(element, "summary"));
+        pkg.setCreatedDate(parseLongContent(getElementTextContent(element, "createdDate")));
+        pkg.setBalToolId(getElementTextContent(element, "balToolId"));
+        pkg.setPullCount(parseLongContent(getElementTextContent(element, "pullCount")));
+
+        List<String> authors = new ArrayList<>();
+        Element authorsElement = (Element) element.getElementsByTagName("authors").item(0);
+        if (authorsElement != null) {
+            NodeList authorNodes = authorsElement.getElementsByTagName("author");
+            for (int i = 0; i < authorNodes.getLength(); i++) {
+                Node authorNode = authorNodes.item(i);
+                if (authorNode.getNodeType() == Node.ELEMENT_NODE) {
+                    authors.add(authorNode.getTextContent().trim());
+                }
+            }
+        }
+        pkg.setAuthors(authors);
+
+        List<String> keywords = new ArrayList<>();
+        Element keywordsElement = (Element) element.getElementsByTagName("keywords").item(0);
+        if (keywordsElement != null) {
+            NodeList keywordNodes = keywordsElement.getElementsByTagName("keyword");
+            for (int i = 0; i < keywordNodes.getLength(); i++) {
+                Node keywordNode = keywordNodes.item(i);
+                if (keywordNode.getNodeType() == Node.ELEMENT_NODE) {
+                    keywords.add(keywordNode.getTextContent().trim());
+                }
+            }
+        }
+        pkg.setKeywords(keywords);
+        return pkg;
+    }
+
+    private SymbolSearchMavenMetadata parseSymbolSearchMetadata(Document document) {
+        SymbolSearchMavenMetadata metadata = new SymbolSearchMavenMetadata();
+        metadata.setGroupId(getTagValue(document, "groupId"));
+        metadata.setArtifactId(getTagValue(document, "artifactId"));
+        metadata.setCount(parseIntTag(document, "count"));
+        metadata.setLimit(parseIntTag(document, "limit"));
+        metadata.setOffset(parseIntTag(document, "offset"));
+
+        NodeList symbolNodes = document.getElementsByTagName("symbol");
+        List<SymbolSearchEntry> symbols = new ArrayList<>();
+        for (int i = 0; i < symbolNodes.getLength(); i++) {
+            Node node = symbolNodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                symbols.add(parseSymbolSearchEntry((Element) node));
+            }
+        }
+        metadata.setSymbols(symbols);
+        return metadata;
+    }
+
+    private SymbolSearchEntry parseSymbolSearchEntry(Element element) {
+        SymbolSearchEntry symbol = new SymbolSearchEntry();
+        symbol.setId(getElementTextContent(element, "id"));
+        symbol.setPackageID(getElementTextContent(element, "packageID"));
+        symbol.setName(getElementTextContent(element, "name"));
+        symbol.setOrg(getElementTextContent(element, "org"));
+        symbol.setVersion(getElementTextContent(element, "version"));
+        symbol.setCreatedDate(parseLongContent(getElementTextContent(element, "createdDate")));
+        symbol.setIcon(getElementTextContent(element, "icon"));
+        symbol.setSymbolType(getElementTextContent(element, "symbolType"));
+        symbol.setSymbolParent(getElementTextContent(element, "symbolParent"));
+        symbol.setSymbolName(getElementTextContent(element, "symbolName"));
+        symbol.setDescription(getElementTextContent(element, "description"));
+        symbol.setSymbolSignature(getElementTextContent(element, "symbolSignature"));
+        symbol.setIsolated(Boolean.parseBoolean(getElementTextContent(element, "isIsolated")));
+        symbol.setRemote(Boolean.parseBoolean(getElementTextContent(element, "isRemote")));
+        symbol.setResource(Boolean.parseBoolean(getElementTextContent(element, "isResource")));
+        symbol.setClosed(Boolean.parseBoolean(getElementTextContent(element, "isClosed")));
+        symbol.setDistinct(Boolean.parseBoolean(getElementTextContent(element, "isDistinct")));
+        symbol.setReadOnly(Boolean.parseBoolean(getElementTextContent(element, "isReadOnly")));
+        return symbol;
+    }
+
+    private ConnectorSearchMavenMetadata parseConnectorSearchMetadata(Document document) {
+        ConnectorSearchMavenMetadata metadata = new ConnectorSearchMavenMetadata();
+        metadata.setGroupId(getTagValue(document, "groupId"));
+        metadata.setArtifactId(getTagValue(document, "artifactId"));
+        metadata.setCount(parseIntTag(document, "count"));
+        metadata.setLimit(parseIntTag(document, "limit"));
+        metadata.setOffset(parseIntTag(document, "offset"));
+
+        NodeList connectorNodes = document.getElementsByTagName("connector");
+        List<ConnectorSearchEntry> connectors = new ArrayList<>();
+        for (int i = 0; i < connectorNodes.getLength(); i++) {
+            Node node = connectorNodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                connectors.add(parseConnectorSearchEntry((Element) node));
+            }
+        }
+        metadata.setConnectors(connectors);
+        return metadata;
+    }
+
+    private ConnectorSearchEntry parseConnectorSearchEntry(Element element) {
+        ConnectorSearchEntry connector = new ConnectorSearchEntry();
+        connector.setId(getElementTextContent(element, "id"));
+        connector.setName(getElementTextContent(element, "name"));
+        connector.setDisplayName(getElementTextContent(element, "displayName"));
+        connector.setModuleName(getElementTextContent(element, "moduleName"));
+        connector.setIcon(getElementTextContent(element, "icon"));
+        connector.setDocumentation(getElementTextContent(element, "documentation"));
+
+        NodeList packageNodes = element.getElementsByTagName("package");
+        if (packageNodes.getLength() > 0 && packageNodes.item(0).getNodeType() == Node.ELEMENT_NODE) {
+            connector.setPackageInfo(parseConnectorPackageInfo((Element) packageNodes.item(0)));
+        }
+        return connector;
+    }
+
+    private ConnectorPackageInfo parseConnectorPackageInfo(Element element) {
+        ConnectorPackageInfo pkg = new ConnectorPackageInfo();
+        pkg.setId(getElementTextContent(element, "id"));
+        pkg.setOrganization(getElementTextContent(element, "organization"));
+        pkg.setName(getElementTextContent(element, "name"));
+        pkg.setVersion(getElementTextContent(element, "version"));
+        pkg.setPlatform(getElementTextContent(element, "platform"));
+        pkg.setLanguageSpecificationVersion(getElementTextContent(element, "languageSpecificationVersion"));
+        pkg.setDeprecated(Boolean.parseBoolean(getElementTextContent(element, "isDeprecated")));
+        pkg.setDeprecateMessage(getElementTextContent(element, "deprecateMessage"));
+        pkg.setUrl(getElementTextContent(element, "URL"));
+        pkg.setBalaVersion(getElementTextContent(element, "balaVersion"));
+        pkg.setBalaURL(getElementTextContent(element, "balaURL"));
+        pkg.setDigest(getElementTextContent(element, "digest"));
+        pkg.setSummary(getElementTextContent(element, "summary"));
+        pkg.setTemplate(Boolean.parseBoolean(getElementTextContent(element, "template")));
+        pkg.setSourceCodeLocation(getElementTextContent(element, "sourceCodeLocation"));
+        pkg.setBallerinaVersion(getElementTextContent(element, "ballerinaVersion"));
+        pkg.setIcon(getElementTextContent(element, "icon"));
+        pkg.setOwnerUUID(getElementTextContent(element, "ownerUUID"));
+        pkg.setCreatedDate(parseLongContent(getElementTextContent(element, "createdDate")));
+        pkg.setPullCount(parseLongContent(getElementTextContent(element, "pullCount")));
+        pkg.setVisibility(getElementTextContent(element, "visibility"));
+        pkg.setBalToolId(getElementTextContent(element, "balToolId"));
+        pkg.setGraalvmCompatible(getElementTextContent(element, "graalvmCompatible"));
+
+        List<String> licenses = new ArrayList<>();
+        Element licensesElement = (Element) element.getElementsByTagName("licenses").item(0);
+        if (licensesElement != null) {
+            NodeList licenseNodes = licensesElement.getElementsByTagName("license");
+            for (int i = 0; i < licenseNodes.getLength(); i++) {
+                Node licenseNode = licenseNodes.item(i);
+                if (licenseNode.getNodeType() == Node.ELEMENT_NODE) {
+                    licenses.add(licenseNode.getTextContent().trim());
+                }
+            }
+        }
+        pkg.setLicenses(licenses);
+
+        List<String> authors = new ArrayList<>();
+        Element authorsElement = (Element) element.getElementsByTagName("authors").item(0);
+        if (authorsElement != null) {
+            NodeList authorNodes = authorsElement.getElementsByTagName("author");
+            for (int i = 0; i < authorNodes.getLength(); i++) {
+                Node authorNode = authorNodes.item(i);
+                if (authorNode.getNodeType() == Node.ELEMENT_NODE) {
+                    authors.add(authorNode.getTextContent().trim());
+                }
+            }
+        }
+        pkg.setAuthors(authors);
+
+        List<String> keywords = new ArrayList<>();
+        Element keywordsElement = (Element) element.getElementsByTagName("keywords").item(0);
+        if (keywordsElement != null) {
+            NodeList keywordNodes = keywordsElement.getElementsByTagName("keyword");
+            for (int i = 0; i < keywordNodes.getLength(); i++) {
+                Node keywordNode = keywordNodes.item(i);
+                if (keywordNode.getNodeType() == Node.ELEMENT_NODE) {
+                    keywords.add(keywordNode.getTextContent().trim());
+                }
+            }
+        }
+        pkg.setKeywords(keywords);
+        return pkg;
     }
 
     private ToolSearchMavenMetadata parseToolSearchMetadata(Document document) {
