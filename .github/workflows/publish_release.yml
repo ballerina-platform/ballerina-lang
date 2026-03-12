@@ -1,10 +1,5 @@
 name: Publish release
 
-permissions:
-  contents: write
-  pull-requests: write
-  packages: write
-
 on:
   workflow_dispatch:
 
@@ -50,29 +45,29 @@ jobs:
         run: chmod +x gradlew
       - name: Publish artifact
         env:
-          publishUser: ${{ secrets.BALLERINA_BOT_USERNAME || github.actor }}
-          publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
-          publishRepository: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+#          publishRepository: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
-          git config user.name "${{ secrets.BALLERINA_BOT_USERNAME || github.actor }}"
-          git config user.email "${{ secrets.BALLERINA_BOT_EMAIL || format('{0}@users.noreply.github.com', github.actor) }}"
+          git config user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
+          git config user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git checkout -b release-${RELEASE_VERSION}
-          ./gradlew assemble -Pversion=${VERSION} -PupdateLevel=${UPDATE_LEVEL}
+          ./gradlew build -x :jballerina-debugger-integration-test:test -Pversion=${VERSION} -PupdateLevel=${UPDATE_LEVEL}
           ./gradlew publish -Pversion=${VERSION} -PupdateLevel=${UPDATE_LEVEL} -x test --continue
       - name: Create Release Tag
         run: |
-          git config --local user.name "${{ secrets.BALLERINA_BOT_USERNAME || github.actor }}"
-          git config --local user.email "${{ secrets.BALLERINA_BOT_EMAIL || format('{0}@users.noreply.github.com', github.actor) }}"
+          git config --local user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
+          git config --local user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git tag -a v${RELEASE_VERSION} -m "Release v${RELEASE_VERSION}"
           git push origin v${RELEASE_VERSION}
         env:
-          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
       - name: Create Github release from the release tag
         run: |
-          curl --request POST "https://api.github.com/repos/${{ github.repository }}/releases" \
+          curl --request POST 'https://api.github.com/repos/ballerina-platform/ballerina-lang/releases' \
           --header 'Accept: application/vnd.github.v3+json' \
-          --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}' \
+          --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
           --header 'Content-Type: application/json' \
           --data-raw '{
               "tag_name": "v'"$RELEASE_VERSION"'",
@@ -80,7 +75,7 @@ jobs:
           }'
       - name: Post release PR
         env:
-          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
           curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
-          bin/hub pull-request -m "[Automated] Sync ${{ github.event.repository.default_branch }} after "$RELEASE_VERSION" release" -b "${{ github.event.repository.default_branch }}"
+          bin/hub pull-request -m "[Automated] Sync master after "$RELEASE_VERSION" release"
