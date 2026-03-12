@@ -559,14 +559,19 @@ public final class ProjectUtils {
         String threeSegmentVersion = normalizeToThreeSegmentVersion(ballerinaVersion);
         String prefix = "ballerina-rt-" + threeSegmentVersion;
         try (Stream<Path> stream = Files.list(homeLibPath)) {
-            List<Path> matches = stream
-                    .filter(Files::isRegularFile)
-                    .filter(path -> {
-                        String fileName = path.getFileName().toString();
-                        return fileName.startsWith(prefix) && fileName.endsWith(BLANG_COMPILED_JAR_EXT);
-                    })
-                    .sorted()
-                    .toList();
+                List<Path> matches = stream
+                        .filter(Files::isRegularFile)
+                        .filter(path -> {
+                            Path fileName = path.getFileName();
+                            if (fileName == null) {
+                                return false;
+                            }
+                            String fileNameString = fileName.toString();
+                            return fileNameString.startsWith(prefix) &&
+                                    fileNameString.endsWith(BLANG_COMPILED_JAR_EXT);
+                        })
+                        .sorted()
+                        .toList();
             if (!matches.isEmpty()) {
                 return matches.get(0);
             }
