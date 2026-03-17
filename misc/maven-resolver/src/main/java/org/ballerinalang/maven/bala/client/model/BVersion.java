@@ -26,7 +26,7 @@ import java.util.List;
  * @since 2201.13.2
  */
 public class BVersion {
-    private String number;
+    private String version;
     private String platform;
     private String languageSpecificationVersion;
     private boolean isDeprecated;
@@ -40,12 +40,12 @@ public class BVersion {
         this.modules = new ArrayList<>();
     }
 
-    public String getNumber() {
-        return number;
+    public String getVersion() {
+        return version;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public String getPlatform() {
@@ -115,7 +115,7 @@ public class BVersion {
     @Override
     public String toString() {
         return "BVersion{" +
-                "number='" + number + '\'' +
+                "version='" + version + '\'' +
                 ", platform='" + platform + '\'' +
                 ", languageSpecificationVersion='" + languageSpecificationVersion + '\'' +
                 ", isDeprecated=" + isDeprecated +

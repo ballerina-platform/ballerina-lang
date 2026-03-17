@@ -1393,6 +1393,11 @@ public final class CommandUtil {
     public static DependencyGraph<BuildProject> resolveWorkspaceDependencies(
             WorkspaceProject workspaceProject, PrintStream outStream) {
         outStream.println("Resolving workspace dependencies");
+        return resolveWorkspaceDependencies(workspaceProject);
+    }
+
+    public static DependencyGraph<BuildProject> resolveWorkspaceDependencies(
+            WorkspaceProject workspaceProject) {
         ResolutionOptions resolutionOptions = ResolutionOptions.builder()
                 .setOffline(true)
                 .setPackageLockingMode(PackageLockingMode.HARD)

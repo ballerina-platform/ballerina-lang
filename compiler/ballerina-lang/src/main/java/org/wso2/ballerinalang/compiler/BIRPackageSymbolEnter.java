@@ -1814,18 +1814,25 @@ public class BIRPackageSymbolEnter {
             PackageID enumPkgId = getPackageId(inputStream.readInt());
             String enumName = getStringCPEntryValue(inputStream);
             int memberCount = inputStream.readInt();
-            BSymbol pkgSymbol = packageCache.getSymbol(enumPkgId);
-
-            // pkg symbol will be null if it's an enum in the current module.
-            if (pkgSymbol == null) {
+            BSymbol pkgSymbol;
+            PackageID currentPkgId = env.pkgSymbol.pkgID;
+            boolean sameModule = enumPkgId.orgName.equals(currentPkgId.orgName)
+                    && enumPkgId.pkgName.equals(currentPkgId.pkgName)
+                    && enumPkgId.name.equals(currentPkgId.name);
+            if (sameModule) {
                 pkgSymbol = env.pkgSymbol;
+            } else {
+                pkgSymbol = packageCache.getSymbol(enumPkgId);
+                if (pkgSymbol == null) {
+                    throw new BLangCompilerException("cannot resolve enum module '" + enumPkgId + "'");
+                }
             }
 
             SymbolEnv enumPkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
 
             // pkg env will be null if it's an enum in the current module.
             if (enumPkgEnv == null) {
-                enumPkgEnv = SymbolEnv.createPkgEnv(null, env.pkgSymbol.scope, null);
+                enumPkgEnv = SymbolEnv.createPkgEnv(null, pkgSymbol.scope, null);
             }
 
             List<BConstantSymbol> members = new ArrayList<>();

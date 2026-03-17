@@ -1791,6 +1791,131 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-wrong-path.txt"));
     }
 
+    @Test(description = "Build workspace with build tool from root - verify two-phase execution order")
+    public void testWorkspaceWithBuildToolFromRoot() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-build-tool.txt"));
+    }
+
+    @Test(description = "Build specific project in workspace with build tool - verify two-phase execution order")
+    public void testWorkspaceWithBuildToolSpecificProject() throws IOException {
+        Path projectRoot = this.testResources.resolve("workspaces/wp-with-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
+        Path projectPath = projectRoot.resolve("app");
+        cleanTarget(projectPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-build-tool-app.txt"));
+    }
+
+    @Test(description = "Build workspace with consolidator")
+    public void testWorkspaceWithConsolidator() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-consolidator.txt"));
+    }
+
+    @Test(description = "Build consolidator workspace twice - second build should be up-to-date")
+    public void testWorkspaceWithConsolidatorUpToDate() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        // First build
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
+                getOutput("wp-with-consolidator.txt"));
+
+        // Second build (no changes)
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertEquals(secondBuildLog.replace("\r", ""),
+                getOutput("wp-with-consolidator-up-to-date.txt"));
+    }
+
+    @Test(description = "Build consolidator workspace - modifying a dependency source invalidates cache")
+    public void testWorkspaceWithConsolidatorCacheInvalidation() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        // First build
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
+                getOutput("wp-with-consolidator.txt"));
+
+        // Modify a dependency source file
+        Path fooSource = projectPath.resolve("foo").resolve("lib.bal");
+        String originalContent = Files.readString(fooSource);
+        List<String> lines = Files.readAllLines(fooSource);
+        lines.add("// Modified to invalidate cache");
+        Files.write(fooSource, lines);
+
+        try {
+            // Second build after modification
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertEquals(secondBuildLog.replace("\r", ""),
+                    getOutput("wp-with-consolidator-cache-invalidated.txt"));
+        } finally {
+            // Restore the original file for other tests
+            Files.writeString(fooSource, originalContent);
+        }
+    }
+
+    @Test(description = "Build consolidator workspace after deleting a dependency package source")
+    public void testWorkspaceWithConsolidatorDeleteDependency() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator-deleted-pkg");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true).replace("\r", "");
+            Assert.assertEquals(failureLog, getOutput("wp-with-consolidator-dep-deleted.txt"));
+            return;
+        }
+        Assert.fail("Build should fail when dependency source is deleted");
+    }
+
     @Test(description = "Build a project twice to test caching when Cloud.toml file is modified")
     public void testCachingForCloudToml() throws IOException {
         Path projectPath = this.testResources.resolve("projects-for-caching-tests/cachingProjectWithResources");

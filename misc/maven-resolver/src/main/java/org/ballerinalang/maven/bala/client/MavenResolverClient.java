@@ -66,7 +66,6 @@ import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.SubArtifact;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
-import org.eclipse.aether.version.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -220,7 +219,7 @@ public class MavenResolverClient {
         try {
             VersionRangeResult versionRangeResult = system.resolveVersionRange(session, versionRangeRequest);
             return versionRangeResult.getVersions().stream()
-                    .map(Version::toString)
+                    .map(org.eclipse.aether.version.Version::toString)
                     .collect(Collectors.toList());
         } catch (VersionRangeResolutionException e) {
             throw new MavenResolverClientException(e.getMessage());
@@ -249,7 +248,7 @@ public class MavenResolverClient {
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
-                    .map(BVersion::getNumber)
+                    .map(BVersion::getVersion)
                     .collect(Collectors.toList());
         } catch (MavenResolverClientException e) {
             throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
@@ -274,7 +273,7 @@ public class MavenResolverClient {
                 pkgMetadataCache.put(cacheKey, fetchPackageMetadata(org, pkgName, localRepoPath));
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
-                    .filter(v -> v.getNumber().equals(version))
+                    .filter(v -> v.getVersion().equals(version))
                     .map(BVersion::getBallerinaVersion)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
@@ -300,7 +299,7 @@ public class MavenResolverClient {
                 pkgMetadataCache.put(cacheKey, fetchPackageMetadata(org, pkgName, localRepoPath));
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
-                    .filter(v -> v.getNumber().equals(version))
+                    .filter(v -> v.getVersion().equals(version))
                     .map(BVersion::isDeprecated)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
@@ -950,7 +949,7 @@ public class MavenResolverClient {
 
     private BVersion parseBVersion(Element element) {
         BVersion version = new BVersion();
-        version.setNumber(getElementTextContent(element, "number"));
+        version.setVersion(getElementTextContent(element, "number"));
         version.setPlatform(getElementTextContent(element, "platform"));
         version.setLanguageSpecificationVersion(getElementTextContent(element, "languageSpecificationVersion"));
         version.setIsDeprecated(Boolean.parseBoolean(getElementTextContent(element, "isDeprecated")));
