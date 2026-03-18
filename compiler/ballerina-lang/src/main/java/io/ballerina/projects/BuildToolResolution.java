@@ -173,7 +173,8 @@ public class BuildToolResolution {
         return resolvedTools;
     }
 
-    private List<BuildTool> resolveToolsViaCentral(Set<ToolResolutionRequest> resolutionRequests) throws CentralClientException {
+    private List<BuildTool> resolveToolsViaCentral(Set<ToolResolutionRequest> resolutionRequests)
+            throws CentralClientException {
         List<BuildTool> toolResolutionResponse;
         ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionCentralRequests(resolutionRequests);
         toolResolutionResponse = getToolResolutionCentralResponse(toolResolutionRequest);
@@ -254,7 +255,8 @@ public class BuildToolResolution {
         return resolutionRequests;
     }
 
-    private ToolResolutionCentralRequest createToolResolutionCentralRequests(Set<ToolResolutionRequest> resolutionRequests) {
+    private ToolResolutionCentralRequest createToolResolutionCentralRequests(
+            Set<ToolResolutionRequest> resolutionRequests) {
         ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
         for (ToolResolutionRequest resolutionRequest : resolutionRequests) {
             ToolResolutionCentralRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
@@ -417,21 +419,17 @@ public class BuildToolResolution {
 
     /**
      * Check if the current Ballerina distribution version is compatible with the tool's required distribution version.
-     * The current version must have the same major version and a minor version greater than or equal to the tool's required version.
+     * The current version must have the same major version and a minor version greater than or equal to the tool's
+     * required version.
      *
      * @param currentDistVersion  current Ballerina distribution version
      * @param toolDistVersion     tool's required distribution version
      * @return true if compatible, false otherwise
      */
     private boolean isCompatibleWithToolDistVersion(String currentDistVersion, String toolDistVersion) {
-        try {
-            SemanticVersion current = SemanticVersion.from(currentDistVersion);
-            SemanticVersion tool = SemanticVersion.from(toolDistVersion);
-            return current.major() == tool.major() && current.minor() >= tool.minor();
-        } catch (Exception e) {
-            // If version parsing fails, fall back to exact match
-            return currentDistVersion.equals(toolDistVersion);
-        }
+        SemanticVersion current = SemanticVersion.from(currentDistVersion);
+        SemanticVersion tool = SemanticVersion.from(toolDistVersion);
+        return current.major() == tool.major() && current.minor() >= tool.minor();
     }
 
     private PackageVersion getLatestCompatibleToolVersion(ToolResolutionRequest toolRequest,

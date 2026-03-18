@@ -128,6 +128,10 @@
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.internal.repositories.MavenPackageRepository" />
+        <Bug pattern="REC_CATCH_EXCEPTION" />
+    </Match>
+    <Match>
         <Class name = "org.ballerinalang.toml.model.Library"/>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>

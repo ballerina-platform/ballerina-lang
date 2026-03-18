@@ -28,7 +28,7 @@ import java.util.List;
 public class PackageMavenMetadata {
     private String groupId;
     private String artifactId;
-    private List<BVersion> versions;
+    private List<Version> versions;
 
     public PackageMavenMetadata() {
         this.versions = new ArrayList<>();
@@ -50,11 +50,11 @@ public class PackageMavenMetadata {
         this.artifactId = artifactId;
     }
 
-    public List<BVersion> getVersions() {
+    public List<Version> getVersions() {
         return versions;
     }
 
-    public void setVersions(List<BVersion> versions) {
+    public void setVersions(List<Version> versions) {
         this.versions = versions;
     }
 

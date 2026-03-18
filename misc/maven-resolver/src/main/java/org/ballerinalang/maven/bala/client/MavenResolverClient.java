@@ -20,23 +20,22 @@ import com.google.gson.Gson;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.ballerinalang.maven.bala.client.model.BVersion;
-import org.ballerinalang.maven.bala.client.model.Module;
+import org.ballerinalang.maven.bala.client.model.ConnectorPackageInfo;
+import org.ballerinalang.maven.bala.client.model.ConnectorSearchEntry;
+import org.ballerinalang.maven.bala.client.model.ConnectorSearchMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.PackageMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.PackageResolutionResponse;
 import org.ballerinalang.maven.bala.client.model.PackageSearchEntry;
 import org.ballerinalang.maven.bala.client.model.PkgSearchMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.PkgSearchSolrEntry;
 import org.ballerinalang.maven.bala.client.model.PkgSearchSolrMavenMetadata;
-import org.ballerinalang.maven.bala.client.model.ConnectorPackageInfo;
-import org.ballerinalang.maven.bala.client.model.ConnectorSearchEntry;
-import org.ballerinalang.maven.bala.client.model.ConnectorSearchMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.SymbolSearchEntry;
 import org.ballerinalang.maven.bala.client.model.SymbolSearchMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.ToolMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.ToolSearchEntry;
 import org.ballerinalang.maven.bala.client.model.ToolSearchMavenMetadata;
 import org.ballerinalang.maven.bala.client.model.ToolVersion;
+import org.ballerinalang.maven.bala.client.model.Version;
 import org.codehaus.plexus.util.WriterFactory;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -248,7 +247,7 @@ public class MavenResolverClient {
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
-                    .map(BVersion::getVersion)
+                    .map(Version::getVersion)
                     .collect(Collectors.toList());
         } catch (MavenResolverClientException e) {
             throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
@@ -274,7 +273,7 @@ public class MavenResolverClient {
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> v.getVersion().equals(version))
-                    .map(BVersion::getBallerinaVersion)
+                    .map(Version::getBallerinaVersion)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
             throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
@@ -300,7 +299,7 @@ public class MavenResolverClient {
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> v.getVersion().equals(version))
-                    .map(BVersion::isDeprecated)
+                    .map(Version::isDeprecated)
                     .toList().getFirst();
         } catch (MavenResolverClientException e) {
             throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
@@ -634,12 +633,15 @@ public class MavenResolverClient {
         metadata.setGroupId(getTagValue(document, "groupId"));
         metadata.setArtifactId(getTagValue(document, "artifactId"));
 
-        NodeList bversionNodes = document.getElementsByTagName("Bversion");
-        List<BVersion> versions = new ArrayList<>();
-        for (int i = 0; i < bversionNodes.getLength(); i++) {
-            Node node = bversionNodes.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                versions.add(parseBVersion((Element) node));
+        List<Version> versions = new ArrayList<>();
+        NodeList versionsWrapper = document.getElementsByTagName("versions");
+        if (versionsWrapper.getLength() > 0) {
+            NodeList versionNodes = ((Element) versionsWrapper.item(0)).getElementsByTagName("version");
+            for (int i = 0; i < versionNodes.getLength(); i++) {
+                Node node = versionNodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    versions.add(parseVersion((Element) node));
+                }
             }
         }
         metadata.setVersions(versions);
@@ -947,28 +949,12 @@ public class MavenResolverClient {
         return tool;
     }
 
-    private BVersion parseBVersion(Element element) {
-        BVersion version = new BVersion();
+    private Version parseVersion(Element element) {
+        Version version = new Version();
         version.setVersion(getElementTextContent(element, "number"));
         version.setPlatform(getElementTextContent(element, "platform"));
-        version.setLanguageSpecificationVersion(getElementTextContent(element, "languageSpecificationVersion"));
         version.setIsDeprecated(Boolean.parseBoolean(getElementTextContent(element, "isDeprecated")));
-        version.setDeprecateMessage(getElementTextContent(element, "deprecateMessage"));
         version.setBallerinaVersion(getElementTextContent(element, "ballerinaVersion"));
-        version.setBalToolId(getElementTextContent(element, "balToolId"));
-        version.setGraalvmCompatible(getElementTextContent(element, "graalvmCompatible"));
-
-        List<Module> modules = new ArrayList<>();
-        NodeList moduleNodes = element.getElementsByTagName("module");
-        for (int i = 0; i < moduleNodes.getLength(); i++) {
-            Node moduleNode = moduleNodes.item(i);
-            if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
-                Module module = new Module();
-                module.setName(moduleNode.getTextContent());
-                modules.add(module);
-            }
-        }
-        version.setModules(modules);
         return version;
     }
 

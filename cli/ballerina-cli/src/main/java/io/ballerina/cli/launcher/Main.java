@@ -222,7 +222,8 @@ public final class Main {
             } else {
                 ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
                 toolResolutionRequest.addTool(commandName, "", ToolResolutionCentralRequest.Mode.SOFT);
-                ToolResolutionCentralResponse latestVersionInCentral = getLatestVersionsInCentral(toolResolutionRequest);
+                ToolResolutionCentralResponse latestVersionInCentral =
+                        getLatestVersionsInCentral(toolResolutionRequest);
                 latestVersion = latestVersionInCentral.resolved().stream()
                         .findFirst()
                         .orElseThrow()

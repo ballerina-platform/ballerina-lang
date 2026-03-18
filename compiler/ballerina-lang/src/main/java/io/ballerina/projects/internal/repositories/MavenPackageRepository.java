@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects.internal.repositories;
 
-import com.github.zafarkhaja.semver.UnexpectedCharacterException;
-import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.DependencyGraph;
@@ -339,45 +337,6 @@ public class MavenPackageRepository implements PackageRepository {
 
     public boolean isPackageExists(PackageOrg org, PackageName name, PackageVersion version) {
         return this.fileSystemRepo.isPackageExists(org, name, version);
-    }
-
-    private List<String> getIncompatibleDistPkgVer(List<String> versions, String org, String name) throws
-            MavenResolverClientException {
-        List<String> incompatibleVersions = new ArrayList<>();
-        if (!versions.isEmpty()) {
-            for (String ver : versions) {
-                String packBallerinaVer = RepoUtils.getBallerinaShortVersion();
-                String packageBallerinaVer = this.client.getBallerinaVersionForPackage(org, name, ver,
-                        Paths.get(repoLocation));
-                if (!isCompatible(packageBallerinaVer, packBallerinaVer)) {
-                    incompatibleVersions.add(ver);
-                }
-            }
-        }
-        return incompatibleVersions;
-    }
-
-    private boolean isCompatible(String pkgBalVer, String distBalVer) {
-        if (pkgBalVer.equals(distBalVer) || pkgBalVer.startsWith("slbeta")) {
-            return true;
-        }
-        Version pkgSemVer;
-        Version distSemVer;
-        try {
-            pkgSemVer = Version.valueOf(pkgBalVer);
-            distSemVer = Version.valueOf(distBalVer);
-
-            if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
-                if (pkgSemVer.getMinorVersion() == distSemVer.getMinorVersion()) {
-                    return true;
-                }
-                return !pkgSemVer.greaterThan(distSemVer);
-            }
-        } catch (UnexpectedCharacterException ignore) {
-            // SemVer incompatible versions will throw this exception.
-            // Catching this is mainly to handle slalpha versions
-        }
-        return false;
     }
 
     private Collection<PackageMetadataResponse> getPackageMetadataProxy(Collection<ResolutionRequest> requests,

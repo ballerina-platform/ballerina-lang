@@ -18,8 +18,6 @@
 
 package io.ballerina.cli.cmd;
 
-import com.github.zafarkhaja.semver.UnexpectedCharacterException;
-import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
@@ -331,22 +329,6 @@ public class PullCommand implements BLauncherCmd {
     }
 
 
-    private List<String> getIncompatibleDistPkgVer(List<String> versions, String org, String name,
-                                                   MavenResolverClient client, Path mavenPackageRootPath)
-            throws MavenResolverClientException {
-        List<String> incompatibleVersions = new ArrayList<>();
-        if (!versions.isEmpty()) {
-            for (String ver : versions) {
-                String packBallerinaVer = RepoUtils.getBallerinaShortVersion();
-                String packageBallerinaVer = client.getBallerinaVersionForPackage(org, name, ver, mavenPackageRootPath);
-                if (!isCompatible(packageBallerinaVer, packBallerinaVer)) {
-                    incompatibleVersions.add(ver);
-                }
-            }
-        }
-        return incompatibleVersions;
-    }
-
     private PackageVersion findLatest(Collection<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;
@@ -357,29 +339,6 @@ public class PullCommand implements BLauncherCmd {
             latestVersion = getLatest(latestVersion, pkgVersion);
         }
         return latestVersion;
-    }
-
-    private boolean isCompatible(String pkgBalVer, String distBalVer) {
-        if (pkgBalVer.equals(distBalVer) || pkgBalVer.startsWith("slbeta")) {
-            return true;
-        }
-        Version pkgSemVer;
-        Version distSemVer;
-        try {
-            pkgSemVer = Version.valueOf(pkgBalVer);
-            distSemVer = Version.valueOf(distBalVer);
-
-            if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
-                if (pkgSemVer.getMinorVersion() == distSemVer.getMinorVersion()) {
-                    return true;
-                }
-                return !pkgSemVer.greaterThan(distSemVer);
-            }
-        } catch (UnexpectedCharacterException ignore) {
-            // SemVer incompatible versions will throw this exception.
-            // Catching this is mainly to handle slalpha versions
-        }
-        return false;
     }
 
     private String pullFromBCentral(Settings settings, String orgName, String packageName, String version,

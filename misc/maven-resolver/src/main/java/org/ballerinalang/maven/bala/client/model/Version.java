@@ -17,27 +17,18 @@
  */
 package org.ballerinalang.maven.bala.client.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Data class representing a single Ballerina package version parsed from maven-metadata.xml.
  *
  * @since 2201.13.2
  */
-public class BVersion {
+public class Version {
     private String version;
     private String platform;
-    private String languageSpecificationVersion;
     private boolean isDeprecated;
-    private String deprecateMessage;
     private String ballerinaVersion;
-    private String balToolId;
-    private String graalvmCompatible;
-    private List<Module> modules;
 
-    public BVersion() {
-        this.modules = new ArrayList<>();
+    public Version() {
     }
 
     public String getVersion() {
@@ -56,28 +47,12 @@ public class BVersion {
         this.platform = platform;
     }
 
-    public String getLanguageSpecificationVersion() {
-        return languageSpecificationVersion;
-    }
-
-    public void setLanguageSpecificationVersion(String languageSpecificationVersion) {
-        this.languageSpecificationVersion = languageSpecificationVersion;
-    }
-
     public boolean isDeprecated() {
         return isDeprecated;
     }
 
     public void setIsDeprecated(boolean deprecated) {
         isDeprecated = deprecated;
-    }
-
-    public String getDeprecateMessage() {
-        return deprecateMessage;
-    }
-
-    public void setDeprecateMessage(String deprecateMessage) {
-        this.deprecateMessage = deprecateMessage;
     }
 
     public String getBallerinaVersion() {
@@ -88,40 +63,13 @@ public class BVersion {
         this.ballerinaVersion = ballerinaVersion;
     }
 
-    public String getBalToolId() {
-        return balToolId;
-    }
-
-    public void setBalToolId(String balToolId) {
-        this.balToolId = balToolId;
-    }
-
-    public String getGraalvmCompatible() {
-        return graalvmCompatible;
-    }
-
-    public void setGraalvmCompatible(String graalvmCompatible) {
-        this.graalvmCompatible = graalvmCompatible;
-    }
-
-    public List<Module> getModules() {
-        return modules;
-    }
-
-    public void setModules(List<Module> modules) {
-        this.modules = modules;
-    }
-
     @Override
     public String toString() {
-        return "BVersion{" +
+        return "Version{" +
                 "version='" + version + '\'' +
                 ", platform='" + platform + '\'' +
-                ", languageSpecificationVersion='" + languageSpecificationVersion + '\'' +
                 ", isDeprecated=" + isDeprecated +
                 ", ballerinaVersion='" + ballerinaVersion + '\'' +
-                ", graalvmCompatible='" + graalvmCompatible + '\'' +
-                ", modules=" + modules +
                 '}';
     }
 }

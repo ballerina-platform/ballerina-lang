@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
@@ -25,6 +27,7 @@ import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.internal.model.Repository;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -33,9 +36,6 @@ import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
