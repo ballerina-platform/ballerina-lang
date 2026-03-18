@@ -314,7 +314,8 @@ public class ToolPullCommand implements BLauncherCmd {
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
 
-        ToolMavenMetadata toolMetadata = mavenClient.getToolMetadata(toolId, localRepoPath);
+        ToolMavenMetadata toolMetadata = mavenClient.getToolMetadata(toolId, RepoUtils.getBallerinaVersion(),
+                localRepoPath);
         String org = toolMetadata.getOrg();
         String name = toolMetadata.getName();
 

@@ -188,7 +188,8 @@ public class ToolSearchCommand implements BLauncherCmd {
         initialiseMavenProxyClient(centralProxyMavenRepository, mavenClient, settings);
         Path localRepoPath = RepoUtils.createAndGetHomeReposPath().resolve(
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
-        ToolSearchMavenMetadata searchResult = mavenClient.getToolSearchMetadata("q=" + keyword, localRepoPath);
+        ToolSearchMavenMetadata searchResult = mavenClient.getToolSearchMetadata(
+                "q=" + keyword, RepoUtils.getBallerinaShortVersion(), localRepoPath);
         List<Tool> toolList = new ArrayList<>();
         for (ToolSearchEntry entry : searchResult.getTools()) {
             Tool tool = new Tool();

@@ -210,7 +210,7 @@ public class SearchCommand implements BLauncherCmd {
         boolean foundSearch = false;
         query = "q=" + query;
         PkgSearchMavenMetadata packageSearchResult =
-                client.getPkgSearchMetadata(query, homeReposPath);
+                client.getPkgSearchMetadata(query, RepoUtils.getBallerinaShortVersion(), homeReposPath);
         List<PackageSearchEntry> packages = packageSearchResult.getPackages();
         List<Package> packageList = new ArrayList<>();
         for (PackageSearchEntry mvnPkg : packages) {

@@ -312,7 +312,7 @@ public class MavenPackageRepository implements PackageRepository {
         if (isProxyCentral) {
             try {
                 PackageResolutionResponse pkgResolutionResp = this.client.resolveDependency(org.value(), name.value(),
-                        version.toString(), repoLocation);
+                        version.toString(), RepoUtils.getBallerinaShortVersion(), repoLocation);
                 PackageResolutionResponse.Package resolved = pkgResolutionResp.resolved().getFirst();
                 return createPackageDependencyGraph(resolved);
             } catch (MavenResolverClientException e) {

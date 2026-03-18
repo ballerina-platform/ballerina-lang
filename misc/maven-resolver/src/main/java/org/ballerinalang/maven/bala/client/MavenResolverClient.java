@@ -243,7 +243,8 @@ public class MavenResolverClient {
         try {
             String cacheKey = groupId + ":" + artifactId;
             if (!pkgMetadataCache.containsKey(cacheKey)) {
-                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(groupId, artifactId, localRepoPath));
+                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(groupId, artifactId, localRepoPath,
+                        ballerinaVersion));
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
@@ -257,19 +258,21 @@ public class MavenResolverClient {
     /**
      * Get the Ballerina distribution version required by a specific package version.
      *
-     * @param org           organization name
-     * @param pkgName       package name
-     * @param version       package version
-     * @param localRepoPath path to the local Maven repository
+     * @param org              organization name
+     * @param pkgName          package name
+     * @param version          package version
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return Ballerina version string
      * @throws MavenResolverClientException when metadata resolution fails
      */
-    public String getBallerinaVersionForPackage(String org, String pkgName, String version, Path localRepoPath)
+    public String getBallerinaVersionForPackage(String org, String pkgName, String version,
+                                                String ballerinaVersion, Path localRepoPath)
             throws MavenResolverClientException {
         try {
             String cacheKey = org + ":" + pkgName;
             if (!pkgMetadataCache.containsKey(cacheKey)) {
-                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(org, pkgName, localRepoPath));
+                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(org, pkgName, localRepoPath, ballerinaVersion));
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> v.getVersion().equals(version))
@@ -283,19 +286,21 @@ public class MavenResolverClient {
     /**
      * Get the deprecation status of a specific package version.
      *
-     * @param org           organization name
-     * @param pkgName       package name
-     * @param version       package version
-     * @param localRepoPath path to the local Maven repository
+     * @param org              organization name
+     * @param pkgName          package name
+     * @param version          package version
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return true if the version is deprecated
      * @throws MavenResolverClientException when metadata resolution fails
      */
-    public boolean getDeprecationStatus(String org, String pkgName, String version, Path localRepoPath)
+    public boolean getDeprecationStatus(String org, String pkgName, String version,
+                                        String ballerinaVersion, Path localRepoPath)
             throws MavenResolverClientException {
         try {
             String cacheKey = org + ":" + pkgName;
             if (!pkgMetadataCache.containsKey(cacheKey)) {
-                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(org, pkgName, localRepoPath));
+                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(org, pkgName, localRepoPath, ballerinaVersion));
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> v.getVersion().equals(version))
@@ -309,15 +314,17 @@ public class MavenResolverClient {
     /**
      * Resolves provided dependency graph into resolver location.
      *
-     * @param groupId        group ID of the dependency
-     * @param artifactId     artifact ID of the dependency
-     * @param version        version of the dependency
-     * @param targetLocation path to the target location
+     * @param groupId          group ID of the dependency
+     * @param artifactId       artifact ID of the dependency
+     * @param version          version of the dependency
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param targetLocation   path to the target location
      * @return PackageResolutionResponse with the dependency graph
      * @throws MavenResolverClientException when specified dependency cannot be resolved
      */
     public PackageResolutionResponse resolveDependency(String groupId, String artifactId, String version,
-                                                       String targetLocation) throws MavenResolverClientException {
+                                                       String ballerinaVersion, String targetLocation)
+            throws MavenResolverClientException {
         LocalRepository localRepo = new LocalRepository(targetLocation);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_IGNORE);
@@ -333,7 +340,7 @@ public class MavenResolverClient {
             PackageResolutionResponse resolutionResponse = new Gson().fromJson(dependencyGraphStr,
                     PackageResolutionResponse.class);
             resolutionResponse.resolved().getFirst().setDeprecated(getDeprecationStatus(groupId, artifactId, version,
-                    Paths.get(targetLocation)));
+                    ballerinaVersion, Paths.get(targetLocation)));
             return resolutionResponse;
         } catch (ArtifactResolutionException | IOException e) {
             throw new MavenResolverClientException(e.getMessage());
@@ -343,16 +350,17 @@ public class MavenResolverClient {
     /**
      * Get tool metadata including organization and name information, with caching.
      *
-     * @param toolId        tool ID to retrieve metadata for
-     * @param localRepoPath path to the local Maven repository
+     * @param toolId           tool ID to retrieve metadata for
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return ToolMavenMetadata containing org, name, and version information
      * @throws MavenResolverClientException when metadata resolution fails
      */
-    public ToolMavenMetadata getToolMetadata(String toolId, Path localRepoPath)
+    public ToolMavenMetadata getToolMetadata(String toolId, String ballerinaVersion, Path localRepoPath)
             throws MavenResolverClientException {
         ToolMavenMetadata metadata = toolMetadataCache.get(toolId);
         if (metadata == null) {
-            metadata = fetchToolMetadata(toolId, localRepoPath);
+            metadata = fetchToolMetadata(toolId, localRepoPath, ballerinaVersion);
             toolMetadataCache.put(toolId, metadata);
         }
         return metadata;
@@ -371,7 +379,7 @@ public class MavenResolverClient {
             throws MavenResolverClientException {
         ToolMavenMetadata metadata = toolMetadataCache.get(toolId);
         if (metadata == null) {
-            metadata = fetchToolMetadata(toolId, localRepoPath);
+            metadata = fetchToolMetadata(toolId, localRepoPath, ballerinaVersion);
             toolMetadataCache.put(toolId, metadata);
         }
         return metadata.getVersions().stream()
@@ -383,16 +391,17 @@ public class MavenResolverClient {
     /**
      * Get package search metadata from the Maven repository by parsing the maven-metadata.xml file.
      *
-     * @param query         artifact ID of the package search query
-     * @param localRepoPath path to the local Maven repository
+     * @param query            artifact ID of the package search query
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return PkgSearchMavenMetadata object containing parsed XML metadata
      * @throws MavenResolverClientException when metadata resolution or XML parsing fails
      */
-    public PkgSearchMavenMetadata getPkgSearchMetadata(String query, Path localRepoPath)
+    public PkgSearchMavenMetadata getPkgSearchMetadata(String query, String ballerinaVersion, Path localRepoPath)
             throws MavenResolverClientException {
         configureMetadataSession(localRepoPath);
         try {
-            File metadataFile = resolveMetadataFile("__packagesearch__", query);
+            File metadataFile = resolveMetadataFile("__packagesearch__", query, ballerinaVersion);
             Document document = parseXmlFile(metadataFile);
             return parsePkgSearchMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
@@ -403,16 +412,18 @@ public class MavenResolverClient {
     /**
      * Get Solr-based package search metadata from the Maven repository by parsing the maven-metadata.xml file.
      *
-     * @param query         artifact ID of the package search query
-     * @param localRepoPath path to the local Maven repository
+     * @param query            artifact ID of the package search query
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return PkgSearchSolrMavenMetadata object containing parsed XML metadata
      * @throws MavenResolverClientException when metadata resolution or XML parsing fails
      */
-    public PkgSearchSolrMavenMetadata getPkgSearchSolrMetadata(String query, Path localRepoPath)
+    public PkgSearchSolrMavenMetadata getPkgSearchSolrMetadata(String query, String ballerinaVersion,
+                                                                Path localRepoPath)
             throws MavenResolverClientException {
         configureMetadataSession(localRepoPath);
         try {
-            File metadataFile = resolveMetadataFile("__packagesearchsolr__", query);
+            File metadataFile = resolveMetadataFile("__packagesearchsolr__", query, ballerinaVersion);
             Document document = parseXmlFile(metadataFile);
             return parsePkgSearchSolrMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
@@ -423,16 +434,17 @@ public class MavenResolverClient {
     /**
      * Get tool search metadata from the Maven repository by parsing the maven-metadata.xml file.
      *
-     * @param query         artifact ID of the tool search query
-     * @param localRepoPath path to the local Maven repository
+     * @param query            artifact ID of the tool search query
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return ToolSearchMavenMetadata object containing parsed XML metadata
      * @throws MavenResolverClientException when metadata resolution or XML parsing fails
      */
-    public ToolSearchMavenMetadata getToolSearchMetadata(String query, Path localRepoPath)
+    public ToolSearchMavenMetadata getToolSearchMetadata(String query, String ballerinaVersion, Path localRepoPath)
             throws MavenResolverClientException {
         configureMetadataSession(localRepoPath);
         try {
-            File metadataFile = resolveMetadataFile("__toolsearch__", query);
+            File metadataFile = resolveMetadataFile("__toolsearch__", query, ballerinaVersion);
             Document document = parseXmlFile(metadataFile);
             return parseToolSearchMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
@@ -443,16 +455,17 @@ public class MavenResolverClient {
     /**
      * Get symbol search metadata from the Maven repository by parsing the maven-metadata.xml file.
      *
-     * @param query         artifact ID of the symbol search query
-     * @param localRepoPath path to the local Maven repository
+     * @param query            artifact ID of the symbol search query
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return SymbolSearchMavenMetadata object containing parsed XML metadata
      * @throws MavenResolverClientException when metadata resolution or XML parsing fails
      */
-    public SymbolSearchMavenMetadata getSymbolSearchMetadata(String query, Path localRepoPath)
+    public SymbolSearchMavenMetadata getSymbolSearchMetadata(String query, String ballerinaVersion, Path localRepoPath)
             throws MavenResolverClientException {
         configureMetadataSession(localRepoPath);
         try {
-            File metadataFile = resolveMetadataFile("__symbolsearch__", query);
+            File metadataFile = resolveMetadataFile("__symbolsearch__", query, ballerinaVersion);
             Document document = parseXmlFile(metadataFile);
             return parseSymbolSearchMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
@@ -463,16 +476,18 @@ public class MavenResolverClient {
     /**
      * Get connector search metadata from the Maven repository by parsing the maven-metadata.xml file.
      *
-     * @param query         artifact ID of the connector search query
-     * @param localRepoPath path to the local Maven repository
+     * @param query            artifact ID of the connector search query
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param localRepoPath    path to the local Maven repository
      * @return ConnectorSearchMavenMetadata object containing parsed XML metadata
      * @throws MavenResolverClientException when metadata resolution or XML parsing fails
      */
-    public ConnectorSearchMavenMetadata getConnectorSearchMetadata(String query, Path localRepoPath)
+    public ConnectorSearchMavenMetadata getConnectorSearchMetadata(String query, String ballerinaVersion,
+                                                                    Path localRepoPath)
             throws MavenResolverClientException {
         configureMetadataSession(localRepoPath);
         try {
-            File metadataFile = resolveMetadataFile("__connectorsearch__", query);
+            File metadataFile = resolveMetadataFile("__connectorsearch__", query, ballerinaVersion);
             Document document = parseXmlFile(metadataFile);
             return parseConnectorSearchMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
@@ -555,15 +570,19 @@ public class MavenResolverClient {
 
     /**
      * Resolve a maven-metadata.xml file from the remote repository and return the local cached {@link File}.
+     * The groupId is prefixed with the transformed Ballerina version (e.g. {@code v2201-13-0.groupId}).
      *
-     * @param groupId    Maven groupId
-     * @param artifactId Maven artifactId
+     * @param groupId          Maven groupId
+     * @param artifactId       Maven artifactId
+     * @param ballerinaVersion current Ballerina distribution version (e.g. {@code 2201.13.2})
      * @return the resolved local metadata file
      * @throws MavenResolverClientException when the file cannot be resolved
      */
-    private File resolveMetadataFile(String groupId, String artifactId) throws MavenResolverClientException {
+    private File resolveMetadataFile(String groupId, String artifactId, String ballerinaVersion)
+            throws MavenResolverClientException {
+        String versionedGroupId = transformBallerinaVersion(ballerinaVersion) + "." + groupId;
         Metadata metadata = new DefaultMetadata(
-                groupId, artifactId, "maven-metadata.xml", Metadata.Nature.RELEASE_OR_SNAPSHOT);
+                versionedGroupId, artifactId, "maven-metadata.xml", Metadata.Nature.RELEASE_OR_SNAPSHOT);
         MetadataRequest metadataRequest = new MetadataRequest(metadata, remoteRepository, null);
         MetadataResult result = system.resolveMetadata(
                 session, Collections.singletonList(metadataRequest)).get(0);
@@ -577,11 +596,12 @@ public class MavenResolverClient {
     /**
      * Fetch and parse package metadata from the remote Maven repository.
      */
-    private PackageMavenMetadata fetchPackageMetadata(String groupId, String artifactId, Path localRepoPath)
+    private PackageMavenMetadata fetchPackageMetadata(String orgName, String packageName, Path localRepoPath,
+                                                       String ballerinaVersion)
             throws MavenResolverClientException {
         configureMetadataSession(localRepoPath);
         try {
-            File metadataFile = resolveMetadataFile(groupId, artifactId);
+            File metadataFile = resolveMetadataFile(orgName, packageName, ballerinaVersion);
             Document document = parseXmlFile(metadataFile);
             return parsePackageMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
@@ -592,11 +612,11 @@ public class MavenResolverClient {
     /**
      * Fetch and parse tool metadata from the remote Maven repository.
      */
-    private ToolMavenMetadata fetchToolMetadata(String toolId, Path localRepoPath)
+    private ToolMavenMetadata fetchToolMetadata(String toolId, Path localRepoPath, String ballerinaVersion)
             throws MavenResolverClientException {
         configureMetadataSession(localRepoPath);
         try {
-            File metadataFile = resolveMetadataFile("__tools__", toolId);
+            File metadataFile = resolveMetadataFile("__tools__", toolId, ballerinaVersion);
             Document document = parseXmlFile(metadataFile);
             return parseToolMetadata(document);
         } catch (ParserConfigurationException | IOException | SAXException e) {
@@ -1005,6 +1025,21 @@ public class MavenResolverClient {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    /**
+     * Transform a Ballerina distribution version into the versioned groupId prefix format.
+     * Takes the first two dot-separated segments and appends {@code 0} as the patch segment,
+     * so any suffix (e.g. {@code -SNAPSHOT}) on the third segment is discarded naturally.
+     *
+     * <pre>
+     *   2201.13.2          -> v2201-13-0
+     *   2201.13.2-SNAPSHOT -> v2201-13-0
+     * </pre>
+     */
+    private String transformBallerinaVersion(String ballerinaVersion) {
+        String[] parts = ballerinaVersion.split("\\.");
+        return "v" + parts[0] + "-" + parts[1] + "-0";
     }
 
     private File generatePomFile(String groupId, String artifactId, String version) throws IOException {

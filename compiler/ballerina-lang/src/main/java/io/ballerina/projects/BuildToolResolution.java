@@ -393,7 +393,7 @@ public class BuildToolResolution {
         TomlNodeLocation location = BuildToolsUtil.getFirstToolEntryLocation(toolId,
                 packageContext.packageManifest().tools());
         ToolMavenMetadata toolMetadata =
-                mavenClient.getToolMetadata(toolId, localRepoPath);
+                mavenClient.getToolMetadata(toolId, ballerinaVersion, localRepoPath);
         List<String> compatibleToolVersions = toolMetadata.getVersions().stream()
                 .filter(v -> isCompatibleWithToolDistVersion(ballerinaVersion, v.getBallerinaVersion()))
                 .map(ToolVersion::getVersion)
