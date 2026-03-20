@@ -21,12 +21,25 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.BlendedBalToolsManifest;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.BalToolsUtil;
+import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.maven.bala.client.model.ToolMavenMetadata;
+import org.ballerinalang.maven.bala.client.model.ToolSearchEntry;
+import org.ballerinalang.maven.bala.client.model.ToolSearchMavenMetadata;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -35,6 +48,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -367,5 +382,282 @@ public class ToolCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), Paths.get("build/user-home/" +
                 ".ballerina/repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java17").toAbsolutePath() + "\n");
+    }
+
+    @Test(description = "Test tool search via Maven proxy - tool found")
+    public void testToolSearchFoundInMvnProxy() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        ToolSearchEntry entry = new ToolSearchEntry();
+        entry.setOrg("myorg");
+        entry.setName("toolpkg");
+        entry.setBalToolId("my-tool");
+        entry.setVersion("1.0.0");
+        List<ToolSearchEntry> entries = new ArrayList<>();
+        entries.add(entry);
+        ToolSearchMavenMetadata metadata = new ToolSearchMavenMetadata();
+        metadata.setTools(entries);
+
+        ToolSearchCommand toolSearchCommand = new ToolSearchCommand(printStream, printStream, false);
+        new CommandLine(toolSearchCommand).parseArgs("mytool");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getToolSearchMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                             .thenReturn(metadata))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            toolSearchCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("myorg"), "Expected output to contain 'myorg'");
+        Assert.assertTrue(output.contains("my-tool"), "Expected output to contain 'my-tool'");
+        Assert.assertTrue(output.contains("1.0.0"), "Expected output to contain '1.0.0'");
+    }
+
+    @Test(description = "Test tool search via Maven proxy - no tools found")
+    public void testToolSearchNoResultsInMvnProxy() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        ToolSearchMavenMetadata metadata = new ToolSearchMavenMetadata();
+        metadata.setTools(new ArrayList<>());
+
+        ToolSearchCommand toolSearchCommand = new ToolSearchCommand(printStream, printStream, false);
+        new CommandLine(toolSearchCommand).parseArgs("unknowntool");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getToolSearchMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                             .thenReturn(metadata))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            toolSearchCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("no tools found."), "Expected output to contain 'no tools found.'");
+    }
+
+    @Test(description = "Test tool search via Maven proxy - client throws exception")
+    public void testToolSearchMvnProxyClientException() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        ToolSearchCommand toolSearchCommand = new ToolSearchCommand(printStream, printStream, false);
+        new CommandLine(toolSearchCommand).parseArgs("mytool");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getToolSearchMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                             .thenThrow(new MavenResolverClientException("tool search proxy error")))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            toolSearchCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("tool search proxy error"),
+                "Expected output to contain 'tool search proxy error'");
+    }
+
+    @Test(description = "Test tool pull via Maven proxy - success case")
+    public void testToolPullFromMvnProxySuccess() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        MavenResolverClient mockMavenClient = Mockito.mock(MavenResolverClient.class);
+        ToolMavenMetadata metadata = new ToolMavenMetadata();
+        metadata.setOrg("myorg");
+        metadata.setName("tool_pkg");
+        try {
+            Mockito.when(mockMavenClient.getToolMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                    .thenReturn(metadata);
+        } catch (MavenResolverClientException e) {
+            Assert.fail("Unexpected exception during mock setup: " + e.getMessage());
+        }
+
+        ToolPullCommand toolPullCommand = new ToolPullCommand(printStream, printStream, false);
+        new CommandLine(toolPullCommand).parseArgs("my-tool:1.0.0");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedStatic<BalToolsUtil> balTools = Mockito.mockStatic(BalToolsUtil.class,
+                     Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaVersion).thenReturn("2201.13.0");
+            balTools.when(() -> BalToolsUtil.hasProxyCentralRepository(Mockito.any())).thenReturn(true);
+            balTools.when(() -> BalToolsUtil.initializeMavenClientWithProxyRepo(Mockito.any()))
+                    .thenReturn(mockMavenClient);
+            balTools.when(() -> BalToolsUtil.pullAndExtractToolFromMavenProxy(
+                    Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                    .thenAnswer(inv -> null);
+            balTools.when(() -> BalToolsUtil.isCompatibleWithPlatform(
+                    Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                    .thenReturn(true);
+            toolPullCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("tool 'my-tool:1.0.0' pulled successfully."),
+                "Expected output to contain 'tool 'my-tool:1.0.0' pulled successfully.'");
+        Assert.assertTrue(output.contains("successfully set as the active version."),
+                "Expected output to contain 'successfully set as the active version.'");
+    }
+
+    @Test(description = "Test tool pull via Maven proxy - client throws exception")
+    public void testToolPullFromMvnProxyClientException() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        MavenResolverClient mockMavenClient = Mockito.mock(MavenResolverClient.class);
+        try {
+            Mockito.when(mockMavenClient.getToolMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                    .thenThrow(new MavenResolverClientException("tool metadata error"));
+        } catch (MavenResolverClientException e) {
+            Assert.fail("Unexpected exception during mock setup: " + e.getMessage());
+        }
+
+        ToolPullCommand toolPullCommand = new ToolPullCommand(printStream, printStream, false);
+        new CommandLine(toolPullCommand).parseArgs("my-tool:1.0.0");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedStatic<BalToolsUtil> balTools = Mockito.mockStatic(BalToolsUtil.class,
+                     Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaVersion).thenReturn("2201.13.0");
+            balTools.when(() -> BalToolsUtil.hasProxyCentralRepository(Mockito.any())).thenReturn(true);
+            balTools.when(() -> BalToolsUtil.initializeMavenClientWithProxyRepo(Mockito.any()))
+                    .thenReturn(mockMavenClient);
+            toolPullCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("unexpected error occurred while pulling tool:tool metadata error"),
+                "Expected output to contain 'unexpected error occurred while pulling tool:tool metadata error'");
+    }
+
+    @Test(description = "Test tool update via Maven proxy - client throws exception")
+    public void testToolUpdateMvnProxyClientException() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        ToolUpdateCommand toolUpdateCommand = new ToolUpdateCommand(printStream, printStream, false);
+        new CommandLine(toolUpdateCommand).parseArgs("central_test_tool");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getCompatibleToolVersions(
+                                     Mockito.anyString(), Mockito.anyString(), Mockito.any(Path.class)))
+                             .thenThrow(new MavenResolverClientException("version fetch error")))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            toolUpdateCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("unexpected error occurred while pulling tool:version fetch error"),
+                "Expected output to contain 'unexpected error occurred while pulling tool:version fetch error'");
+    }
+
+    @Test(description = "Pull a specific version of a tool from Maven proxy central")
+    public void testToolPullFromMvnProxyWithVersion() {
+        Path repoPath = Path.of("src/test/resources/test-resources/maven-proxy/repositories/central-proxy");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/maven-proxy/SettingsFile.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
+
+        ToolPullCommand toolPullCommand = new ToolPullCommand(printStream, printStream, false);
+        new CommandLine(toolPullCommand).parseArgs("my-tool:1.0.0");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedStatic<ProjectUtils> projUtils = Mockito.mockStatic(ProjectUtils.class,
+                     Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
+                    repoPath.toAbsolutePath().toString().replace("\\", "/")));
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::getBallerinaVersion).thenReturn("2201.13.0");
+            projUtils.when(ProjectUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            toolPullCommand.execute();
+        }
+        Path pulledCacheDir = mockBallerinaHome.resolve("repositories").resolve("central.ballerina.io")
+                .resolve("bala").resolve("luheerathan").resolve("pact1").resolve("1.0.0");
+        Assert.assertTrue(Files.exists(pulledCacheDir.resolve("any")));
+    }
+
+    @Test(description = "Pull latest compatible version of a tool from Maven proxy central")
+    public void testToolPullFromMvnProxyWithoutVersion() {
+        Path repoPath = Path.of("src/test/resources/test-resources/maven-proxy/repositories/central-proxy");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/maven-proxy/SettingsFile.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
+
+        ToolPullCommand toolPullCommand = new ToolPullCommand(printStream, printStream, false);
+        new CommandLine(toolPullCommand).parseArgs("my-tool");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedStatic<ProjectUtils> projUtils = Mockito.mockStatic(ProjectUtils.class,
+                     Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
+                    repoPath.toAbsolutePath().toString().replace("\\", "/")));
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::getBallerinaVersion).thenReturn("2201.13.0");
+            projUtils.when(ProjectUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            toolPullCommand.execute();
+        }
+        Path pulledCacheDir = mockBallerinaHome.resolve("repositories").resolve("central.ballerina.io")
+                .resolve("bala").resolve("luheerathan").resolve("pact1").resolve("1.0.0");
+        Assert.assertTrue(Files.exists(pulledCacheDir.resolve("any")));
+    }
+
+    @Test(description = "Update a tool from older locked version via Maven proxy central")
+    public void testToolUpdateFromMvnProxy() {
+        Path repoPath = Path.of("src/test/resources/test-resources/maven-proxy/repositories/central-proxy");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/maven-proxy/SettingsFile.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
+
+        ToolUpdateCommand toolUpdateCommand = new ToolUpdateCommand(printStream, printStream, false);
+        new CommandLine(toolUpdateCommand).parseArgs("my-tool");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedStatic<ProjectUtils> projUtils = Mockito.mockStatic(ProjectUtils.class,
+                     Mockito.CALLS_REAL_METHODS);
+             MockedStatic<BalToolsUtil> balToolsUtil = Mockito.mockStatic(BalToolsUtil.class,
+                     Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
+                    repoPath.toAbsolutePath().toString().replace("\\", "/")));
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::getBallerinaVersion).thenReturn("2201.13.0");
+            projUtils.when(ProjectUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            balToolsUtil.when(() -> BalToolsUtil.pullToolPackageFromRemote(Mockito.any(), Mockito.any()))
+                    .thenReturn(new BalToolsManifest.Tool("my-tool", "luheerathan", "pact1", "1.0.0", true, null));
+            toolUpdateCommand.execute();
+        }
+        Path updatedCacheDir = mockBallerinaHome.resolve("repositories").resolve("central.ballerina.io")
+                .resolve("bala").resolve("luheerathan").resolve("pact1").resolve("1.0.0");
+        Assert.assertTrue(Files.exists(updatedCacheDir.resolve("any")));
+    }
+
+    private static Settings readMockSettings(Path settingsFilePath, String repoPath) {
+        try {
+            String settingString = Files.readString(settingsFilePath);
+            settingString = settingString.replaceAll("REPO_PATH", repoPath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), settingString);
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
+        } catch (IOException e) {
+            return Settings.from();
+        }
     }
 }

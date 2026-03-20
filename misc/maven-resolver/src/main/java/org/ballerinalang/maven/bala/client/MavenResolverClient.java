@@ -17,6 +17,8 @@ package org.ballerinalang.maven.bala.client;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
@@ -314,34 +316,66 @@ public class MavenResolverClient {
     /**
      * Resolves provided dependency graph into resolver location.
      *
-     * @param groupId          group ID of the dependency
-     * @param artifactId       artifact ID of the dependency
+     * @param orgName          group ID of the dependency
+     * @param packageName       artifact ID of the dependency
      * @param version          version of the dependency
      * @param ballerinaVersion current Ballerina distribution version
      * @param targetLocation   path to the target location
      * @return PackageResolutionResponse with the dependency graph
      * @throws MavenResolverClientException when specified dependency cannot be resolved
      */
-    public PackageResolutionResponse resolveDependency(String groupId, String artifactId, String version,
+    public PackageResolutionResponse resolveDependency(String orgName, String packageName, String version,
                                                        String ballerinaVersion, String targetLocation)
             throws MavenResolverClientException {
         LocalRepository localRepo = new LocalRepository(targetLocation);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_IGNORE);
-        Artifact artifact = new DefaultArtifact(groupId, artifactId, "depgraph", "json", version);
+        Artifact artifact = new DefaultArtifact(orgName, packageName, "depgraph", "json", version);
         try {
             session.setTransferListener(new TransferListenerForClient());
             ArtifactRequest artifactRequest = new ArtifactRequest();
             artifactRequest.setArtifact(artifact);
             artifactRequest.addRepository(remoteRepository);
             system.resolveArtifact(session, artifactRequest);
-            String dependencyGraphStr = Files.readString(Paths.get(targetLocation).resolve(groupId).resolve(artifactId)
-                    .resolve(version).resolve(artifactId + "-" + version + "-depgraph.json"));
+            String dependencyGraphStr = Files.readString(Paths.get(targetLocation).resolve(orgName).resolve(packageName)
+                    .resolve(version).resolve(packageName + "-" + version + "-depgraph.json"));
             PackageResolutionResponse resolutionResponse = new Gson().fromJson(dependencyGraphStr,
                     PackageResolutionResponse.class);
-            resolutionResponse.resolved().getFirst().setDeprecated(getDeprecationStatus(groupId, artifactId, version,
+            resolutionResponse.resolved().getFirst().setDeprecated(getDeprecationStatus(orgName, packageName, version,
                     ballerinaVersion, Paths.get(targetLocation)));
             return resolutionResponse;
+        } catch (ArtifactResolutionException | IOException e) {
+            throw new MavenResolverClientException(e.getMessage());
+        }
+    }
+
+    /**
+     * Get the list of listeners for a package from the Maven repository.
+     *
+     * @param orgName          organization name
+     * @param packageName      package name
+     * @param version          version of the package
+     * @param ballerinaVersion current Ballerina distribution version
+     * @param targetLocation   path to the target location
+     * @return list of listener name strings across all modules
+     * @throws MavenResolverClientException when the artifact cannot be resolved or the response cannot be parsed
+     */
+    public List<String> getListeners(String orgName, String packageName, String version,
+                                     String ballerinaVersion, String targetLocation)
+            throws MavenResolverClientException {
+        LocalRepository localRepo = new LocalRepository(targetLocation);
+        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+        session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_IGNORE);
+        Artifact artifact = new DefaultArtifact(orgName, packageName, "listeners", "json", version);
+        try {
+            session.setTransferListener(new TransferListenerForClient());
+            ArtifactRequest artifactRequest = new ArtifactRequest();
+            artifactRequest.setArtifact(artifact);
+            artifactRequest.addRepository(remoteRepository);
+            system.resolveArtifact(session, artifactRequest);
+            String listenersJson = Files.readString(Paths.get(targetLocation).resolve(orgName).resolve(packageName)
+                    .resolve(version).resolve(packageName + "-" + version + "-listeners.json"));
+            return parseListenersResponse(listenersJson);
         } catch (ArtifactResolutionException | IOException e) {
             throw new MavenResolverClientException(e.getMessage());
         }
@@ -586,9 +620,12 @@ public class MavenResolverClient {
         MetadataRequest metadataRequest = new MetadataRequest(metadata, remoteRepository, null);
         MetadataResult result = system.resolveMetadata(
                 session, Collections.singletonList(metadataRequest)).get(0);
-        File metadataFile = result.getMetadata().getFile();
-        if (metadataFile != null && metadataFile.exists()) {
-            return metadataFile;
+        Metadata resolved = result.getMetadata();
+        if (resolved != null) {
+            File metadataFile = resolved.getFile();
+            if (metadataFile != null && metadataFile.exists()) {
+                return metadataFile;
+            }
         }
         throw new MavenResolverClientException("Metadata file not found or could not be resolved");
     }
@@ -1040,6 +1077,43 @@ public class MavenResolverClient {
     private String transformBallerinaVersion(String ballerinaVersion) {
         String[] parts = ballerinaVersion.split("\\.");
         return "v" + parts[0] + "-" + parts[1] + "-0";
+    }
+
+    /**
+     * Parse the listeners JSON response and collect all listener names across all modules.
+     *
+     * <p>Expected JSON structure:
+     * <pre>
+     * {
+     *   "data": {
+     *     "apiDocs": {
+     *       "docsData": {
+     *         "modules": [
+     *           { "listeners": "[listenerA,listenerB]" }
+     *         ]
+     *       }
+     *     }
+     *   }
+     * }
+     * </pre>
+     * The {@code listeners} field value is appended as-is to the result list.
+     */
+    private List<String> parseListenersResponse(String json) {
+        JsonObject root = new Gson().fromJson(json, JsonObject.class);
+        var modules = root.getAsJsonObject("data")
+                .getAsJsonObject("apiDocs")
+                .getAsJsonObject("docsData")
+                .getAsJsonArray("modules");
+
+        List<String> listeners = new ArrayList<>();
+        for (JsonElement moduleElement : modules) {
+            JsonElement listenersElement = moduleElement.getAsJsonObject().get("listeners");
+            if (listenersElement == null || listenersElement.isJsonNull()) {
+                continue;
+            }
+            listeners.add(listenersElement.getAsString());
+        }
+        return listeners;
     }
 
     private File generatePomFile(String groupId, String artifactId, String version) throws IOException {

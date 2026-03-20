@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.__tools__</groupId>
+  <artifactId>future-tool</artifactId>
+  <org>futureorg</org>
+  <package>futurepkg</package>
+  <version>
+    <number>1.0.0</number>
+    <platform>java17</platform>
+    <ballerinaVersion>2201.14.0</ballerinaVersion>
+  </version>
+  <version>
+    <number>2.0.0</number>
+    <platform>java17</platform>
+    <ballerinaVersion>2201.15.0</ballerinaVersion>
+  </version>
+</metadata>

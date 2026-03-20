@@ -86,6 +86,12 @@ public class ToolUpdateCommand implements BLauncherCmd {
         this.errStream = System.err;
     }
 
+    public ToolUpdateCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+    }
+
     @Override
     public void execute() {
         if (helpFlag) {

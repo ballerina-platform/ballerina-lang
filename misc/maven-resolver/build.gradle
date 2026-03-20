@@ -19,10 +19,6 @@ plugins {
     id 'javaProject'
 }
 
-configurations {
-    implementation.exclude group: "org.slf4j"
-}
-
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
@@ -32,10 +28,10 @@ jar {
         )
     }
     from {
-        configurations.runtimeClasspath.collect { 
+        configurations.runtimeClasspath.collect {
             if (it.isDirectory()) {
-                it 
-            } else if (!it.name.matches(/^(gson|netty).+\.jar$/)) {
+                it
+            } else if (!it.name.matches(/^(gson|netty|slf4j).+\.jar$/)) {
                 zipTree(it)
             } else {
                 null
@@ -58,6 +54,14 @@ dependencies {
     implementation libs.tongfei.progressbar
 
     testImplementation libs.testng
+    testImplementation libs.slf4j.api
+    testImplementation libs.slf4j.simple
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 description = 'Ballerina - Maven dependency resolver'

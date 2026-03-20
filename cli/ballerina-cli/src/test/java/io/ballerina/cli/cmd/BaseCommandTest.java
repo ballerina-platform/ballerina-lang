@@ -20,6 +20,9 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
@@ -216,5 +219,15 @@ public abstract class BaseCommandTest {
         CleanCommand cleanCommand = new CleanCommand(projectPath, false);
         new CommandLine(cleanCommand).parseArgs();
         cleanCommand.execute();
+    }
+
+    protected static Settings readMockSettings(Path settingsFilePath) {
+        try {
+            String settingString = Files.readString(settingsFilePath);
+            TomlDocument doc = TomlDocument.from(String.valueOf(settingsFilePath.getFileName()), settingString);
+            return SettingsBuilder.from(doc).settings();
+        } catch (IOException e) {
+            return Settings.from();
+        }
     }
 }
