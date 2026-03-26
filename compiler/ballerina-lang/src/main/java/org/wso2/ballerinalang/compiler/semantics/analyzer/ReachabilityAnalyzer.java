@@ -582,7 +582,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                     !data.hasFunctionTerminated) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
-                        getInvokableKindNameForMessage(funcNode.getKind()));
+                        getInvokableKindNameForMessage(funcNode));
             } else if (isNeverReturn && !data.hasFunctionTerminated) {
                 this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
@@ -600,9 +600,19 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     /**
-     * User-facing invokable kind label for diagnostics (e.g. {@code resource function}, not {@code resource_func}).
+     * User-facing invokable kind label for diagnostics (e.g. {@code worker}, {@code resource function}).
      */
-    private static String getInvokableKindNameForMessage(NodeKind kind) {
+    private static String getInvokableKindNameForMessage(BLangFunction funcNode) {
+        if (funcNode.flagSet.contains(Flag.WORKER) && funcNode.flagSet.contains(Flag.LAMBDA)) {
+            return "worker";
+        }
+        return getInvokableKindNameForNodeKind(funcNode.getKind());
+    }
+
+    /**
+     * User-facing invokable kind label from {@link NodeKind} (e.g. {@code resource function}, not {@code resource_func}).
+     */
+    private static String getInvokableKindNameForNodeKind(NodeKind kind) {
         switch (kind) {
             case RESOURCE_FUNC:
                 return "resource function";
