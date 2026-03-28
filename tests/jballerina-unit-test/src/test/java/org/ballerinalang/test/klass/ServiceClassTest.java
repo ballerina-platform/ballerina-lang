@@ -247,7 +247,7 @@ public class ServiceClassTest {
     public void testResourceFunctionMustReturnErrorMessage() {
         CompileResult result =
                 BCompileUtil.compile("test-src/klass/resource_function_must_return_negative.bal");
-        validateError(result, 0, "this resource function must return a result", 8, 5);
+        validateError(result, 0, "this resource function must return a result", 7, 5);
         Assert.assertEquals(result.getErrorCount(), 1);
     }
 
