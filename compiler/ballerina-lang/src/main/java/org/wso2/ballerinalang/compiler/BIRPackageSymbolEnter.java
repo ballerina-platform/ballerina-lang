@@ -2196,7 +2196,7 @@ public class BIRPackageSymbolEnter {
         String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
         for (BPackageSymbol importSymbol : this.env.pkgSymbol.imports) {
             if (importSymbol.pkgID.orgName.equals(Names.fromString(orgName)) &&
-                    importSymbol.pkgID.name.equals(Names.fromString(pkgName))) {
+                    importSymbol.pkgID.pkgName.equals(Names.fromString(pkgName))) {
                 version = importSymbol.pkgID.version.value;
                 break;
             }
