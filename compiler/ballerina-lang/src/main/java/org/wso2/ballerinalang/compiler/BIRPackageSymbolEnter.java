@@ -820,6 +820,18 @@ public class BIRPackageSymbolEnter {
         switch (valueType.tag) {
             case TypeTags.INT:
                 return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.intType);
+            case TypeTags.UNSIGNED8_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.unsigned8IntType);
+            case  TypeTags.UNSIGNED16_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.unsigned16IntType);
+            case  TypeTags.UNSIGNED32_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.unsigned32IntType);
+            case TypeTags.SIGNED8_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.signed8IntType);
+            case TypeTags.SIGNED16_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.signed16IntType);
+            case TypeTags.SIGNED32_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.signed32IntType);
             case TypeTags.BYTE:
                 return new BLangConstantValue(getByteCPEntryValue(dataInStream), symTable.byteType);
             case TypeTags.FLOAT:
