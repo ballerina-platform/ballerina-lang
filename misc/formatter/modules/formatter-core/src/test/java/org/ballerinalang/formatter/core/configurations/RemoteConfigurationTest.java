@@ -31,7 +31,8 @@ import java.nio.file.Path;
 public class RemoteConfigurationTest extends FormatterTest {
 
     @Override
-    @Test(dataProvider = "test-file-provider")
+    @Test(enabled = false, // the remote toml location is not available due to the missing bot account,
+        dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         try {
             super.testWithConfigurationFile(source, sourcePath);

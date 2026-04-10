@@ -1,0 +1,3 @@
+[[repository.maven]]
+id = "customRepo"
+url = "customRepoUrl"

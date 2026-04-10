@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "pkgA"
+version = "1.0.0"

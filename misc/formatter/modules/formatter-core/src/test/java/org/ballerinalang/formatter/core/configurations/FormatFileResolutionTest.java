@@ -47,7 +47,8 @@ public class FormatFileResolutionTest {
         FormatterUtils.getFormattingConfigurations(validLocal, validLocal.resolve("Format.toml").toString());
     }
 
-    @Test(description = "Test for remote formatting configuration file")
+    @Test(enabled = false, // the remote toml location is not available due to the missing bot account,
+            description = "Test for remote formatting configuration file")
     public void resolutionOfRemoteFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(validRemote, validRemoteUrl);
     }
@@ -57,7 +58,8 @@ public class FormatFileResolutionTest {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("cached"), validRemoteUrl);
     }
 
-    @Test(description = "Test caching of configuration file with target directory present")
+    @Test(enabled = false, // the remote toml location is not available due to the missing bot account,
+            description = "Test caching of configuration file with target directory present")
     public void cacheWithTargetDirectoryPresent() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(withTarget, validRemoteUrl);
     }
@@ -98,13 +100,15 @@ public class FormatFileResolutionTest {
         FormatterUtils.getFormattingConfigurations(invalidLocal, invalidLocal.resolve("t.toml").toString());
     }
 
-    @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
+    @Test(enabled = false, // the remote toml location is not available due to the missing bot account,
+            description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
             expectedExceptionsMessageRegExp = "failed to create format configuration cache directory")
     public void failureToCreateFormatCacheFolderTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheTarget"), validRemoteUrl);
     }
 
-    @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
+    @Test(enabled = false, // the remote toml location is not available due to the missing bot account,
+            description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
             expectedExceptionsMessageRegExp = "failed to write format configuration cache file")
     public void failureToWriteCacheFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheWrite"), validRemoteUrl);
