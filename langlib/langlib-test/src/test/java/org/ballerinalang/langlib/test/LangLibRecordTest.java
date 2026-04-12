@@ -108,6 +108,15 @@ public class LangLibRecordTest {
         BRunUtil.invoke(compileResult, "testRemoveAll");
     }
 
+    // Test for issue #39436: removeAll() on a readonly record with only optional fields
+    // should panic with OperationNotSupported (not a misleading "required field" message).
+    @Test(expectedExceptions = BLangTestException.class,
+          expectedExceptionsMessageRegExp =
+                  ".*OperationNotSupported \\{\"message\":\"failed .*")
+    public void testRemoveAllOnReadOnlyRecordWithOptionalFields() {
+        BRunUtil.invoke(compileResult, "testRemoveAllOnReadOnlyRecordWithOptionalFields");
+    }
+
     @Test(dataProvider = "mapKeyProvider")
     public void testHasKey(BString key, boolean expected) {
         Object returns = BRunUtil.invoke(compileResult, "testHasKey", new Object[]{key});
