@@ -27,7 +27,7 @@ jobs:
           echo "VERSION=$(./gradlew properties | grep ^version: | cut -d\  -f2 | sed 's@-SNAPSHOT@@')" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Publish artifact
+      - name: Build artifacts
         env:
           publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
@@ -37,6 +37,20 @@ jobs:
           git config user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git checkout -b release-${VERSION}
           ./gradlew build -x :jballerina-debugger-integration-test:test -Pversion=${VERSION}
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'rootfs'
+          scan-ref: '${{ github.workspace }}/distribution/zip/jballerina-tools'
+          format: 'table'
+          timeout: '10m0s'
+          exit-code: '1'
+      - name: Publish artifact
+        env:
+          publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+        run: |
           ./gradlew -Pversion=${VERSION} publish -x test --continue
       - name: Create Release Tag
         run: |
