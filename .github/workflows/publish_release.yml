@@ -25,6 +25,7 @@ jobs:
       - name: Set version env variable
         run: |
           echo "VERSION=$(./gradlew properties | grep ^version: | cut -d\  -f2 | sed 's@-SNAPSHOT@@')" >> $GITHUB_ENV
+          echo "BASE_BRANCH=${GITHUB_REF_NAME}" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build artifacts
@@ -36,6 +37,10 @@ jobs:
           git config user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
           git config user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git checkout -b release-${VERSION}
+          sed -i "s/^version=.*/version=${VERSION}/" gradle.properties
+          git add gradle.properties
+          git commit -m "[Automated] Prepare release ${VERSION}"
+          git push -u origin release-${VERSION}
           ./gradlew build -x :jballerina-debugger-integration-test:test -Pversion=${VERSION}
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -75,4 +80,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
           curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
-          bin/hub pull-request -m "[Automated] Sync master after "$VERSION" release"
+          bin/hub pull-request -b ${BASE_BRANCH} -h release-${VERSION} -m "[Automated] Sync ${BASE_BRANCH} after ${VERSION} release"
