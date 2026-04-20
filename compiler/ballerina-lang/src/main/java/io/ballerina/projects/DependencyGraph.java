@@ -179,13 +179,16 @@ public class DependencyGraph<T> {
      * Useful for parallel compilation of independent nodes within the same level.
      *
      * @return an ordered list of sets, where the index represents the level
-     *         and each set contains nodes at that level
+     *         and each set contains nodes at that level; both the returned list
+     *         and each contained set are unmodifiable
+     * @throws IllegalStateException if the graph contains cyclic dependencies
      */
     public List<Set<T>> toTopologicallySortedLevels() {
         Map<T, Integer> depCount = new HashMap<>();
         Map<T, Set<T>> reverseDeps = new HashMap<>();
 
         for (T node : dependencies.keySet()) {
+            depCount.putIfAbsent(node, 0);
             reverseDeps.putIfAbsent(node, new HashSet<>());
         }
 
@@ -193,6 +196,7 @@ public class DependencyGraph<T> {
             T dependent = entry.getKey();
             depCount.put(dependent, entry.getValue().size());
             for (T dep : entry.getValue()) {
+                depCount.putIfAbsent(dep, 0);
                 reverseDeps.computeIfAbsent(dep, k -> new HashSet<>()).add(dependent);
             }
         }
