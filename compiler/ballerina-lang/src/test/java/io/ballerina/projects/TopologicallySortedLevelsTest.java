@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -155,5 +156,16 @@ public class TopologicallySortedLevelsTest {
             Assert.assertThrows(UnsupportedOperationException.class, () -> level.remove("X"));
             Assert.assertThrows(UnsupportedOperationException.class, level::clear);
         });
+    }
+
+    @Test
+    public void testFromMapWithDependencyOnlyNode() {
+        DependencyGraph<String> graph = DependencyGraph.from(Map.of("A", Set.of("B")));
+
+        List<Set<String>> levels = graph.toTopologicallySortedLevels();
+
+        Assert.assertEquals(levels.size(), 2);
+        Assert.assertEquals(levels.get(0), Set.of("B"));
+        Assert.assertEquals(levels.get(1), Set.of("A"));
     }
 }
