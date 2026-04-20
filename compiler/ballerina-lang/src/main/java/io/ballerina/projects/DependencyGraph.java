@@ -206,6 +206,7 @@ public class DependencyGraph<T> {
         }
 
         List<Set<T>> levels = new ArrayList<>();
+        int sortedNodeCount = 0;
         while (!queue.isEmpty()) {
             Set<T> currentLevel = new LinkedHashSet<>(queue);
             queue.clear();
@@ -218,6 +219,14 @@ public class DependencyGraph<T> {
                 }
             }
             levels.add(Collections.unmodifiableSet(currentLevel));
+            sortedNodeCount += currentLevel.size();
+        }
+
+        if (sortedNodeCount != depCount.size()) {
+            Set<T> unsortedNodes = new LinkedHashSet<>(depCount.keySet());
+            levels.forEach(unsortedNodes::removeAll);
+            throw new IllegalStateException(
+                    "Cannot topologically sort dependency graph with cyclic dependencies: " + unsortedNodes);
         }
 
         return Collections.unmodifiableList(levels);
