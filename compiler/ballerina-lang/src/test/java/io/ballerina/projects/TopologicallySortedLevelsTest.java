@@ -148,6 +148,12 @@ public class TopologicallySortedLevelsTest {
         List<Set<String>> levels = graph.toTopologicallySortedLevels();
 
         Assert.assertThrows(UnsupportedOperationException.class, () -> levels.add(Set.of("X")));
-        Assert.assertThrows(UnsupportedOperationException.class, () -> levels.get(0).add("X"));
+        Assert.assertThrows(UnsupportedOperationException.class, () -> levels.remove(0));
+        Assert.assertThrows(UnsupportedOperationException.class, () -> levels.set(0, Set.of("X")));
+        levels.forEach(level -> {
+            Assert.assertThrows(UnsupportedOperationException.class, () -> level.add("X"));
+            Assert.assertThrows(UnsupportedOperationException.class, () -> level.remove("X"));
+            Assert.assertThrows(UnsupportedOperationException.class, level::clear);
+        });
     }
 }
