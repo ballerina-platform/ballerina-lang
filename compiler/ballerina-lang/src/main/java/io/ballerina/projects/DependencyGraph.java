@@ -174,7 +174,7 @@ public class DependencyGraph<T> {
 
     /**
      * Returns nodes grouped by their dependency levels.
-     * Level 0 contains nodes with no dependencies,
+     * Level 0 contains nodes with no dependencies (leaves),
      * level 1 contains nodes that depend only on level-0 nodes, and so on.
      * Useful for parallel compilation of independent nodes within the same level.
      *
@@ -182,16 +182,24 @@ public class DependencyGraph<T> {
      *         and each set contains nodes at that level
      */
     public List<Set<T>> toTopologicallySortedLevels() {
-        Map<T, Integer> inDegree = new HashMap<>();
+        Map<T, Integer> depCount = new HashMap<>();
+        Map<T, Set<T>> reverseDeps = new HashMap<>();
+
         for (T node : dependencies.keySet()) {
-            inDegree.putIfAbsent(node, 0);
-            for (T dep : dependencies.get(node)) {
-                inDegree.merge(dep, 1, Integer::sum);
+            depCount.putIfAbsent(node, 0);
+            reverseDeps.putIfAbsent(node, new HashSet<>());
+        }
+
+        for (Map.Entry<T, Set<T>> entry : dependencies.entrySet()) {
+            T dependent = entry.getKey();
+            depCount.put(dependent, entry.getValue().size());
+            for (T dep : entry.getValue()) {
+                reverseDeps.computeIfAbsent(dep, k -> new HashSet<>()).add(dependent);
             }
         }
 
         Queue<T> queue = new LinkedList<>();
-        for (Map.Entry<T, Integer> entry : inDegree.entrySet()) {
+        for (Map.Entry<T, Integer> entry : depCount.entrySet()) {
             if (entry.getValue() == 0) {
                 queue.add(entry.getKey());
             }
@@ -202,12 +210,10 @@ public class DependencyGraph<T> {
             Set<T> currentLevel = new LinkedHashSet<>(queue);
             queue.clear();
             for (T node : currentLevel) {
-                for (T dependent : dependencies.keySet()) {
-                    if (dependencies.get(dependent).contains(node)) {
-                        inDegree.merge(dependent, -1, Integer::sum);
-                        if (inDegree.get(dependent) == 0) {
-                            queue.add(dependent);
-                        }
+                for (T dependent : reverseDeps.getOrDefault(node, Collections.emptySet())) {
+                    int remaining = depCount.merge(dependent, -1, Integer::sum);
+                    if (remaining == 0) {
+                        queue.add(dependent);
                     }
                 }
             }
