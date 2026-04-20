@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -168,6 +170,51 @@ public class DependencyGraph<T> {
         topologicallySortedNodes = Collections.unmodifiableList(sorted);
         cyclicDependencies.forEach(cycle -> cycle.add(cycle.get(0)));
         return topologicallySortedNodes;
+    }
+
+    /**
+     * Returns nodes grouped by their dependency levels.
+     * Level 0 contains nodes with no dependencies,
+     * level 1 contains nodes that depend only on level-0 nodes, and so on.
+     * Useful for parallel compilation of independent nodes within the same level.
+     *
+     * @return an ordered list of sets, where the index represents the level
+     *         and each set contains nodes at that level
+     */
+    public List<Set<T>> toTopologicallySortedLevels() {
+        Map<T, Integer> inDegree = new HashMap<>();
+        for (T node : dependencies.keySet()) {
+            inDegree.putIfAbsent(node, 0);
+            for (T dep : dependencies.get(node)) {
+                inDegree.merge(dep, 1, Integer::sum);
+            }
+        }
+
+        Queue<T> queue = new LinkedList<>();
+        for (Map.Entry<T, Integer> entry : inDegree.entrySet()) {
+            if (entry.getValue() == 0) {
+                queue.add(entry.getKey());
+            }
+        }
+
+        List<Set<T>> levels = new ArrayList<>();
+        while (!queue.isEmpty()) {
+            Set<T> currentLevel = new LinkedHashSet<>(queue);
+            queue.clear();
+            for (T node : currentLevel) {
+                for (T dependent : dependencies.keySet()) {
+                    if (dependencies.get(dependent).contains(node)) {
+                        inDegree.merge(dependent, -1, Integer::sum);
+                        if (inDegree.get(dependent) == 0) {
+                            queue.add(dependent);
+                        }
+                    }
+                }
+            }
+            levels.add(Collections.unmodifiableSet(currentLevel));
+        }
+
+        return Collections.unmodifiableList(levels);
     }
 
     public boolean isEmpty() {
