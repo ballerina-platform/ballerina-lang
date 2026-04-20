@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -168,6 +170,65 @@ public class DependencyGraph<T> {
         topologicallySortedNodes = Collections.unmodifiableList(sorted);
         cyclicDependencies.forEach(cycle -> cycle.add(cycle.get(0)));
         return topologicallySortedNodes;
+    }
+
+    /**
+     * Returns nodes grouped by their dependency levels.
+     * Level 0 contains nodes with no dependencies (leaves),
+     * level 1 contains nodes that depend only on level-0 nodes, and so on.
+     * Useful for parallel compilation of independent nodes within the same level.
+     *
+     * @return an ordered list of sets, where the index represents the level
+     *         and each set contains nodes at that level
+     */
+    public List<Set<T>> toTopologicallySortedLevels() {
+        Map<T, Integer> depCount = new HashMap<>();
+        Map<T, Set<T>> reverseDeps = new HashMap<>();
+
+        for (T node : dependencies.keySet()) {
+            reverseDeps.putIfAbsent(node, new HashSet<>());
+        }
+
+        for (Map.Entry<T, Set<T>> entry : dependencies.entrySet()) {
+            T dependent = entry.getKey();
+            depCount.put(dependent, entry.getValue().size());
+            for (T dep : entry.getValue()) {
+                reverseDeps.computeIfAbsent(dep, k -> new HashSet<>()).add(dependent);
+            }
+        }
+
+        Queue<T> queue = new LinkedList<>();
+        for (Map.Entry<T, Integer> entry : depCount.entrySet()) {
+            if (entry.getValue() == 0) {
+                queue.add(entry.getKey());
+            }
+        }
+
+        List<Set<T>> levels = new ArrayList<>();
+        int sortedNodeCount = 0;
+        while (!queue.isEmpty()) {
+            Set<T> currentLevel = new LinkedHashSet<>(queue);
+            queue.clear();
+            for (T node : currentLevel) {
+                for (T dependent : reverseDeps.getOrDefault(node, Collections.emptySet())) {
+                    int remaining = depCount.merge(dependent, -1, Integer::sum);
+                    if (remaining == 0) {
+                        queue.add(dependent);
+                    }
+                }
+            }
+            levels.add(Collections.unmodifiableSet(currentLevel));
+            sortedNodeCount += currentLevel.size();
+        }
+
+        if (sortedNodeCount != depCount.size()) {
+            Set<T> unsortedNodes = new LinkedHashSet<>(depCount.keySet());
+            levels.forEach(unsortedNodes::removeAll);
+            throw new IllegalStateException(
+                    "Cannot topologically sort dependency graph with cyclic dependencies: " + unsortedNodes);
+        }
+
+        return Collections.unmodifiableList(levels);
     }
 
     public boolean isEmpty() {
