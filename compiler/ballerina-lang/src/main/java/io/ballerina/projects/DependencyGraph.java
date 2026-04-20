@@ -186,7 +186,6 @@ public class DependencyGraph<T> {
         Map<T, Set<T>> reverseDeps = new HashMap<>();
 
         for (T node : dependencies.keySet()) {
-            depCount.putIfAbsent(node, 0);
             reverseDeps.putIfAbsent(node, new HashSet<>());
         }
 
