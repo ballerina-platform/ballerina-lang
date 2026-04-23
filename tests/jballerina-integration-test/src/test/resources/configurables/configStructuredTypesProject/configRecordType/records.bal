@@ -28,6 +28,8 @@ configurable readonly & record {
     type_defs:Address address = {city: "Galle"};
 } person3 = ?;
 
+configurable Cricketer cricketer = ?;
+
 //From non-default modules
 configurable type_defs:Student & readonly student = ?;
 configurable type_defs:Officer officer = ?;
@@ -73,6 +75,10 @@ public function testRecords() {
     test:assertEquals(person3.id, 12);
     test:assertEquals(person3.address.city, "Galle");
     test:assertEquals(person3.address.country.name, "SL");
+    test:assertEquals(cricketer.name, "waruna");
+    test:assertEquals(cricketer.strikeRate, 91.5);
+    test:assertEquals(cricketer.battingAverage, 45.0);
+    test:assertTrue(cricketer.battingAverage is float);
     test:assertEquals(personWithFiniteFields.stringRef, "stringRefType");
     test:assertEquals(personWithFiniteFields.intRef, 10);
     test:assertEquals(personWithFiniteFields.floatRef, 3.14);
