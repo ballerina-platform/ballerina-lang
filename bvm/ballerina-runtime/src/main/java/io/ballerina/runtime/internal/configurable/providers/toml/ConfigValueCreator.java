@@ -324,6 +324,7 @@ public class ConfigValueCreator {
         Type impliedType = TypeUtils.getImpliedType(type);
         return switch (impliedType.getTag()) {
             case TypeTags.BYTE_TAG -> ((Long) tomlValue).intValue();
+            case TypeTags.FLOAT_TAG -> ((Number) tomlValue).doubleValue();
             case TypeTags.DECIMAL_TAG -> ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
             case TypeTags.STRING_TAG -> StringUtils.fromString((String) tomlValue);
             case TypeTags.XML_ATTRIBUTES_TAG,
