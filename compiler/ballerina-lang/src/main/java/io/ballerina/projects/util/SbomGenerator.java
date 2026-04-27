@@ -30,9 +30,10 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Minimal SBOM generator that follows the CycloneDX standard JSON bom (specVersion 1.4) for a Ballerina project.
- * This implementation avoids external dependencies to keep the change small. It produces a minimal
- * bom.json containing project metadata and component entries for direct dependencies.
+ * Minimal SBOM generator that follows the CycloneDX standard JSON BOM (specVersion 1.4) for a Ballerina project.
+ *
+ * This utility reads Ballerina-specific manifest files (Ballerina.toml and dependencies.toml) and
+ * produces a small CycloneDX JSON BOM listing components and a dependency graph.
  */
 public final class SbomGenerator {
     private SbomGenerator() {
@@ -43,10 +44,10 @@ public final class SbomGenerator {
      * The manifestPath should point to a Ballerina.toml (or Dependencies.toml) file.
      * The generated bom.json will be written to outputPath.
      *
-     * @param manifestPath path to Ballerina.toml or dependencies toml
-     * @param outputPath   path to write bom.json
-     * @throws IOException   on IO errors
-     * @throws TomlException on parse errors
+     * @param manifestPath path to Ballerina.toml or a directory manifest file
+     * @param outputPath   path to write bom.json (the filename will be normalized to end with .cdx.json)
+     * @throws IOException   on IO errors while reading/writing files
+     * @throws TomlException on TOML parse/validation errors
      */
     public static void generateBom(Path manifestPath, Path outputPath) throws IOException, TomlException {
         // Use a map keyed by purl to keep components unique and ordered
@@ -201,7 +202,14 @@ public final class SbomGenerator {
     }
 
     /**
-     * Ensure the output path ends with .cdx.json
+     * Ensure the output path ends with the conventional CycloneDX filename extension (".cdx.json").
+     *
+     * If {@code outputPath} already ends with {@code .cdx.json} (case-insensitive) it is
+     * returned unchanged; if it ends with {@code .json} the extension is replaced; otherwise
+     * {@code .cdx.json} is appended.
+     *
+     * @param outputPath output file path supplied by caller
+     * @return a Path that is guaranteed to end with {@code .cdx.json}
      */
     private static Path ensureCdxJsonExtension(Path outputPath) {
 
@@ -367,14 +375,24 @@ public final class SbomGenerator {
         }
     }
 
-    // Find an existing component purl by matching group and name regardless of version
+    /**
+     * Find an existing component purl by matching its stored group and name fields regardless of version.
+     *
+     * <p>This helper is used to resolve versionless purls by finding a matching component that already
+     * contains a version.</p>
+     *
+     * @param componentsByPurl map of known components keyed by their purl
+     * @param group            group or organization string to match
+     * @param name             artifact or package name to match
+     * @return the matching component purl (including version) or {@code null} if no match found
+     */
     private static String findComponentPurlByGroupAndName(Map<String, Map<String, Object>> componentsByPurl,
                                                           String group, String name) {
-         if (componentsByPurl == null || group == null || name == null) {
-             return null;
-         }
-         //  Loop through each entry
-         for (Map.Entry<String, Map<String, Object>> entry : componentsByPurl.entrySet()) {
+        if (componentsByPurl == null || group == null || name == null) {
+            return null;
+        }
+        //  Loop through each entry
+        for (Map.Entry<String, Map<String, Object>> entry : componentsByPurl.entrySet()) {
             Map<String, Object> comp = entry.getValue();
             String compGroup = Objects.toString(comp.get("group"), "");
             String compName = Objects.toString(comp.get("name"), "");
@@ -384,11 +402,20 @@ public final class SbomGenerator {
                 return entry.getKey();
             }
         }
-         return null;
-     }
+        return null;
+    }
 
-     // Helper: get tables for a key, handling single table vs array-of-tables and simple plural alternates.
-     private static List<Toml> getTomlTables(Toml toml, String key) {
+    /**
+     * Return TOML tables for the specified key, handling single table vs array-of-tables and plural alternates.
+     *
+     * Examples: both {@code toml.getTable("dependency")} and {@code toml.getTables("dependency")} are
+     * normalized so callers can work with a {@code List<Toml>} in a uniform way.
+     *
+     * @param toml TOML node to query
+     * @param key  key to look up (e.g., "dependency")
+     * @return list of Toml tables (possibly empty)
+     */
+    private static List<Toml> getTomlTables(Toml toml, String key) {
         if (toml == null || key == null) {
             return List.of();
         }
@@ -422,60 +449,261 @@ public final class SbomGenerator {
         return List.of();
     }
 
-    // Helper: defensive string conversion from arbitrary objects
-    private static String safeString(Object obj) {
-        return obj == null ? null : obj.toString();
-    }
-
-    // Parse common dependency string forms into purl
-    private static String parseDependencyString(String s) {
-        if (s == null || s.isEmpty()) {
+    /**
+     * If a purl lacks a version, try to resolve it to an existing component purl by matching group & name.
+     *
+     * Returns the input purl unchanged if no matching versioned component is found. This is a
+     * lightweight, fail-safe resolver used to convert ambiguous references into concrete purls where possible.
+     *
+     * @param purl            package URL (may be versionless)
+     * @param componentsByPurl map of known components keyed by purl
+     * @return a purl containing a version when resolvable, otherwise the original purl
+     */
+    private static String resolvePurlIfMissingVersion(String purl, Map<String, Map<String, Object>> componentsByPurl) {
+        if (purl == null) {
             return null;
         }
-        s = s.trim();
-        // Common maven GAV: groupId:artifactId:version or groupId:artifactId:version:classifier
-        String[] colonParts = s.split(":");
-        if (colonParts.length >= 2) {
-            String group = colonParts[0];
-            String artifact = colonParts[1];
-            String version = colonParts.length >= 3 ? colonParts[2] : null;
-            return buildPurl(group, artifact, version);
+        if (componentsByPurl == null) {
+            return purl;
         }
-
-        // Ballerina pkg like org/name@version or name@version
-        if (s.contains("@")) {
-            String[] at = s.split("@", 2);
-            String left = at[0];
-            String version = at[1];
-            if (left.contains("/")) {
-                String[] parts = left.split("/", 2);
-                String org = parts[0];
-                String name = parts[1];
-                return buildPurl(org, name, version);
-            } else {
-                // no org provided
-                return buildPurl("", left, version);
+        // If purl already includes a version, keep it
+        if (purl.contains("@")) {
+            return purl;
+        }
+        try {
+            if (purl.startsWith("pkg:maven/")) {
+                String body = purl.substring("pkg:maven/".length());
+                int slash = body.lastIndexOf('/');
+                if (slash > 0) {
+                    String group = body.substring(0, slash);
+                    String artifact = body.substring(slash + 1);
+                    String found = findComponentPurlByGroupAndName(componentsByPurl, group, artifact);
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            } else if (purl.startsWith("pkg:ballerina/")) {
+                String body = purl.substring("pkg:ballerina/".length());
+                int slash = body.indexOf('/');
+                String group;
+                String name;
+                if (slash > 0) {
+                    group = body.substring(0, slash);
+                    name = body.substring(slash + 1);
+                } else {
+                    group = "";
+                    name = body;
+                }
+                String found = findComponentPurlByGroupAndName(componentsByPurl, group, name);
+                if (found != null) {
+                    return found;
+                }
             }
+        } catch (Exception ignored) {
         }
-
-        // Maven slash form or simple path-like: group/artifact@version
-        if (s.contains("/") && s.contains("@")) {
-            int atPos = s.indexOf('@');
-            String left = s.substring(0, atPos);
-            String version = s.substring(atPos + 1);
-            int slash = left.indexOf('/');
-            if (slash > 0) {
-                String group = left.substring(0, slash);
-                String artifact = left.substring(slash + 1);
-                return buildPurl(group, artifact, version);
-            }
-        }
-
-        // As a last resort, return null to avoid malformed purls
-        return null;
+        return purl;
     }
 
-    // Helper: parse various representations of dependency declarations into purl refs
+    /**
+     * Build the BOM JSON string from components map and dependencies
+     *
+     * @param componentsByPurl  map of components keyed by purl
+     * @param properties        list containing project metadata (optional)
+     * @param dependencyNodes   merged dependency nodes (each with ref and dependsOn)
+     * @return formatted JSON string representing the CycloneDX bom
+     */
+    private static String buildBomJson(Map<String, Map<String, Object>> componentsByPurl,
+                                       List<Map<String, Object>> properties,
+                                       List<Map<String, Object>> dependencyNodes) {
+        String serial = "urn:uuid:" + UUID.randomUUID();
+
+        Map<String, Object> bom = new java.util.LinkedHashMap<>();
+        bom.put("bomFormat", "CycloneDX");
+        bom.put("specVersion", "1.4");
+        bom.put("serialNumber", serial);
+
+        // Metadata component
+        String metaType = "application";
+        String metaGroup = "";
+        String metaName = "";
+        String metaVersion = "";
+        if (!properties.isEmpty()) {
+            Map<String, Object> meta = properties.get(0);
+            if (meta != null) {
+                metaGroup = Objects.toString(meta.get("group"), "");
+                metaName = Objects.toString(meta.get("name"), "");
+                metaVersion = Objects.toString(meta.get("version"), "");
+                metaType = Objects.toString(meta.get("type"), metaType);
+            }
+        }
+
+        Map<String, Object> metadata = new java.util.LinkedHashMap<>();
+        Map<String, Object> metadataComponent = new java.util.LinkedHashMap<>();
+        metadataComponent.put("type", metaType);
+        metadataComponent.put("group", metaGroup);
+        metadataComponent.put("name", metaName);
+        metadataComponent.put("version", metaVersion);
+        metadata.put("component", metadataComponent);
+        bom.put("metadata", metadata);
+
+        // Components
+        List<Map<String, Object>> compsList = new ArrayList<>();
+        for (Map<String, Object> comp : componentsByPurl.values()) {
+            Map<String, Object> c = new java.util.LinkedHashMap<>();
+            c.put("type", Objects.toString(comp.get("type"), ""));
+            c.put("group", Objects.toString(comp.get("group"), ""));
+            c.put("name", Objects.toString(comp.get("name"), ""));
+            c.put("version", Objects.toString(comp.get("version"), ""));
+            c.put("purl", Objects.toString(comp.get("purl"), ""));
+            compsList.add(c);
+        }
+        bom.put("components", compsList);
+
+        // Dependencies (CycloneDX style: list of {ref, dependsOn: [{ref}]})
+        List<Map<String, Object>> depsList = new ArrayList<>();
+        for (Map<String, Object> dn : dependencyNodes) {
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("ref", Objects.toString(dn.get("ref"), ""));
+            // Ensure dependsOn references are present in components; filter nulls
+            List<String> dependsOn = new ArrayList<>();
+            Object rawDepsObj = dn.get("dependsOn");
+            if (rawDepsObj instanceof List) {
+                for (Object o : (List<?>) rawDepsObj) {
+                    if (o == null) continue;
+                    dependsOn.add(o.toString());
+                }
+            }
+            entry.put("dependsOn", dependsOn);
+            depsList.add(entry);
+        }
+        bom.put("dependencies", depsList);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(bom);
+    }
+
+    /**
+     * Build a Package URL (purl) for a Ballerina package or Maven dependency.
+     * Ballerina packages use the format: pkg:ballerina/org/name@version
+     * Maven dependencies use the format: pkg:maven/groupId/artifactId@version
+     *
+     * @param org     organization/groupId (used to determine if this is a Maven or Ballerina package)
+     * @param name    package/artifact name
+     * @param version package version
+     * @return PURL string
+     */
+    private static String buildPurl(String org, String name, String version) {
+        // Determine if this is a Maven dependency or a Ballerina package
+        boolean isMavenDependency = org != null && org.contains(".");
+
+        StringBuilder purl = new StringBuilder();
+        if (isMavenDependency) {
+            // Format for Maven: pkg:maven/groupId/artifactId@version
+            purl.append("pkg:maven/").append(org).append("/").append(name);
+        } else {
+            // Format for Ballerina: pkg:ballerina/org/name@version
+            purl.append("pkg:ballerina/");
+            if (org != null && !org.isEmpty()) {
+                purl.append(org).append("/");
+            }
+            purl.append(name);
+        }
+
+        if (version != null && !version.isEmpty()) {
+            purl.append("@").append(version);
+        }
+        return purl.toString();
+    }
+
+    /**
+     * Parse a purl into a minimal component map (type, group, name, version, purl). To add to the purlComponents
+     * in-case the chances of resolving dependencies that are missing from the original files but referenced by purl.
+
+     *
+     * @param purl package URL string
+     * @return a component map with keys: type, purl, group, name, version
+     */
+    private static Map<String, Object> parsePurlToComponent(String purl) {
+        Map<String, Object> comp = new java.util.LinkedHashMap<>();
+        comp.put("type", "library");
+        comp.put("purl", purl);
+
+        if (purl == null) {
+            comp.put("group", "");
+            comp.put("name", "");
+            comp.put("version", "");
+            return comp;
+        }
+        try {
+            if (purl.startsWith("pkg:maven/")) {
+                // pkg:maven/group/artifact@version
+                String body = purl.substring("pkg:maven/".length());
+                String ver = null;
+                int at = body.indexOf('@');
+                if (at >= 0) {
+                    //  Extracts the version
+                    ver = body.substring(at + 1);
+                    //  Extracts org/name
+                    body = body.substring(0, at);
+                }
+                int slash = body.lastIndexOf('/');
+                if (slash > 0) {
+                    String group = body.substring(0, slash);
+                    String artifact = body.substring(slash + 1);
+                    comp.put("group", group);
+                    comp.put("name", artifact);
+                    comp.put("version", ver == null ? "" : ver);
+                } else {
+                    comp.put("group", "");
+                    comp.put("name", body);
+                    comp.put("version", ver == null ? "" : ver);
+                }
+            } else if (purl.startsWith("pkg:ballerina/")) {
+                // pkg:ballerina/org/name@version or pkg:ballerina/name@version
+                String body = purl.substring("pkg:ballerina/".length());
+                String ver = null;
+                int at = body.indexOf('@');
+                if (at >= 0) {
+                    ver = body.substring(at + 1);
+                    body = body.substring(0, at);
+                }
+                int slash = body.indexOf('/');
+                if (slash > 0) {
+                    String org = body.substring(0, slash);
+                    String name = body.substring(slash + 1);
+                    comp.put("group", org);
+                    comp.put("name", name);
+                    comp.put("version", ver == null ? "" : ver);
+                } else {
+                    comp.put("group", "");
+                    comp.put("name", body);
+                    comp.put("version", ver == null ? "" : ver);
+                }
+            } else {
+                // Unknown purl format; store entire purl as name
+                comp.put("group", "");
+                comp.put("name", purl);
+                comp.put("version", "");
+            }
+        } catch (Exception e) {
+            comp.put("group", "");
+            comp.put("name", purl);
+            comp.put("version", "");
+        }
+
+        return comp;
+    }
+
+    /**
+     * Parse various representations of dependency declarations into purl refs.
+     *
+     * Accepts lists of strings, TOML tables, inline maps, or single string/map/table.
+     * It normalizes inputs to a list and returns the list of resolved purl references.
+     *
+     * @param depsObj         raw TOML value for dependencies (may be list/table/string)
+     * @param componentsByPurl known components map used to resolve missing versions
+     * @return list of purl strings (may be empty)
+     */
     private static List<String> extractDependencyRefs(Object depsObj, Map<String, Map<String, Object>> componentsByPurl) {
         List<Object> rawList = new ArrayList<>();
         if (depsObj instanceof java.util.List<?>) {
@@ -555,231 +783,56 @@ public final class SbomGenerator {
         return refs;
     }
 
-    // If a purl lacks a version, try to resolve it to an existing component purl by matching group & name
-    private static String resolvePurlIfMissingVersion(String purl, Map<String, Map<String, Object>> componentsByPurl) {
-        if (purl == null) {
-            return null;
-        }
-        if (componentsByPurl == null) {
-            return purl;
-        }
-        // If purl already includes a version, keep it
-        if (purl.contains("@")) {
-            return purl;
-        }
-        try {
-            //  Check if the package is maven or ballerina and try to find a matching component purl by group and name
-            if (purl.startsWith("pkg:maven/")) {
-                String body = purl.substring("pkg:maven/".length());
-                int slash = body.lastIndexOf('/');
-                if (slash > 0) {
-                    //  Extract group and artifact from the purl
-                    String group = body.substring(0, slash);
-                    String artifact = body.substring(slash + 1);
-                    //  Find the component purl by groupId and artifactName
-                    String found = findComponentPurlByGroupAndName(componentsByPurl, group, artifact);
-                    if (found != null) {
-                        return found;
-                    }
-                }
-            } else if (purl.startsWith("pkg:ballerina/")) {
-                String body = purl.substring("pkg:ballerina/".length());
-                int slash = body.indexOf('/');
-                String group;
-                String name;
-                if (slash > 0) {
-                    group = body.substring(0, slash);
-                    name = body.substring(slash + 1);
-                } else {
-                    group = "";
-                    name = body;
-                }
-
-                String found = findComponentPurlByGroupAndName(componentsByPurl, group, name);
-                if (found != null) {
-                    return found;
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return purl;
+    // Defensive string conversion from arbitrary objects
+    private static String safeString(Object obj) {
+        return obj == null ? null : obj.toString();
     }
 
-     /**
-      * Build the BOM JSON string from components map and dependencies
-      */
-     private static String buildBomJson(Map<String, Map<String, Object>> componentsByPurl,
-                                        List<Map<String, Object>> properties,
-                                        List<Map<String, Object>> dependencyNodes) {
-         String serial = "urn:uuid:" + UUID.randomUUID();
-
-         Map<String, Object> bom = new java.util.LinkedHashMap<>();
-         bom.put("bomFormat", "CycloneDX");
-         bom.put("specVersion", "1.4");
-         bom.put("serialNumber", serial);
-
-         // Metadata component
-         String metaType = "application";
-         String metaGroup = "";
-         String metaName = "";
-         String metaVersion = "";
-         if (!properties.isEmpty()) {
-             Map<String, Object> meta = properties.get(0);
-             if (meta != null) {
-                 metaGroup = Objects.toString(meta.get("group"), "");
-                 metaName = Objects.toString(meta.get("name"), "");
-                 metaVersion = Objects.toString(meta.get("version"), "");
-                 metaType = Objects.toString(meta.get("type"), metaType);
-             }
-         }
-
-         Map<String, Object> metadata = new java.util.LinkedHashMap<>();
-         Map<String, Object> metadataComponent = new java.util.LinkedHashMap<>();
-         metadataComponent.put("type", metaType);
-         metadataComponent.put("group", metaGroup);
-         metadataComponent.put("name", metaName);
-         metadataComponent.put("version", metaVersion);
-         metadata.put("component", metadataComponent);
-         bom.put("metadata", metadata);
-
-         // Components
-         List<Map<String, Object>> compsList = new ArrayList<>();
-         for (Map<String, Object> comp : componentsByPurl.values()) {
-             Map<String, Object> c = new java.util.LinkedHashMap<>();
-             c.put("type", Objects.toString(comp.get("type"), ""));
-             c.put("group", Objects.toString(comp.get("group"), ""));
-             c.put("name", Objects.toString(comp.get("name"), ""));
-             c.put("version", Objects.toString(comp.get("version"), ""));
-             c.put("purl", Objects.toString(comp.get("purl"), ""));
-             compsList.add(c);
-         }
-         bom.put("components", compsList);
-
-         // Dependencies (CycloneDX style: list of {ref, dependsOn: [{ref}]})
-         List<Map<String, Object>> depsList = new ArrayList<>();
-         for (Map<String, Object> dn : dependencyNodes) {
-             Map<String, Object> entry = new LinkedHashMap<>();
-             entry.put("ref", Objects.toString(dn.get("ref"), ""));
-             // Ensure dependsOn references are present in components; filter nulls
-             List<String> dependsOn = new ArrayList<>();
-             Object rawDepsObj = dn.get("dependsOn");
-             if (rawDepsObj instanceof List) {
-                 for (Object o : (List<?>) rawDepsObj) {
-                     if (o == null) continue;
-                     dependsOn.add(o.toString());
-                 }
-             }
-             entry.put("dependsOn", dependsOn);
-             depsList.add(entry);
-         }
-         bom.put("dependencies", depsList);
-
-         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-         return gson.toJson(bom);
-     }
-
-     /**
-      * Build a Package URL (purl) for a Ballerina package or Maven dependency.
-      * Ballerina packages use the format: pkg:ballerina/org/name@version
-      * Maven dependencies use the format: pkg:maven/groupId/artifactId@version
-      *
-      * @param org     organization/groupId (used to determine if this is a Maven or Ballerina package)
-      * @param name    package/artifact name
-      * @param version package version
-      * @return PURL string
-      */
-     private static String buildPurl(String org, String name, String version) {
-         // Determine if this is a Maven dependency or a Ballerina package
-         boolean isMavenDependency = org != null && org.contains(".");
-
-         StringBuilder purl = new StringBuilder();
-         if (isMavenDependency) {
-             // Format for Maven: pkg:maven/groupId/artifactId@version
-             purl.append("pkg:maven/").append(org).append("/").append(name);
-         } else {
-             // Format for Ballerina: pkg:ballerina/org/name@version
-             purl.append("pkg:ballerina/");
-             if (org != null && !org.isEmpty()) {
-                 purl.append(org).append("/");
-             }
-             purl.append(name);
-         }
-
-         if (version != null && !version.isEmpty()) {
-             purl.append("@").append(version);
-         }
-         return purl.toString();
-     }
-
-    // Create a minimal component map from a purl string so referenced deps appear in components
-    private static Map<String, Object> parsePurlToComponent(String purl) {
-        Map<String, Object> comp = new java.util.LinkedHashMap<>();
-        comp.put("type", "library");
-        comp.put("purl", purl);
-
-        if (purl == null) {
-            comp.put("group", "");
-            comp.put("name", "");
-            comp.put("version", "");
-            return comp;
+    // Parse common dependency string forms into purl
+    private static String parseDependencyString(String s) {
+        if (s == null || s.isEmpty()) {
+            return null;
         }
-        try {
-            if (purl.startsWith("pkg:maven/")) {
-                // pkg:maven/group/artifact@version
-                String body = purl.substring("pkg:maven/".length());
-                String ver = null;
-                int at = body.indexOf('@');
-                if (at >= 0) {
-                    //  Extracts the version
-                    ver = body.substring(at + 1);
-                    //  Extracts org/name
-                    body = body.substring(0, at);
-                }
-                int slash = body.lastIndexOf('/');
-                if (slash > 0) {
-                    String group = body.substring(0, slash);
-                    String artifact = body.substring(slash + 1);
-                    comp.put("group", group);
-                    comp.put("name", artifact);
-                    comp.put("version", ver == null ? "" : ver);
-                } else {
-                    comp.put("group", "");
-                    comp.put("name", body);
-                    comp.put("version", ver == null ? "" : ver);
-                }
-            } else if (purl.startsWith("pkg:ballerina/")) {
-                // pkg:ballerina/org/name@version or pkg:ballerina/name@version
-                String body = purl.substring("pkg:ballerina/".length());
-                String ver = null;
-                int at = body.indexOf('@');
-                if (at >= 0) {
-                    ver = body.substring(at + 1);
-                    body = body.substring(0, at);
-                }
-                int slash = body.indexOf('/');
-                if (slash > 0) {
-                    String org = body.substring(0, slash);
-                    String name = body.substring(slash + 1);
-                    comp.put("group", org);
-                    comp.put("name", name);
-                    comp.put("version", ver == null ? "" : ver);
-                } else {
-                    comp.put("group", "");
-                    comp.put("name", body);
-                    comp.put("version", ver == null ? "" : ver);
-                }
+        s = s.trim();
+        // Common maven GAV: groupId:artifactId:version or groupId:artifactId:version:classifier
+        String[] colonParts = s.split(":");
+        if (colonParts.length >= 2) {
+            String group = colonParts[0];
+            String artifact = colonParts[1];
+            String version = colonParts.length >= 3 ? colonParts[2] : null;
+            return buildPurl(group, artifact, version);
+        }
+
+        // Ballerina pkg like org/name@version or name@version
+        if (s.contains("@")) {
+            String[] at = s.split("@", 2);
+            String left = at[0];
+            String version = at[1];
+            if (left.contains("/")) {
+                String[] parts = left.split("/", 2);
+                String org = parts[0];
+                String name = parts[1];
+                return buildPurl(org, name, version);
             } else {
-                // Unknown purl format; store entire purl as name
-                comp.put("group", "");
-                comp.put("name", purl);
-                comp.put("version", "");
+                // no org provided
+                return buildPurl("", left, version);
             }
-        } catch (Exception e) {
-            comp.put("group", "");
-            comp.put("name", purl);
-            comp.put("version", "");
         }
 
-        return comp;
+        // Maven slash form or simple path-like: group/artifact@version
+        if (s.contains("/") && s.contains("@")) {
+            int atPos = s.indexOf('@');
+            String left = s.substring(0, atPos);
+            String version = s.substring(atPos + 1);
+            int slash = left.indexOf('/');
+            if (slash > 0) {
+                String group = left.substring(0, slash);
+                String artifact = left.substring(slash + 1);
+                return buildPurl(group, artifact, version);
+            }
+        }
+
+        // As a last resort, return null to avoid malformed purls
+        return null;
     }
 }
