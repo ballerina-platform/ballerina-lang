@@ -20,7 +20,7 @@ person2 = { name = "manu", id = 11, address = { city = "Nugegoda" } }
 
 person3 = { name = "riyafa", id = 12 }
 
-cricketer = { name = "waruna", strikeRate = 91.5, battingAverage = 45 }
+cricketer = { name = "waruna", strikeRate = 91.5, battingAverage = 45, bowlingAverage = 25, bowlingEconomy = 4.56 }
 
 personWithFiniteFields = { stringRef = "stringRefType", intRef = 10, floatRef = 3.14, doubleRef = 2.71828, booleanRef = true }
 

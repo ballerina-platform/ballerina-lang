@@ -79,6 +79,10 @@ public function testRecords() {
     test:assertEquals(cricketer.strikeRate, 91.5);
     test:assertEquals(cricketer.battingAverage, 45.0);
     test:assertTrue(cricketer.battingAverage is float);
+    test:assertEquals(cricketer.bowlingAverage, 25.0d);
+    test:assertTrue(cricketer.bowlingAverage is decimal);
+    test:assertEquals(cricketer.bowlingEconomy, 4.56d);
+    test:assertTrue(cricketer.bowlingEconomy is decimal);
     test:assertEquals(personWithFiniteFields.stringRef, "stringRefType");
     test:assertEquals(personWithFiniteFields.intRef, 10);
     test:assertEquals(personWithFiniteFields.floatRef, 3.14);

@@ -23,6 +23,8 @@ type Cricketer readonly & record {|
     string name;
     float strikeRate;
     float battingAverage;
+    decimal bowlingAverage;
+    decimal bowlingEconomy;
 |};
 
 type Lecturer record {|
