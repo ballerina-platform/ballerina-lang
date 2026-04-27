@@ -184,15 +184,8 @@ public abstract class BalaWriter {
                     // Generate SBOM into the temporary directory
                     SbomGenerator.generateBom(manifestPath, outPath);
                 } catch (TomlException | IOException se) {
-                    // Log and continue when failed to generate SBOM — SBOM generation should be best-effort
-                    // Avoid failing the entire build because of SBOM generation problems (malformed/missing metadata)
-                    try {
-                        String pkg = packageContext != null ? packageContext.packageName().toString() : "<unknown>";
-                        System.err.println("Warning: Failed to generate SBOM for package '" + pkg + "': " + se.getMessage());
-                    } catch (Throwable t) {
-                        // in the unlikely event of an error while logging, fallback to simple message
-                        System.err.println("Warning: Failed to generate SBOM: " + se.getMessage());
-                    }
+                    String pkg = packageContext != null ? packageContext.packageName().toString() : "<unknown>";
+                    throw new ProjectException("Failed to generate SBOM for the package: " + se.getMessage(), se);
                 }
 
                 // Find the generated .cdx.json file (SbomGenerator may adjust extension)
