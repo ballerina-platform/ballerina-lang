@@ -218,7 +218,8 @@ public class TomlProvider implements ConfigProvider {
         if (value == null) {
             return Optional.empty();
         }
-        return getTomlConfigValue(ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) value)), key);
+        BigDecimal decimalValue = BigDecimal.valueOf(((Number) value).doubleValue());
+        return getTomlConfigValue(ValueCreator.createDecimalValue(decimalValue), key);
     }
 
     @Override
