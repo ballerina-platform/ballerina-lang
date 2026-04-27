@@ -119,8 +119,7 @@ public final class SbomGenerator {
 
         // Generate BOM JSON with collected components and dependency graph
         if (!componentsByPurl.isEmpty()) {
-            // Ensure referenced dependency refs appear as components (add minimal placeholders when needed)
-            // Merge dependency nodes by 'ref' so a given package has a single entry with combined dependsOn
+            // Merge dependency nodes by 'ref' so a given package has only a single entry with combined dependsOn
             Map<String, LinkedHashSet<String>> mergedDeps = new LinkedHashMap<>();
 
             for (Map<String, Object> dn : dependencyNodes) {
@@ -270,7 +269,7 @@ public final class SbomGenerator {
             Toml platformTable = toml.getTable(platformKey);
             if (platformTable != null) {
                 // Get the dependency(s) from the platform table
-                java.util.List<Toml> depTables = getTomlTables(platformTable, "dependency");
+                List<Toml> depTables = getTomlTables(platformTable, "dependency");
                 for (Toml depTable : depTables) {
                     // Convert the dependency table to a map
                     Map<String, Object> depMap = depTable.toMap();
@@ -289,14 +288,16 @@ public final class SbomGenerator {
                         comp.put("purl", purl);
                         componentsByPurl.putIfAbsent(purl, comp);
 
-                        // Extract dependsOn from possible fields: dependencies / dependsOn
                         Object depsObj = depMap.get("dependencies");
                         if (depsObj == null) {
                             depsObj = depMap.get("dependsOn");
                         }
+
+                        //  Extracts the dependsOn dependencies and store them in the form of purl's
                         List<String> depRefs = extractDependencyRefs(depsObj, componentsByPurl);
 
-                        Map<String, Object> depNode = new java.util.LinkedHashMap<>();
+                        //  Bring ref & dependsOn dependencies to a single data structure
+                        Map<String, Object> depNode = new LinkedHashMap<>();
                         depNode.put("ref", purl);
                         depNode.put("dependsOn", depRefs);
                         dependencyNodes.add(depNode);
@@ -353,6 +354,7 @@ public final class SbomGenerator {
                         }
                     }
                 }
+                //  Extracts the dependsOn dependencies and store them in the form of purl's
                 List<String> depRefs = extractDependencyRefs(depsObj, componentsByPurl);
 
                 Map<String, Object> depNode = new java.util.LinkedHashMap<>();
@@ -367,20 +369,23 @@ public final class SbomGenerator {
 
     // Find an existing component purl by matching group and name regardless of version
     private static String findComponentPurlByGroupAndName(Map<String, Map<String, Object>> componentsByPurl,
-                                                         String group, String name) {
-        if (componentsByPurl == null || group == null || name == null) {
-            return null;
-        }
-        for (Map.Entry<String, Map<String, Object>> e : componentsByPurl.entrySet()) {
-            Map<String, Object> comp = e.getValue();
-            String g = Objects.toString(comp.get("group"), "");
-            String n = Objects.toString(comp.get("name"), "");
-            if (group.equals(g) && name.equals(n)) {
-                return e.getKey();
+                                                          String group, String name) {
+         if (componentsByPurl == null || group == null || name == null) {
+             return null;
+         }
+         //  Loop through each entry
+         for (Map.Entry<String, Map<String, Object>> entry : componentsByPurl.entrySet()) {
+            Map<String, Object> comp = entry.getValue();
+            String compGroup = Objects.toString(comp.get("group"), "");
+            String compName = Objects.toString(comp.get("name"), "");
+            //  Check if the group and name match
+            if (group.equals(compGroup) && name.equals(compName)) {
+                //  Returns the key which is the purl
+                return entry.getKey();
             }
         }
-        return null;
-    }
+         return null;
+     }
 
      // Helper: get tables for a key, handling single table vs array-of-tables and simple plural alternates.
      private static List<Toml> getTomlTables(Toml toml, String key) {
@@ -472,103 +477,79 @@ public final class SbomGenerator {
 
     // Helper: parse various representations of dependency declarations into purl refs
     private static List<String> extractDependencyRefs(Object depsObj, Map<String, Map<String, Object>> componentsByPurl) {
+        List<Object> rawList = new ArrayList<>();
+        if (depsObj instanceof java.util.List<?>) {
+            rawList.addAll((java.util.List<?>) depsObj);
+        } else if (depsObj != null) {
+            rawList.add(depsObj);
+        }
+
         List<String> refs = new ArrayList<>();
-        if (depsObj == null) {
+        if (rawList.isEmpty()) {
             return refs;
         }
 
-        // If the TOML library produced a list
-        if (depsObj instanceof java.util.List<?>) {
-            for (Object item : (java.util.List<?>) depsObj) {
-                if (item == null) {
-                    continue;
-                }
-                if (item instanceof Map) {
-                    Map<?, ?> m = (Map<?, ?>) item;
-                    // Map may contain maven or ballerina style keys
-                    if (m.containsKey("groupId") || m.containsKey("artifactId")) {
-                        String groupId = safeString(m.get("groupId"));
-                        String artifactId = safeString(m.get("artifactId"));
-                        String version = safeString(m.get("version"));
-                        // Accept maven entries even when version is missing (will produce purl without @version)
-                        if (groupId != null && artifactId != null) {
-                            String purl = buildPurl(groupId, artifactId, version);
-                            refs.add(resolvePurlIfMissingVersion(purl, componentsByPurl));
-                        }
-                    } else {
-                        // assume ballerina package map
-                        String org = safeString(m.get("org"));
-                        String name = safeString(m.get("name"));
-                        String ver = safeString(m.get("version"));
-                        // Accept ballerina package entries without version
-                        if (name != null) {
-                            String purl = buildPurl(org == null ? "" : org, name, ver);
-                            refs.add(resolvePurlIfMissingVersion(purl, componentsByPurl));
-                        }
-                    }
-                } else if (item instanceof Toml) {
-                    Map<?, ?> m = ((Toml) item).toMap();
-                    if (m.containsKey("groupId") || m.containsKey("artifactId")) {
-                        String g = safeString(m.get("groupId"));
-                        String a = safeString(m.get("artifactId"));
-                        String v = safeString(m.get("version"));
-                        if (g != null && a != null) {
-                            String purl = buildPurl(g, a, v);
-                            refs.add(resolvePurlIfMissingVersion(purl, componentsByPurl));
-                        }
-                    } else {
-                        String org = safeString(m.get("org"));
-                        String name = safeString(m.get("name"));
-                        String ver = safeString(m.get("version"));
-                        if (name != null) {
-                            String purl = buildPurl(org == null ? "" : org, name, ver);
-                            refs.add(resolvePurlIfMissingVersion(purl, componentsByPurl));
-                        }
-                    }
-                } else if (item instanceof String) {
-                    String parsed = parseDependencyString((String) item);
-                    if (parsed != null) {
-                        refs.add(resolvePurlIfMissingVersion(parsed, componentsByPurl));
+        for (Object item : rawList) {
+            if (item == null) {
+                continue;
+            }
+
+            // Inline map form: either Maven-style (groupId/artifactId) or Ballerina (org/name)
+            if (item instanceof Map<?, ?>) {
+                Map<?, ?> itemMap = (Map<?, ?>) item;
+                if (itemMap.containsKey("groupId") || itemMap.containsKey("artifactId")) {
+                    String groupIdFromMap = safeString(itemMap.get("groupId"));
+                    String artifactIdFromMap = safeString(itemMap.get("artifactId"));
+                    String versionFromMap = safeString(itemMap.get("version"));
+                    if (groupIdFromMap != null && artifactIdFromMap != null) {
+                        refs.add(resolvePurlIfMissingVersion(buildPurl(groupIdFromMap, artifactIdFromMap, versionFromMap), componentsByPurl));
                     }
                 } else {
-                    // Fallback: convert to string and try to parse
-                    String parsed = parseDependencyString(item.toString());
-                    if (parsed != null) {
-                        refs.add(resolvePurlIfMissingVersion(parsed, componentsByPurl));
+                    String orgFromMap = safeString(itemMap.get("org"));
+                    String nameFromMap = safeString(itemMap.get("name"));
+                    String versionFromMap = safeString(itemMap.get("version"));
+                    if (nameFromMap != null) {
+                        refs.add(resolvePurlIfMissingVersion(buildPurl(orgFromMap == null ? "" : orgFromMap, nameFromMap, versionFromMap), componentsByPurl));
                     }
                 }
+                continue;
             }
-            return refs;
-        }
 
-        // If it's a single map-like object
-        if (depsObj instanceof Map<?, ?>) {
-            Map<?, ?> m = (Map<?, ?>) depsObj;
-            if (m.containsKey("groupId") || m.containsKey("artifactId")) {
-                String g = safeString(m.get("groupId"));
-                String a = safeString(m.get("artifactId"));
-                String v = safeString(m.get("version"));
-                if (g != null && a != null) {
-                    String purl = buildPurl(g, a, v);
-                    refs.add(resolvePurlIfMissingVersion(purl, componentsByPurl));
+            // Toml table node (array-of-tables yields Toml items)
+            if (item instanceof Toml) {
+                Toml tomlTable = (Toml) item;
+                String groupIdFromToml = tomlTable.getString("groupId");
+                String artifactIdFromToml = tomlTable.getString("artifactId");
+                String versionFromToml = tomlTable.getString("version");
+                if (groupIdFromToml != null || artifactIdFromToml != null) {
+                    if (groupIdFromToml != null && artifactIdFromToml != null) {
+                        refs.add(resolvePurlIfMissingVersion(buildPurl(groupIdFromToml, artifactIdFromToml, versionFromToml), componentsByPurl));
+                    }
+                } else {
+                    String orgFromToml = tomlTable.getString("org");
+                    String nameFromToml = tomlTable.getString("name");
+                    String versionFromTomlAlt = tomlTable.getString("version");
+                    if (nameFromToml != null) {
+                        refs.add(resolvePurlIfMissingVersion(buildPurl(orgFromToml == null ? "" : orgFromToml, nameFromToml, versionFromTomlAlt), componentsByPurl));
+                    }
                 }
-            } else {
-                String org = safeString(m.get("org"));
-                String name = safeString(m.get("name"));
-                String ver = safeString(m.get("version"));
-                if (name != null) {
-                    String purl = buildPurl(org == null ? "" : org, name, ver);
-                    refs.add(resolvePurlIfMissingVersion(purl, componentsByPurl));
-                }
+                continue;
             }
-            return refs;
-        }
 
-        // If it's a string
-        String s = depsObj.toString();
-        String parsed = parseDependencyString(s);
-        if (parsed != null) {
-            refs.add(resolvePurlIfMissingVersion(parsed, componentsByPurl));
+            // String / simple forms
+            if (item instanceof String) {
+                String parsed = parseDependencyString((String) item);
+                if (parsed != null) {
+                    refs.add(resolvePurlIfMissingVersion(parsed, componentsByPurl));
+                }
+                continue;
+            }
+
+            // Fallback: stringify and try to parse
+            String parsed = parseDependencyString(item.toString());
+            if (parsed != null) {
+                refs.add(resolvePurlIfMissingVersion(parsed, componentsByPurl));
+            }
         }
 
         return refs;
@@ -587,12 +568,15 @@ public final class SbomGenerator {
             return purl;
         }
         try {
+            //  Check if the package is maven or ballerina and try to find a matching component purl by group and name
             if (purl.startsWith("pkg:maven/")) {
                 String body = purl.substring("pkg:maven/".length());
                 int slash = body.lastIndexOf('/');
                 if (slash > 0) {
+                    //  Extract group and artifact from the purl
                     String group = body.substring(0, slash);
                     String artifact = body.substring(slash + 1);
+                    //  Find the component purl by groupId and artifactName
                     String found = findComponentPurlByGroupAndName(componentsByPurl, group, artifact);
                     if (found != null) {
                         return found;
@@ -610,6 +594,7 @@ public final class SbomGenerator {
                     group = "";
                     name = body;
                 }
+
                 String found = findComponentPurlByGroupAndName(componentsByPurl, group, name);
                 if (found != null) {
                     return found;
