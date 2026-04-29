@@ -12,11 +12,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21.0.3'
+          java-version: '25'
 
       - name: Initialize sub-modules
         run: git submodule update --init
