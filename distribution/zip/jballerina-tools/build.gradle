@@ -232,12 +232,6 @@ dependencies {
 
 
 tasks.register('configured') {
-    configurations.distBal.allDependencies.withType(ProjectDependency) {
-        def path = it.getDependencyProject().path
-//        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
-//        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
-    }
-
 }
 
 def copyJarSpec = {
@@ -251,7 +245,6 @@ def copyBalaSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
-        fileMode 0644
     }
 }
 

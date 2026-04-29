@@ -39,4 +39,28 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,PA_PUBLIC_MUTABLE_OBJECT_ATTRIBUTE"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.BreakpointEventListener"/>
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.DebugHitListener"/>
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.DebugOutputListener"/>
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.DebugTerminationListener"/>
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.FileUtils"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.client.DAPRequestManager"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
 </FindBugsFilter>

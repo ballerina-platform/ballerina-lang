@@ -14,6 +14,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          submodules: recursive
           fetch-depth: 0
       - name: Checkout Tag
         run: git checkout ${{ github.event.inputs.repoTag }}

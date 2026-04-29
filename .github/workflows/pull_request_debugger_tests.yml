@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -36,7 +38,7 @@ jobs:
           java-version: '25'
 
       - name: Initialize sub-modules
-        run: git submodule update --init
+        run: git submodule update --init --recursive
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -50,7 +52,6 @@ jobs:
         with:
           java-version: '25'
           distribution: 'graalvm'
-          components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           set-java-home: 'false'
 
@@ -73,6 +74,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -88,7 +91,7 @@ jobs:
           disk-root: "C:"
 
       - name: Initialize sub-modules
-        run: git submodule update --init
+        run: git submodule update --init --recursive
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -102,7 +105,6 @@ jobs:
         with:
           java-version: '25'
           distribution: 'graalvm'
-          components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           set-java-home: 'false'
 

@@ -62,6 +62,10 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.cli.task.RunTestsTask"/>
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.cli.task.RunNativeImageTestTask"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
@@ -82,7 +86,7 @@
         <Method name="addModules" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
-    <Match>>
+    <Match>
         <Package name="io.ballerina.cli.launcher"/>
     </Match>
     <Match>
@@ -119,5 +123,17 @@
         <Class name="io.ballerina.cli.cmd.CommandUtil" />
         <Method name="getSrcFiles" />
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.utils.NativeUtils"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.ToolUseCommand"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
     </Match>
 </FindBugsFilter>

@@ -61,6 +61,12 @@ subprojects {
 
 }
 
+project(':jballerina') {
+    tasks.named('publishMavenJavaPublicationToMavenLocal') {
+        dependsOn(':ballerina-dist:generatePomFileForMavenJavaPublication')
+    }
+}
+
 dependencies {
     constraints {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'

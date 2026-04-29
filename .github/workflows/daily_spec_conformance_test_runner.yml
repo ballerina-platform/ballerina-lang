@@ -15,6 +15,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          submodules: recursive
           ref: spec-conformance-test-runner
 
       - name: Set up JDK 25
