@@ -22,11 +22,11 @@ jobs:
           ref: ${{ matrix.branch }}
           fetch-depth: 0
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21.0.3'
+          java-version: '25'
 
       - id: check_recent_commits
         name: Check for commits in last 24 hours
