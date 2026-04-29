@@ -69,6 +69,7 @@ test {
     dependsOn(copyToLib)
     dependsOn(jar)
     maxParallelForks = 1
+    failOnNoDiscoveredTests = false
 
     def warmupIterations = 40000
     def benchmarkIterations = 400000
@@ -99,11 +100,11 @@ test {
 
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-            exec {
+            project.providers.exec {
                 workingDir project.projectDir
                 environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
-                commandLine 'sh', 'executor', "${warmupIterations}", "${benchmarkIterations}", 
-                        "${ballerinaHome}", "${sourceLocation}", "${resultsLocation}", 
+                commandLine 'sh', 'executor', "${warmupIterations}", "${benchmarkIterations}",
+                        "${ballerinaHome}", "${sourceLocation}", "${resultsLocation}",
                         "${resultsFileName}", "${gcLogsLocation}", "${gcViewerJar}"
             }
         }

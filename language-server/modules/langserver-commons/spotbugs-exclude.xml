@@ -19,4 +19,12 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.commons.LanguageExtension"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
 </FindBugsFilter>
