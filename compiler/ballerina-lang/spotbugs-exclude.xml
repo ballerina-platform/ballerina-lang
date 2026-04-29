@@ -30,6 +30,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.desugar" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.interop" />
     </Match>
     <Match>
@@ -52,6 +55,9 @@
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.values" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.utils" />
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
@@ -506,5 +512,54 @@
             <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType"/>
             <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType"/>
         </Bug>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer" />
+        <Method name="restoreOriginalArgsFromTuple" />
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.BalToolsToml"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.JBallerinaBackend"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.JarResolver"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.ModuleContext"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.SingleFileProject"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.repositories.FileSystemRepository"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.repos.FileSystemCache"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.repos.TempDirCompilationCache"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.util.FileUtils"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.codegen.BallerinaAnnotationProcessor"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION,THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
     </Match>
 </FindBugsFilter>

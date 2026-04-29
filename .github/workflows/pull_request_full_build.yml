@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -75,6 +77,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -156,6 +160,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          submodules: recursive
           repository: 'ballerina-platform/ballerina-distribution'
           ref: '2201.12.x'
 
