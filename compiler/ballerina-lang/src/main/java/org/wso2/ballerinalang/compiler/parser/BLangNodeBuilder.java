@@ -729,7 +729,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
         Location position = getPosition(importDeclaration);
-        names.forEach(name -> pkgNameComps.add(this.createIdentifier(getPosition(name), name.text())));
+        names.forEach(name -> {
+            // If the token is missing (e.g. a reserved keyword like 'client' was used
+            // without the '^' escape), the parser synthesises a MISSING identifier and
+            // places the original keyword as a leading invalid-token minutiae.
+            // Recover that keyword text so that error messages like
+            // "cannot resolve module 'ballerinax/client.config'" are correct.
+            if (name.isMissing()) {
+                List<Token> leadingInvalid = name.leadingInvalidTokens();
+                String originalValue = name.text(); // empty string for missing tokens
+                if (!leadingInvalid.isEmpty()) {
+                    originalValue = leadingInvalid.get(0).text();
+                }
+                pkgNameComps.add(this.createIdentifier(getPosition(name), "", originalValue));
+            } else {
+                pkgNameComps.add(this.createIdentifier(getPosition(name), name.text()));
+            }
+        });
 
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = position;
