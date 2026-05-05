@@ -318,7 +318,7 @@ public class RunCommand implements BLauncherCmd {
                 Map<Path, List<Diagnostic>> buildToolDiagnosticsMap = new HashMap<>();
                 for (BuildProject buildProject : initialSortedList) {
                     boolean rebuildNeeded = isRebuildNeeded(buildProject, true);
-                    List<Diagnostic> diagnostics = executeBuildToolsTask(buildProject, rebuildNeeded);
+                    List<Diagnostic> diagnostics = executeBuildToolsTaskForWorkspaces(buildProject, rebuildNeeded);
                     buildToolDiagnosticsMap.put(buildProject.sourceRoot(), diagnostics);
                 }
 
@@ -395,11 +395,11 @@ public class RunCommand implements BLauncherCmd {
         taskExecutor.executeTasks(project);
     }
 
-    private List<Diagnostic> executeBuildToolsTask(BuildProject buildProject, boolean rebuildNeeded) {
+    private List<Diagnostic> executeBuildToolsTaskForWorkspaces(BuildProject buildProject, boolean rebuildNeeded) {
         List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), !rebuildNeeded)
-                .addTask(new RestoreCachedArtifactsTask(), rebuildNeeded)
+                .addTask(new RestoreCachedArtifactsTask(true), rebuildNeeded)
                 .addTask(new RunBuildToolsTask(outStream, !rebuildNeeded, buildToolDiagnostics, true))
                 .build();
         taskExecutor.executeTasks(buildProject);
