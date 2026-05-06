@@ -10,7 +10,7 @@ import java.nio.file.NoSuchFileException;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 public class RestoreCachedArtifactsTask implements Task {
-    final boolean isWorkspace;
+    private final boolean isWorkspace;
 
     public RestoreCachedArtifactsTask() {
         this.isWorkspace = false;
@@ -24,9 +24,10 @@ public class RestoreCachedArtifactsTask implements Task {
         try {
             CommandUtil.copyOneDirectoryUp(project.targetDir().resolve(ProjectConstants.EXEC_BACKUP_DIR_NAME));
         } catch (NoSuchFileException e) {
-            if (!isWorkspace) {
+            if (isWorkspace) {
                 return;
             }
+            throw createLauncherException("unable to restore the cache: " + e.getMessage());
         } catch (IOException e) {
             throw createLauncherException("unable to restore the cache: " + e.getMessage());
         }

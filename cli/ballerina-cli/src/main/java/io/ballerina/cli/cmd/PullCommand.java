@@ -228,7 +228,8 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(orgName).resolve(packageName);
 
-        if (!version.equals(Names.EMPTY.getValue()) && packageExistsWithPlatform(packagePathInBalaCache.resolve(version))) {
+        if (!version.equals(Names.EMPTY.getValue()) &&
+                packageExistsWithPlatform(packagePathInBalaCache.resolve(version))) {
             outStream.println("Package already exists.\n");
             return version;
         }
