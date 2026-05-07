@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.utils;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -93,6 +94,20 @@ public final class LazyLoadingCodeGenUtils {
         }
         FieldVisitor fv = cw.visitField(ACC_PRIVATE, varName, "B", null, null);
         fv.visitEnd();
+    }
+
+    public static void setSourceFileForClass(ClassWriter cw, Location pos,
+                                             AsyncDataCollector asyncDataCollector) {
+        if (pos == null) {
+            return;
+        }
+        String balFileName = pos.lineRange().fileName();
+        if (balFileName == null) {
+            return;
+        }
+        cw.visitSource(balFileName, null);
+        asyncDataCollector.setCurrentSourceFileName(balFileName);
+        asyncDataCollector.setCurrentSourceFileWithoutExt(JvmCodeGenUtil.cleanupPathSeparators(balFileName));
     }
 
     public static void loadIdentifierValue(ClassWriter cw, String varName, BIRNode.BIRPackage module,
