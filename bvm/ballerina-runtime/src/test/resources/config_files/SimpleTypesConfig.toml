@@ -4,4 +4,5 @@ byteVar = 5
 floatVar = 3.5
 stringVar = "abc"
 booleanVar = true
-decimalVar = 24.87
+decimalVar = 24
+decimalVarFloat = 24.87

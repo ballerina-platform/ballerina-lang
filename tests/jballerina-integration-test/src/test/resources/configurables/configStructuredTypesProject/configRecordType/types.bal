@@ -25,6 +25,7 @@ type Cricketer readonly & record {|
     float battingAverage;
     decimal bowlingAverage;
     decimal bowlingEconomy;
+    decimal largeDecimalAverage;
 |};
 
 type Lecturer record {|

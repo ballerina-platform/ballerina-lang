@@ -104,7 +104,7 @@ public class TomlProviderTest {
         Function<BArray, Object[]> decimalArrayGetFunction = BArray::getValues;
         BDecimal[] expectedDecimalArray = new BDecimal[100];
         expectedDecimalArray[0] = ValueCreator.createDecimalValue("8.9");
-        expectedDecimalArray[1] = ValueCreator.createDecimalValue("4.5");
+        expectedDecimalArray[1] = ValueCreator.createDecimalValue("4");
         expectedDecimalArray[2] = ValueCreator.createDecimalValue("6.2");
         return new Object[][]{
                 // Int array
@@ -597,7 +597,7 @@ public class TomlProviderTest {
                 {"intMap", TYPE_INT, Map.ofEntries(Map.entry("int1", 12L), Map.entry("int2", 34L))},
                 {"decimalMap", TYPE_DECIMAL,
                         Map.ofEntries(Map.entry("d1", ValueCreator.createDecimalValue("56.78")),
-                        Map.entry("d2", ValueCreator.createDecimalValue("32.94")))}
+                        Map.entry("d2", ValueCreator.createDecimalValue("32")))}
         };
     }
 

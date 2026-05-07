@@ -110,8 +110,12 @@ public class ConfigTest {
                 // Boolean value given only with toml
                 {new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, true,
                         new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
-                // Decimal value given only with toml
+                // Decimal value given only with toml (integer literal → Long in AST)
                 {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
+                        new DecimalValue("24"), new TomlFileProvider(ROOT_MODULE,
+                        getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
+                // Decimal from TOML float literal
+                {new VariableKey(module, "decimalVarFloat", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
                         new DecimalValue("24.87"), new TomlFileProvider(ROOT_MODULE,
                         getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Int value given only with cli

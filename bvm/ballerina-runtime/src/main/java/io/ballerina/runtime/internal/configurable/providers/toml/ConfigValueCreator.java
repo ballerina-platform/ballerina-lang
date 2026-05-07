@@ -326,7 +326,12 @@ public class ConfigValueCreator {
             case TypeTags.BYTE_TAG -> ((Long) tomlValue).intValue();
             case TypeTags.FLOAT_TAG -> ((Number) tomlValue).doubleValue();
             case TypeTags.DECIMAL_TAG -> {
-                BigDecimal decimalValue = BigDecimal.valueOf(((Number) tomlValue).doubleValue());
+                BigDecimal decimalValue;
+                if (tomlValue instanceof Long) {
+                    decimalValue = BigDecimal.valueOf((Long) tomlValue);
+                } else {
+                    decimalValue = BigDecimal.valueOf(((Number) tomlValue).doubleValue());
+                }
                 yield ValueCreator.createDecimalValue(decimalValue);
             }
             case TypeTags.STRING_TAG -> StringUtils.fromString((String) tomlValue);

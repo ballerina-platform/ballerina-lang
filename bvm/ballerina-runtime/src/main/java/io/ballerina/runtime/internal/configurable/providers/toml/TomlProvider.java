@@ -240,7 +240,12 @@ public class TomlProvider implements ConfigProvider {
         if (value == null) {
             return Optional.empty();
         }
-        BigDecimal decimalValue = BigDecimal.valueOf(((Number) value).doubleValue());
+        BigDecimal decimalValue;
+        if (value instanceof Long) {
+            decimalValue = BigDecimal.valueOf((Long) value);
+        } else {
+            decimalValue = new BigDecimal(value.toString());
+        }
         return getTomlConfigValue(ValueCreator.createDecimalValue(decimalValue), key);
     }
 

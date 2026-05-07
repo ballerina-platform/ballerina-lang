@@ -83,6 +83,8 @@ public function testRecords() {
     test:assertTrue(cricketer.bowlingAverage is decimal);
     test:assertEquals(cricketer.bowlingEconomy, 4.56d);
     test:assertTrue(cricketer.bowlingEconomy is decimal);
+    test:assertEquals(cricketer.largeDecimalAverage, 9007199254740993d);
+    test:assertTrue(cricketer.largeDecimalAverage is decimal);
     test:assertEquals(personWithFiniteFields.stringRef, "stringRefType");
     test:assertEquals(personWithFiniteFields.intRef, 10);
     test:assertEquals(personWithFiniteFields.floatRef, 3.14);
