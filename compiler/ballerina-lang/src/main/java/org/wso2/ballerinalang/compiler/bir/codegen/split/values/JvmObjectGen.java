@@ -199,7 +199,7 @@ public class JvmObjectGen {
             return unionType.getMemberTypes().stream().allMatch(this::isServiceType);
         }
         if (type instanceof BTypeReferenceType refType) {
-            return isServiceType(refType.referredType);
+            return refType.referredType != null && isServiceType(refType.referredType);
         }
         return false;
     }
