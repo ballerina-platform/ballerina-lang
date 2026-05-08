@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -186,7 +188,20 @@ public class JvmObjectGen {
 
     private boolean isListenerAttach(BIRNode.BIRFunction func) {
         return func.name.value.equals("attach") &&
-                Symbols.isFlagOn(func.parameters.getFirst().type.getFlags(), Flags.SERVICE);
+                isServiceType(func.parameters.getFirst().type);
+    }
+
+    private boolean isServiceType(BType type) {
+        if (Symbols.isFlagOn(type.getFlags(), Flags.SERVICE)) {
+            return true;
+        }
+        if (type instanceof BUnionType unionType) {
+            return unionType.getMemberTypes().stream().allMatch(this::isServiceType);
+        }
+        if (type instanceof BTypeReferenceType refType) {
+            return refType.referredType != null && isServiceType(refType.referredType);
+        }
+        return false;
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
