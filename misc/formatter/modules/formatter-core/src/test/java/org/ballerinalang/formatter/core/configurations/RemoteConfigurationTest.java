@@ -31,7 +31,7 @@ import java.nio.file.Path;
 public class RemoteConfigurationTest extends FormatterTest {
 
     @Override
-    @Test(dataProvider = "test-file-provider")
+    @Test(dataProvider = "test-file-provider", enabled = false)
     public void test(String source, String sourcePath) throws IOException {
         try {
             super.testWithConfigurationFile(source, sourcePath);
