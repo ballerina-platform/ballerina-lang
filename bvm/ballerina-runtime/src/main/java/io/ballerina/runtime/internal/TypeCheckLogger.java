@@ -27,6 +27,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -137,6 +138,14 @@ public class TypeCheckLogger {
             if (!resolved.startsWith(allowedBase)) {
                 throw new IllegalArgumentException(
                         "BAL_LOG_TYPE_CHECK_PATH must be within the working directory: " + allowedBase);
+            }
+            Path check = resolved;
+            while (check != null && !check.equals(allowedBase)) {
+                if (Files.isSymbolicLink(check)) {
+                    throw new IllegalArgumentException(
+                            "BAL_LOG_TYPE_CHECK_PATH must not contain symlinks: " + logPath);
+                }
+                check = check.getParent();
             }
             return new LogConfig(Optional.of(resolved.toString()), isSilent);
         } catch (InvalidPathException e) {
