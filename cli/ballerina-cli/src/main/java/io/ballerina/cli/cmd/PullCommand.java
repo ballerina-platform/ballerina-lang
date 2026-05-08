@@ -228,7 +228,8 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(orgName).resolve(packageName);
 
-        if (!version.equals(Names.EMPTY.getValue()) && Files.exists(packagePathInBalaCache.resolve(version))) {
+        if (!version.equals(Names.EMPTY.getValue()) &&
+                packageExistsWithPlatform(packagePathInBalaCache.resolve(version))) {
             outStream.println("Package already exists.\n");
             return version;
         }
@@ -293,7 +294,7 @@ public class PullCommand implements BLauncherCmd {
             version = latest.toString();
         }
         Path mavenBalaCachePath = mavenPackageRootPath.resolve(orgName).resolve(packageName).resolve(version);
-        if (Files.exists(mavenBalaCachePath)) {
+        if (packageExistsWithPlatform(mavenBalaCachePath)) {
             outStream.println("Package already exists.\n");
             return version;
         }
@@ -377,6 +378,23 @@ public class PullCommand implements BLauncherCmd {
             PrintStream out = System.out;
             out.println("Successfully pulled the package from the custom repository.");
         }
+    }
+
+    private boolean packageExistsWithPlatform(Path versionPath) {
+        if (!Files.exists(versionPath)) {
+            return false;
+        }
+        Path balaPath = versionPath.resolve("any");
+        if (Files.exists(balaPath)) {
+            return true;
+        }
+        for (JvmTarget jvmTarget : JvmTarget.values()) {
+            balaPath = versionPath.resolve(jvmTarget.code());
+            if (Files.exists(balaPath)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean resolveDependencies(String orgName, String packageName, String version) {
