@@ -188,6 +188,7 @@ public class JvmObjectGen {
 
     private boolean isListenerAttach(BIRNode.BIRFunction func) {
         return func.name.value.equals("attach") &&
+                func.parameters.size() >= 2 &&
                 isServiceType(func.parameters.getFirst().type);
     }
 
