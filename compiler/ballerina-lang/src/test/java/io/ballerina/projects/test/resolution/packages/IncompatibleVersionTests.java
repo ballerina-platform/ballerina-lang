@@ -44,6 +44,42 @@ public class IncompatibleVersionTests extends AbstractPackageResolutionTest {
                 {"suite-incompatible_versions", "case-0006", PackageLockingMode.HARD},
                 {"suite-incompatible_versions", "case-0006", PackageLockingMode.MEDIUM},
                 {"suite-incompatible_versions", "case-0006", PackageLockingMode.SOFT},
+                // 7. User specifies an incompatible version of a transitive dependency in Ballerina.toml
+                {"suite-incompatible_versions", "case-0007", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0007", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0007", PackageLockingMode.SOFT},
+                // 8. Parent transitive dep upgrade should replace child transitive deps without false conflict
+                {"suite-incompatible_versions", "case-0008", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0008", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0008", PackageLockingMode.SOFT},
+                // 9. Fresh project: parent transitive dep upgrade replaces child deps without false conflict
+                {"suite-incompatible_versions", "case-0009", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0009", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0009", PackageLockingMode.SOFT},
+                // 10. Parent upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0010", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0010", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0010", PackageLockingMode.SOFT},
+                // 11. Fresh project: parent upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0011", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0011", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0011", PackageLockingMode.SOFT},
+                // 12. Transitive dep upgrade replaces incompatible pre-1.0 child dep
+                {"suite-incompatible_versions", "case-0012", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0012", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0012", PackageLockingMode.SOFT},
+                // 13. Fresh project: transitive dep upgrade replaces incompatible pre-1.0 child dep
+                {"suite-incompatible_versions", "case-0013", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0013", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0013", PackageLockingMode.SOFT},
+                // 14. Patch upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0014", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0014", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0014", PackageLockingMode.SOFT},
+                // 15. Fresh project: patch upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0015", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0015", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0015", PackageLockingMode.SOFT},
         };
     }
 
@@ -74,6 +110,33 @@ public class IncompatibleVersionTests extends AbstractPackageResolutionTest {
                 // 6. Two incompatible versions found as transitive dependencies
                 {"suite-incompatible_versions", "case-0006", true},
                 {"suite-incompatible_versions", "case-0006", false},
+                // 7. User specifies an incompatible version of a transitive dependency in Ballerina.toml
+                {"suite-incompatible_versions", "case-0007", true},
+                {"suite-incompatible_versions", "case-0007", false},
+                // 8. Parent transitive dep upgrade should replace child transitive deps without false conflict
+                {"suite-incompatible_versions", "case-0008", true},
+                {"suite-incompatible_versions", "case-0008", false},
+                // 9. Fresh project: parent transitive dep upgrade replaces child deps without false conflict
+                {"suite-incompatible_versions", "case-0009", true},
+                {"suite-incompatible_versions", "case-0009", false},
+                // 10. Parent upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0010", true},
+                {"suite-incompatible_versions", "case-0010", false},
+                // 11. Fresh project: parent upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0011", true},
+                {"suite-incompatible_versions", "case-0011", false},
+                // 12. Transitive dep upgrade replaces incompatible pre-1.0 child dep
+                {"suite-incompatible_versions", "case-0012", true},
+                {"suite-incompatible_versions", "case-0012", false},
+                // 13. Fresh project: transitive dep upgrade replaces incompatible pre-1.0 child dep
+                {"suite-incompatible_versions", "case-0013", true},
+                {"suite-incompatible_versions", "case-0013", false},
+                // 14. Patch upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0014", true},
+                {"suite-incompatible_versions", "case-0014", false},
+                // 15. Fresh project: patch upgrade changes dep structure with incompatible transitive dep versions
+                {"suite-incompatible_versions", "case-0015", true},
+                {"suite-incompatible_versions", "case-0015", false},
         };
     }
 }
