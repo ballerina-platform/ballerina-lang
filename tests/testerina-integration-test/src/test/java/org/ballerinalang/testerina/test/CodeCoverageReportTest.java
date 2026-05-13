@@ -189,7 +189,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "testerina_report/foo$test/0/types",
                 "testerina_report/foo/0/typedescs",
                 "testerina_report/foo&0046annot$test/0/types",
-                "testerina_report/foo&0046annot/0/lambdas/$2functions",
+                "testerina_report/foo&0046annot/0/lambdas",
                 "testerina_report/foo&0046math$test/0/constants/strings",
                 "testerina_report/foo&0046annot/0",
                 "testerina_report/foo&0046math$test/0/types",

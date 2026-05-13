@@ -52,6 +52,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeG
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.genLazyLoadingClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.genLoadDebugVariablesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.loadIdentifierValue;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.setSourceFileForClass;
 
 /**
  * Generates Jvm classes for the used ballerina module constants for given module.
@@ -83,7 +84,7 @@ public class JvmBallerinaConstantsGen {
             BIRNode.ConstValue constValue = constant.constValue;
             BType bType = JvmCodeGenUtil.getImpliedType(constValue.type);
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            cw.visitSource(constant.pos.lineRange().fileName(), null);
+            setSourceFileForClass(cw, constant.pos, asyncDataCollector);
             String varName = constant.name.value;
             String constantVarClassName = getVarStoreClass(jvmConstantsGen.constantsPkgName, varName);
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
