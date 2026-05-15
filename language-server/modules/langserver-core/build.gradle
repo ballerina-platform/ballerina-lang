@@ -91,7 +91,7 @@ description = 'Ballerina - Language server - Core'
 
 // Fix for windows class path too long issue
 tasks.register('pathingJar', Jar) {
-    archiveAppendix = "pathing"
+    archiveAppendix.set("pathing")
     doFirst {
         manifest {
             attributes "Class-Path": sourceSets.main.runtimeClasspath.files.collect {
@@ -111,7 +111,7 @@ tasks.register('createZip', Zip) {
 
 tasks.register('testJar', Jar) {
     dependsOn testClasses
-    archiveBaseName = "test-${project.archivesBaseName}"
+    archiveBaseName.set("test-${project.name}")
     from sourceSets.test.output
 }
 
