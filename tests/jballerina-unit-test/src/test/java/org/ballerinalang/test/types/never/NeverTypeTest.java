@@ -45,7 +45,7 @@ public class NeverTypeTest {
     }
 
     @Test(expectedExceptions = BLangTestException.class,
-            expectedExceptionsMessageRegExp = "error: Panic occured in function with never return.*")
+            expectedExceptionsMessageRegExp = "error: Panic occurred in function with never return.*")
     public void testNeverReturnTypedFunctionCall() {
         BRunUtil.invoke(neverTypeTestResult, "testNeverReturnTypedFunctionCall");
     }
