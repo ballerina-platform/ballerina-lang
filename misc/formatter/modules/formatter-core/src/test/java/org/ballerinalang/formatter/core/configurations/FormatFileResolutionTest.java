@@ -47,7 +47,7 @@ public class FormatFileResolutionTest {
         FormatterUtils.getFormattingConfigurations(validLocal, validLocal.resolve("Format.toml").toString());
     }
 
-    @Test(description = "Test for remote formatting configuration file", enabled = false)
+    @Test(description = "Test for remote formatting configuration file")
     public void resolutionOfRemoteFormatFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(validRemote, validRemoteUrl);
     }
@@ -57,7 +57,7 @@ public class FormatFileResolutionTest {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("cached"), validRemoteUrl);
     }
 
-    @Test(description = "Test caching of configuration file with target directory present", enabled = false)
+    @Test(description = "Test caching of configuration file with target directory present")
     public void cacheWithTargetDirectoryPresent() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(withTarget, validRemoteUrl);
     }
@@ -99,13 +99,13 @@ public class FormatFileResolutionTest {
     }
 
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "failed to create format configuration cache directory", enabled = false)
+            expectedExceptionsMessageRegExp = "failed to create format configuration cache directory")
     public void failureToCreateFormatCacheFolderTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheTarget"), validRemoteUrl);
     }
 
     @Test(description = "Test invalid formatting configuration files", expectedExceptions = FormatterException.class,
-            expectedExceptionsMessageRegExp = "failed to write format configuration cache file", enabled = false)
+            expectedExceptionsMessageRegExp = "failed to write format configuration cache file")
     public void failureToWriteCacheFileTest() throws FormatterException {
         FormatterUtils.getFormattingConfigurations(resDir.resolve("invalidCacheWrite"), validRemoteUrl);
     }
