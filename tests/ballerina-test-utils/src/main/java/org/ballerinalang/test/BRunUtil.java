@@ -66,6 +66,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import org.testng.Assert;
 
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
@@ -150,7 +151,7 @@ public final class BRunUtil {
      */
     private static Object invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                  Object[] args, Class<?>[] paramTypes) {
-        assert args.length == paramTypes.length;
+        Assert.assertEquals(args.length, paramTypes.length);
         PackageManifest packageManifest = compileResult.packageManifest();
         String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
