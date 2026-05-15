@@ -33,11 +33,13 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.projects.util.SbomGenerator;
+import org.ballerinalang.toml.exceptions.TomlException;
+import org.wso2.ballerinalang.util.RepoUtils;
+import org.ballerinalang.compiler.BLangCompilerException;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.apache.commons.compress.utils.IOUtils;
-import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -59,6 +61,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
@@ -140,6 +143,7 @@ public abstract class BalaWriter {
         addCompilerPlugin(balaOutputStream);
         addBalTool(balaOutputStream);
         addDependenciesJson(balaOutputStream);
+        addBOM(balaOutputStream);
     }
 
     private void addBalaJson(ZipOutputStream balaOutputStream) {
@@ -150,6 +154,66 @@ public abstract class BalaWriter {
                     new ByteArrayInputStream(balaJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'bala.json' file: " + e.getMessage(), e);
+        }
+    }
+
+    private void addBOM(ZipOutputStream balaOutputStream) {
+        try {
+            Path sourceRoot = this.packageContext.project().sourceRoot();
+            Path manifestPath = sourceRoot.resolve("Ballerina.toml");
+            if (!Files.exists(manifestPath)) {
+                Path alt = sourceRoot.resolve("dependencies.toml");
+                if (Files.exists(alt)) {
+                    manifestPath = alt;
+                } else {
+                    Path alt2 = sourceRoot.resolve("Dependencies.toml");
+                    if (Files.exists(alt2)) {
+                        manifestPath = alt2;
+                    }
+                }
+            }
+
+            if (!Files.exists(manifestPath)) {
+                return;
+            }
+
+            Path tmpDir = Files.createTempDirectory("bala-sbom-");
+            try {
+                Path outPath = tmpDir.resolve("bom.cdx.json");
+                try {
+                    // Generate SBOM into the temporary directory
+                    SbomGenerator.generateBom(manifestPath, outPath);
+                } catch (TomlException | IOException se) {
+                    String pkg = packageContext != null ? packageContext.packageName().toString() : "<unknown>";
+                    throw new ProjectException("Failed to generate SBOM for the package: " + se.getMessage(), se);
+                }
+
+                // Find the generated .cdx.json file (SbomGenerator may adjust extension)
+                Optional<Path> generated = Files.list(tmpDir)
+                        .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".cdx.json"))
+                        .findFirst();
+                if (generated.isPresent()) {
+                    try (InputStream in = Files.newInputStream(generated.get())) {
+                        putZipEntry(balaOutputStream, Path.of("bom.cdx.json"), in);
+                    }
+                }
+            } finally {
+                try (Stream<Path> stream = Files.list(tmpDir)) {
+                    stream.forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (IOException ignored) {
+                        }
+                    });
+                } catch (IOException ignored) {
+                }
+                try {
+                    Files.deleteIfExists(tmpDir);
+                } catch (IOException ignored) {
+                }
+            }
+        } catch (IOException e) {
+            // ignore and continue
         }
     }
 
@@ -198,6 +262,7 @@ public abstract class BalaWriter {
             throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
         }
     }
+
 
     private void setReadme(PackageManifest packageManifest, PackageJson packageJson) {
         if (packageManifest.readme() != null) { // Null check is required for ballerinai packages
@@ -290,7 +355,7 @@ public abstract class BalaWriter {
         if (packageManifest.readme() == null) {
             return;
         }
-        Path sourceRoot = this.packageContext.project().sourceRoot;
+        Path sourceRoot = this.packageContext.project().sourceRoot();
         Path pkgReadme = Paths.get(packageManifest.readme());
         Path docsDirInBala = Path.of(BALA_DOCS_DIR);
 
