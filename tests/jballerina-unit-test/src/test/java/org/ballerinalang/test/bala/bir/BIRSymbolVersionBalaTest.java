@@ -37,7 +37,7 @@ import static org.testng.Assert.assertEquals;
  * to the version in the current import symbols, not the version embedded
  * in the BIR constant pool.
  *
- * @since 2201.12.x
+ * @since 2201.13.x
  */
 public class BIRSymbolVersionBalaTest {
 
