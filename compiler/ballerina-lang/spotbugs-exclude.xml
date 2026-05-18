@@ -494,7 +494,7 @@
     </Match>
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR,
-        CT_CONSTRUCTOR_THROW,PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+        CT_CONSTRUCTOR_THROW,PA_PUBLIC_PRIMITIVE_ATTRIBUTE,THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType" />

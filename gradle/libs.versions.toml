@@ -49,8 +49,9 @@ eclipseLsp4jJsonrpcVersion="0.15.0"
 eclipseLsp4jVersion="0.15.0"
 fasterxmlWoodstoxCoreVersion="6.5.0"
 findbugsJsr305Version="3.0.2"
-githubJohnrengelmanShadowVersion="8.1.1"
-githubSpotbugsVersion="6.0.18"
+gradleupShadowVersion="8.3.5"
+githubSpotbugsVersion="6.1.0"
+spotbugsToolVersion="4.9.8"
 gsonVersion="2.10.1"
 guavaVersion="32.0.1-jre"
 guruNidiGraphvizVersion="0.18.1"
@@ -108,7 +109,7 @@ ow2AsmUtilVersion="9.7"
 ow2AsmVersion="9.7"
 picocliVersion="4.0.1"
 puppycrawlCheckstyleVersion="10.12.0"
-researchgateReleaseVersion="2.8.0"
+researchgateReleaseVersion="3.1.0"
 scalaLibraryVersion="2.11.7"
 slf4jApiVersion="2.0.7"
 slf4jJdk14Version="2.0.7"
@@ -263,7 +264,7 @@ caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "c
 
 [plugins]
 spotbugs = { id = "com.github.spotbugs", version.ref = "githubSpotbugsVersion"}
-github-johnrengelman-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "githubJohnrengelmanShadowVersion"}
+github-johnrengelman-shadow = { id = "com.gradleup.shadow", version.ref = "gradleupShadowVersion"}
 researchgate-release = { id = "net.researchgate.release", version.ref = "researchgateReleaseVersion"}
 dorongold-task-tree = { id = "com.dorongold.task-tree", version.ref = "dorongoldTaskTreeVersion"}
 kaitai = { id = "name.valery1707.kaitai", version.ref = "kaitaiGradlePluginVersion"}

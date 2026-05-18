@@ -20,6 +20,8 @@ plugins {
     id 'ballerinaLangLibLoad'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations {
     birJar
     bir

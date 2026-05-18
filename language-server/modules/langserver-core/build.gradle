@@ -20,6 +20,8 @@ plugins {
     id 'ballerinaLangLibLoad'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations.all {
     resolutionStrategy {
         preferProjectModules()
@@ -111,7 +113,7 @@ tasks.register('createZip', Zip) {
 
 tasks.register('testJar', Jar) {
     dependsOn testClasses
-    archiveBaseName = "test-${project.archivesBaseName}"
+    archiveBaseName = "test-${project.base.archivesName.get()}"
     from sourceSets.test.output
 }
 

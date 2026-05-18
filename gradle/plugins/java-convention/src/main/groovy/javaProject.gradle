@@ -24,6 +24,8 @@ plugins {
     id 'repositories'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle libs.puppycrawl.checkstyle
@@ -132,6 +134,10 @@ tasks.withType(JavaCompile).configureEach {
 checkstyle {
     toolVersion = libs.versions.checkStyleToolVersion.get()
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
+}
+
+spotbugs {
+    toolVersion = libs.versions.spotbugsToolVersion.get()
 }
 
 def excludePattern = '**/module-info.java'

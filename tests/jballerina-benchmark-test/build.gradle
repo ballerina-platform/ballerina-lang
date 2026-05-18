@@ -19,6 +19,8 @@ plugins {
     id 'javaProject'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 import org.apache.tools.ant.taskdefs.condition.Os
 
 description = 'Ballerina - Performance Tests'
