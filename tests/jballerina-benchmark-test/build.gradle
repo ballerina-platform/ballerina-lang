@@ -66,50 +66,52 @@ jar {
     version = null
 }
 
+def warmupIterations = 40000
+def benchmarkIterations = 400000
+def ballerinaHome = "${configurations.ballerinaTools.asPath}"
+def sourceLocation = "${project.projectDir}/src/main/ballerina/"
+def resultsLocation = "${buildDir}/results"
+def resultsFileName = "benchmark_ballerina_${project.version}"
+def gcLogsLocation = "${buildDir}/gc-logs"
+def gcViewerJar = "${buildDir}/libs/gcviewer-1.36.jar"
+if (project.hasProperty("warmup.iterations")) {
+    warmupIterations = project.findProperty("warmup.iterations")
+}
+if (project.hasProperty("benchmark.iterations")) {
+    benchmarkIterations = project.findProperty("benchmark.iterations")
+}
+if (project.hasProperty("ballerina.home")) {
+    ballerinaHome = project.findProperty("ballerina.home")
+}
+if (project.hasProperty("results.location")) {
+    resultsLocation = project.findProperty("results.location")
+}
+if (project.hasProperty("gc.logs.location")) {
+    gcLogsLocation = project.findProperty("gc.logs.location")
+}
+if (project.hasProperty("gcviewer.jar")) {
+    gcViewerJar = project.findProperty("gcviewer.jar")
+}
+
 test {
     dependsOn ':jballerina-tools:build'
     dependsOn(copyToLib)
     dependsOn(jar)
     maxParallelForks = 1
 
-    def warmupIterations = 40000
-    def benchmarkIterations = 400000
-    def ballerinaHome = "${configurations.ballerinaTools.asPath}"
-    def sourceLocation = "${project.projectDir}/src/main/ballerina/"
-    def resultsLocation = "${buildDir}/results"
-    def resultsFileName = "benchmark_ballerina_${project.version}"
-    def gcLogsLocation = "${buildDir}/gc-logs"
-    def gcViewerJar = "${buildDir}/libs/gcviewer-1.36.jar"
-    if (project.hasProperty("warmup.iterations")) {
-        warmupIterations = project.findProperty("warmup.iterations")
-    }
-    if (project.hasProperty("benchmark.iterations")) {
-        benchmarkIterations = project.findProperty("benchmark.iterations")
-    }
-    if (project.hasProperty("ballerina.home")) {
-        ballerinaHome = project.findProperty("ballerina.home")
-    }
-    if (project.hasProperty("results.location")) {
-        resultsLocation = project.findProperty("results.location")
-    }
-    if (project.hasProperty("gc.logs.location")) {
-        gcLogsLocation = project.findProperty("gc.logs.location")
-    }
-    if (project.hasProperty("gcviewer.jar")) {
-        gcViewerJar = project.findProperty("gcviewer.jar")
-    }
-
-    doLast {
-        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-            exec {
-                workingDir project.projectDir
-                environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
-                commandLine 'sh', 'executor', "${warmupIterations}", "${benchmarkIterations}", 
-                        "${ballerinaHome}", "${sourceLocation}", "${resultsLocation}", 
-                        "${resultsFileName}", "${gcLogsLocation}", "${gcViewerJar}"
-            }
-        }
-    }
+    failOnNoDiscoveredTests = false
 }
+
+tasks.register('runBenchmark', Exec) {
+    dependsOn test
+    onlyIf { !Os.isFamily(Os.FAMILY_WINDOWS) }
+    workingDir project.projectDir
+    environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
+    commandLine 'sh', 'executor', "${warmupIterations}", "${benchmarkIterations}",
+            "${ballerinaHome}", "${sourceLocation}", "${resultsLocation}",
+            "${resultsFileName}", "${gcLogsLocation}", "${gcViewerJar}"
+}
+
+test.finalizedBy tasks.named('runBenchmark')
 
 generateMetadataFileForMavenJavaPublication.dependsOn(copyToLib)

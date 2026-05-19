@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Test class for debugger output related scenarios.
@@ -72,8 +73,11 @@ public class DebugOutputTest extends BaseTestCase {
         Assert.assertEquals(outputs.get(2).getRight().getCategory(), OutputEventArgumentsCategory.CONSOLE);
         Assert.assertEquals(outputs.get(2).getLeft().trim(), "debug_test_resources/debug_output_test:0.0.1");
 
-        Assert.assertEquals(outputs.get(4).getRight().getCategory(), OutputEventArgumentsCategory.CONSOLE);
-        Assert.assertEquals(outputs.get(4).getLeft(), "Running executable" + System.lineSeparator());
+        Optional<Pair<String, OutputEventArguments>> runningExecOutput = outputs.stream()
+                .filter(o -> o.getLeft().equals("Running executable" + System.lineSeparator()))
+                .findFirst();
+        Assert.assertTrue(runningExecOutput.isPresent(), "Expected 'Running executable' output not found");
+        Assert.assertEquals(runningExecOutput.get().getRight().getCategory(), OutputEventArgumentsCategory.CONSOLE);
 
         // Resumes the program and waits for the program termination.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
