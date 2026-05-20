@@ -50,5 +50,9 @@ dependencies {
     testImplementation libs.testng
 }
 
+test {
+    useTestNG()
+}
+
 description = 'Ballerina - Maven dependency resolver'
 
