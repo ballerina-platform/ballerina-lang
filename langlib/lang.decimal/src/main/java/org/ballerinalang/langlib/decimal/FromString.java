@@ -49,6 +49,8 @@ public class FromString {
             return TypeConverter.stringToDecimal(decimalFloatingPointNumber);
         } catch (NumberFormatException e) {
             return getTypeConversionError(decimalFloatingPointNumber);
+        } catch (BError e) {
+            return e;
         }
     }
 
