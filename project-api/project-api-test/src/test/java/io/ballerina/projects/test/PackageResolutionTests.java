@@ -60,7 +60,6 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;

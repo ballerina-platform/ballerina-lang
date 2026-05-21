@@ -32,7 +32,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import io.ballerina.projects.util.ProjectConstants;
