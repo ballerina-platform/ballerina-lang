@@ -189,7 +189,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 "testerina_report/foo$test/0/types",
                 "testerina_report/foo/0/typedescs",
                 "testerina_report/foo&0046annot$test/0/types",
-                "testerina_report/foo&0046annot/0/lambdas/$2functions",
+                "testerina_report/foo&0046annot/0/lambdas",
                 "testerina_report/foo&0046math$test/0/constants/strings",
                 "testerina_report/foo&0046annot/0",
                 "testerina_report/foo&0046math$test/0/types",
@@ -234,6 +234,16 @@ public class CodeCoverageReportTest extends BaseTestCase {
         copyReportDTDFile(reportRoot);
         //Validate class names in XML File per module
         validateClassNames(getExpectedCoverageClasses());
+    }
+
+    @Test
+    public void minCoverageTest() throws BallerinaTestException {
+        projectPath = projectBasedTestsPath.resolve("min-coverage").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[]{"--code-coverage", "--min-coverage=80"},
+                new HashMap<>(), projectPath, true);
+        String expectedErr = "error: code coverage is below the minimum threshold of " +
+                "80.0%, current coverage is 75.0%";
+        Assert.assertTrue(output.contains(expectedErr));
     }
 
     /**

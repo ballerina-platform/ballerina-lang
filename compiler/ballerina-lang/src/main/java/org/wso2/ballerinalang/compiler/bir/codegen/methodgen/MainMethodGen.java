@@ -170,7 +170,7 @@ public class MainMethodGen {
 
         // check for java compatibility
         generateJavaCompatibilityCheck(mv);
-        generateBallerinaRuntimeInformation(mv);
+        generateBallerinaRuntimeInformation(mv, pkg.packageID);
         genRuntimeAndGetScheduler(mv, initClass, runtimeVarIndex, schedulerVarIndex);
         invokeConfigInit(mv, pkg.packageID, runtimeVarIndex);
         // TRAP signal handler
@@ -204,11 +204,13 @@ public class MainMethodGen {
         mv.visitEnd();
     }
 
-    private void generateBallerinaRuntimeInformation(MethodVisitor mv) {
+    private void generateBallerinaRuntimeInformation(MethodVisitor mv, PackageID packageID) {
         String property = System.getProperty(BALLERINA_HOME);
         mv.visitLdcInsn(property == null ? "" : property);
         property = System.getProperty(BALLERINA_VERSION);
         mv.visitLdcInsn(property == null ? "" : property);
+        String moduleInitClass = getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+        mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
         if (isRemoteMgtEnabled) {
             mv.visitInsn(ICONST_1);
         } else {

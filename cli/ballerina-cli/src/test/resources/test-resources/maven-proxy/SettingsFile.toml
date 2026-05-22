@@ -1,0 +1,4 @@
+[[repository.maven]]
+id = "central-proxy"
+url = "REPO_PATH"
+proxyCentral = true

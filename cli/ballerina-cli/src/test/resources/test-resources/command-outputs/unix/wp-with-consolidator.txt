@@ -1,0 +1,17 @@
+Executing Build Tools
+	testorg/consolidator:0.1.0
+	    sample-build-tool(consolidate)
+
+Resolving workspace dependencies
+
+Compiling source
+	testorg/bar:0.1.0
+
+Compiling source
+	testorg/foo:0.1.0
+
+Compiling source
+	testorg/consolidator:0.1.0
+
+Generating executable
+	consolidator/target/bin/consolidator.jar

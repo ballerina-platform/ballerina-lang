@@ -24,17 +24,22 @@ import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.BlendedBalToolsManifest;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.util.CustomURLClassLoader;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +56,8 @@ import static io.ballerina.cli.launcher.LauncherUtils.prepareCompilerErrorMessag
 import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.getLatestVersionsInCentral;
+import static io.ballerina.projects.util.BalToolsUtil.getLatestToolVersionFromCentralProxy;
+import static io.ballerina.projects.util.BalToolsUtil.hasProxyCentralRepository;
 
 /**
  * This class executes a Ballerina program.
@@ -161,7 +168,7 @@ public final class Main {
             }
             if (errorMessage.contains(UNMATCHED_ARGUMENT_PREFIX)) {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown command "
-                                                                    + getFirstUnknownArg(errorMessage));
+                        + getFirstUnknownArg(errorMessage));
             }
             throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
         } catch (CommandLine.ParameterException e) {
@@ -169,8 +176,8 @@ public final class Main {
             if (msg == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("internal error occurred");
             } else if (msg.startsWith(MISSING_REQUIRED_PARAMETER_PREFIX)) {
-                    throw LauncherUtils.createUsageExceptionWithHelp("flag " + msg.substring(msg.indexOf("'"))
-                                                                     + " needs an argument");
+                throw LauncherUtils.createUsageExceptionWithHelp("flag " + msg.substring(msg.indexOf("'"))
+                        + " needs an argument");
             }
             throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(msg));
         }
@@ -206,18 +213,33 @@ public final class Main {
                 .orElseThrow();
         SemanticVersion activeVersion = SemanticVersion.from(tool.version());
 
-        ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
-        toolResolutionRequest.addTool(commandName, "", ToolResolutionCentralRequest.Mode.SOFT);
         try {
-            ToolResolutionCentralResponse latestVersionInCentral = getLatestVersionsInCentral(toolResolutionRequest);
-            SemanticVersion centralVersion = SemanticVersion.from(
-                    latestVersionInCentral.resolved().stream().findFirst().orElseThrow().version());
+            Settings settings = RepoUtils.readSettings();
+            String latestVersion;
+            if (hasProxyCentralRepository(settings)) {
+                Path localRepoPath = io.ballerina.projects.util.ProjectUtils.createAndGetHomeReposPath()
+                        .resolve(io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                        .resolve(ProjectConstants.BALA_DIR_NAME);
+                latestVersion = getLatestToolVersionFromCentralProxy(commandName, localRepoPath);
+            } else {
+                ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
+                toolResolutionRequest.addTool(commandName, "", ToolResolutionCentralRequest.Mode.SOFT);
+                ToolResolutionCentralResponse latestVersionInCentral =
+                        getLatestVersionsInCentral(toolResolutionRequest);
+                latestVersion = latestVersionInCentral.resolved().stream()
+                        .findFirst()
+                        .orElseThrow()
+                        .version();
+            }
+            SemanticVersion centralVersion = SemanticVersion.from(latestVersion);
             if (SemanticVersion.VersionCompatibilityResult.GREATER_THAN.equals(
                     centralVersion.compareTo(activeVersion))) {
                 outStream.println("A newer version of the tool '" + commandName + "' is available: "
                         + centralVersion + ". Run 'bal tool update " + commandName + "' to update the tool");
             }
-        } catch (CentralClientException ignore) {
+        } catch (CentralClientException | MavenResolverClientException ignore) {
+            // Silently ignore if we can't check for newer versions
         }
     }
 
@@ -235,7 +257,7 @@ public final class Main {
             int minorVersion = Integer.parseInt(version.split("\\.")[1]);
             String updateVersionText = minorVersion > 0 ? " Update " + minorVersion : "";
             String output = "Ballerina " + version +
-                   " (" + properties.getProperty("ballerina.channel") + updateVersionText + ")\n";
+                    " (" + properties.getProperty("ballerina.channel") + updateVersionText + ")\n";
             output += "Language specification " + properties.getProperty("spec.version") + "\n";
             outStream.print(output);
         } catch (Throwable ignore) {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.__tools__</groupId>
+  <artifactId>my-tool</artifactId>
+  <versions>
+    <version>1.0.0</version>
+    <version>0.5.0</version>
+  </versions>
+  <org>myorg</org>
+  <package>toolpkg</package>
+</metadata>

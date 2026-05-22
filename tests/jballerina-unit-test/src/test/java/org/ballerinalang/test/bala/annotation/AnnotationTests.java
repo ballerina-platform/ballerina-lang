@@ -140,6 +140,40 @@ public class AnnotationTests {
     }
 
     @Test
+    public void testAnnotationWithIntSubtypeFields() {
+        BRunUtil.invoke(result, "testAnnotationWithIntSubtypeFields");
+    }
+
+    @Test
+    public void testAnnotationWithIntSubtypeFieldsViaBir() {
+        BLangPackage bLangPackage = (BLangPackage) result.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+
+        BTypeDefinitionSymbol symbol =
+                (BTypeDefinitionSymbol) importedModuleEntries.get(
+                        Names.fromString("AnnotatedWithIntSubtype")).symbol;
+        List<? extends AnnotationAttachmentSymbol> attachments = symbol.getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+
+        BAnnotationAttachmentSymbol annotAttachment = (BAnnotationAttachmentSymbol) attachments.get(0);
+        PackageID pkgID = annotAttachment.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "testorg");
+        Assert.assertEquals(pkgID.pkgName.value, "foo");
+        Assert.assertEquals(annotAttachment.annotTag.value, "SequenceAnnot");
+        Assert.assertTrue(annotAttachment.isConstAnnotation());
+
+        BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAttachment =
+                (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment;
+        Object value = constAttachment.attachmentValueSymbol.value.value;
+        Assert.assertTrue(value instanceof Map);
+        Map<String, BLangConstantValue> mapValue = (Map<String, BLangConstantValue>) value;
+        Assert.assertEquals(mapValue.size(), 2);
+        Assert.assertEquals(mapValue.get("minOccurs").value, 1L);
+        Assert.assertEquals(mapValue.get("maxOccurs").value, 10L);
+        Assert.assertEquals(constAttachment.attachmentValueSymbol.type.tag, TypeTags.TYPEREFDESC);
+    }
+
+    @Test
     public void testParamAnnotAttachmentsViaBir() {
         BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
         Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;

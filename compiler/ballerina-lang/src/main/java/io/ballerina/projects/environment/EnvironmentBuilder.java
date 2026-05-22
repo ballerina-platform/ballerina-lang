@@ -90,6 +90,9 @@ public class EnvironmentBuilder {
         // Creating a Ballerina user home instance
         BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
         PackageRepository ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
+        if (ballerinaCentralRepo == null) {
+            ballerinaCentralRepo = ballerinaUserHome.centralProxyMavenRepository();
+        }
         environment.addService(LocalPackageRepository.class, ballerinaUserHome.localPackageRepository());
         environment.addService(CustomPkgRepositoryContainer.class, ballerinaUserHome.customPkgRepositoryContainer());
 

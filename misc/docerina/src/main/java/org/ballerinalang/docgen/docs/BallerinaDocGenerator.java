@@ -30,7 +30,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageReadmeMd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.directory.BalaProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import okhttp3.OkHttpClient;
@@ -562,12 +562,9 @@ public final class BallerinaDocGenerator {
             if (module.isDefaultModule()) {
                 moduleName = module.moduleName().packageName().toString();
                 modulePath = project.sourceRoot();
-                if (project.kind() == ProjectKind.BALA_PROJECT
-                        && "2.0.0".equals(((BalaProject) project).balaVersion())) {
-                   moduleMdText = module.readmeMd().map(ModuleReadmeMd::content).orElse("");
-                } else {
-                    moduleMdText = project.currentPackage().readmeMd().map(PackageReadmeMd::content).orElse("");
-                }
+
+                // Handle both old and new BalaProject class locations for backward compatibility
+                moduleMdText = getModuleMdText(project, module);
                 summary = project.currentPackage().manifest().description();
             } else {
                 moduleName = module.moduleName().toString();
@@ -596,6 +593,22 @@ public final class BallerinaDocGenerator {
             moduleDocMap.put(moduleName, moduleDoc);
         }
         return moduleDocMap;
+    }
+
+    private static String getModuleMdText(Project project, io.ballerina.projects.Module module) {
+        if (project.kind() == ProjectKind.BALA_PROJECT) {
+            String balaVersion = "";
+            // Handle both old and new BalaProject classes for backward compatibility
+            if (project instanceof BalaProject) {
+                balaVersion = ((BalaProject) project).balaVersion();
+            } else if (project instanceof io.ballerina.projects.bala.BalaProject) {
+                balaVersion = ((io.ballerina.projects.bala.BalaProject) project).balaVersion();
+            }
+            if ("2.0.0".equals(balaVersion)) {
+                return module.readmeMd().map(ModuleReadmeMd::content).orElse("");
+            }
+        }
+        return project.currentPackage().readmeMd().map(PackageReadmeMd::content).orElse("");
     }
 
     public static String getBallerinaShortVersion() {

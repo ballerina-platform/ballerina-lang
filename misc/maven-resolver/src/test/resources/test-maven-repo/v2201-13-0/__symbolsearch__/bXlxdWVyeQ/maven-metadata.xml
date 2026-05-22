@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.__symbolsearch__</groupId>
+  <artifactId>myquery</artifactId>
+  <count>1</count>
+  <limit>10</limit>
+  <offset>0</offset>
+  <symbols>
+    <symbol>
+      <id>sym-001</id>
+      <packageID>myorg/mypkg:1.0.0</packageID>
+      <name>MyFunction</name>
+      <org>myorg</org>
+      <version>1.0.0</version>
+      <createdDate>1700000000000</createdDate>
+      <icon>function</icon>
+      <symbolType>FUNCTION</symbolType>
+      <symbolParent>MyModule</symbolParent>
+      <symbolName>MyFunction</symbolName>
+      <description>A test function</description>
+      <symbolSignature>function MyFunction() returns int</symbolSignature>
+      <isIsolated>true</isIsolated>
+      <isRemote>false</isRemote>
+      <isResource>true</isResource>
+      <isClosed>false</isClosed>
+      <isDistinct>true</isDistinct>
+      <isReadOnly>false</isReadOnly>
+    </symbol>
+  </symbols>
+</metadata>

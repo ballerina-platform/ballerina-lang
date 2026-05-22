@@ -18,11 +18,23 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.Settings;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.maven.bala.client.model.PackageSearchEntry;
+import org.ballerinalang.maven.bala.client.model.PkgSearchMavenMetadata;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Search command tests.
@@ -75,5 +87,88 @@ public class SearchCommandTest extends BaseCommandTest {
         searchCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-search - Search Ballerina Central for packages"));
+    }
+
+    @Test(description = "Test search via Maven proxy - package found")
+    public void testSearchPackageFoundInMvnProxy() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        PackageSearchEntry entry = new PackageSearchEntry();
+        entry.setOrg("myorg");
+        entry.setName("mypkg");
+        entry.setVersion("1.0.0");
+        List<PackageSearchEntry> packages = new ArrayList<>();
+        packages.add(entry);
+        PkgSearchMavenMetadata metadata = new PkgSearchMavenMetadata();
+        metadata.setPackages(packages);
+
+        SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
+        new CommandLine(searchCommand).parseArgs("mypkg");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getPkgSearchMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                             .thenReturn(metadata))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            searchCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("myorg"), "Expected output to contain 'myorg'");
+        Assert.assertTrue(output.contains("mypkg"), "Expected output to contain 'mypkg'");
+        Assert.assertTrue(output.contains("1.0.0"), "Expected output to contain '1.0.0'");
+    }
+
+    @Test(description = "Test search via Maven proxy - no packages found")
+    public void testSearchNoPackagesFoundInMvnProxy() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        PkgSearchMavenMetadata metadata = new PkgSearchMavenMetadata();
+        metadata.setPackages(new ArrayList<>());
+
+        SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
+        new CommandLine(searchCommand).parseArgs("unknownpkg");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getPkgSearchMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                             .thenReturn(metadata))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            searchCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("no modules found"), "Expected output to contain 'no modules found'");
+    }
+
+    @Test(description = "Test search via Maven proxy - client throws exception")
+    public void testSearchMvnProxyClientException() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+
+        SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
+        new CommandLine(searchCommand).parseArgs("mypkg");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getPkgSearchMetadata(Mockito.any(), Mockito.any(), Mockito.any()))
+                             .thenThrow(new MavenResolverClientException("proxy error")))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            searchCommand.execute();
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("proxy error"), "Expected output to contain 'proxy error'");
     }
 }

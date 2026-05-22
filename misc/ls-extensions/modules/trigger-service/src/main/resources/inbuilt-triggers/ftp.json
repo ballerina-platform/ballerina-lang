@@ -3,7 +3,7 @@
   "name": "FTP Service",
   "type": "inbuilt",
   "displayName": "FTP",
-  "documentation": "The FTP service can be attached to a FTP listener which listens to file changes and trigger the service when a file change event occurs. The FTP service should implement the `onFileChange` function which will be triggered when a file change event occurs.",
+  "documentation": "The FTP service can be attached to an FTP listener which listens to file changes and triggers the service when a file event occurs. The service supports content-specific handlers for CSV, JSON, XML, text, and raw file types, as well as file deletion and error handling. File creation handlers support pre/post processing actions such as moving or deleting files after processing.",
   "moduleName": "ftp",
   "listenerProtocol": "ftp",
   "displayAnnotation": {
@@ -14,17 +14,17 @@
     "id": 15465,
     "organization": "ballerina",
     "name": "ftp",
-    "version": "2.11.0",
+    "version": "2.18.0",
     "platform": "java17",
     "languageSpecificationVersion": "2024R1",
     "isDeprecated": false,
     "deprecateMessage": "",
-    "URL": "/ballerina/ftp/2.11.0",
+    "URL": "/ballerina/ftp/2.18.0",
     "balaVersion": "2.0.0",
     "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerina/ftp/2.11.0/ballerina-ftp-java17-2.11.0.bala?Expires=1729737633&Signature=Vt6WENHWLGFqM-qeVxaq1WFXKm42DI5EmrbMPXRjF1eK-8cRUgYOLP4K-sJMmw2l0RN8lXk-TMdygUPTp-PBnI57ATHA1C7lrO3BI68HSlcL5c6F-~S6bvEC~Vo66lLKlOwCj9ieXiWVP9zAr-ocDiLMiWXbhST5TS4fQ-Qzqda7-tdvCcfYZcf34CpBg5JH3Y5-VtqjPF54xKxPaYNx22XdwAzQlNEcWL~mGRTR~cnb2iL9FLUi0UWplOfIeuCbYPEUb4N78LqOgAacq5Et03SqJvx7zYGb~hueWa7Y9rY-KRliFLLJ~lgwAD7BOa7kweSKaJpQ8obqZZ3GWPckkw__&Key-Pair-Id=K27IQ7NPTKLKDU",
     "digest": "sha-256=ae9400754d769c92b58a0bb94ac468761701a68d5f5589e15de55551984efd22",
     "summary": "This package provides an FTP/SFTP client, and an FTP/SFTP server listener implementation to facilitate an FTP/SFTP connection connected to a remote location.",
-    "readme": "## Package overview\n\nThis package provides an FTP\/SFTP client, and an FTP\/SFTP server listener implementation to facilitate an FTP\/SFTP connection connected to a remote location.\n\n### FTP client\n\nThe `ftp:Client` connects to an FTP server and performs various operations on the files. Currently, it supports the\ngeneric FTP operations; `get`, `delete`, `put`, `append`, `mkdir`, `rmdir`, `isDirectory`, `rename`, `size`, and\n`list`.\n\nAn FTP client is defined using the `protocol` and `host` parameters and optionally, the `port` and\n`auth`. Authentication configuration can be configured using the `auth` parameter for Basic Auth and\nprivate key.\n\nAn authentication-related configuration can be given to the FTP client with the `auth` configuration.\n\n##### Create a client\n\nThe following code creates an FTP client and performs the I\/O operations, which connect to the FTP server with Basic Auth.\n```ballerina\n\/\/ Define the FTP client configuration.\nftp:ClientConfiguration ftpConfig = {\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    port: <The FTP port>,\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    }\n};\n\n\/\/ Create the FTP client.\nftp:Client|ftp:Error ftpClient = new(ftpConfig);\n```\n\n##### Create a directory\n\nThe following code creates a directory in the remote FTP server.\n\n```ballerina\nftp:Error? mkdirResponse = ftpClient->mkdir(\"<The directory path>\");\n```\n\n##### Upload a file to a remote server\n\nThe following code uploads a file to a remote FTP server.\n\n```ballerina\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? putResponse = ftpClient->put(\"<The resource path>\", fileByteStream);\n```\n\n##### Compress and upload a file to a remote server\n\nThe following code compresses and uploads a file to a remote FTP server.\n\n```ballerina\n\/\/ Set the optional boolean flag as 'true' to compress before uploading\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? compressedPutResponse = ftpClient->put(\"<Resource path>\",\n    fileByteStream, compressionType=ZIP);\n```\n\n##### Get the size of a remote file\n\nThe following code gets the size of a file in a remote FTP server.\n\n```ballerina\nint|ftp:Error sizeResponse = ftpClient->size(\"<The resource path>\");\n```\n\n##### Read the content of a remote file\n\nThe following code reads the content of a file in a remote FTP server.\n\n```ballerina\nstream<byte[], io:Error?>|Error str = clientEP -> get(\"<The file path>\");\nif (str is stream<byte[], io:Error?>) {\n    record {|byte[] value;|}|io:Error? arr1 = str.next();\n    if (arr1 is record {|byte[] value;|}) {\n        string fileContent = check strings:fromBytes(arr1.value);\n        \/\/ `fileContent` is the `string` value of first byte array\n        record {|byte[] value;|}|io:Error? arr2 = str.next();\n        \/\/ Similarly following content chunks can be iteratively read with `next` method.\n        \/\/ Final chunk will contain the terminal value which is `()`.\n    }\n    io:Error? closeResult = str.close();\n}\n```\n\n##### Rename\/move a remote file\n\nThe following code renames or moves a file to another location in the same remote FTP server.\n\n```ballerina\nftp:Error? renameResponse = ftpClient->rename(\"<The source file path>\",\n    \"<The destination file path>\");\n```\n\n##### Delete a remote file\n\nThe following code deletes a remote file in a remote FTP server.\n\n```ballerina\nftp:Error? deleteResponse = ftpClient->delete(\"<The resource path>\");\n```\n\n##### Remove a directory from a remote server\n\nThe following code removes a directory in a remote FTP server.\n\n```ballerina\nftp:Error? rmdirResponse = ftpClient->rmdir(\"<The directory path>\");\n```\n\n### FTP listener\n\nThe `ftp:Listener` is used to listen to a remote FTP location and trigger a `WatchEvent` type of event when new\nfiles are added to or deleted from the directory. The `fileResource` function is invoked when a new file is added\nand\/or deleted.\n\nAn FTP listener is defined using the mandatory `protocol`, `host`, and  `path` parameters. The authentication\nconfiguration can be done using the `auth` parameter and the polling interval can be configured using the `pollingInterval` parameter.\nThe default polling interval is 60 seconds.\n\nThe `fileNamePattern` parameter can be used to define the type of files the FTP listener will listen to.\nFor instance, if the listener gets invoked for text files, the value `(.*).txt` can be given for the config.\n\nAn authentication-related configuration can be given to the FTP listener with the `auth` configuration.\n\n##### Create a listener\n\nThe FTP Listener can be used to listen to a remote directory. It will keep listening to the specified directory and\nnotify on file addition and deletion periodically.\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    },\n    port: <The FTP port>,\n    path: \"<The remote FTP direcotry location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\"\n});\n\nservice on remoteServer {\n    remote function onFileChange(ftp:WatchEvent fileEvent) {\n\n        foreach ftp:FileInfo addedFile in fileEvent.addedFiles {\n            log:print(\"Added file path: \" + addedFile.path);\n        }\n        foreach string deletedFile in fileEvent.deletedFiles {\n            log:print(\"Deleted file path: \" + deletedFile);\n        }\n    }\n}\n```\n\n### Secure access with SFTP\n\nSFTP is a secure protocol alternative to the FTP, which runs on top of the SSH protocol.\nThere are several ways to authenticate an SFTP server. One is using the username and the password.\nAnother way is using the client's private key. The Ballerina SFTP client and the listener support only those authentication standards.\nAn authentication-related configuration can be given to the SFTP client\/listener with the `auth` configuration.\nPassword-based authentication is defined with the `credentials` configuration while the private key based authentication is defined with the `privateKey` configuration.\n\n#### SFTP client configuration\n\n```ballerina\nftp:ClientConfiguration sftpConfig = {\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n};\n```\n\n#### SFTP listener configuration\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    path: \"<The remote SFTP direcotry location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\",\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n});\n```\n\n## Report issues\n\nTo report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina standard library parent repository](https:\/\/github.com\/ballerina-platform\/ballerina-standard-library).\n\n## Useful links\n\n- Chat live with us via our [Discord server](https:\/\/discord.gg\/ballerinalang).\n- Post all technical questions on Stack Overflow with the [#ballerina](https:\/\/stackoverflow.com\/questions\/tagged\/ballerina) tag.",
+    "readme": "## Package overview\n\nThis package provides an FTP/SFTP client, and an FTP/SFTP server listener implementation to facilitate an FTP/SFTP connection connected to a remote location.\n\n### FTP client\n\nThe `ftp:Client` connects to an FTP server and performs various operations on the files. Currently, it supports the\ngeneric FTP operations; `get`, `delete`, `put`, `append`, `mkdir`, `rmdir`, `isDirectory`, `rename`, `size`, and\n`list`.\n\nAn FTP client is defined using the `protocol` and `host` parameters and optionally, the `port` and\n`auth`. Authentication configuration can be configured using the `auth` parameter for Basic Auth and\nprivate key.\n\nAn authentication-related configuration can be given to the FTP client with the `auth` configuration.\n\n##### Create a client\n\nThe following code creates an FTP client and performs the I/O operations, which connect to the FTP server with Basic Auth.\n```ballerina\n// Define the FTP client configuration.\nftp:ClientConfiguration ftpConfig = {\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    port: <The FTP port>,\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    }\n};\n\n// Create the FTP client.\nftp:Client|ftp:Error ftpClient = new(ftpConfig);\n```\n\n##### Create a directory\n\nThe following code creates a directory in the remote FTP server.\n\n```ballerina\nftp:Error? mkdirResponse = ftpClient->mkdir(\"<The directory path>\");\n```\n\n##### Upload a file to a remote server\n\nThe following code uploads a file to a remote FTP server.\n\n```ballerina\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? putResponse = ftpClient->put(\"<The resource path>\", fileByteStream);\n```\n\n##### Compress and upload a file to a remote server\n\nThe following code compresses and uploads a file to a remote FTP server.\n\n```ballerina\n// Set the optional boolean flag as 'true' to compress before uploading\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? compressedPutResponse = ftpClient->put(\"<Resource path>\",\n    fileByteStream, compressionType=ZIP);\n```\n\n##### Get the size of a remote file\n\nThe following code gets the size of a file in a remote FTP server.\n\n```ballerina\nint|ftp:Error sizeResponse = ftpClient->size(\"<The resource path>\");\n```\n\n##### Read the content of a remote file\n\nThe following code reads the content of a file in a remote FTP server.\n\n```ballerina\nstream<byte[], io:Error?>|Error str = clientEP -> get(\"<The file path>\");\nif (str is stream<byte[], io:Error?>) {\n    record {|byte[] value;|}|io:Error? arr1 = str.next();\n    if (arr1 is record {|byte[] value;|}) {\n        string fileContent = check strings:fromBytes(arr1.value);\n        // `fileContent` is the `string` value of first byte array\n        record {|byte[] value;|}|io:Error? arr2 = str.next();\n        // Similarly following content chunks can be iteratively read with `next` method.\n        // Final chunk will contain the terminal value which is `()`.\n    }\n    io:Error? closeResult = str.close();\n}\n```\n\n##### Rename/move a remote file\n\nThe following code renames or moves a file to another location in the same remote FTP server.\n\n```ballerina\nftp:Error? renameResponse = ftpClient->rename(\"<The source file path>\",\n    \"<The destination file path>\");\n```\n\n##### Delete a remote file\n\nThe following code deletes a remote file in a remote FTP server.\n\n```ballerina\nftp:Error? deleteResponse = ftpClient->delete(\"<The resource path>\");\n```\n\n##### Remove a directory from a remote server\n\nThe following code removes a directory in a remote FTP server.\n\n```ballerina\nftp:Error? rmdirResponse = ftpClient->rmdir(\"<The directory path>\");\n```\n\n### FTP listener\n\nThe `ftp:Listener` is used to listen to a remote FTP location and trigger a `WatchEvent` type of event when new\nfiles are added to or deleted from the directory. The `fileResource` function is invoked when a new file is added\nand/or deleted.\n\nAn FTP listener is defined using the mandatory `protocol`, `host`, and  `path` parameters. The authentication\nconfiguration can be done using the `auth` parameter and the polling interval can be configured using the `pollingInterval` parameter.\nThe default polling interval is 60 seconds.\n\nThe `fileNamePattern` parameter can be used to define the type of files the FTP listener will listen to.\nFor instance, if the listener gets invoked for text files, the value `(.*).txt` can be given for the config.\n\nAn authentication-related configuration can be given to the FTP listener with the `auth` configuration.\n\n##### Create a listener\n\nThe FTP Listener can be used to listen to a remote directory. It will keep listening to the specified directory and\nnotify on file addition and deletion periodically.\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    },\n    port: <The FTP port>,\n    path: \"<The remote FTP direcotry location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\"\n});\n\nservice on remoteServer {\n    remote function onFileChange(ftp:WatchEvent fileEvent) {\n\n        foreach ftp:FileInfo addedFile in fileEvent.addedFiles {\n            log:print(\"Added file path: \" + addedFile.path);\n        }\n        foreach string deletedFile in fileEvent.deletedFiles {\n            log:print(\"Deleted file path: \" + deletedFile);\n        }\n    }\n}\n```\n\n### Secure access with SFTP\n\nSFTP is a secure protocol alternative to the FTP, which runs on top of the SSH protocol.\nThere are several ways to authenticate an SFTP server. One is using the username and the password.\nAnother way is using the client's private key. The Ballerina SFTP client and the listener support only those authentication standards.\nAn authentication-related configuration can be given to the SFTP client/listener with the `auth` configuration.\nPassword-based authentication is defined with the `credentials` configuration while the private key based authentication is defined with the `privateKey` configuration.\n\n#### SFTP client configuration\n\n```ballerina\nftp:ClientConfiguration sftpConfig = {\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n};\n```\n\n#### SFTP listener configuration\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    path: \"<The remote SFTP direcotry location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\",\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n});\n```\n\n## Report issues\n\nTo report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina standard library parent repository](https://github.com/ballerina-platform/ballerina-standard-library).\n\n## Useful links\n\n- Chat live with us via our [Discord server](https://discord.gg/ballerinalang).\n- Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.",
     "template": false,
     "licenses": [
       "Apache-2.0"
@@ -42,18 +42,18 @@
       "service"
     ],
     "ballerinaVersion": "2201.10.0",
-    "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_ftp_2.11.0.png",
+    "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_ftp_2.18.0.png",
     "ownerUUID": "ecc9b221-6e0c-4c60-93fe-40e1b877a313",
     "createdDate": 1724139776000,
     "pullCount": 44,
     "visibility": "public",
     "modules": [
       {
-        "packageURL": "/ballerina/ftp/2.11.0",
-        "apiDocURL": "https://lib.ballerina.io/ballerina/ftp/2.11.0",
+        "packageURL": "/ballerina/ftp/2.18.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerina/ftp/2.18.0",
         "name": "ftp",
         "summary": "This module provides an FTP/SFTP client and an FTP/SFTP server listener implementation to facilitate an FTP/SFTP connection connected to a remote location.",
-        "readme": "## Overview\n\nThis module provides an FTP\/SFTP client and an FTP\/SFTP server listener implementation to facilitate an FTP\/SFTP connection connected to a remote location.\n\n### FTP client\n\nThe `ftp:Client` connects to an FTP server and performs various operations on the files. Currently, it supports the\ngeneric FTP operations; `get`, `delete`, `put`, `append`, `mkdir`, `rmdir`, `isDirectory`, `rename`, `size`, and\n `list`.\n\nAn FTP client is defined using the `protocol` and `host` parameters and optionally, the `port` and\n`auth`. Authentication configuration can be configured using the `auth` parameter for Basic Auth and\nprivate key.\n\nAn authentication-related configuration can be given to the FTP client with the `auth` configuration.\n\n##### Create a client\n\nThe following code creates an FTP client and performs the I\/O operations, which connect to the FTP server with Basic Auth.\n```ballerina\n\/\/ Define the FTP client configuration.\nftp:ClientConfiguration ftpConfig = {\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    port: <The FTP port>,\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    }\n};\n\n\/\/ Create the FTP client.\nftp:Client|ftp:Error ftpClient = new(ftpConfig);\n```\n\n##### Create a directory\n\nThe following code creates a directory in the remote FTP server.\n\n```ballerina\nftp:Error? mkdirResponse = ftpClient->mkdir(\"<The directory path>\");\n```\n\n##### Upload a file to a remote server\n\nThe following code uploads a file to a remote FTP server.\n\n```ballerina\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? putResponse = ftpClient->put(\"<The resource path>\", fileByteStream);\n```\n\n##### Compress and upload a file to a remote server\n\nThe following code compresses and uploads a file to a remote FTP server.\n\n```ballerina\n\/\/ Set the optional boolean flag as 'true' to compress before uploading\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? compressedPutResponse = ftpClient->put(\"<Resource path>\",\n    fileByteStream, compressionType=ZIP);\n```\n\n##### Get the size of a remote file\n\nThe following code gets the size of a file in a remote FTP server.\n\n```ballerina\nint|ftp:Error sizeResponse = ftpClient->size(\"<The resource path>\");\n```\n\n##### Read the content of a remote file\n\nThe following code reads the content of a file in a remote FTP server.\n\n```ballerina\nstream<byte[], io:Error?>|Error str = clientEP -> get(\"<The file path>\");\nif (str is stream<byte[], io:Error?>) {\n    record {|byte[] value;|}|io:Error? arr1 = str.next();\n    if (arr1 is record {|byte[] value;|}) {\n        string fileContent = check strings:fromBytes(arr1.value);\n        \/\/ `fileContent` is the `string` value of first byte array\n        record {|byte[] value;|}|io:Error? arr2 = str.next();\n        \/\/ Similarly following content chunks can be iteratively read with `next` method.\n        \/\/ Final chunk will contain the terminal value which is `()`.\n    }\n    io:Error? closeResult = str.close();\n}\n```\n\n##### Rename\/move a remote file\n\nThe following code renames or moves a file to another location in the same remote FTP server.\n\n```ballerina\nftp:Error? renameResponse = ftpClient->rename(\"<The source file path>\",\n    \"<The destination file path>\");\n```\n\n##### Delete a remote file\n\nThe following code deletes a remote file in a remote FTP server.\n\n```ballerina\nftp:Error? deleteResponse = ftpClient->delete(\"<The resource path>\");\n```\n\n##### Remove a directory from a remote server\n\nThe following code removes a directory in a remote FTP server.\n\n```ballerina\nftp:Error? rmdirResponse = ftpClient->rmdir(\"<The directory path>\");\n```\n\n### FTP listener\n\nThe `ftp:Listener` is used to listen to a remote FTP location and trigger a `WatchEvent` type of event when new\nfiles are added to or deleted from the directory. The `fileResource` function is invoked when a new file is added\nand\/or deleted.\n\nAn FTP listener is defined using the mandatory `protocol`, `host`, and  `path` parameters. The authentication\nconfiguration can be done using the `auth` parameter and the polling interval can be configured using the `pollingInterval` parameter.\nThe default polling interval is 60 seconds.\n\nThe `fileNamePattern` parameter can be used to define the type of files the FTP listener will listen to.\nFor instance, if the listener gets invoked for text files, the value `(.*).txt` can be given for the config.\n\nAn authentication-related configuration can be given to the FTP listener with the `auth` configuration.\n\n##### Create a listener\n\nThe FTP Listener can be used to listen to a remote directory. It will keep listening to the specified directory and\nnotify on file addition and deletion periodically.\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    },\n    port: <The FTP port>,\n    path: \"<The remote FTP direcotry location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\"\n});\n\nservice on remoteServer {\n    remote function onFileChange(ftp:WatchEvent fileEvent) {\n\n        foreach ftp:FileInfo addedFile in fileEvent.addedFiles {\n            log:print(\"Added file path: \" + addedFile.path);\n        }\n        foreach string deletedFile in fileEvent.deletedFiles {\n            log:print(\"Deleted file path: \" + deletedFile);\n        }\n    }\n}\n```\n\n### Secure access with SFTP\n\nSFTP is a secure protocol alternative to the FTP, which runs on top of the SSH protocol.\nThere are several ways to authenticate an SFTP server. One is using the username and the password.\nAnother way is using the client's private key. The Ballerina SFTP client and the listener support only those authentication standards.\nAn authentication-related configuration can be given to the SFTP client\/listener with the `auth` configuration.\nPassword-based authentication is defined with the `credentials` configuration while the private key based authentication is defined with the `privateKey` configuration.\n\n#### SFTP client configuration\n\n```ballerina\nftp:ClientConfiguration sftpConfig = {\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n};\n```\n\n#### SFTP listener configuration\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    path: \"<The remote SFTP directory location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\",\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n});\n```"
+        "readme": "## Overview\n\nThis module provides an FTP/SFTP client and an FTP/SFTP server listener implementation to facilitate an FTP/SFTP connection connected to a remote location.\n\n### FTP client\n\nThe `ftp:Client` connects to an FTP server and performs various operations on the files. Currently, it supports the\ngeneric FTP operations; `get`, `delete`, `put`, `append`, `mkdir`, `rmdir`, `isDirectory`, `rename`, `size`, and\n `list`.\n\nAn FTP client is defined using the `protocol` and `host` parameters and optionally, the `port` and\n`auth`. Authentication configuration can be configured using the `auth` parameter for Basic Auth and\nprivate key.\n\nAn authentication-related configuration can be given to the FTP client with the `auth` configuration.\n\n##### Create a client\n\nThe following code creates an FTP client and performs the I/O operations, which connect to the FTP server with Basic Auth.\n```ballerina\n// Define the FTP client configuration.\nftp:ClientConfiguration ftpConfig = {\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    port: <The FTP port>,\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    }\n};\n\n// Create the FTP client.\nftp:Client|ftp:Error ftpClient = new(ftpConfig);\n```\n\n##### Create a directory\n\nThe following code creates a directory in the remote FTP server.\n\n```ballerina\nftp:Error? mkdirResponse = ftpClient->mkdir(\"<The directory path>\");\n```\n\n##### Upload a file to a remote server\n\nThe following code uploads a file to a remote FTP server.\n\n```ballerina\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? putResponse = ftpClient->put(\"<The resource path>\", fileByteStream);\n```\n\n##### Compress and upload a file to a remote server\n\nThe following code compresses and uploads a file to a remote FTP server.\n\n```ballerina\n// Set the optional boolean flag as 'true' to compress before uploading\nstream<io:Block, io:Error?> fileByteStream\n    = check io:fileReadBlocksAsStream(putFilePath, <Block size>);\nftp:Error? compressedPutResponse = ftpClient->put(\"<Resource path>\",\n    fileByteStream, compressionType=ZIP);\n```\n\n##### Get the size of a remote file\n\nThe following code gets the size of a file in a remote FTP server.\n\n```ballerina\nint|ftp:Error sizeResponse = ftpClient->size(\"<The resource path>\");\n```\n\n##### Read the content of a remote file\n\nThe following code reads the content of a file in a remote FTP server.\n\n```ballerina\nstream<byte[], io:Error?>|Error str = clientEP -> get(\"<The file path>\");\nif (str is stream<byte[], io:Error?>) {\n    record {|byte[] value;|}|io:Error? arr1 = str.next();\n    if (arr1 is record {|byte[] value;|}) {\n        string fileContent = check strings:fromBytes(arr1.value);\n        // `fileContent` is the `string` value of first byte array\n        record {|byte[] value;|}|io:Error? arr2 = str.next();\n        // Similarly following content chunks can be iteratively read with `next` method.\n        // Final chunk will contain the terminal value which is `()`.\n    }\n    io:Error? closeResult = str.close();\n}\n```\n\n##### Rename/move a remote file\n\nThe following code renames or moves a file to another location in the same remote FTP server.\n\n```ballerina\nftp:Error? renameResponse = ftpClient->rename(\"<The source file path>\",\n    \"<The destination file path>\");\n```\n\n##### Delete a remote file\n\nThe following code deletes a remote file in a remote FTP server.\n\n```ballerina\nftp:Error? deleteResponse = ftpClient->delete(\"<The resource path>\");\n```\n\n##### Remove a directory from a remote server\n\nThe following code removes a directory in a remote FTP server.\n\n```ballerina\nftp:Error? rmdirResponse = ftpClient->rmdir(\"<The directory path>\");\n```\n\n### FTP listener\n\nThe `ftp:Listener` is used to listen to a remote FTP location and trigger a `WatchEvent` type of event when new\nfiles are added to or deleted from the directory. The `fileResource` function is invoked when a new file is added\nand/or deleted.\n\nAn FTP listener is defined using the mandatory `protocol`, `host`, and  `path` parameters. The authentication\nconfiguration can be done using the `auth` parameter and the polling interval can be configured using the `pollingInterval` parameter.\nThe default polling interval is 60 seconds.\n\nThe `fileNamePattern` parameter can be used to define the type of files the FTP listener will listen to.\nFor instance, if the listener gets invoked for text files, the value `(.*).txt` can be given for the config.\n\nAn authentication-related configuration can be given to the FTP listener with the `auth` configuration.\n\n##### Create a listener\n\nThe FTP Listener can be used to listen to a remote directory. It will keep listening to the specified directory and\nnotify on file addition and deletion periodically.\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:FTP,\n    host: \"<The FTP host>\",\n    auth: {\n        credentials: {\n            username: \"<The FTP username>\",\n            password: \"<The FTP passowrd>\"\n        }\n    },\n    port: <The FTP port>,\n    path: \"<The remote FTP direcotry location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\"\n});\n\nservice on remoteServer {\n    remote function onFileChange(ftp:WatchEvent fileEvent) {\n\n        foreach ftp:FileInfo addedFile in fileEvent.addedFiles {\n            log:print(\"Added file path: \" + addedFile.path);\n        }\n        foreach string deletedFile in fileEvent.deletedFiles {\n            log:print(\"Deleted file path: \" + deletedFile);\n        }\n    }\n}\n```\n\n### Secure access with SFTP\n\nSFTP is a secure protocol alternative to the FTP, which runs on top of the SSH protocol.\nThere are several ways to authenticate an SFTP server. One is using the username and the password.\nAnother way is using the client's private key. The Ballerina SFTP client and the listener support only those authentication standards.\nAn authentication-related configuration can be given to the SFTP client/listener with the `auth` configuration.\nPassword-based authentication is defined with the `credentials` configuration while the private key based authentication is defined with the `privateKey` configuration.\n\n#### SFTP client configuration\n\n```ballerina\nftp:ClientConfiguration sftpConfig = {\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n};\n```\n\n#### SFTP listener configuration\n\n```ballerina\nlistener ftp:Listener remoteServer = check new({\n    protocol: ftp:SFTP,\n    host: \"<The SFTP host>\",\n    port: <The SFTP port>,\n    path: \"<The remote SFTP directory location>\",\n    pollingInterval: <Polling interval>,\n    fileNamePattern: \"<File name pattern>\",\n    auth: {\n        credentials: {username: \"<The SFTP username>\", password: \"<The SFTP password>\"},\n        privateKey: {\n            path: \"<The private key file path>\",\n            password: \"<The private key file password>\"\n        }\n    }\n});\n```"
       }
     ],
     "balToolId": "",
@@ -64,51 +64,91 @@
       "name": "FTP",
       "description": "FTP Service",
       "enabled": true,
+      "serviceAnnotation": {
+        "name": "ServiceConfig",
+        "annotation": {
+          "description": "Service-level configuration for the FTP service.",
+          "valueTypeConstraint": "ftp:FtpServiceConfig",
+          "fields": {
+            "path": {
+              "description": "Remote FTP directory location to monitor.",
+              "type": "string",
+              "optional": true,
+              "defaultValue": "/"
+            }
+          }
+        }
+      },
       "functions": [
         {
-          "name": "onFileChange",
-          "documentation": "The `onFileChange` remote method will be triggered when a file change event occurs.",
-          "optional": false,
+          "name": "onFileCsv",
+          "documentation": "Triggered when a CSV file is added to the FTP location. The file content is provided as a 2D string array, or as a stream for large files. Supports data binding to custom record types.",
+          "optional": true,
           "qualifiers": [
             "remote"
           ],
           "enabled": true,
+          "annotations": [
+            {
+              "name": "FunctionConfig",
+              "fields": {
+                "postProcessAction": {
+                  "description": "Configuration for pre/post processing actions on the file.",
+                  "type": "ftp:FtpFunctionConfig",
+                  "optional": true
+                }
+              }
+            }
+          ],
           "parameters": [
             {
-              "name": "event",
-              "typeName": "ftp:WatchEvent & readonly|ftp:WatchEvent",
+              "name": "content",
+              "typeName": "string[][]|stream<string[]>|record{}[]|stream<record{}>",
               "optional": false,
               "type": [
-                "ftp:WatchEvent & readonly",
-                "ftp:WatchEvent"
+                "string[][]",
+                "stream<string[]>",
+                "record{}[]",
+                "stream<record{}>"
               ],
+              "documentation": "CSV file content. Can be a 2D string array, a stream of string arrays for large files, or data-bound to custom record types.",
+              "enabled": true,
+              "value": "string[][]",
+              "defaultTypeName": "string[][]"
+            },
+            {
+              "name": "fileInfo",
+              "typeName": "ftp:FileInfo",
+              "optional": true,
+              "type": [
+                "ftp:FileInfo"
+              ],
+              "documentation": "Additional file properties.",
+              "enabled": false,
+              "value": "ftp:FileInfo",
               "typeInfo": {
-                "name": "WatchEvent",
+                "name": "FileInfo",
                 "orgName": "ballerina",
                 "moduleName": "ftp",
-                "version": "2.11.0"
-              },
-              "defaultTypeName": "ftp:WatchEvent & readonly",
-              "documentation": "File watch event.",
-              "enabled": true,
-              "value": "ftp:WatchEvent & readonly"
+                "version": "2.18.0"
+              }
             },
             {
               "name": "caller",
               "typeName": "ftp:Caller",
+              "optional": true,
               "type": [
                 "ftp:Caller"
               ],
+              "documentation": "Optional FTP connection for performing additional file operations (move, delete) within this handler. This is NOT the listener — do not use it to configure monitoring.",
+              "enabled": false,
+              "value": "ftp:Caller",
               "typeInfo": {
                 "name": "Caller",
                 "orgName": "ballerina",
                 "moduleName": "ftp",
-                "version": "2.11.0"
-              },
-              "optional": true,
-              "documentation": "The FTP caller object to execte file operations.",
-              "enabled": false,
-              "value": "ftp:Caller"
+                "version": "2.18.0"
+              }
             }
           ],
           "returnType": {
@@ -121,9 +161,443 @@
             "defaultTypeName": "error?",
             "enabled": true,
             "value": "error?"
-          }
+          },
+          "instructions": "Triggered when a CSV file is added. The content parameter supports multiple types: string[][] for raw CSV data, record{}[] for data-bound CSV rows (define a record type matching CSV columns), stream<string[]> for streaming raw CSV rows from large files, or stream<record{}> for streaming data-bound rows. Use the @ftp:OnFileChange annotation to configure post-processing actions (MOVE or DELETE) on success or error."
+        },
+        {
+          "name": "onFileJson",
+          "documentation": "Triggered when a JSON file is added to the FTP location. The file content is provided as a JSON value. Supports data binding to custom record types.",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "annotations": [
+            {
+              "name": "FunctionConfig",
+              "fields": {
+                "postProcessAction": {
+                  "description": "Configuration for pre/post processing actions on the file.",
+                  "type": "ftp:FtpFunctionConfig",
+                  "optional": true
+                }
+              }
+            }
+          ],
+          "parameters": [
+            {
+              "name": "content",
+              "typeName": "json|record{}",
+              "optional": false,
+              "type": [
+                "json",
+                "record{}"
+              ],
+              "documentation": "JSON file content. Can be json or data-bound to a custom record type.",
+              "enabled": true,
+              "value": "json",
+              "defaultTypeName": "json"
+            },
+            {
+              "name": "fileInfo",
+              "typeName": "ftp:FileInfo",
+              "optional": true,
+              "type": [
+                "ftp:FileInfo"
+              ],
+              "documentation": "Additional file properties.",
+              "enabled": false,
+              "value": "ftp:FileInfo",
+              "typeInfo": {
+                "name": "FileInfo",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            },
+            {
+              "name": "caller",
+              "typeName": "ftp:Caller",
+              "optional": true,
+              "type": [
+                "ftp:Caller"
+              ],
+              "documentation": "Optional FTP connection for performing additional file operations (move, delete) within this handler. This is NOT the listener — do not use it to configure monitoring.",
+              "enabled": false,
+              "value": "ftp:Caller",
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          },
+          "instructions": "Triggered when a JSON file is added. The content parameter can be json for raw JSON or a custom record type for data binding (e.g., MyRecord instead of json). Use the @ftp:OnFileChange annotation to configure post-processing actions."
+        },
+        {
+          "name": "onFileXml",
+          "documentation": "Triggered when an XML file is added to the FTP location. The file content is provided as an XML value.",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "annotations": [
+            {
+              "name": "FunctionConfig",
+              "fields": {
+                "postProcessAction": {
+                  "description": "Configuration for pre/post processing actions on the file.",
+                  "type": "ftp:FtpFunctionConfig",
+                  "optional": true
+                }
+              }
+            }
+          ],
+          "parameters": [
+            {
+              "name": "content",
+              "typeName": "xml",
+              "optional": false,
+              "type": [
+                "xml"
+              ],
+              "documentation": "XML file content.",
+              "enabled": true,
+              "value": "xml"
+            },
+            {
+              "name": "fileInfo",
+              "typeName": "ftp:FileInfo",
+              "optional": true,
+              "type": [
+                "ftp:FileInfo"
+              ],
+              "documentation": "Additional file properties.",
+              "enabled": false,
+              "value": "ftp:FileInfo",
+              "typeInfo": {
+                "name": "FileInfo",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            },
+            {
+              "name": "caller",
+              "typeName": "ftp:Caller",
+              "optional": true,
+              "type": [
+                "ftp:Caller"
+              ],
+              "documentation": "Optional FTP connection for performing additional file operations (move, delete) within this handler. This is NOT the listener — do not use it to configure monitoring.",
+              "enabled": false,
+              "value": "ftp:Caller",
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          },
+          "instructions": "Triggered when an XML file is added. Use the @ftp:OnFileChange annotation to configure post-processing actions (MOVE or DELETE) on success or error."
+        },
+        {
+          "name": "onFileText",
+          "documentation": "Triggered when a text file is added to the FTP location. The file content is provided as a string.",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "annotations": [
+            {
+              "name": "FunctionConfig",
+              "fields": {
+                "postProcessAction": {
+                  "description": "Configuration for pre/post processing actions on the file.",
+                  "type": "ftp:FtpFunctionConfig",
+                  "optional": true
+                }
+              }
+            }
+          ],
+          "parameters": [
+            {
+              "name": "content",
+              "typeName": "string",
+              "optional": false,
+              "type": [
+                "string"
+              ],
+              "documentation": "Text file content.",
+              "enabled": true,
+              "value": "string"
+            },
+            {
+              "name": "fileInfo",
+              "typeName": "ftp:FileInfo",
+              "optional": true,
+              "type": [
+                "ftp:FileInfo"
+              ],
+              "documentation": "Additional file properties.",
+              "enabled": false,
+              "value": "ftp:FileInfo",
+              "typeInfo": {
+                "name": "FileInfo",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            },
+            {
+              "name": "caller",
+              "typeName": "ftp:Caller",
+              "optional": true,
+              "type": [
+                "ftp:Caller"
+              ],
+              "documentation": "Optional FTP connection for performing additional file operations (move, delete) within this handler. This is NOT the listener — do not use it to configure monitoring.",
+              "enabled": false,
+              "value": "ftp:Caller",
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          },
+          "instructions": "Triggered when a text file is added. Use the @ftp:OnFileChange annotation to configure post-processing actions (MOVE or DELETE) on success or error."
+        },
+        {
+          "name": "onFile",
+          "documentation": "Triggered when any file is added to the FTP location. The file content is provided as a byte array, or as a stream for large files.",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "annotations": [
+            {
+              "name": "FunctionConfig",
+              "fields": {
+                "postProcessAction": {
+                  "description": "Configuration for pre/post processing actions on the file.",
+                  "type": "ftp:FtpFunctionConfig",
+                  "optional": true
+                }
+              }
+            }
+          ],
+          "parameters": [
+            {
+              "name": "content",
+              "typeName": "byte[]|stream<byte[]>",
+              "optional": false,
+              "type": [
+                "byte[]",
+                "stream<byte[]>"
+              ],
+              "documentation": "Raw file content as byte array, or a stream of byte arrays for large files.",
+              "enabled": true,
+              "value": "byte[]",
+              "defaultTypeName": "byte[]"
+            },
+            {
+              "name": "fileInfo",
+              "typeName": "ftp:FileInfo",
+              "optional": true,
+              "type": [
+                "ftp:FileInfo"
+              ],
+              "documentation": "Additional file properties.",
+              "enabled": false,
+              "value": "ftp:FileInfo",
+              "typeInfo": {
+                "name": "FileInfo",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            },
+            {
+              "name": "caller",
+              "typeName": "ftp:Caller",
+              "optional": true,
+              "type": [
+                "ftp:Caller"
+              ],
+              "documentation": "Optional FTP connection for performing additional file operations (move, delete) within this handler. This is NOT the listener — do not use it to configure monitoring.",
+              "enabled": false,
+              "value": "ftp:Caller",
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          },
+          "instructions": "Triggered when any file is added (raw binary). The content parameter can be byte[] or stream<byte[]> for large files. Use the @ftp:OnFileChange annotation to configure post-processing actions."
+        },
+        {
+          "name": "onFileDelete",
+          "documentation": "Triggered when a file is deleted from the FTP location.",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "deleteFiles",
+              "typeName": "string",
+              "optional": false,
+              "type": [
+                "string"
+              ],
+              "documentation": "Deleted file path.",
+              "enabled": true,
+              "value": "string"
+            },
+            {
+              "name": "caller",
+              "typeName": "ftp:Caller",
+              "optional": true,
+              "type": [
+                "ftp:Caller"
+              ],
+              "documentation": "Optional FTP connection for performing additional file operations (move, delete) within this handler. This is NOT the listener — do not use it to configure monitoring.",
+              "enabled": false,
+              "value": "ftp:Caller",
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          },
+          "instructions": "Triggered when a file is deleted from the monitored FTP location."
+        },
+        {
+          "name": "onError",
+          "documentation": "Triggered when an error occurs during file processing.",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "ftpError",
+              "typeName": "ftp:Error",
+              "optional": false,
+              "type": [
+                "ftp:Error"
+              ],
+              "documentation": "The error that occurred.",
+              "enabled": true,
+              "value": "ftp:Error",
+              "typeInfo": {
+                "name": "Error",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            },
+            {
+              "name": "caller",
+              "typeName": "ftp:Caller",
+              "optional": true,
+              "type": [
+                "ftp:Caller"
+              ],
+              "documentation": "Optional FTP connection for performing additional file operations (move, delete) within this handler. This is NOT the listener — do not use it to configure monitoring.",
+              "enabled": false,
+              "value": "ftp:Caller",
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "ftp",
+                "version": "2.18.0"
+              }
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          },
+          "instructions": "Triggered when an error occurs during file processing. Implement this to handle failures gracefully."
         }
-      ]
+      ],
+      "instructions": "IMPORTANT: To trigger an integration when files are added/deleted on an FTP location, use the FTP service pattern (service on ftp:Listener), NOT the ftp:Client or ftp:Caller. The ftp:Caller parameter in handler functions is only for performing additional file operations (like moving/deleting files) within the handler — do NOT use it to set up the listener. The ftp:Listener configuration (host, port, auth, path, pollingInterval) defines which FTP directory to monitor. Use @ftp:ServiceConfig to specify the directory path to monitor. Choose the handler based on file content type: onFileCsv for CSV, onFileJson for JSON, onFileXml for XML, onFileText for plain text, onFile for binary/raw files. Use onFileDelete to handle file removals and onError for processing failures. The content parameter supports data binding — define a custom record type matching your data schema and use it as the parameter type (e.g., record{}[] instead of string[][] for CSV). For large files, use streaming types (stream<string[]>, stream<byte[]>, stream<record{}>) to process content in chunks without loading the entire file into memory."
     }
   ],
   "listener": {

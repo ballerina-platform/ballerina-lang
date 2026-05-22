@@ -820,6 +820,18 @@ public class BIRPackageSymbolEnter {
         switch (valueType.tag) {
             case TypeTags.INT:
                 return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.intType);
+            case TypeTags.UNSIGNED8_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.unsigned8IntType);
+            case  TypeTags.UNSIGNED16_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.unsigned16IntType);
+            case  TypeTags.UNSIGNED32_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.unsigned32IntType);
+            case TypeTags.SIGNED8_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.signed8IntType);
+            case TypeTags.SIGNED16_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.signed16IntType);
+            case TypeTags.SIGNED32_INT:
+                return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.signed32IntType);
             case TypeTags.BYTE:
                 return new BLangConstantValue(getByteCPEntryValue(dataInStream), symTable.byteType);
             case TypeTags.FLOAT:
@@ -1814,18 +1826,25 @@ public class BIRPackageSymbolEnter {
             PackageID enumPkgId = getPackageId(inputStream.readInt());
             String enumName = getStringCPEntryValue(inputStream);
             int memberCount = inputStream.readInt();
-            BSymbol pkgSymbol = packageCache.getSymbol(enumPkgId);
-
-            // pkg symbol will be null if it's an enum in the current module.
-            if (pkgSymbol == null) {
+            BSymbol pkgSymbol;
+            PackageID currentPkgId = env.pkgSymbol.pkgID;
+            boolean sameModule = enumPkgId.orgName.equals(currentPkgId.orgName)
+                    && enumPkgId.pkgName.equals(currentPkgId.pkgName)
+                    && enumPkgId.name.equals(currentPkgId.name);
+            if (sameModule) {
                 pkgSymbol = env.pkgSymbol;
+            } else {
+                pkgSymbol = packageCache.getSymbol(enumPkgId);
+                if (pkgSymbol == null) {
+                    throw new BLangCompilerException("cannot resolve enum module '" + enumPkgId + "'");
+                }
             }
 
             SymbolEnv enumPkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
 
             // pkg env will be null if it's an enum in the current module.
             if (enumPkgEnv == null) {
-                enumPkgEnv = SymbolEnv.createPkgEnv(null, env.pkgSymbol.scope, null);
+                enumPkgEnv = SymbolEnv.createPkgEnv(null, pkgSymbol.scope, null);
             }
 
             List<BConstantSymbol> members = new ArrayList<>();

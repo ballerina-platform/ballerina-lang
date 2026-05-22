@@ -58,8 +58,11 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -97,6 +100,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
@@ -110,6 +114,7 @@ import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
@@ -1089,7 +1094,7 @@ public final class CommandUtil {
         Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
     }
 
-    private static PackageVersion findLatest(List<PackageVersion> packageVersions) {
+    static PackageVersion findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;
         }
@@ -1098,6 +1103,27 @@ public final class CommandUtil {
             latestVersion = getLatest(latestVersion, pkgVersion);
         }
         return latestVersion;
+    }
+
+    static void extractAndCopyBala(MavenResolverClient client, String orgName, String packageName,
+                                   String version, Path finalCachePath)
+            throws MavenResolverClientException, IOException {
+        Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
+        client.pullPackage(orgName, packageName, version,
+                String.valueOf(tmpDownloadDirectory.toAbsolutePath()));
+        Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
+                .resolve(packageName + "-" + version + BALA_EXTENSION);
+        Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
+                .resolve(version).resolve(PLATFORM);
+        ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
+        Path packageJsonPath = temporaryExtractionPath.resolve(PACKAGE_JSON);
+        try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
+            JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
+            String platform = resultObj.get(PLATFORM).getAsString();
+            Path actualBalaPath = finalCachePath.resolve(platform);
+            org.apache.commons.io.FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
+                    actualBalaPath.toFile());
+        }
     }
 
     private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
@@ -1393,6 +1419,11 @@ public final class CommandUtil {
     public static DependencyGraph<BuildProject> resolveWorkspaceDependencies(
             WorkspaceProject workspaceProject, PrintStream outStream) {
         outStream.println("Resolving workspace dependencies");
+        return resolveWorkspaceDependencies(workspaceProject);
+    }
+
+    public static DependencyGraph<BuildProject> resolveWorkspaceDependencies(
+            WorkspaceProject workspaceProject) {
         ResolutionOptions resolutionOptions = ResolutionOptions.builder()
                 .setOffline(true)
                 .setPackageLockingMode(PackageLockingMode.HARD)

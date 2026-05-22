@@ -31,10 +31,12 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.model.Proxy;
@@ -44,6 +46,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.maven.bala.client.model.PackageResolutionResponse;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
@@ -55,13 +58,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 import static io.ballerina.projects.util.ProjectUtils.getLatest;
 
@@ -76,12 +83,14 @@ public class MavenPackageRepository implements PackageRepository {
     private final FileSystemRepository fileSystemRepo;
     private final MavenResolverClient client;
     private final String repoLocation;
+    private final boolean isProxyCentral;
 
-    public MavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
-                                     MavenResolverClient client, String repoLocation) {
-        this.fileSystemRepo = new FileSystemRepository(environment, cacheDirectory, distributionVersion);;
+    protected MavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
+                                     MavenResolverClient client, String repoLocation, boolean isProxyCentral) {
+        this.fileSystemRepo = new FileSystemRepository(environment, cacheDirectory, distributionVersion);
         this.client = client;
         this.repoLocation = repoLocation;
+        this.isProxyCentral = isProxyCentral;
     }
 
     public static MavenPackageRepository from(Environment environment, Path cacheDirectory, Repository repository) {
@@ -95,9 +104,10 @@ public class MavenPackageRepository implements PackageRepository {
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         MavenResolverClient mvnClient = new MavenResolverClient();
         if (!repository.username().isEmpty() && !repository.password().isEmpty()) {
-            mvnClient.addRepository(repository.id(), repository.url(), repository.username(), repository.password());
+            mvnClient.addRepository(repository.proxyCentral() ? "" : repository.id(), repository.url(),
+                    repository.username(), repository.password());
         } else {
-            mvnClient.addRepository(repository.id(), repository.url());
+            mvnClient.addRepository(repository.proxyCentral() ? "" : repository.id(), repository.url());
         }
 
         Settings settings;
@@ -108,7 +118,7 @@ public class MavenPackageRepository implements PackageRepository {
         String repoLocation = cacheDirectory.resolve("bala").toAbsolutePath().toString();
 
         return new MavenPackageRepository(environment, cacheDirectory, ballerinaShortVersion, mvnClient,
-                repoLocation);
+                repoLocation, repository.proxyCentral());
     }
 
     @Override
@@ -154,8 +164,14 @@ public class MavenPackageRepository implements PackageRepository {
         // If the resolution request specifies to resolve offline, we return the local version
         if (!options.offline()) {
             try {
-                List<String> remotePackageVersions = this.client.getPackageVersions(orgName, packageName,
-                        Paths.get(repoLocation));
+                List<String> remotePackageVersions;
+                if  (isProxyCentral) {
+                    remotePackageVersions = this.client.getPackageVersionsInCentralProxy(orgName, packageName,
+                            RepoUtils.getBallerinaShortVersion(), Paths.get(repoLocation));
+                } else {
+                    remotePackageVersions = this.client.getPackageVersions(orgName, packageName,
+                            Paths.get(repoLocation));
+                }
                 remotePackageVersions.stream().map(PackageVersion::from).forEach(packageVersions::add);
             } catch (MavenResolverClientException e) {
                 // ignore and return the list from the FS cache location
@@ -196,25 +212,23 @@ public class MavenPackageRepository implements PackageRepository {
                 List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(
                         importModuleRequest.packageOrg(), importModuleRequest.moduleName());
                 for (PackageName packageName : possiblePackageNames) {
-                    List<String> packageVersions = this.client.getPackageVersions(
-                            orgName, packageName.toString(), Paths.get(repoLocation));
+                    List<String> packageVersions;
+                    if (isProxyCentral) { // TODO : check central logic
+                        packageVersions = this.client.getPackageVersionsInCentralProxy(
+                                orgName, packageName.toString(), RepoUtils.getBallerinaShortVersion(),
+                                Paths.get(repoLocation));
+                    } else {
+                        packageVersions = this.client.getPackageVersions(
+                                orgName, packageName.toString(), Paths.get(repoLocation));
+                    }
                     if (!packageVersions.isEmpty()) {
                         List<PackageVersion> packageVersionsList = new ArrayList<>();
                         packageVersions.stream().map(PackageVersion::from).forEach(packageVersionsList::add);
                         PackageVersion latest = findLatest(packageVersionsList);
                         PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
                                 PackageOrg.from(orgName), PackageName.from(packageName.toString()), latest);
-                        // add the response from the remote repo only if it is not already present
-                        // in the filesystem responses
-                        importModuleResponseList.stream()
-                                .filter(response -> response.packageDescriptor().equals(resolvedDescriptor))
-                                .findFirst()
-                                .orElseGet(() -> {
-                                    ImportModuleResponse importModuleResponse =
-                                            new ImportModuleResponse(resolvedDescriptor, importModuleRequest);
-                                    importModuleResponseList.add(importModuleResponse);
-                                    return importModuleResponse;
-                                });
+                        importModuleResponseList.add(
+                                new ImportModuleResponse(resolvedDescriptor, importModuleRequest));
                         break;
                     }
                 }
@@ -230,6 +244,9 @@ public class MavenPackageRepository implements PackageRepository {
     public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
                                                                   ResolutionOptions options) {
         List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
+        if (isProxyCentral) {
+            return getPackageMetadataProxy(requests, options);
+        }
         for (ResolutionRequest request : requests) {
             Collection<PackageVersion> packageVersions = getPackageVersions(request, options);
             if (packageVersions.isEmpty()) {
@@ -293,6 +310,16 @@ public class MavenPackageRepository implements PackageRepository {
 
     private DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
                                                                   PackageVersion version) {
+        if (isProxyCentral) {
+            try {
+                PackageResolutionResponse pkgResolutionResp = this.client.resolveDependency(org.value(), name.value(),
+                        version.toString(), RepoUtils.getBallerinaShortVersion(), repoLocation);
+                PackageResolutionResponse.Package resolved = pkgResolutionResp.resolved().getFirst();
+                return createPackageDependencyGraph(resolved);
+            } catch (MavenResolverClientException e) {
+                // ignore and return the dependency graph from the FS cache location
+            }
+        }
         boolean packageExists = isPackageExists(org, name, version);
         if (!packageExists) {
             PackageDescriptor pkdDesc = PackageDescriptor.from(org, name, version);
@@ -312,4 +339,123 @@ public class MavenPackageRepository implements PackageRepository {
     public boolean isPackageExists(PackageOrg org, PackageName name, PackageVersion version) {
         return this.fileSystemRepo.isPackageExists(org, name, version);
     }
+
+    private Collection<PackageMetadataResponse> getPackageMetadataProxy(Collection<ResolutionRequest> requests,
+                                                                        ResolutionOptions options) {
+        if (requests.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Resolve all the requests locally
+        Collection<PackageMetadataResponse> cachedPackages = fileSystemRepo.getPackageMetadata(requests, options);
+        List<PackageMetadataResponse> deprecatedPackages = new ArrayList<>();
+        if (options.offline()) {
+            return cachedPackages;
+        }
+        List<ResolutionRequest> updatedRequests = new ArrayList<>(requests);
+        // Remove the already resolved requests when the locking mode is hard
+        for (PackageMetadataResponse response : cachedPackages) {
+            if (response.packageLoadRequest().version().isPresent()
+                    && response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
+                    && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+                updatedRequests.remove(response.packageLoadRequest());
+            }
+            if (response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+                Optional<Package> pkg = fileSystemRepo.getPackage(response.packageLoadRequest(), options);
+                if (pkg.isPresent() && pkg.get().descriptor().getDeprecated()) {
+                    deprecatedPackages.add(response);
+                }
+            }
+        }
+        // Resolve the requests from remote repository if there are unresolved requests
+        if (!updatedRequests.isEmpty()) {
+            List<PackageMetadataResponse> remotePackages = new ArrayList<>();
+            for (ResolutionRequest request : updatedRequests) {
+                Collection<PackageVersion> packageVersions = getPackageVersions(request, options);
+                if (packageVersions.isEmpty()) {
+                    remotePackages.add(PackageMetadataResponse.createUnresolvedResponse(request));
+                    continue;
+                }
+                // get the latest package version
+                PackageVersion latest = findLatest(packageVersions);
+                remotePackages.add(createMetadataResponse(request, latest));
+            }
+            // Merge central requests and local requests
+            // Here we will pick the latest package from remote or local
+            return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
+        }
+        // Return cachedPackages when central requests are not performed
+        return cachedPackages;
+    }
+
+    private Collection<PackageMetadataResponse> mergeResolution(
+            Collection<PackageMetadataResponse> remoteResolution, Collection<PackageMetadataResponse> filesystem,
+            List<PackageMetadataResponse> deprecatedPackages) {
+        List<PackageMetadataResponse> mergedResults = new ArrayList<>(
+                Stream.of(filesystem, remoteResolution)
+                        .flatMap(Collection::stream).collect(Collectors.toMap(
+                                PackageMetadataResponse::packageLoadRequest, Function.identity(),
+                                (PackageMetadataResponse x, PackageMetadataResponse y) -> {
+                                    if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                        // filesystem response is resolved &  remote response is unresolved
+                                        return x;
+                                    } else if (x.resolutionStatus().equals(ResolutionResponse
+                                            .ResolutionStatus.UNRESOLVED)) {
+                                        // filesystem response is unresolved &  remote response is resolved
+                                        return y;
+                                    } else if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor()
+                                            .version())) {
+                                        // Both responses have the same version and there is a mismatch in
+                                        // deprecated status,we need to update the deprecated
+                                        // status in the file system repo to match the remote repo as it is the most
+                                        // up to date.
+                                        if (deprecatedPackages != null && y.resolvedDescriptor() != null &&
+                                                deprecatedPackages.contains(x) ^ y.resolvedDescriptor()
+                                                        .getDeprecated()) {
+                                            fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
+                                        }
+                                        return x;
+                                    }
+                                    // x not deprecate & y not deprecate
+                                    //      - x is the latest : return x (this will not happen in real)
+                                    //      - y is the latest : return y
+                                    // x not deprecated & y deprecated
+                                    //      - x is the latest : outdated. return y
+                                    //      - y is the latest : return y
+                                    // x deprecated & y not deprecated
+                                    //      - x is the latest : outdated. return y
+                                    //      - y is the latest : return y
+                                    // x deprecated & y deprecated
+                                    //      - x is the latest : not possible
+                                    //      - y is the latest : return y
+
+                                    // If the equivalent package is available in the file system repo,
+                                    // try to update the deprecated status.
+                                    // Because if available in cache, it won't be pulled.
+                                    fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
+                                    return y;
+                                })).values());
+        return mergedResults;
+    }
+
+    private static DependencyGraph<PackageDescriptor> createPackageDependencyGraph(
+            PackageResolutionResponse.Package aPackage) {
+        DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
+
+        for (PackageResolutionResponse.Dependency dependency : aPackage.dependencyGraph()) {
+            PackageDescriptor pkg = PackageDescriptor.from(PackageOrg.from(dependency.org()),
+                    PackageName.from(dependency.name()), PackageVersion.from(dependency.version()));
+            Set<PackageDescriptor> dependentPackages = new HashSet<>();
+            for (PackageResolutionResponse.Dependency dependencyPkg : dependency.dependencies()) {
+                dependentPackages.add(PackageDescriptor.from(PackageOrg.from(dependencyPkg.org()),
+                        PackageName.from(dependencyPkg.name()),
+                        PackageVersion.from(dependencyPkg.version())));
+            }
+            graphBuilder.addDependencies(pkg, dependentPackages);
+        }
+
+        return graphBuilder.build();
+    }
+
+
 }

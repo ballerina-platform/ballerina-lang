@@ -29,7 +29,11 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * A sample tool to be integrated with the build
@@ -40,11 +44,36 @@ import java.nio.file.Path;
 public class SampleToolRunner implements CodeGeneratorTool {
     @Override
     public void execute(ToolContext toolContext) {
-        Path absFilePath = toolContext.currentPackage().project().sourceRoot().resolve(toolContext.filePath());
-        if (!absFilePath.toFile().exists()) {
-            DiagnosticInfo diagnosticInfo = new DiagnosticInfo("001",
-                    "The provided filePath does not exist", DiagnosticSeverity.ERROR);
-            toolContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
+        // Generate source based on mode
+        String mode = toolContext.options().get("mode").value().toString();
+        try {
+            Files.createDirectories(toolContext.outputPath());
+            String generatedCode;
+            if ("consolidator".equals(mode)) {
+                @SuppressWarnings("unchecked")
+                List<String> imports = (List<String>) toolContext.options().get("imports").value();
+                StringBuilder sb = new StringBuilder();
+                for (String imp : imports) {
+                    sb.append("import ").append(imp).append(" as _;\n");
+                }
+                sb.append("\npublic function main() {\n}\n");
+                generatedCode = sb.toString();
+            } else {
+                Path absFilePath = toolContext.currentPackage().project().sourceRoot().resolve(toolContext.filePath());
+                if (!absFilePath.toFile().exists()) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo("001",
+                            "The provided filePath does not exist", DiagnosticSeverity.ERROR);
+                    toolContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
+                }
+                generatedCode = """
+                        function generatedFunction() returns string {
+                            return "This is a generated function";
+                        }""";
+            }
+            Files.write(Paths.get(toolContext.outputPath().resolve("gen.bal").toString()),
+                    generatedCode.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         System.out.println("Running sample build tool: " + toolContext.toolId());
         System.out.println("Cache created at: " + toolContext.cachePath());

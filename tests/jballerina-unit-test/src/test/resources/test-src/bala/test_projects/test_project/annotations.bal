@@ -76,3 +76,15 @@ public type Teacher record {|
     int id;
     string name;
 |};
+
+public type SequenceConfig record {|
+    int:Unsigned32 minOccurs;
+    int:Unsigned32 maxOccurs;
+|};
+
+public const annotation SequenceConfig SequenceAnnot on type;
+
+@SequenceAnnot {minOccurs: 1, maxOccurs: 10}
+public type AnnotatedWithIntSubtype record {|
+    string name;
+|};
