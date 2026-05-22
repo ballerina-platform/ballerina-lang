@@ -39,6 +39,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import io.ballerina.projects.util.ProjectUtils;
+
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,7 +61,12 @@ public class HierarchicalPackageNameTests {
     Path customUserHome = Path.of("build", "userHome");
 
     @BeforeTest
-    public void setup() {
+    public void setup() throws IOException {
+        // Remove package_a.c cached by testResolveDifferentPackagesFromEachRepo in previous runs
+        Path staleAC = customUserHome.resolve("repositories/central.ballerina.io/bala/samjs/a.c");
+        if (java.nio.file.Files.exists(staleAC)) {
+            ProjectUtils.deleteDirectory(staleAC);
+        }
         BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a");
         BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a.b");
     }

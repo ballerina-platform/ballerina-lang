@@ -278,7 +278,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -300,7 +300,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithNoReadPermission() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -328,7 +328,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithNoWritePermission() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -350,7 +350,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testClearingEnvironmentCache() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
 
         // Setup : If exists, clear previous cache

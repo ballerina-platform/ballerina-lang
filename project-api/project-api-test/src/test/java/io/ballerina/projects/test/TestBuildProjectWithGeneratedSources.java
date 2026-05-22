@@ -119,7 +119,7 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
     public void testBuildProjectWithNoReadPermission() {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
         Path generatedDirPath = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);

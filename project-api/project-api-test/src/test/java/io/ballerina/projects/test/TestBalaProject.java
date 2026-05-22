@@ -47,10 +47,13 @@ import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -244,7 +247,13 @@ public class TestBalaProject {
     }
 
     @Test
-    public void testProjectRefresh() {
+    public void testProjectRefresh() throws IOException {
+        // Remove package_refresh_two_v3 from dist cache to ensure initial compilation has errors
+        Path refreshTwoCachePath = Path.of("build", ProjectConstants.DIST_CACHE_DIRECTORY,
+                "bala", "asmaj", "package_refresh_two_v3", "0.1.0");
+        if (Files.exists(refreshTwoCachePath)) {
+            ProjectUtils.deleteDirectory(refreshTwoCachePath);
+        }
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_bala");
         Project project = TestUtils.loadProject(projectDirPath);
         Assert.assertEquals(project.kind(), ProjectKind.BALA_PROJECT);

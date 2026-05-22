@@ -95,6 +95,9 @@ public class BaseTest {
                     .resolve(repo).resolve(ProjectConstants.BALA_DIR_NAME);
             Path localRepoBalaCache = localRepoPath
                     .resolve("samjs").resolve("package_c").resolve("0.1.0").resolve("any");
+            if (Files.exists(localRepoBalaCache)) {
+                ProjectUtils.deleteDirectory(localRepoBalaCache);
+            }
             Files.createDirectories(localRepoBalaCache);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
             Path balaPath;
