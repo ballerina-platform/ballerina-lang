@@ -106,6 +106,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
@@ -581,7 +582,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                     !data.hasFunctionTerminated) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
-                        funcNode.getKind().toString().toLowerCase());
+                        getInvokableKindNameForMessage(funcNode));
             } else if (isNeverReturn && !data.hasFunctionTerminated) {
                 this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
@@ -595,6 +596,30 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                 this.dlog.warning(funcNode.returnTypeNode.pos,
                         DiagnosticWarningCode.FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE);
             }
+        }
+    }
+
+    /**
+     * User-facing invokable kind label for diagnostics (e.g. {@code worker}, {@code resource function}).
+     */
+    private static String getInvokableKindNameForMessage(BLangFunction funcNode) {
+        if (funcNode.flagSet.contains(Flag.WORKER) && funcNode.flagSet.contains(Flag.LAMBDA)) {
+            return "worker";
+        }
+        return getInvokableKindNameForNodeKind(funcNode.getKind());
+    }
+
+    /**
+     * User-facing invokable kind label from {@link NodeKind} (e.g. {@code resource function}, not {@code resource_func}).
+     */
+    private static String getInvokableKindNameForNodeKind(NodeKind kind) {
+        switch (kind) {
+            case RESOURCE_FUNC:
+                return "resource function";
+            case FUNCTION:
+                return "function";
+            default:
+                return kind.name().toLowerCase(Locale.ROOT).replace('_', ' ');
         }
     }
 
