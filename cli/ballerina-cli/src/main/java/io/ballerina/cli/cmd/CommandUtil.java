@@ -1278,7 +1278,7 @@ public final class CommandUtil {
             return true;
         }
         if (!hasProvidedPlatformDeps(balaProject.currentPackage())) {
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_25);
             Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
             if (!backendDiagnostics.isEmpty()) {
                 printDiagnostics(backendDiagnostics);
