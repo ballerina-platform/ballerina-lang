@@ -324,7 +324,16 @@ public class ConfigValueCreator {
         Type impliedType = TypeUtils.getImpliedType(type);
         return switch (impliedType.getTag()) {
             case TypeTags.BYTE_TAG -> ((Long) tomlValue).intValue();
-            case TypeTags.DECIMAL_TAG -> ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
+            case TypeTags.FLOAT_TAG -> ((Number) tomlValue).doubleValue();
+            case TypeTags.DECIMAL_TAG -> {
+                BigDecimal decimalValue;
+                if (tomlValue instanceof Long) {
+                    decimalValue = BigDecimal.valueOf((Long) tomlValue);
+                } else {
+                    decimalValue = BigDecimal.valueOf(((Number) tomlValue).doubleValue());
+                }
+                yield ValueCreator.createDecimalValue(decimalValue);
+            }
             case TypeTags.STRING_TAG -> StringUtils.fromString((String) tomlValue);
             case TypeTags.XML_ATTRIBUTES_TAG,
                  TypeTags.XML_COMMENT_TAG,

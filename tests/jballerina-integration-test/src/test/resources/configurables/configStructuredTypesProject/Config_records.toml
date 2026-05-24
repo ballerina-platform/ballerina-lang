@@ -43,6 +43,14 @@ address.city="Nugegoda"
 name = "riyafa"
 id = 12
 
+[cricketer]
+name = "waruna"
+strikeRate = 91.5
+battingAverage = 45
+bowlingAverage = 25
+bowlingEconomy = 4.56
+largeDecimalAverage = 9007199254740993
+
 [personWithFiniteFields]
 stringRef = "stringRefType"
 intRef = 10
