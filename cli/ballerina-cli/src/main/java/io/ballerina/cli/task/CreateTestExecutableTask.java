@@ -98,7 +98,7 @@ public class CreateTestExecutableTask implements Task {
          Target target = getTarget(project);
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_25);
             List<Diagnostic> emitDiagnostics = new ArrayList<>();
             Path testCachePath = target.getTestsCachePath();
             long start = 0;

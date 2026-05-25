@@ -13,4 +13,4 @@ To resolve this warning, please ensure that all Java dependencies of this packag
 
 ************************************************************
 
-	target/bala/sameera-myproject-java21-0.1.0.bala
+	target/bala/sameera-myproject-java25-0.1.0.bala

@@ -106,7 +106,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
                 .resolve("dummy-tool-pkg-higher-dist").toString(), testCentralRepoCache);
 
         Path balaPath = testCentralRepoCache.resolve("bala").resolve("foo")
-                .resolve("dummypkghigherdist").resolve("1.4.0").resolve(JvmTarget.JAVA_21.code());
+                .resolve("dummypkghigherdist").resolve("1.4.0").resolve(JvmTarget.JAVA_25.code());
         replacePkgDistVersion(balaPath);
         // add build.json files
         addBuildJsonToProjects("project-lt-24h-with-build-tool", System.currentTimeMillis() - HALF_DAY);

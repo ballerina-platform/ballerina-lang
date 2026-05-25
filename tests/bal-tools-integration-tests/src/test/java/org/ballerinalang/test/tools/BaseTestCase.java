@@ -110,7 +110,7 @@ public class BaseTestCase {
                 // Replace the ballerina_version to a higher dist in the package.json
                 Path packageJsonPath = repoPath.resolve("bala").resolve(flattenedTool.org())
                         .resolve(flattenedTool.name()).resolve(flattenedTool.version())
-                        .resolve(JvmTarget.JAVA_21.code()).resolve("package.json");
+                        .resolve(JvmTarget.JAVA_25.code()).resolve("package.json");
                 String packageJsonContent = Files.readString(packageJsonPath);
                 String replacedContent = packageJsonContent.replace(
                         RepoUtils.getBallerinaShortVersion(), "2201.99.0");

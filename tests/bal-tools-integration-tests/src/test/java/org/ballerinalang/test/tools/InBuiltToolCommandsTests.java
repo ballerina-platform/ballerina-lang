@@ -104,7 +104,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
     public void testDistributionBumpToHigher() throws BallerinaTestException, IOException {
         String projectVersion = System.getenv("PROJECT_VERSION");
         String dist = System.getProperty("server.path");
-        Path packageJson = Paths.get(dist).resolve("repo/bala/ballerina/tool_dummytoolE/1.1.0/java21/package.json");
+        Path packageJson = Paths.get(dist).resolve("repo/bala/ballerina/tool_dummytoolE/1.1.0/java25/package.json");
         String content = Files.readString(packageJson);
         content = content.replaceAll("<PROJECT_VERSION>", projectVersion);
         Files.write(packageJson, content.getBytes());
@@ -153,7 +153,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("tool", new String[]{"location", "dummytoolC"},
                 new HashMap<>(), userDir, true);
         Assert.assertEquals(Paths.get(output.replace("\r", "")).normalize().toString(),
-                Paths.get(balServer.getServerHome()).resolve("repo/bala/ballerina/tool_dummytoolC/1.1.0/java21")
+                Paths.get(balServer.getServerHome()).resolve("repo/bala/ballerina/tool_dummytoolC/1.1.0/java25")
                         .toString(), output);
     }
 
@@ -164,7 +164,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
                 new HashMap<>(), userDir, true);
         Assert.assertEquals(output.replace("\r", ""),
                 Paths.get(System.getProperty(USER_DIR) + "/build/user-home/.ballerina/repositories/" +
-                        "central.ballerina.io/bala/ballerina/tool_dummytoolC/1.0.0/java21").toString(), output);
+                        "central.ballerina.io/bala/ballerina/tool_dummytoolC/1.0.0/java25").toString(), output);
     }
 
     @Test (description = "Set force an older version from the central cache when dist has the latest",
@@ -212,7 +212,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         output = balClient.runMainAndReadStdOut("tool", new String[]{"location", "dummytoolD:1.1.0"},
                 new HashMap<>(), userDir, true);
         Assert.assertEquals(Paths.get(output.replace("\r", "")).normalize().toString(),
-                Paths.get(balServer.getServerHome()).resolve("repo/bala/ballerina/tool_dummytoolD/1.1.0/java21")
+                Paths.get(balServer.getServerHome()).resolve("repo/bala/ballerina/tool_dummytoolD/1.1.0/java25")
                         .toString(), output);
 
         // 2. Force set an older version - 1.1.0
@@ -227,7 +227,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
                 new HashMap<>(), userDir, true);
         Assert.assertEquals(output.replace("\r", ""),
                 Paths.get(System.getProperty(USER_DIR) + "/build/user-home/.ballerina/repositories/" +
-                        "central.ballerina.io/bala/ballerina/tool_dummytoolD/1.1.0/java21").toString(), output);
+                        "central.ballerina.io/bala/ballerina/tool_dummytoolD/1.1.0/java25").toString(), output);
 
         // 3. Verify that the active version is now 1.1.0
         output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
