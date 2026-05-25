@@ -84,6 +84,7 @@ public class ConfigSchemaGenTaskTest {
     public Object[][] dpMethod() {
         return new Object[][]{{"DefaultModuleProjects", "SimpleTypeConfigs", false},
                 {"DefaultModuleProjects", "ComplexTypeConfigs", false},
+                {"DefaultModuleProjects", "RecordTypeConfigs", false},
                 {"MultiModuleProjects", "SimpleTypeConfigs", false},
                 {"MultiModuleProjects", "UnusedConfigs", false},
                 {"SingleFileProject", "testconfig.bal", true}};
