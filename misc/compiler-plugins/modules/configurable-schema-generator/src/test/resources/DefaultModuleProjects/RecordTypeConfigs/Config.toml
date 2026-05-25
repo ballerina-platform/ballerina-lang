@@ -1,0 +1,20 @@
+# Scenario 1: strictlyOptional — configurable has a default ({}), so this entire block is optional
+[strictlyOptional]
+host = "optional-host.example.com"
+port = 9090
+
+# Scenario 2: withDefaults — configurable has a default ({}), field-level defaults apply if block is omitted
+[withDefaults]
+host = "defaulted-host.example.com"
+port = 3000
+
+# Scenario 3: mixed — configurable is REQUIRED (= ?); apiSecret must be present; host/port are optional
+[mixed]
+apiSecret = "my-secret-api-key"
+host = "mixed-host.example.com"
+port = 7070
+
+# Scenario 4: mixedWithDefaults — configurable is REQUIRED (= ?); apiSecret must be present; port has record-level default
+[mixedWithDefaults]
+apiSecret = "another-secret-key"
+port = 5050
