@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "luhee": {
+      "type": "object",
+      "properties": {
+        "recordconfigs": {
+          "type": "object",
+          "properties": {
+            "strictlyOptional": {
+              "type": "object",
+              "properties": {
+                "host": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false,
+              "name": "luhee/recordconfigs:0.1.0:StrictlyOptionalConfig",
+              "description": ""
+            },
+            "withDefaults": {
+              "type": "object",
+              "properties": {
+                "host": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false,
+              "name": "luhee/recordconfigs:0.1.0:DefaultedConfig",
+              "description": ""
+            },
+            "mixed": {
+              "type": "object",
+              "properties": {
+                "apiSecret": {
+                  "type": "string"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "apiSecret"
+              ],
+              "name": "luhee/recordconfigs:0.1.0:MixedConfig",
+              "description": ""
+            },
+            "mixedWithDefaults": {
+              "type": "object",
+              "properties": {
+                "apiSecret": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "apiSecret"
+              ],
+              "name": "luhee/recordconfigs:0.1.0:MixedConfigWithDefaults",
+              "description": ""
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "mixed",
+            "mixedWithDefaults"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
