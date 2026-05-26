@@ -160,6 +160,28 @@ public final class ObserveUtils {
     }
 
     /**
+     * Remove a custom tag.
+     *
+     * @param tagKey key of the tag to be removed
+     */
+    public static void removeCustomTag(String tagKey) {
+        if (!enabled) {
+            return;
+        }
+        defaultTags.remove(tagKey);
+    }
+
+    /**
+     * Get a custom tag value.
+     *
+     * @param tagKey key of the tag
+     * @return value of the tag if it exists, else null
+     */
+    public static String getCustomTag(String tagKey) {
+        return defaultTags.get(tagKey);
+    }
+
+    /**
      * Add metrics and tracing observers.
      *
      * @param observer metrics or tracing observer
