@@ -87,7 +87,7 @@ public class BaseTest {
     protected void cacheDependencyToLocalRepo(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
         PackageCompilation compilation = dependencyProject.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
 
         List<String> repoNames = Lists.of("local", "stdlib.local");
         for (String repo : repoNames) {

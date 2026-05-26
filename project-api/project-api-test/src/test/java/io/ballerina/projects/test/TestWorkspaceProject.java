@@ -66,7 +66,7 @@ public class TestWorkspaceProject extends BaseTest {
         for (BuildProject buildProject : topologicallySortedList) {
             PackageCompilation compilation = buildProject.currentPackage().getCompilation();
             Assert.assertTrue(compilation.diagnosticResult().diagnostics().isEmpty());
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             Assert.assertTrue(jBallerinaBackend.diagnosticResult().diagnostics().isEmpty());
         }
     }
@@ -89,7 +89,7 @@ public class TestWorkspaceProject extends BaseTest {
         for (BuildProject buildProject : topologicallySortedList) {
             PackageCompilation compilation = buildProject.currentPackage().getCompilation();
             Assert.assertTrue(compilation.diagnosticResult().diagnostics().isEmpty());
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             Assert.assertTrue(jBallerinaBackend.diagnosticResult().diagnostics().isEmpty());
         }
     }
@@ -126,7 +126,7 @@ public class TestWorkspaceProject extends BaseTest {
         for (BuildProject buildProject : topologicallySortedList) {
             PackageCompilation compilation = buildProject.currentPackage().getCompilation();
             Assert.assertFalse(compilation.diagnosticResult().hasErrors());
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             Assert.assertFalse(jBallerinaBackend.diagnosticResult().hasErrors());
         }
     }
@@ -172,7 +172,7 @@ public class TestWorkspaceProject extends BaseTest {
         for (BuildProject buildProject : topologicallySortedList) {
             PackageCompilation compilation = buildProject.currentPackage().getCompilation();
             Assert.assertFalse(compilation.diagnosticResult().hasErrors());
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             Assert.assertFalse(jBallerinaBackend.diagnosticResult().hasErrors());
         }
     }
@@ -207,7 +207,7 @@ public class TestWorkspaceProject extends BaseTest {
         for (BuildProject buildProject : topologicallySortedList) {
             PackageCompilation compilation = buildProject.currentPackage().getCompilation();
             Assert.assertTrue(compilation.diagnosticResult().diagnostics().isEmpty());
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             Assert.assertTrue(jBallerinaBackend.diagnosticResult().diagnostics().isEmpty());
         }
     }
@@ -382,7 +382,7 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertEquals(topologicallySortedList.size(), 4);
         for (BuildProject buildProject : topologicallySortedList) {
             PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             if (buildProject.currentPackage().descriptor().name().toString().equals("bye_app")) {
                 Assert.assertEquals(compilation.diagnosticResult().warningCount(), 0);
                 Assert.assertEquals(jBallerinaBackend.diagnosticResult().warningCount(), 0);
@@ -417,7 +417,7 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertEquals(topologicallySortedList.size(), 4);
         for (BuildProject buildProject : topologicallySortedList) {
             PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             if (buildProject.currentPackage().descriptor().name().toString().equals("bye_app")) {
                 Assert.assertEquals(compilation.diagnosticResult().warningCount(), 0);
                 Assert.assertEquals(jBallerinaBackend.diagnosticResult().warningCount(), 0);
