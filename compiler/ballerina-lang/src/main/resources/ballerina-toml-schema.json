@@ -312,7 +312,7 @@
           "required": [
           ],
           "message": {
-            "required": "cannot find '${property}' under 'platform.java21'"
+            "required": "cannot find '${property}' under 'platform.java25'"
           }
         },
         "java17": {
@@ -374,10 +374,10 @@
           "required": [
           ],
           "message": {
-            "required": "cannot find '${property}' under 'platform.java21'"
+            "required": "cannot find '${property}' under 'platform.java25'"
           }
         },
-        "java21": {
+        "java25": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -433,7 +433,7 @@
           "required": [
           ],
           "message": {
-            "required": "cannot find '${property}' under 'platform.java21'"
+            "required": "cannot find '${property}' under 'platform.java25'"
           }
         }
       },

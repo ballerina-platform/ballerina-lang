@@ -99,7 +99,7 @@ public class TestBalaWriter {
         Assert.assertTrue(emitResult.successful());
 
         // unzip bala
-        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java21-0.1.0.bala")),
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java25-0.1.0.bala")),
                         String.valueOf(balaExportPath));
 
         // bala.json
@@ -361,7 +361,7 @@ public class TestBalaWriter {
         Assert.assertTrue(emitResult.successful());
 
         // unzip bala
-        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-pkg_a-java21-1.0.0.bala")),
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-pkg_a-java25-1.0.0.bala")),
                 String.valueOf(balaExportPath));
 
         // package.json
@@ -402,7 +402,7 @@ public class TestBalaWriter {
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // unzip bala
-        TestUtils.unzip(String.valueOf(target.getBalaPath().resolve("foo-tool_test-java21-1.0.1.bala")),
+        TestUtils.unzip(String.valueOf(target.getBalaPath().resolve("foo-tool_test-java25-1.0.1.bala")),
                 String.valueOf(balaExportPath));
 
         // bala.json

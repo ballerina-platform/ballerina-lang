@@ -369,7 +369,7 @@ public class TestBuildProject extends BaseTest {
 
         // 2) Compile the current package
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
 
         // 3) get topologically sorted modules
         for (ModuleDescriptor moduleDescriptor :
@@ -1694,7 +1694,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(depPkg.resource(dependencyDocId).name(), "project-info.properties");
 
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
         Path execPath = buildProject.sourceRoot().resolve(TARGET_DIR_NAME).resolve("temp.jar");
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, execPath);
 
@@ -2303,7 +2303,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = tempResourceDir.resolve("conflicting_jars_test/platformLibPkg3");
         BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
         }
@@ -2312,35 +2312,35 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(jarLibraries.size(), 9);
 
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java21/platform/java21/native1.txt"),
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java25/platform/java25/native1.txt"),
                 PlatformLibraryScope.DEFAULT, "native1", "org.ballerina", "1.0.1", "ballerina/platformLibPkg2")));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java21/platform/java21/lib1.txt"),
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java25/platform/java25/lib1.txt"),
                 PlatformLibraryScope.DEFAULT, "lib1", "org.apache", "2.0.0", "ballerina/platformLibPkg1")));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java21/platform/java21/lib2.txt"),
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java25/platform/java25/lib2.txt"),
                 PlatformLibraryScope.DEFAULT))
                 || jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java21/platform/java21/lib2.txt"),
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java25/platform/java25/lib2.txt"),
                 PlatformLibraryScope.DEFAULT)));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java21/platform/java21/lib3.txt"),
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java25/platform/java25/lib3.txt"),
                 PlatformLibraryScope.DEFAULT,
                 "lib3", "org.apache", "2.0.1", "ballerina/platformLibPkg2")));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
-                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java21/platform/java21/lib4.txt"),
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java25/platform/java25/lib4.txt"),
                 PlatformLibraryScope.DEFAULT)));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
                 Path.of("src/test/resources/conflicting_jars_test/platformLibPkg3/" +
-                        "target/cache/user/platformLibPkg3/0.1.0/java21/user-platformLibPkg3-0.1.0.jar"),
+                        "target/cache/user/platformLibPkg3/0.1.0/java25/user-platformLibPkg3-0.1.0.jar"),
                 PlatformLibraryScope.DEFAULT)));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
                 CENTRAL_CACHE.resolve(System.getProperty("project.version") +
-                        "/ballerina/platformLibPkg1/0.1.0/java21/ballerina-platformLibPkg1-0.1.0.jar"),
+                        "/ballerina/platformLibPkg1/0.1.0/java25/ballerina-platformLibPkg1-0.1.0.jar"),
                 PlatformLibraryScope.DEFAULT)));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
                 CENTRAL_CACHE.resolve(System.getProperty("project.version") +
-                        "/ballerina/platformLibPkg2/0.1.0/java21/ballerina-platformLibPkg2-0.1.0.jar"),
+                        "/ballerina/platformLibPkg2/0.1.0/java25/ballerina-platformLibPkg2-0.1.0.jar"),
                 PlatformLibraryScope.DEFAULT)));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
                 CENTRAL_CACHE.resolve(System.getProperty("ballerina.home") +
@@ -2364,7 +2364,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = tempResourceDir.resolve("provided_jars_tests/jars_provided/pkg_b");
         BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
         }
@@ -2432,7 +2432,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = tempResourceDir.resolve("conflicting_jars_test/platformLibNonBalPkg3");
         BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
         }

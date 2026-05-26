@@ -3,6 +3,6 @@ org-name= "wso2"
 version= "0.1.0"
 
 [platform]
-target = "java21"
+target = "java25"
 
     [[platform.libraries]]

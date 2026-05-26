@@ -256,8 +256,8 @@ public class BallerinaTomlTests {
                 "incompatible type found for key '[targetModule]': expected 'STRING'");
     }
 
-    @Test(description = "Platform libs should be given as [[platform.java21.dependency]], " +
-            "Here checking error when it given as [platform.java21.dependency]")
+    @Test(description = "Platform libs should be given as [[platform.java25.dependency]], " +
+            "Here checking error when it given as [platform.java25.dependency]")
     public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
         PackageManifest packageManifest =
                 getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
@@ -467,7 +467,7 @@ public class BallerinaTomlTests {
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
-                            "incompatible type for key 'java21': expected 'OBJECT', found 'ARRAY'");
+                            "incompatible type for key 'java25': expected 'OBJECT', found 'ARRAY'");
     }
 
     @Test(description = "Test Ballerina.toml having invalid types for entries in package and build options")

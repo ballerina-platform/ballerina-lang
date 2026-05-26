@@ -134,7 +134,7 @@ public class BaseTest {
             throws IOException {
         Package currentPackage = dependencyProject.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
 
         Path centralRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(centralRepositoryCacheName).resolve(ProjectConstants.BALA_DIR_NAME);

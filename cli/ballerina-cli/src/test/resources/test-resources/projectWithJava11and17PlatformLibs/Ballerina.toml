@@ -3,7 +3,7 @@ org = "sameera"
 name = "myproject"
 version = "0.1.0"
 
-[platform.java21]
+[platform.java25]
 graalvmCompatible = true
 
 [[platform.java11.dependency]]
