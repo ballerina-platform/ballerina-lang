@@ -137,7 +137,11 @@ public class TestIntegrator extends Thread {
             string = string.replace(controlString, "");
         }
         // Remove new lines because new lines can vary
-        return string.replace("\n", "");
+        string = string.replace("\n", "");
+        // Java 25: PipedInputStream delivers data one byte at a time, causing JLine to echo the
+        // first character before reprinting the full line. Remove the resulting duplicate char.
+        string = string.replaceAll("(" + java.util.regex.Pattern.quote(shellPrompt) + ")(.)\\2", "$1$2");
+        return string;
     }
 
     private String errorMessage(String original, String expected, String description) {

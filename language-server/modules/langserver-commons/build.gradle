@@ -19,6 +19,8 @@ plugins {
     id 'javaProject'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 dependencies {
     // NOTE: This module intended to be used by extension providers with minimum peer dependencies
     // Thus, refrain from adding extra dependencies.

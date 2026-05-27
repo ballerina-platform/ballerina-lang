@@ -202,7 +202,7 @@ public class ToolUseCommand implements BLauncherCmd {
 
     private void copyToolToCentralCache(BalToolsManifest.Tool tool) {
         Path relativeBalaPath = ProjectUtils.getRelativeBalaPath(
-                tool.org(), tool.name(), tool.version(), JvmTarget.JAVA_21.code());
+                tool.org(), tool.name(), tool.version(), JvmTarget.JAVA_25.code());
         Path distBalaPath = getRepoPath(tool.repository()).resolve(relativeBalaPath);
         Path centralCacheBalaPath = getCentralBalaDirPath().resolve(relativeBalaPath);
 

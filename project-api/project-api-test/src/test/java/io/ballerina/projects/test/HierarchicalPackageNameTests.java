@@ -34,11 +34,13 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,7 +60,12 @@ public class HierarchicalPackageNameTests {
     Path customUserHome = Path.of("build", "userHome");
 
     @BeforeTest
-    public void setup() {
+    public void setup() throws IOException {
+        // Remove package_a.c cached by testResolveDifferentPackagesFromEachRepo in previous runs
+        Path staleAC = customUserHome.resolve("repositories/central.ballerina.io/bala/samjs/a.c");
+        if (java.nio.file.Files.exists(staleAC)) {
+            ProjectUtils.deleteDirectory(staleAC);
+        }
         BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a");
         BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a.b");
     }

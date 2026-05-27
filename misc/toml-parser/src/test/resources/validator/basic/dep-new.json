@@ -67,7 +67,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "java21": {
+                "java25": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
@@ -98,11 +98,11 @@
                     },
                     "required": ["dependency"],
                     "message": {
-                        "required": "cannot find '${property}' under 'platform.java21'"
+                        "required": "cannot find '${property}' under 'platform.java25'"
                     }
                 }
             },
-            "required": ["java21"],
+            "required": ["java25"],
             "message": {
                 "required": "cannot find '${property}' under 'platform'"
             }

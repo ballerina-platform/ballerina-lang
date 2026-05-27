@@ -19,11 +19,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21.0.3'
+          java-version: '25.0.3'
 
       - name: Checkout To Lang Branch
         run: |
@@ -77,11 +77,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21.0.3'
+          java-version: '25.0.3'
 
       - name: Setup NodeJs
         uses: actions/setup-node@v4
@@ -112,11 +112,17 @@ jobs:
           done
         shell: bash
 
-#      - name: Checkout non-default branch
-#        run: |
-#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-#          cd $module_name && git fetch origin && git checkout -t origin/typeDesc-stmt || : && cd ..; \
-#          done
+      - name: Checkout java-25-migration branch
+        run: |
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do
+            if [[ $module_name == *-tool ]]; then
+              repo_name="${module_name}s"
+            else
+              repo_name="${module_name}"
+            fi
+            cd $repo_name && git fetch origin && git checkout -t origin/java-25-migration || : && cd ..
+          done
+        shell: bash
 
       - name: Update Lang Version in Module
         run: |
@@ -168,11 +174,11 @@ jobs:
         with:
           repository: 'ballerina-platform/ballerina-distribution'
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21.0.3'
+          java-version: '25.0.3'
 
       - name: Download Ballerina Lang Artifacts
         uses: actions/download-artifact@v4

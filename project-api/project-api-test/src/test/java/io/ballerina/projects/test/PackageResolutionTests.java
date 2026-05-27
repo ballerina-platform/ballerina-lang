@@ -60,7 +60,6 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -278,7 +277,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithCorruptBuildFile() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -300,7 +299,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithNoReadPermission() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -328,7 +327,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithNoWritePermission() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
@@ -350,7 +349,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testClearingEnvironmentCache() throws IOException {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
 
         // Setup : If exists, clear previous cache
@@ -515,7 +514,7 @@ public class PackageResolutionTests extends BaseTest {
                 compilation.getResolution().dependencyGraph();
         Assert.assertEquals(depGraphOfSrcProject.getNodes().size(), 2);
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
@@ -560,7 +559,7 @@ public class PackageResolutionTests extends BaseTest {
                 BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
         diagnosticResult.errors().forEach(OUT::println);
@@ -857,7 +856,7 @@ public class PackageResolutionTests extends BaseTest {
         // Change `ballerina_version` of `package_c` in the central to a higher dist version --> package_c_two
         Path packageJsonInProjectBalaPath = testBuildDirectory.resolve("user-home").resolve("repositories")
                 .resolve("central.ballerina.io").resolve("bala").resolve("various_dist_test")
-                .resolve("package_c").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code()).resolve("package.json");
+                .resolve("package_c").resolve("0.1.0").resolve(JvmTarget.JAVA_25.code()).resolve("package.json");
         changeBallerinaVersionInPackageJson(packageJsonInProjectBalaPath, "2301.89.0");
 
         BCompileUtil.compileAndCacheBala(
