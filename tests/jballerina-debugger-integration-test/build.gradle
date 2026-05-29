@@ -32,7 +32,7 @@ dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     implementation group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.debug', version: '0.12.0'
     implementation libs.testng
-    implementation libs.slf4j.jdk14
+    implementation libs.slf4j.simple
     implementation libs.apache.commons.lang3
     implementation libs.picocli
     implementation project(path: ':ballerina-test-utils')
