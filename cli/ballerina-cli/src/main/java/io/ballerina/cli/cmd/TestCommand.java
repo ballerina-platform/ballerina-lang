@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.cli.task.CacheArtifactsTask;
 import io.ballerina.cli.task.CleanTargetBinTestsDirTask;
 import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
@@ -28,6 +29,7 @@ import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.CreateTestExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RestoreCachedArtifactsTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
@@ -64,6 +66,9 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,6 +108,8 @@ public class TestCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path projectPath;
     private final boolean exitWhenFinish;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS")
+            .withZone(ZoneOffset.UTC);
 
     public TestCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
@@ -144,6 +151,21 @@ public class TestCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.testReport = testReport;
+        this.coverage = coverage;
+        this.coverageFormat = coverageFormat;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
+        this.offline = true;
+    }
+
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                Boolean testReport, Path testReportDir, Boolean coverage, String coverageFormat,
+                Boolean optimizeDependencyCompilation) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.testReport = testReport;
+        this.testReportDir = testReportDir;
         this.coverage = coverage;
         this.coverageFormat = coverageFormat;
         this.optimizeDependencyCompilation = optimizeDependencyCompilation;
@@ -202,6 +224,9 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;
+
+    @CommandLine.Option(names = "--test-report-dir", description = "store the test report in a specified directory")
+    private Path testReportDir;
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
@@ -527,11 +552,23 @@ public class TestCommand implements BLauncherCmd {
         }
 
         Path reportDir;
+        String timeStamp = DATE_TIME_FORMATTER.format(Instant.now());
+        String jsonReportFileName = RESULTS_JSON_FILE;
+        String htmlResultFileName = RESULTS_HTML_FILE;
+
         try {
-            Files.createDirectories(project.targetDir());
-            Target target = new Target(project.targetDir());
-            reportDir = target.getReportPath();
-            File jsonFile = new File(reportDir.resolve(RESULTS_JSON_FILE).toString());
+            if (testReportDir != null) {
+                Files.createDirectories(testReportDir);
+                reportDir = testReportDir;
+                jsonReportFileName = timeStamp + "_" + RESULTS_JSON_FILE;
+                htmlResultFileName = timeStamp + "_" + RESULTS_HTML_FILE;
+            } else {
+                Files.createDirectories(project.targetDir());
+                Target target = new Target(project.targetDir());
+                reportDir = target.getReportPath();
+            }
+
+            File jsonFile = new File(reportDir.resolve(jsonReportFileName).toString());
             try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
                 try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                     writer.write(json);
@@ -552,12 +589,13 @@ public class TestCommand implements BLauncherCmd {
                 }
                 content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
                 content = content.replace(REPORT_DATA_PLACEHOLDER, json);
+                Files.deleteIfExists(reportDir.resolve(RESULTS_HTML_FILE));
             } catch (IOException e) {
                 throw createLauncherException("error occurred while preparing test report: " + e);
             }
 
             try {
-                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
+                File htmlFile = new File(reportDir.resolve(htmlResultFileName).toString());
                 try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
                     try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                         writer.write(content);

@@ -932,6 +932,8 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.NATIVE_IMAGE.toString());
         Boolean exportComponentModel = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
+        Boolean exportEndpoints = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.EXPORT_ENDPOINTS.toString());
         String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
         Boolean remoteManagement = getBooleanFromBuildOptionsTableNode(tableNode,
@@ -947,6 +949,7 @@ public class ManifestBuilder {
         buildOptionsBuilder
                 .setOffline(offline)
                 .setExperimental(experimental)
+                .setExportEndpoints(exportEndpoints)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setTestReport(testReport)
                 .setCodeCoverage(codeCoverage)
@@ -956,6 +959,7 @@ public class ManifestBuilder {
                 .setSticky(sticky)
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)
+                .setExportEndpoints(exportEndpoints)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setRemoteManagement(remoteManagement)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)

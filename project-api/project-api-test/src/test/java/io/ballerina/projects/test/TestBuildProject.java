@@ -474,6 +474,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
         Assert.assertTrue(project.buildOptions().remoteManagement());
+        Assert.assertTrue(project.buildOptions().exportEndpoints());
     }
 
     @Test(description = "tests loading a valid build project with build options from toml")
@@ -495,6 +496,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.buildOptions().offlineBuild());
         Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
+        Assert.assertTrue(project.buildOptions().exportEndpoints());
     }
 
     @Test(description = "tests overriding build options when editing Toml")
@@ -528,6 +530,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(newPackage.project().buildOptions().observabilityIncluded());
         Assert.assertTrue(newPackage.project().buildOptions().experimental());
         Assert.assertTrue(newPackage.project().buildOptions().skipTests());
+        Assert.assertTrue(newPackage.project().buildOptions().exportEndpoints());
     }
 
     @Test

@@ -167,6 +167,9 @@ EXAMPLES
        Run the tests and generate a test report.
            $ bal test --test-report
 
+       Run the tests and generate a test report in a custom directory.
+           $ bal test --test-report --test-report-dir=<dir_path>
+
        Run the tests with the code coverage.
            $ bal test --code-coverage
 

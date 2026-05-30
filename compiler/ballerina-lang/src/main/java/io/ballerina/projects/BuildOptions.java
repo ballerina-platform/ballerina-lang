@@ -142,6 +142,10 @@ public class BuildOptions {
         return this.compilationOptions.exportOpenAPI();
     }
 
+    public boolean exportEndpoints() {
+        return this.compilationOptions.exportEndpoints();
+    }
+
     public boolean exportComponentModel() {
         return this.compilationOptions.exportComponentModel();
     }
@@ -225,6 +229,7 @@ public class BuildOptions {
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setExportEndpoints(compilationOptions.exportEndpoints);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
         buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
@@ -272,6 +277,7 @@ public class BuildOptions {
         TARGET_DIR("targetDir"),
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
+        EXPORT_ENDPOINTS("exportEndpoints"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
         OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
@@ -410,6 +416,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setExportOpenAPI(Boolean value) {
             compilationOptionsBuilder.setExportOpenAPI(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExportEndpoints(Boolean value) {
+            compilationOptionsBuilder.setExportEndpoints(value);
             return this;
         }
 

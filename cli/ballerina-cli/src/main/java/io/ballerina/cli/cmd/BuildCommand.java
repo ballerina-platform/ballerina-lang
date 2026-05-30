@@ -19,12 +19,14 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
+import io.ballerina.cli.task.CacheArtifactsTask;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RestoreCachedArtifactsTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.BuildOptions;
@@ -208,6 +210,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--export-openapi", description = "generate openAPI contract files for all" +
             " the services in the current package")
     private Boolean exportOpenAPI;
+
+    @CommandLine.Option(names = "--export-endpoints", description = "generate endpoint details for all" +
+            " the services in the current package")
+    private Boolean exportEndpoints;
 
     @CommandLine.Option(names = "--export-component-model", description = "generate a model to represent " +
             "interactions between the package components (i.e. service/type definitions) and, export it in JSON format",
@@ -407,7 +413,8 @@ public class BuildCommand implements BLauncherCmd {
                 || Boolean.TRUE.equals(dumpBIRFile) || dumpGraph || dumpRawGraphs
                 || Boolean.TRUE.equals(configSchemaGen) || Boolean.TRUE.equals(showDependencyDiagnostics)
                 || Boolean.TRUE.equals(listConflictedClasses) || Boolean.TRUE.equals(dumpBuildTime)
-                || targetDir != null || Boolean.TRUE.equals(exportOpenAPI) || Boolean.TRUE.equals(exportComponentModel)
+                || targetDir != null || Boolean.TRUE.equals(exportOpenAPI) || Boolean.TRUE.equals(exportEndpoints)
+                || Boolean.TRUE.equals(exportComponentModel)
                 || Boolean.TRUE.equals(nativeImage)
                 || cloud != null
                 || Boolean.TRUE.equals(disableSyntaxTreeCaching) || graalVMBuildOptions != null;
@@ -430,6 +437,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setSticky(this.sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
+                .setExportEndpoints(exportEndpoints)
                 .setExportComponentModel(exportComponentModel)
                 .setNativeImage(nativeImage)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)

@@ -150,7 +150,7 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
 
 isolated function printExecutionError(ExecutionError err, string functionSuffix) {
     println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " +
-            formatFailedError(err.message(), 2));
+            formatMessage(err.message(), 2));
 }
 
 isolated function getErrorMessage(error err) returns string {
@@ -308,6 +308,18 @@ isolated function handleAfterFunctionOutput(ExecutionError? err) returns boolean
     }
     return false;
 }
+
+isolated function getEvaluationOutput(any|error output,
+        TestFunction testFunction) returns ExecutionError|TestError? {
+    if output is any {
+        return;
+    }
+    if output is TestError {
+        return output;
+    }
+    return error ExecutionError(getErrorMessage(output), functionName = testFunction.name);
+}
+
 
 isolated function handleTestFuncOutput(any|error output, TestFunction testFunction, string suffix, TestType testType)
         returns ExecutionError|boolean {

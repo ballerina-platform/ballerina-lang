@@ -52,6 +52,9 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,6 +85,7 @@ public class TestCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS");
 
     @Override
     @BeforeClass
@@ -316,6 +320,58 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(reportDir.resolve("static/css/main.15691da7.chunk.css")));
         Assert.assertTrue(Files.exists(reportDir.resolve("static/js/2.bc541f30.chunk.js")));
         Assert.assertTrue(Files.exists(reportDir.resolve("static/js/main.ea323a3b.chunk.js")));
+    }
+
+    @Test(description = "Test a ballerina project with --test-report --test-report-dir=<dir_path>",
+            dataProvider = "optimizeDependencyCompilation")
+    public void testTestWithReportDir(Boolean optimizeDependencyCompilation) throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        deleteDirectory(projectPath.resolve("target"));
+        deleteDirectory(projectPath.resolve("report"));
+        TestCommand testCommand = new TestCommand(
+                projectPath, printStream, printStream, false, true,
+                projectPath.resolve("report"), false, null, optimizeDependencyCompilation);
+        new CommandLine(testCommand).parseArgs();
+        try (MockedStatic<TestUtils> testUtilsMockedStatic = Mockito.mockStatic(
+                TestUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            testUtilsMockedStatic.when(TestUtils::getReportToolsPath)
+                    .thenReturn(projectPath.resolve("resources/coverage/report.zip"));
+            testCommand.execute();
+        }
+        Path reportDir = projectPath.resolve("report");
+
+        Assert.assertTrue(Files.exists(reportDir));
+        Assert.assertTrue(Files.exists(reportDir.resolve("favicon.ico")));
+
+        assertTimeStampedFileExists(reportDir, "_index.html");
+        assertTimeStampedFileExists(reportDir, "_test_results.json");
+        Assert.assertTrue(Files.exists(reportDir.resolve("manifest.json")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/css/2.d5162072.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/css/main.15691da7.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/js/2.bc541f30.chunk.js")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static/js/main.ea323a3b.chunk.js")));
+    }
+
+    private static void assertTimeStampedFileExists(Path reportDir, String suffix) throws IOException {
+        try (Stream<Path> paths = Files.list(reportDir)) {
+            boolean exists = paths.anyMatch(path -> isValidTimestampedFile(path, suffix));
+            Assert.assertTrue(exists, "Expected timestamped file with suffix " + suffix + " was not found");
+        }
+    }
+
+    private static boolean isValidTimestampedFile(Path path, String suffix) {
+        String fileName = path.getFileName().toString();
+        if (!fileName.endsWith(suffix)) {
+            return false;
+        }
+
+        String timestamp = fileName.substring(0, fileName.length() - suffix.length());
+        try {
+            LocalDateTime.parse(timestamp, FMT);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
     }
 
     @Test(description = "tests bal test command with sticky flag")

@@ -98,6 +98,19 @@ public class DefaultPackageResolver implements PackageResolver {
             responseListInWorkspace.addAll(workspaceRepo.getPackageNames(requests, options));
         }
 
+        Collection<ImportModuleResponse> responseListInCustomFSRepo = new ArrayList<>();
+
+        for (Map.Entry<String, PackageRepository> entry : customRepos.entrySet()) {
+            if (entry.getValue() instanceof FileSystemRepository fsRepo) {
+                List<ImportModuleRequest> filteredReq = requests.stream().filter(re ->
+                        re.packageOrg().toString().equals(entry.getKey())).toList();
+                if (filteredReq.isEmpty()) {
+                    continue;
+                }
+                responseListInCustomFSRepo.addAll(fsRepo.getPackageNames(filteredReq, options));
+            }
+        }
+
         // Remove requests resolved from the workspace before resolving from the dist and central repos
         unresolvedRequests.addAll(responseListInWorkspace.stream()
                 .filter(r -> r.resolutionStatus().equals(ResolutionStatus.UNRESOLVED))
@@ -138,7 +151,8 @@ public class DefaultPackageResolver implements PackageResolver {
                 .getPackageNames(unresolvedRequests, options);
 
         return new ArrayList<>(
-                Stream.of(responseListInWorkspace, responseListInCustomRepos, responseListInDist, responseListInCentral)
+                Stream.of(responseListInCustomFSRepo, responseListInWorkspace,
+                               responseListInCustomRepos, responseListInDist, responseListInCentral)
                         .flatMap(Collection::stream).collect(Collectors.toMap(
                         ImportModuleResponse::importModuleRequest, Function.identity(),
                         (ImportModuleResponse x, ImportModuleResponse y) -> {
@@ -260,19 +274,27 @@ public class DefaultPackageResolver implements PackageResolver {
                 .filter(r -> !r.packageDescriptor().isBuiltInPackage())
                 .toList();
 
+        // Remove customFS resolved packages from the central requests
+        centralLoadRequests = centralLoadRequests.stream().filter(r -> allCustomRepoPackages.stream()
+                .noneMatch(resolvedReq -> resolvedReq.resolutionStatus().equals(ResolutionStatus.RESOLVED)
+                        && resolvedReq.packageLoadRequest().equals(r))).toList();
+
+
         // Remove already local repo resolved requests from the central request list
         centralLoadRequests = centralLoadRequests.stream().filter(r -> localRepoPackages.stream()
                         .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
                 .toList();
 
-        // Remove already custom repo resolved requests from the central request list
+        // Remove already custom repo resolved requests from the central request list - old impl where
+        // the repository is specified in the Ballerina.toml
         centralLoadRequests = centralLoadRequests.stream().filter(r -> allCustomRepoPackages.stream()
                         .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
                 .toList();
 
         // Resolve packages from custom repos before resolving from the central
         List<ResolutionRequest> unresolvedNonBalOrgRequests = centralLoadRequests.stream()
-                .filter(r -> !r.packageDescriptor().org().toString().startsWith(ProjectConstants.BALLERINA_ORG))
+                .filter(r -> !r.packageDescriptor().org().toString().startsWith(ProjectConstants.BALLERINA_ORG) &&
+                        !r.packageDescriptor().org().toString().startsWith(ProjectConstants.BALLERINAX_ORG))
                 .collect(Collectors.toList());
 
         for (Map.Entry<String, PackageRepository> customRepoRequestEntry : customRepos.entrySet()) {

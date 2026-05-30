@@ -18,7 +18,7 @@
 
 <FindBugsFilter>
     <Match>
-        <Class name="io.ballerina.cli.cmd.CacheArtifactsTask"/>
+        <Class name="io.ballerina.cli.task.CacheArtifactsTask"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
     <Match>

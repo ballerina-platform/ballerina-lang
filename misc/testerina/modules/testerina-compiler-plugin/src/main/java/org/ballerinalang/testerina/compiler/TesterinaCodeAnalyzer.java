@@ -32,6 +32,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.ballerinalang.testerina.compiler.TesterinaCompilerPluginConstants.TEST_MODULE_NAME;
 
@@ -58,6 +59,7 @@ public class TesterinaCodeAnalyzer extends CodeAnalyzer {
                     validateTestAnnotation(syntaxNodeAnalysisContext, member));
             }
         }, Arrays.asList(SyntaxKind.CLASS_DEFINITION, SyntaxKind.SERVICE_DECLARATION));
+        analysisContext.addSyntaxNodeAnalysisTask(new ConfigAnnotationAnalyzerTask(), List.of(SyntaxKind.ANNOTATION));
     }
 
     private static void validateTestAnnotation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, Node member) {

@@ -9,3 +9,4 @@ experimental=true
 observabilityIncluded = true
 skipTests=true
 remoteManagement=true
+exportEndpoints=true

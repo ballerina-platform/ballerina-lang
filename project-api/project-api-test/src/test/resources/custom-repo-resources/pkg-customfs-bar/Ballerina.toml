@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "bar.winery"
+version = "1.0.0"

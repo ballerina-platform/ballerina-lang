@@ -24,6 +24,7 @@ package org.ballerinalang.compiler;
  */
 public enum CompilerOptionName {
     COMPILER_PHASE("compilerPhase"),
+    EXPORT_ENDPOINTS("exportEndpoints"),
     EXPERIMENTAL("experimental");
 
     public final String name;

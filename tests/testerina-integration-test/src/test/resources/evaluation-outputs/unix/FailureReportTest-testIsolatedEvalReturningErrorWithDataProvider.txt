@@ -1,0 +1,129 @@
+WARNING: Running tests in parallel is an experimental feature
+Compiling source
+	evaluation/failures:0.0.0
+
+Running Tests with Coverage
+
+	failures
+WARNING: Test function 'testNonIsolatedEvalFailureWithLowPassRate' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureWithLowPassRateWithDataProvider' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForInvalidInput' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForInvalidInputWithDataProvider' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForEmptyDataProvider' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalFailureForNonReadOnlyDataEntry' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalReturningError' cannot be parallelized, reason: non-isolated test function
+WARNING: Test function 'testNonIsolatedEvalReturningErrorWithDataProvider' cannot be parallelized, reason: non-isolated test function
+
+		[fail] testIsolatedEvalReturningErrorWithDataProvider:
+
+		    evaluation failed with an average pass rate of 0.0
+			
+			    evaluation runs:
+
+				    run: 1
+
+					    entry: my-entry-1
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+					    entry: my-entry-2
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+					    entry: my-entry-3
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+				    run: 2
+
+					    entry: my-entry-1
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+					    entry: my-entry-2
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+					    entry: my-entry-3
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+				    run: 3
+
+					    entry: my-entry-1
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+					    entry: my-entry-2
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+					    entry: my-entry-3
+					    message: error("invalid response returned from the model")
+								callableName: testIsolatedEvalReturningErrorWithDataProvider moduleName: evaluation.failures$test.0.tests.test fileName: tests/test.bal lineNumber: 146
+								callableName: testIsolatedEvalReturningErrorWithDataProvider$lambda14$ moduleName: evaluation.failures$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 18
+								callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+								callableName: callEvaluationFunctionIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 343
+								callableName: executeEvaluationIsolated moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 331
+								callableName: executeEvaluationIsolated$lambda$8$ moduleName: ballerina.test.0 fileName: concurrentExecuter.bal lineNumber: 129
+							
+
+
+		0 passing
+		1 failing
+		0 skipped
+
+		Test execution time :*****s
+
+Generating Test Report*****evaluation-tests/evaluation-failures/target/report/test_results.json
+
+warning: Could not find the required HTML report tools for code coverage at*****lib/tools/coverage/report.zip
+error: there are test failures

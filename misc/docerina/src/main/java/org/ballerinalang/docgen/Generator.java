@@ -802,7 +802,8 @@ public final class Generator {
                 }
                 String defaultValue = recordField.expression().toString();
                 Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
-                DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
+                DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
+                        isDeprecated(recordField.metadata()), type,
                         defaultValue, extractAnnotationAttachmentsFromMetadataNode(semanticModel,
                         recordField.metadata()));
                 if (recordField.readonlyKeyword().isPresent()) {
@@ -1001,7 +1002,11 @@ public final class Generator {
                 } else if (lookForMoreLines && docLine instanceof MarkdownDocumentationLineNode markdownDocLine) {
                     String docLineString = getDocLineString(markdownDocLine.documentElements());
                     if (!docLineString.isEmpty()) {
-                        parameterDoc.append(docLineString);
+                        if (docLineString.startsWith(DOC_HEADER_PREFIX)) {
+                            lookForMoreLines = false;
+                        } else {
+                            parameterDoc.append(docLineString);
+                        }
                     } else {
                         lookForMoreLines = false;
                     }

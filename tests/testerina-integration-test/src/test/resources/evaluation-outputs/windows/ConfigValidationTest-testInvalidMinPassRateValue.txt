@@ -1,0 +1,6 @@
+WARNING: Running tests in parallel is an experimental feature
+Compiling source
+	evaluation/config:0.0.0
+ERROR [tests/test.bal:(19:1,22:2)] invalid config: minPassRate must be between 0.0 and 1.0, found: 2
+ERROR [tests/test.bal:(26:1,29:2)] invalid config: runs must be a positive integer, found: 0
+error: compilation contains errors

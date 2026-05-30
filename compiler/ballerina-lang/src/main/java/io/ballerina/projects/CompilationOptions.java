@@ -39,6 +39,7 @@ public class CompilationOptions {
     Boolean withCodeModifiers;
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
+    Boolean exportEndpoints;
     Boolean exportComponentModel;
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
@@ -50,9 +51,9 @@ public class CompilationOptions {
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
-                       Boolean exportComponentModel, Boolean disableSyntaxTree,
-                       Boolean remoteManagement, Boolean optimizeDependencyCompilation,
-                       PackageLockingMode lockingMode) {
+                       Boolean exportEndpoints, Boolean exportComponentModel,
+                       Boolean disableSyntaxTree, Boolean remoteManagement,
+                       Boolean optimizeDependencyCompilation, PackageLockingMode lockingMode) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -67,6 +68,7 @@ public class CompilationOptions {
         this.withCodeModifiers = withCodeModifiers;
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
+        this.exportEndpoints = exportEndpoints;
         this.exportComponentModel = exportComponentModel;
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
@@ -129,6 +131,10 @@ public class CompilationOptions {
 
     public boolean exportOpenAPI() {
         return toBooleanDefaultIfNull(this.exportOpenAPI);
+    }
+
+    public boolean exportEndpoints() {
+        return toBooleanDefaultIfNull(this.exportEndpoints);
     }
 
     public boolean exportComponentModel() {
@@ -225,6 +231,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
         }
+        if (theirOptions.exportEndpoints != null) {
+            compilationOptionsBuilder.setExportEndpoints(theirOptions.exportEndpoints);
+        } else {
+            compilationOptionsBuilder.setExportEndpoints(this.exportEndpoints);
+        }
         if (theirOptions.exportComponentModel != null) {
             compilationOptionsBuilder.setExportComponentModel(theirOptions.exportComponentModel);
         } else {
@@ -293,6 +304,7 @@ public class CompilationOptions {
         private Boolean withCodeModifiers;
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
+        private Boolean exportEndpoints;
         private Boolean exportComponentModel;
         private Boolean disableSyntaxTree;
         private Boolean remoteManagement;
@@ -375,6 +387,11 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder setExportEndpoints(Boolean value) {
+            exportEndpoints = value;
+            return this;
+        }
+
         CompilationOptionsBuilder setExportComponentModel(Boolean value) {
             exportComponentModel = value;
             return this;
@@ -399,7 +416,7 @@ public class CompilationOptions {
             return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, disableSyntaxTree, remoteManagement,
+                    exportEndpoints, exportComponentModel, disableSyntaxTree, remoteManagement,
                     optimizeDependencyCompilation, lockingMode);
         }
     }

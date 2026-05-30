@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -139,6 +140,15 @@ public class PackageDependencyGraphBuilder {
             return false;
         }
         return dependencyNode.pkgDesc().version().equals(node.version());
+    }
+
+    public Optional<PackageVersion> getNodeVersion(PackageOrg org, PackageName name) {
+        Vertex vertex = new Vertex(org, name);
+        DependencyNode node = vertices.get(vertex);
+        if (node == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(node.pkgDesc().version());
     }
 
     public Collection<DependencyNode> getAllDependencies() {

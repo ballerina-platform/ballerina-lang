@@ -23,6 +23,8 @@
 # + after - Function to be run after the test is run
 # + dependsOn - A list of functions the test function depends on and will be run before the test
 # + serialExecution - Flag to mandate the test to run serially, despite the parallel eligibility
+# + minPassRate - Minimum pass rate required to pass when the test is an evaluation
+# + runs - Number of times the evaluation should repeat
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
@@ -31,6 +33,8 @@ public type TestConfig record {
     function () returns (any|error) after?;
     function[] dependsOn = [];
     true serialExecution?;
+    float minPassRate = 1.0;
+    int runs = 1;
 };
 
 # Configuration of the function to be mocked.

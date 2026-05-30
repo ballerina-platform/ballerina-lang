@@ -30,6 +30,42 @@ type ResultData record {|
     string suffix = "";
     string message = "";
     TestType testType;
+    EvaluationSummary evaluationSummary?;
+|} & readonly;
+
+type EvaluationSummary record {|
+    EvaluationRuns evaluationRuns;
+    float targetPassRate;
+    float observedPassRate;
+|};
+
+type EvaluationRuns EvaluationRunWithoutDataSet[]|EvaluationRunWithDataSet[];
+
+# Represents a single execution run of an evaluation.
+type EvaluationRunWithoutDataSet record {|
+    # Unique identifier of the evaluation run
+    int id;
+    # Represents an optional error message that provides details about the evaluation outcome of the current run
+    string errorMessage?;
+|} & readonly;
+
+# Represents a single execution run of an evaluation.
+type EvaluationRunWithDataSet record {|
+    # Unique identifier of the evaluation run
+    int id;
+    # Outcomes produced for each data entry in evaluation dataset for the current run
+    EvaluationOutcome[] outcomes;
+    # Pass rate of the current run
+    float passRate;
+|} & readonly;
+
+# Represents the outcome of evaluating a single data entry
+# within an evaluation run.
+type EvaluationOutcome record {|
+    # Identifier of the evaluated data entry.
+    string id;
+    # The error message that describes the evaluation outcome for a specific data entry, if any
+    string errorMessage?;
 |} & readonly;
 
 isolated class Result {
@@ -74,6 +110,12 @@ isolated class Result {
     isolated function testType() returns TestType {
         lock {
             return self.data.testType;
+        }
+    }
+
+    isolated function getEvaluationSummary() returns EvaluationSummary? {
+        lock {
+            return self.data.evaluationSummary;
         }
     }
 }
@@ -143,13 +185,19 @@ isolated function consoleReport(ReportData data) {
         data.passedCases().forEach(isolated function(ResultData entrydata) {
             Result entry = new (entrydata);
             println("\t\t[pass] " + entry.fullName());
+            if entry.testType() == EVAL_TEST {
+                println("\n\t\t    " + formatMessage(entry.message(), 3));
+            }
         });
     }
 
     data.failedCases().forEach(isolated function(ResultData entrydata) {
         Result entry = new (entrydata);
         println("\n\t\t[fail] " + entry.fullName() + ":");
-        println("\n\t\t    " + formatFailedError(entry.message(), 3));
+        println("\n\t\t    " + formatMessage(entry.message(), 3));
+        if entry.testType() is EVAL_TEST {
+            printEvaluationReportInConsole(entry);
+        }
     });
 
     int totalTestCount = data.passedCount() + data.failedCount() + data.skippedCount();
@@ -164,7 +212,40 @@ isolated function consoleReport(ReportData data) {
     }
 }
 
-isolated function formatFailedError(string message, int tabCount) returns string {
+isolated function printEvaluationReportInConsole(Result entry) {
+    EvaluationSummary? eval = entry.getEvaluationSummary();
+    if eval is () {
+        return;
+    }
+    println("\t\t\t    " + "evaluation runs" + ":");
+    EvaluationRuns evalRuns = eval.evaluationRuns;
+    if evalRuns is EvaluationRunWithDataSet[] {
+        foreach EvaluationRunWithDataSet run in evalRuns {
+            println("\n\t\t\t\t" + string `    run: ${run.id}`);
+            foreach EvaluationOutcome outcome in run.outcomes {
+                println(string `${"\n\t\t\t\t\t"}    entry: ${outcome.id}` +
+                        string `${"\n\t\t\t\t\t"}    message: ${getConsoleMessage(outcome.errorMessage, "\n\t\t\t\t\t\t\t")}`);
+            }
+        }
+        return;
+    }
+    if evalRuns is EvaluationRunWithoutDataSet[] {
+        foreach EvaluationRunWithoutDataSet run in evalRuns {
+            println(string `${"\n\t\t\t\t"}    run: ${run.id}` +
+                    string `${"\n\t\t\t\t\t"}    message: ${getConsoleMessage(run.errorMessage, "\n\t\t\t\t\t\t\t")}`);
+        }
+        return;
+    }
+}
+
+isolated function getConsoleMessage(string? message, string indent = "\n\t") returns string {
+    if message is () {
+        return "passed";
+    }
+    return re `\n`.replaceAll(message, indent);
+}
+
+isolated function formatMessage(string message, int tabCount) returns string {
     string[] lines = split(message, "\n");
     lines.push("");
     string tabs = "";
@@ -217,20 +298,10 @@ isolated function failedTestsReport(ReportData data) {
 }
 
 function moduleStatusReport(ReportData data) {
-    map<string>[] tests = [];
-    data.passedCases().forEach(result => tests.push({
-        "name": escapeSpecialCharactersJson(new Result(result).fullName()),
-        "status": "PASSED"
-    }));
-    data.failedCases().forEach(result => tests.push({
-        "name": escapeSpecialCharactersJson(new Result(result).fullName()),
-        "status": "FAILURE",
-        "failureMessage": replaceDoubleQuotes(new Result(result).message())
-    }));
-    data.skippedCases().forEach(result => tests.push({
-        "name": escapeSpecialCharactersJson((new Result(result).fullName())),
-        "status": "SKIPPED"
-    }));
+    map<json>[] tests = [];
+    data.passedCases().forEach(result => tests.push(getPassedEntry(result)));
+    data.failedCases().forEach(result => tests.push(getFailedEntry(result)));
+    data.skippedCases().forEach(result => tests.push(getSkippedEntry(result)));
 
     map<json> output = {
         "totalTests": data.passedCount() + data.failedCount() + data.skippedCount(),
@@ -245,6 +316,84 @@ function moduleStatusReport(ReportData data) {
     if err is error {
         println(err.message());
     }
+}
+
+function getPassedEntry(ResultData resultData) returns map<json> {
+    Result result = new (resultData);
+    map<json> entry = {
+        "name": escapeSpecialCharactersJson(result.fullName()),
+        "status": "PASSED"
+    };
+    if result.testType() == EVAL_TEST {
+        entry["evaluationSummary"] = replaceDoubleQuotesInEvaluationErrorMessage(result.getEvaluationSummary());
+    }
+    return entry;
+}
+
+function getFailedEntry(ResultData resultData) returns map<json> {
+    Result result = new (resultData);
+    map<json> entry = {
+        "name": escapeSpecialCharactersJson(result.fullName()),
+        "status": "FAILURE",
+        "failureMessage": replaceDoubleQuotes(result.message())
+    };
+    if result.testType() == EVAL_TEST {
+        entry["evaluationSummary"] = replaceDoubleQuotesInEvaluationErrorMessage(result.getEvaluationSummary());
+    }
+    return entry;
+}
+
+function getSkippedEntry(ResultData resultData) returns map<json> {
+    Result result = new (resultData);
+    return {
+        "name": escapeSpecialCharactersJson(result.fullName()),
+        "status": "SKIPPED"
+    };
+}
+
+function replaceDoubleQuotesInEvaluationErrorMessage(EvaluationSummary? eval) returns EvaluationSummary? {
+    if eval is () {
+        return;
+    }
+    EvaluationRuns evalRuns = eval.evaluationRuns;
+    if evalRuns is EvaluationRunWithoutDataSet[] {
+        EvaluationRunWithoutDataSet[] transformedRuns = [];
+        foreach var run in evalRuns {
+            string? errorMessage = run.errorMessage;
+            if errorMessage is string {
+                transformedRuns.push({id: run.id, errorMessage: replaceDoubleQuotes(errorMessage)});
+            } else {
+                transformedRuns.push(run);
+            }
+        }
+        return {
+            evaluationRuns: transformedRuns,
+            observedPassRate: eval.observedPassRate,
+            targetPassRate: eval.targetPassRate
+        };
+    }
+
+    if evalRuns is EvaluationRunWithDataSet[] {
+        EvaluationRunWithDataSet[] transformedRuns = [];
+        foreach var run in evalRuns {
+            EvaluationOutcome[] transformedOutcomes = [];
+            foreach EvaluationOutcome outcome in run.outcomes {
+                string? errorMessage = outcome.errorMessage;
+                if errorMessage is string {
+                    transformedOutcomes.push({id: outcome.id, errorMessage: replaceDoubleQuotes(errorMessage)});
+                } else {
+                    transformedOutcomes.push(outcome);
+                }
+            }
+            transformedRuns.push({outcomes: transformedOutcomes.cloneReadOnly(), id: run.id, passRate: run.passRate});
+        }
+        return {
+            evaluationRuns: transformedRuns,
+            observedPassRate: eval.observedPassRate,
+            targetPassRate: eval.targetPassRate
+        };
+    }
+    return;
 }
 
 function escapeSpecialCharactersJson(string name) returns string {

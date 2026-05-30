@@ -39,6 +39,7 @@ import java.util.ServiceLoader;
 import java.util.function.Function;
 
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPORT_ENDPOINTS;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -80,6 +81,7 @@ public class PackageCompilation {
     private void setCompilerOptions(CompilationOptions compilationOptions) {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
+        options.put(EXPORT_ENDPOINTS, Boolean.toString(compilationOptions.exportEndpoints()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
