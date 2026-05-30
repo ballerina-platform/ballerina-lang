@@ -127,14 +127,30 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(eType.toString());
-        String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
-        if (eType.tag == TypeTags.ARRAY) {
-            if (state != BArrayState.OPEN) {
-                sb.insert(sb.indexOf("["), "[" + tempSize + "]");
-            } else {
-                sb.insert(sb.indexOf("["), "[]");
+        String elementTypeStr = eType.toString();
+
+        // Add parentheses for unnamed unions or finite types like (1|2|3)[]
+        if (elementTypeStr.startsWith("(") && elementTypeStr.endsWith(")")) {
+            int idx = findMatchingParenIndex(elementTypeStr);
+            if (idx > 0 && idx == elementTypeStr.length() - 1) {
+                String inner = elementTypeStr.substring(1, idx);
+
+                // UNWRAP only if inner is NOT a union (i.e., doesn't contain '|').
+                if (!inner.contains("|")) {
+                    elementTypeStr = inner;
+                }
             }
+        }
+
+        StringBuilder sb = new StringBuilder(elementTypeStr);
+        String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
+
+        if (eType.tag == TypeTags.ARRAY) {
+        if (state != BArrayState.OPEN) {
+            sb.insert(sb.indexOf("["), "[" + tempSize + "]");
+        } else {
+            sb.insert(sb.indexOf("["), "[]");
+        }
         } else {
             if (state != BArrayState.OPEN) {
                 sb.append("[").append(tempSize).append("]");
@@ -142,9 +158,32 @@ public class BArrayType extends BType implements ArrayType {
                 sb.append("[]");
             }
         }
-        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
+
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY)
+            ? sb.toString()
+            : sb.append(" & readonly").toString();
     }
 
+    /**
+    * Find the index of the matching closing parenthesis for the first '(' in the string.
+    * Returns -1 if not found / malformed.
+    */
+    private int findMatchingParenIndex(String s) {
+        int depth = 0;
+        for (int i = 0; i < s.length(); i++) {
+         char c = s.charAt(i);
+         if (c == '(') {
+            depth++;
+         } else if (c == ')') {
+            depth--;
+            if (depth == 0) {
+                return i;
+            }
+            // if depth < 0 it's malformed; continue and fallback later
+         }
+        }
+        return -1;
+    }
     private boolean hasTypeHoles() {
         return eType instanceof BNoType;
     }
