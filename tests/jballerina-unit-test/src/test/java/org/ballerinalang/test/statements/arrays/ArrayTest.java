@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
+import java.util.Set;
+
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -144,6 +147,13 @@ public class ArrayTest {
         BXml[] xmlArray = {XmlFactory.parse("<foo> </foo>"), XmlFactory.parse("<bar>hello</bar>")};
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray, new BArrayType(PredefinedTypes.TYPE_XML));
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
+    }
+
+    @Test
+    public void testArrayTypeStringForAnonymousFiniteUnionElement() {
+        ArrayType arrayType = TypeCreator.createArrayType(
+                TypeCreator.createFiniteType("", Set.of(1L, 2L, 3L), 0));
+        Assert.assertEquals(arrayType.toString(), "(1|2|3)[]");
     }
 
     @Test
