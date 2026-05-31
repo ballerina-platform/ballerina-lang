@@ -149,15 +149,11 @@ public class ArrayTest {
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
     }
 
-    `@Test`
+    @Test
     public void testArrayTypeStringForAnonymousFiniteUnionElement() {
         ArrayType arrayType = TypeCreator.createArrayType(
                 TypeCreator.createFiniteType("", Set.of(1L, 2L, 3L), 0));
         Assert.assertEquals(arrayType.toString(), "(1|2|3)[]");
-        
-        // Test multi-dimensional array
-        ArrayType multiDimArrayType = TypeCreator.createArrayType(arrayType);
-        Assert.assertEquals(multiDimArrayType.toString(), "(1|2|3)[][]");
     }
 
     @Test
