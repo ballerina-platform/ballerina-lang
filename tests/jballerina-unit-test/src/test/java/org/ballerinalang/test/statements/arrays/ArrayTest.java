@@ -154,6 +154,10 @@ public class ArrayTest {
         ArrayType arrayType = TypeCreator.createArrayType(
                 TypeCreator.createFiniteType("", Set.of(1L, 2L, 3L), 0));
         Assert.assertEquals(arrayType.toString(), "(1|2|3)[]");
+
+        // Test multi-dimensional array
+        ArrayType multiDimArrayType = TypeCreator.createArrayType(arrayType);
+        Assert.assertEquals(multiDimArrayType.toString(), "(1|2|3)[][]");
     }
 
     @Test
