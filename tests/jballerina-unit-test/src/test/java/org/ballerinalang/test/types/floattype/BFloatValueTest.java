@@ -331,6 +331,11 @@ public class BFloatValueTest {
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
+@Test(description = "Test equality on boxed floats - issue #32245")
+public void testEqualityOnBoxedFloats() {
+    BRunUtil.invoke(result, "testEqualityOnBoxedFloats");
+}
+
     @AfterClass
     public void tearDown() {
         result = null;
