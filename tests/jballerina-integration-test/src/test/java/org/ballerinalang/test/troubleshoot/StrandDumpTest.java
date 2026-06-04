@@ -56,7 +56,7 @@ public class StrandDumpTest extends BaseTest {
         bMainInstance = new BMainInstance(balServer);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStrandDumpOfBalPackage() throws BallerinaTestException {
         Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs",
                 "testPackageWithModulesStrandDumpRegEx.txt");
@@ -73,7 +73,7 @@ public class StrandDumpTest extends BaseTest {
                 steadyStateOutputFilePath);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStrandDumpDuringBalTest() throws BallerinaTestException {
         if (Utils.isWindowsOS()) {
             return;
@@ -92,7 +92,7 @@ public class StrandDumpTest extends BaseTest {
                 steadyStateOutputFilePath, false);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStrandDumpOfSingleBalFile() throws BallerinaTestException {
         Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs", "balProgram1StrandDumpRegEx.txt");
         Path steadyStateOutputFilePath = Path.of(testFileLocation, "testOutputs", "balProgram1SteadyStateOutput.txt");
