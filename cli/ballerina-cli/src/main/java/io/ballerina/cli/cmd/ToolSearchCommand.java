@@ -20,14 +20,22 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.model.Proxy;
+import io.ballerina.projects.internal.model.Repository;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.Tool;
 import org.ballerinalang.central.client.model.ToolSearchResult;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.maven.bala.client.model.ToolSearchEntry;
+import org.ballerinalang.maven.bala.client.model.ToolSearchMavenMetadata;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +43,11 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TOOL_SEARCH_COMMAND;
 import static io.ballerina.cli.utils.PrintUtils.printTools;
+import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
+import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.EMPTY_STRING;
+import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
@@ -114,37 +126,27 @@ public class ToolSearchCommand implements BLauncherCmd {
     }
 
     /**
-     * Search for tools in central.
+     * Search for tools in central, routing to the Maven proxy repository if one is configured.
      *
      * @param keyword search keyword.
      */
     private void searchToolsInCentral(String keyword) {
         try {
-            Settings settings;
-            settings = RepoUtils.readSettings();
+            Settings settings = RepoUtils.readSettings();
             // Ignore Settings.toml diagnostics in the search command
-
-            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                    settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                    settings.getCentral().getConnectTimeout(),
-                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-            boolean foundTools = false;
-            String supportedPlatform = Arrays.stream(JvmTarget.values())
-                    .map(JvmTarget::code)
-                    .collect(Collectors.joining(","));
-            ToolSearchResult toolSearchResult = client.searchTool(keyword, supportedPlatform,
-                    RepoUtils.getBallerinaVersion());
-            List<Tool> tools = toolSearchResult.getTools();
-            if (tools != null && !tools.isEmpty()) {
-                foundTools = true;
-                printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
+            Repository centralProxyMavenRepository = null;
+            for (Repository repository : settings.getRepositories()) {
+                if (MAVEN.equals(repository.type()) && repository.proxyCentral()) {
+                    centralProxyMavenRepository = repository;
+                    break;
+                }
             }
-            if (!foundTools) {
-                outStream.println("no tools found.");
+            if (centralProxyMavenRepository != null) {
+                searchInMvnProxy(keyword, centralProxyMavenRepository, settings);
+                return;
             }
-        } catch (CentralClientException e) {
+            searchInBCentral(keyword, settings);
+        } catch (CentralClientException | MavenResolverClientException e) {
             String errorMessage = e.getMessage();
             if (null != errorMessage && !EMPTY_STRING.equals(errorMessage.trim())) {
                 // removing the error stack
@@ -158,5 +160,63 @@ public class ToolSearchCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
             }
         }
+    }
+
+    private void searchInBCentral(String keyword, Settings settings) throws CentralClientException {
+        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(JvmTarget::code)
+                .collect(Collectors.joining(","));
+        ToolSearchResult toolSearchResult = client.searchTool(keyword, supportedPlatform,
+                RepoUtils.getBallerinaVersion());
+        List<Tool> tools = toolSearchResult.getTools();
+        if (tools != null && !tools.isEmpty()) {
+            printTools(tools, RepoUtils.getTerminalWidth());
+        } else {
+            outStream.println("no tools found.");
+        }
+    }
+
+    private void searchInMvnProxy(String keyword, Repository centralProxyMavenRepository, Settings settings)
+            throws MavenResolverClientException {
+        MavenResolverClient mavenClient = new MavenResolverClient();
+        initialiseMavenProxyClient(centralProxyMavenRepository, mavenClient, settings);
+        Path localRepoPath = RepoUtils.createAndGetHomeReposPath().resolve(
+                Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
+        ToolSearchMavenMetadata searchResult = mavenClient.getToolSearchMetadata(
+                "q=" + keyword, RepoUtils.getBallerinaShortVersion(), localRepoPath);
+        List<Tool> toolList = new ArrayList<>();
+        for (ToolSearchEntry entry : searchResult.getTools()) {
+            Tool tool = new Tool();
+            tool.setBalToolId(entry.getBalToolId());
+            tool.setOrganization(entry.getOrg());
+            tool.setName(entry.getName());
+            tool.setVersion(entry.getVersion());
+            tool.setSummary(entry.getSummary());
+            tool.setCreatedDate(entry.getCreatedDate());
+            toolList.add(tool);
+        }
+        if (!toolList.isEmpty()) {
+            printTools(toolList, RepoUtils.getTerminalWidth(), this.outStream);
+        } else {
+            outStream.println("no tools found.");
+        }
+    }
+
+    private static void initialiseMavenProxyClient(Repository centralProxyMavenRepository,
+                                                   MavenResolverClient mavenClient, Settings settings) {
+        if (!centralProxyMavenRepository.username().isEmpty() && !centralProxyMavenRepository.password().isEmpty()) {
+            mavenClient.addRepository("", centralProxyMavenRepository.url(),
+                    centralProxyMavenRepository.username(), centralProxyMavenRepository.password());
+        } else {
+            mavenClient.addRepository("", centralProxyMavenRepository.url());
+        }
+        Proxy proxy = settings.getProxy();
+        mavenClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
     }
 }

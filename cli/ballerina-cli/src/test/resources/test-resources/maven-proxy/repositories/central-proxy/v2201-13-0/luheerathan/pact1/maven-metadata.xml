@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.luheerathan</groupId>
+  <artifactId>pact1</artifactId>
+  <versions>
+    <version>
+      <number>0.1.0</number>
+      <platform>any</platform>
+      <isDeprecated>false</isDeprecated>
+      <ballerinaVersion>2201.13.0</ballerinaVersion>
+    </version>
+  </versions>
+</metadata>

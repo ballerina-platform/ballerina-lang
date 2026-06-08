@@ -18,11 +18,10 @@
 
 package io.ballerina.cli.cmd;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
@@ -31,7 +30,6 @@ import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -42,12 +40,11 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -55,9 +52,8 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
+import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
-import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
@@ -151,7 +147,7 @@ public class PullCommand implements BLauncherCmd {
         String[] moduleInfo = resourceName.split("/");
         if (moduleInfo.length != 2) {
             CommandUtil.printError(errStream, "invalid package. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
+                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -168,7 +164,7 @@ public class PullCommand implements BLauncherCmd {
             version = Names.EMPTY.getValue();
         } else {
             CommandUtil.printError(errStream, "invalid package. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
+                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -176,13 +172,13 @@ public class PullCommand implements BLauncherCmd {
         // Validate package org, name and version
         if (!validateOrgName(orgName)) {
             CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
+                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (!validatePackageName(packageName)) {
             CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
+                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -219,12 +215,21 @@ public class PullCommand implements BLauncherCmd {
     }
 
     private String pullFromCentral(Settings settings, String orgName, String packageName, String version) {
+        Repository[] mvnRepositories = settings.getRepositories();
+        Repository centralProxyMavenRepository = null;
+        for (Repository repository : mvnRepositories) {
+            if (MAVEN.equals(repository.type()) && repository.proxyCentral()) {
+                centralProxyMavenRepository = repository;
+                break;
+            }
+        }
         Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(orgName).resolve(packageName);
 
-        if (!version.equals(Names.EMPTY.getValue()) && Files.exists(packagePathInBalaCache.resolve(version))) {
+        if (!version.equals(Names.EMPTY.getValue()) &&
+                packageExistsWithPlatform(packagePathInBalaCache.resolve(version))) {
             outStream.println("Package already exists.\n");
             return version;
         }
@@ -238,24 +243,11 @@ public class PullCommand implements BLauncherCmd {
         }
 
         CommandUtil.setPrintStream(errStream);
-        String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(JvmTarget::code)
-                .collect(Collectors.joining(","));
-        CentralAPIClient client;
         try {
-            client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                    settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                    settings.getCentral().getConnectTimeout(),
-                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-            client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                    RepoUtils.getBallerinaVersion(), false);
-            if (version.equals(Names.EMPTY.getValue())) {
-                List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
-                        RepoUtils.getBallerinaVersion());
-                version = CommandUtil.getLatestVersion(versions);
+            if (centralProxyMavenRepository != null) {
+                return pullFromMvnProxy(settings, centralProxyMavenRepository, orgName, packageName, version);
             }
+            return pullFromBCentral(settings, orgName, packageName, version, packagePathInBalaCache);
         } catch (PackageAlreadyExistsException e) {
             // If version is specified by the user && the package exists, it shouldn't reach this point.
             assert version.equals(Names.EMPTY.getValue());
@@ -264,6 +256,77 @@ public class PullCommand implements BLauncherCmd {
         } catch (CentralClientException e) {
             errStream.println("package not found: " + orgName + "/" + packageName);
             CommandUtil.exitError(this.exitWhenFinish);
+        } catch (MavenResolverClientException e) {
+            errStream.println(e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
+        }
+        return version;
+    }
+
+    private String pullFromMvnProxy(Settings settings, Repository centralProxyMavenRepository, String orgName,
+                                    String packageName, String version) throws MavenResolverClientException {
+        MavenResolverClient client = new MavenResolverClient();
+        if (!centralProxyMavenRepository.username().isEmpty() && !centralProxyMavenRepository.password().isEmpty()) {
+            client.addRepository("", centralProxyMavenRepository.url(),
+                    centralProxyMavenRepository.username(), centralProxyMavenRepository.password());
+        } else {
+            client.addRepository("", centralProxyMavenRepository.url());
+        }
+        Proxy proxy = settings.getProxy();
+        client.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
+
+        Path mavenPackageRootPath = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME);
+        if (version.isEmpty()) {
+            //TODO :  Need to check this logic whether central client will return all versions
+            // or only compatible versions with the current ballerina version. If it returns all versions,
+            // we need to filter the versions which are compatible with the current ballerina version.
+            List<String> packageVersions = client.getPackageVersionsInCentralProxy(orgName,
+                    packageName, RepoUtils.getBallerinaShortVersion(), mavenPackageRootPath);
+            List<PackageVersion> packageVersionsList = new ArrayList<>();
+            packageVersions.stream().map(PackageVersion::from).forEach(packageVersionsList::add);
+            PackageVersion latest = CommandUtil.findLatest(packageVersionsList);
+            if (latest == null) {
+                throw new MavenResolverClientException("Package not found.\n");
+            }
+            version = latest.toString();
+        }
+        Path mavenBalaCachePath = mavenPackageRootPath.resolve(orgName).resolve(packageName).resolve(version);
+        if (packageExistsWithPlatform(mavenBalaCachePath)) {
+            outStream.println("Package already exists.\n");
+            return version;
+        }
+        try {
+            //TODO: Optimize this by using maven metadata to get platform
+            CommandUtil.extractAndCopyBala(client, orgName, packageName, version, mavenBalaCachePath);
+        } catch (IOException e) {
+            throw createLauncherException(
+                    "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
+        }
+        return version;
+    }
+
+
+    private String pullFromBCentral(Settings settings, String orgName, String packageName, String version,
+                                    Path packagePathInBalaCache) throws CentralClientException {
+        CentralAPIClient client;
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(JvmTarget::code)
+                .collect(Collectors.joining(","));
+        client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
+        client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                RepoUtils.getBallerinaVersion(), false);
+        if (version.equals(Names.EMPTY.getValue())) {
+            List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
+                    RepoUtils.getBallerinaVersion());
+            return CommandUtil.getLatestVersion(versions);
         }
         return version;
     }
@@ -303,21 +366,8 @@ public class PullCommand implements BLauncherCmd {
                     .resolve(orgName).resolve(packageName).resolve(version);
 
             try {
-                Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
-                mavenResolverClient.pullPackage(orgName, packageName, version,
-                        String.valueOf(tmpDownloadDirectory.toAbsolutePath()));
-                Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
-                        .resolve(packageName + "-" + version + BALA_EXTENSION);
-                Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
-                        .resolve(version).resolve(PLATFORM);
-                ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
-                Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
-                try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
-                    JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
-                    String platform = resultObj.get(PLATFORM).getAsString();
-                    Path actualBalaPath = mavenBalaCachePath.resolve(platform);
-                    FileUtils.copyDirectory(temporaryExtractionPath.toFile(), actualBalaPath.toFile());
-                }
+                CommandUtil.extractAndCopyBala(mavenResolverClient, orgName, packageName, version,
+                        mavenBalaCachePath);
             } catch (MavenResolverClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -330,13 +380,30 @@ public class PullCommand implements BLauncherCmd {
         }
     }
 
+    private boolean packageExistsWithPlatform(Path versionPath) {
+        if (!Files.exists(versionPath)) {
+            return false;
+        }
+        Path balaPath = versionPath.resolve("any");
+        if (Files.exists(balaPath)) {
+            return true;
+        }
+        for (JvmTarget jvmTarget : JvmTarget.values()) {
+            balaPath = versionPath.resolve(jvmTarget.code());
+            if (Files.exists(balaPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean resolveDependencies(String orgName, String packageName, String version) {
         CommandUtil.setPrintStream(errStream);
         try {
             PackageLockingMode packageLockingMode;
             if (sticky) {
                 packageLockingMode = PackageLockingMode.HARD;
-            }  else {
+            } else {
                 packageLockingMode = Objects.requireNonNullElse(lockingMode, PackageLockingMode.SOFT);
             }
             BuildOptions buildOptions = BuildOptions.builder().setLockingMode(packageLockingMode).setOffline(offline)

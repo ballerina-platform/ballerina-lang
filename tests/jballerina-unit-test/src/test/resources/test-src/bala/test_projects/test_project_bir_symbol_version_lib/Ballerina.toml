@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "bir_symbol_version_lib"
+version = "1.0.0"
