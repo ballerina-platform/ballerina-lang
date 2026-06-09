@@ -11167,6 +11167,18 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseInterpolation() {
         startContext(ParserRuleContext.INTERPOLATION);
         STNode interpolStart = parseInterpolationStart();
+
+        // Detect empty interpolation ${}
+        if (peek().kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+            STNode missingIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(
+                    SyntaxKind.IDENTIFIER_TOKEN,
+                    DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+            STNode missingExpr = STNodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+            STNode closeBrace = parseCloseBrace();
+            endContext();
+            return STNodeFactory.createInterpolationNode(interpolStart, missingExpr, closeBrace);
+        }
+
         STNode expr = parseExpression();
 
         // Remove additional token in interpolation
