@@ -46,6 +46,9 @@ OPTIONS
            previously downloaded dependencies in local caches, will fail
            otherwise.
 
+       --silent
+           Suppress compilation and execution meta logs.
+
        --sticky
        	   Attempt to stick to the dependency versions available in the
        	   'Dependencies.toml' file. If the file doesn't exist, this option

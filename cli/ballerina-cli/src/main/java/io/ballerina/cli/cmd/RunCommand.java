@@ -81,7 +81,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
 @CommandLine.Command(name = RUN_COMMAND, description = "Compile and run the current package")
 public class RunCommand implements BLauncherCmd {
 
-    private final PrintStream outStream;
+    private PrintStream outStream;
     private final PrintStream errStream;
     private Path projectPath;
     private boolean exitWhenFinish;
@@ -100,6 +100,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
             "then run.")
     private Boolean offline;
+
+    @CommandLine.Option(names = "--silent", description = "Suppress compilation and execution meta logs.")
+    private boolean silent;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
@@ -198,6 +201,9 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
+        if (this.silent) {
+            this.outStream = new PrintStream(java.io.OutputStream.nullOutputStream());
+        }
         long start = 0;
         int exitCode = 0;
         if (this.helpFlag) {
