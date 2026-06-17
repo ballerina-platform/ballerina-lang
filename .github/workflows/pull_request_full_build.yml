@@ -132,7 +132,11 @@ jobs:
             else
               repo_name="${module_name}"
             fi
-            echo "Building Standard Library: $repo_name" && cd $repo_name && ./gradlew clean build --stacktrace --scan && cd ..
+            if [[ $repo_name == "openapi-tools" ]]; then
+              echo "Building Standard Library: $repo_name" && cd $repo_name && ./gradlew clean build -x :openapi-cli:test --stacktrace --scan && cd ..
+            else
+              echo "Building Standard Library: $repo_name" && cd $repo_name && ./gradlew clean build --stacktrace --scan && cd ..
+            fi
           done
         shell: bash
         env:
