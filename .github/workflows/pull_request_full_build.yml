@@ -132,6 +132,7 @@ jobs:
             else
               repo_name="${module_name}"
             fi
+            # TODO: Remove -x :openapi-cli:test once https://github.com/ballerina-platform/ballerina-library/issues/8825 is fixed
             if [[ $repo_name == "openapi-tools" ]]; then
               echo "Building Standard Library: $repo_name" && cd $repo_name && ./gradlew clean build -x :openapi-cli:test --stacktrace --scan && cd ..
             else
