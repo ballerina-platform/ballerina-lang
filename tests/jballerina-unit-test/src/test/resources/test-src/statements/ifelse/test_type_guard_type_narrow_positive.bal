@@ -331,3 +331,56 @@ function test16(2|"foo"|"bar"? x) {
 
     ("bar"|2|"foo")? _ = x;
 }
+
+function test17() returns int|string {
+    int|error? x = 2;
+    if x is error {
+        return "";
+    }
+    else {}
+
+    if x is () {
+        return 2;
+    }
+
+    return x;
+}
+
+function test18() returns int|string {
+    int|error? x = 2;
+    if x is error {
+        panic error("unexpected");
+    }
+    else {}
+
+    if x is () {
+        return 2;
+    }
+    return x;
+}
+
+function test19() returns int|string {
+    int|error? x = 2;
+    if x is error {
+        return "";
+    }
+    // No else at all
+
+    if x is () {
+        return 2;
+    }
+    return x;
+}
+
+function test20() returns int|string {
+    int|error? x = 2;
+    if x is error {
+        return "";
+    }
+    else if x is () {
+        return 2;
+    }
+    else {} // empty else on a chained if-else
+
+    return x;
+}

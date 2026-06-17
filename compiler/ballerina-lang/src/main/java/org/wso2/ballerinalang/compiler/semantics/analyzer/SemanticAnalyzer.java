@@ -612,20 +612,51 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement,
                                                            SymbolEnv currentEnv, AnalyzerData data) {
-        if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
-                && ((BLangIf) prevStatement).elseStmt == null && data.notCompletedNormally) {
-            BLangIf ifStmt = (BLangIf) prevStatement;
-            data.notCompletedNormally =
-                    ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
-            // Explicitly add block env since it's required for resetting the types
-            data.prevEnvs.push(currentEnv);
-            // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
-            data.env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
-            analyzeStmt(currentStmt, data);
-            data.prevEnvs.pop();
-            return true;
+        if (prevStatement == null || prevStatement.getKind() != NodeKind.IF || !data.notCompletedNormally) {
+            return false;
         }
-        return false;
+        BLangIf ifStmt = (BLangIf) prevStatement;
+
+        if (ifStmt.elseStmt != null && !endsWithEmptyElse(ifStmt)) {
+            return false;
+        }
+
+        data.notCompletedNormally =
+                ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+        data.prevEnvs.push(currentEnv);
+
+        if (ifStmt.elseStmt == null) {
+            // No else: re-derive falsity from the single condition against currentEnv.
+            data.env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
+        } else {
+            // else-if chain ending in empty else: walk every condition composing narrowings.
+            SymbolEnv composedEnv = currentEnv;
+            BLangIf currentIf = ifStmt;
+            while (currentIf != null) {
+                currentIf.expr.narrowedTypeInfo = null;
+                composedEnv = typeNarrower.evaluateFalsity(currentIf.expr, currentStmt, composedEnv, false);
+                if (currentIf.elseStmt != null && currentIf.elseStmt.getKind() == NodeKind.IF) {
+                    currentIf = (BLangIf) currentIf.elseStmt;
+                } else {
+                    currentIf = null;
+                }
+            }
+            data.env = composedEnv;
+        }
+
+        analyzeStmt(currentStmt, data);
+        data.prevEnvs.pop();
+        return true;
+    }
+
+    private boolean endsWithEmptyElse(BLangIf ifStmt) {
+        BLangStatement elseStmt = ifStmt.elseStmt;
+        while (elseStmt != null && elseStmt.getKind() == NodeKind.IF) {
+            elseStmt = ((BLangIf) elseStmt).elseStmt;
+        }
+        return elseStmt != null
+                && elseStmt.getKind() == NodeKind.BLOCK
+                && ((BLangBlockStmt) elseStmt).stmts.isEmpty();
     }
 
     @Override
@@ -2842,7 +2873,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangStatement elseStmt = ifNode.elseStmt;
             data.env = elseEnv;
             analyzeStmt(elseStmt, data);
-            if (elseStmt.getKind() == NodeKind.IF) {
+
+            boolean elseCompletesNormally = !data.notCompletedNormally;
+            if (elseCompletesNormally) {
+                data.notCompletedNormally = ifCompletionStatus;
+            } else {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
             }
         }

@@ -133,14 +133,14 @@ public class TypeGuardTest {
                 181, 17);
         // TODO : Fix me : #21609
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: expected 'string', found '(float|string)'", 183,
-                                  20);
+                "incompatible types: expected 'string', found '(float|string)'", 183,
+                20);
         // TODO : Fix me : #21609
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string|float)'",
                 190, 17);
 //        BAssertUtil.validateError(negativeResult, i++,
 //                "incompatible types: expected 'string', found '(boolean|int|string)'", 192, 20);
-                BAssertUtil.validateError(negativeResult, i++,
+        BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found 'boolean'", 192, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|boolean)'",
                 199, 17);
@@ -213,8 +213,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'record {| byte i?;" +
                 " boolean b; |}'", 429, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                        "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & " +
-                        "readonly'", 452, 56);
+                "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & " +
+                "readonly'", 452, 56);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'readonly', found 'record {| " +
                 "readonly int i; string s; |}'", 456, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte i; |}', found " +
