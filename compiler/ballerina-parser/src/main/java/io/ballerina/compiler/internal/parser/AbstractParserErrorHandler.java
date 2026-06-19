@@ -408,8 +408,9 @@ public abstract class AbstractParserErrorHandler {
         // Safety net: This mirrors the identical fail-safe in seekMatch()
         if (bestMatches == null) {
             Result fallback = new Result(new ArrayDeque<>(), currentMatches);
-            fallback.solution = new Solution(Action.REMOVE, this.ctxStack.peek(), SyntaxKind.NONE,
-                    this.ctxStack.peek().toString());
+            ParserRuleContext fallbackCtx = this.ctxStack.peek();
+            String fallbackText = fallbackCtx != null ? fallbackCtx.toString() : "";
+            fallback.solution = new Solution(Action.REMOVE, fallbackCtx, SyntaxKind.NONE, fallbackText);
             return fallback;
         }
 
