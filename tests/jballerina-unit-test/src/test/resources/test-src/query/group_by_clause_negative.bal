@@ -191,3 +191,16 @@ function testSeqVarInInvalidPositions5() {
         let string _ = name2 // error
         select count(name1);
 }
+
+type Account record {
+    int? id;
+    string name;
+    string token;
+};
+
+function testGroupBySequenceDirectIndexAccess() {
+    Account[] accounts = [];
+    Account[] result = from Account account in accounts
+        group by int aid = <int>(account.id)
+        select account[0]; // invalid: direct index access on sequence variable
+}
