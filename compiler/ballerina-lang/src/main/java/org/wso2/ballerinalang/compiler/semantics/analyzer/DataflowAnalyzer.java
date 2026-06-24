@@ -1983,9 +1983,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isSelfKeyWordExpr(BLangExpression expr) {
-
-        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                Names.SELF.value.equals(((BLangSimpleVarRef) expr).getVariableName().getValue());
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+        return Names.SELF.value.equals(varRef.getVariableName().getValue())
+                && varRef.symbol != null
+                && varRef.symbol.type instanceof BObjectType;
     }
 
     private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {

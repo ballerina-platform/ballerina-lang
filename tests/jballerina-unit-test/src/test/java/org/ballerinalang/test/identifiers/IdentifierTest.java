@@ -84,7 +84,11 @@ public class IdentifierTest {
     public Object[] functionsWithSelfAsIdentifier() {
         return new String[]{
                 "testFuncWithSelfAsParamName",
-                "testSelfAsIdentifier"
+                "testSelfAsIdentifier",
+                "testSelfAsVariableName",
+                "testSelfAsArgument",
+                "testQuotedSelfAsVariableName",
+                "testQuotedSelfAsArgument"
         };
     }
 
