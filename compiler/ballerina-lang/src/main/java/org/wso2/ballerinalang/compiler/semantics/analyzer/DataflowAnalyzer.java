@@ -1989,7 +1989,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
         return Names.SELF.value.equals(varRef.getVariableName().getValue())
                 && varRef.symbol != null
-                && varRef.symbol.type instanceof BObjectType;
+                && varRef.symbol.type.tag == TypeTags.OBJECT;
     }
 
     private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
