@@ -1094,4 +1094,32 @@ public class PackCommandTest extends BaseCommandTest {
         Files.deleteIfExists(logFile.getParent());
         Files.deleteIfExists(logFile.getParent().getParent());
     }
+
+    @Test(description = "Pack a project without Package.md")
+    public void testPackProjectMissingPackageMd() throws IOException {
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        // Ensure Package.md does not exist
+        Files.deleteIfExists(projectPath.resolve(PACKAGE_MD_FILE_NAME));
+
+        System.setProperty(USER_DIR, projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("warning: Package.md is missing."));
+    }
+
+    @Test(description = "Pack a project with empty Package.md")
+    public void testPackProjectEmptyPackageMd() throws IOException {
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        // Create empty Package.md
+        Files.writeString(projectPath.resolve(PACKAGE_MD_FILE_NAME), "");
+
+        System.setProperty(USER_DIR, projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("warning: Package.md is empty."));
+    }
 }
