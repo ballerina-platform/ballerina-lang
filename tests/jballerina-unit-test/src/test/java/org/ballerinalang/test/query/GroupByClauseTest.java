@@ -304,6 +304,8 @@ public class GroupByClauseTest {
                 191, 24);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 191, 24);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
+                "list constructor or function invocation", 205, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

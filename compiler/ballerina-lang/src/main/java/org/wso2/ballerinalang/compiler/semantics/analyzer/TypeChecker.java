@@ -8896,6 +8896,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
+                if (varRefType.tag == TypeTags.SEQUENCE) {
+                    return actualType;
+                }
                 if (isConstExpr(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.indexExpr.pos,
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
@@ -9110,6 +9113,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (type.tag == TypeTags.TUPLE) {
             return checkTupleIndexBasedAccess(accessExpr, (BTupleType) type, accessExpr.indexExpr.getBType());
+        }
+
+        if (type.tag == TypeTags.SEQUENCE) {
+            return symTable.semanticError;
         }
 
         LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
