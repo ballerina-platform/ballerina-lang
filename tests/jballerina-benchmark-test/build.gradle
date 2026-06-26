@@ -103,7 +103,6 @@ test {
 }
 
 tasks.register('runBenchmark', Exec) {
-    dependsOn test
     onlyIf { !Os.isFamily(Os.FAMILY_WINDOWS) }
     workingDir project.projectDir
     environment 'JAVA_OPTS', '-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true'
