@@ -51,7 +51,9 @@ public class CheckingStmtTest {
                 "testNilLiteral",
                 "testVariableReference",
                 "testFieldAccessExpr",
-                "testMemberAccessExpr"
+                "testMemberAccessExpr",
+                "testCheckInsideForeachAndOnFail",
+                "testSingleFailSiteCheck"
         };
     }
 

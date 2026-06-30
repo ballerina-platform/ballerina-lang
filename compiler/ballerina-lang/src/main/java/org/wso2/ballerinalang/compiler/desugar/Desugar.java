@@ -5536,6 +5536,23 @@ public class Desugar extends BLangNodeVisitor {
     private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangOnFailClause currentOnFail = this.onFailClause;
 
+        if (!onFailClause.desugared) {
+            // Step back to the enclosing on-fail context before rewriting the body, so that
+            // any check/fail expression inside the on-fail body resolves against the correct
+            // outer clause rather than looping back into the current one.
+            int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
+            int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
+                    : (currentOnFailIndex - 1);
+            if (enclosingOnFailIndex >= 0 && !this.enclosingOnFailClause.isEmpty()) {
+                this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+            } else {
+                this.onFailClause = null;
+            }
+            onFailClause.body = rewrite(onFailClause.body, env);
+            onFailClause.desugared = true;
+            this.onFailClause = currentOnFail;
+        }
+
         BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
         onFailBody.stmts.addAll(onFailClause.body.stmts);
         onFailBody.scope = onFailClause.body.scope;
@@ -5547,7 +5564,11 @@ public class Desugar extends BLangNodeVisitor {
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
         int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
                 : (currentOnFailIndex - 1);
-        this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+        if (enclosingOnFailIndex >= 0 && !this.enclosingOnFailClause.isEmpty()) {
+            this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+        } else {
+            this.onFailClause = null;
+        }
         onFailBody = rewrite(onFailBody, env);
         BLangFail failToEndBlock = new BLangFail();
         if (onFailClause.isInternal && fail.exprStmt != null) {
