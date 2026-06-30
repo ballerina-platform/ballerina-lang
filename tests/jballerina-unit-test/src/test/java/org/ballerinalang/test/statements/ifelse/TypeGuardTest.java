@@ -1116,6 +1116,8 @@ public class TypeGuardTest {
                 "incompatible types: expected '\"bar\"', found '(\"foo\"|\"bar\")'", 421, 19);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'int', found '(\"bar\"|2|\"foo\")?'", 430, 13);
+        BAssertUtil.validateError(result, index++,
+                "incompatible types: expected 'int', found '(int|error)?'", 441, 12);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 

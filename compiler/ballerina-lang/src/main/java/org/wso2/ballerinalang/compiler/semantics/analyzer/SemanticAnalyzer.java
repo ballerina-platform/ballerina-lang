@@ -2874,11 +2874,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.env = elseEnv;
             analyzeStmt(elseStmt, data);
 
-            boolean elseCompletesNormally = !data.notCompletedNormally;
-            if (elseCompletesNormally) {
-                data.notCompletedNormally = ifCompletionStatus;
-            } else {
+            if (elseStmt.getKind() == NodeKind.IF) {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
+            } else {
+                boolean elseCompletesNormally = !data.notCompletedNormally;
+                if (elseCompletesNormally) {
+                    data.notCompletedNormally = ifCompletionStatus;
+                } else {
+                    data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
+                }
             }
         }
         data.narrowedTypeInfo = prevNarrowedTypeInfo;
