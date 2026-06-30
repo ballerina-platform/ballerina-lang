@@ -88,7 +88,9 @@ public class IdentifierTest {
                 "testSelfAsVariableName",
                 "testSelfAsArgument",
                 "testQuotedSelfAsVariableName",
-                "testQuotedSelfAsArgument"
+                "testQuotedSelfAsArgument",
+                "testObjectTypedQuotedSelfAsVariableName",
+                "testObjectTypedQuotedSelfAsArgument"
         };
     }
 

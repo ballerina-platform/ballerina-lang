@@ -75,3 +75,25 @@ function testQuotedSelfAsArgument() {
     int result = funcWithSelfAsParamName('self);
     test:assertEquals(result, 8);
 }
+
+class MyClassForQuotedSelf {
+    int n;
+
+    function init(int n) {
+        self.n = n;
+    }
+}
+
+function testObjectTypedQuotedSelfAsVariableName() {
+    MyClassForQuotedSelf 'self = new MyClassForQuotedSelf(5);
+    test:assertEquals('self.n, 5);
+}
+
+function testObjectTypedQuotedSelfAsArgument() {
+    MyClassForQuotedSelf 'self = new MyClassForQuotedSelf(5);
+    test:assertEquals(funcTakingMyClass('self).n, 5);
+}
+
+function funcTakingMyClass(MyClassForQuotedSelf c) returns MyClassForQuotedSelf {
+    return c;
+}
