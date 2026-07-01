@@ -79,7 +79,6 @@ import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * Helper class to create a clone of it.
@@ -855,7 +854,7 @@ public final class ImmutableTypeCloner {
             return originalTSymbol.name.value;
         }
         return pkgID.orgName + Names.ORG_NAME_SEPARATOR.value + pkgID.name + Names.VERSION_SEPARATOR +
-                getMajorVersion(pkgID.version.value) + ":" + originalTSymbol.name;
+                pkgID.version.value + ":" + originalTSymbol.name;
     }
 
     private static Name getImmutableTypeName(BTypeSymbol originalTSymbol) {
