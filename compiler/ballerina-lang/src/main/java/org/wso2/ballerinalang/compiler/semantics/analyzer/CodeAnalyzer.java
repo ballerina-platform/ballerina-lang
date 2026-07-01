@@ -3649,7 +3649,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         if (!pkgID.equals(symbol.pkgID) && !Symbols.isPublic(symbol)) {
-            dlog.error(position, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
+            if (symbol.name.value.endsWith("." + Names.USER_DEFINED_INIT_SUFFIX.value)) {
+                String objName = symbol.name.value.substring(0,
+                        symbol.name.value.length() - Names.USER_DEFINED_INIT_SUFFIX.value.length() - 1);
+                dlog.error(position, DiagnosticErrorCode.ATTEMPT_INITIALIZE_NON_ACCESSIBLE_OBJECT, objName);
+            } else {
+                dlog.error(position, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
+            }
         }
     }
 

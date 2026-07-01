@@ -978,7 +978,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             if (isMemberAccessAllowed(env, entry.symbol)) {
                 return entry.symbol;
             } else {
-                dlog.error(pos, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, entry.symbol.name);
+                if (entry.symbol.name.value.endsWith("." + Names.USER_DEFINED_INIT_SUFFIX.value)) {
+                    String objName = entry.symbol.name.value.substring(0,
+                            entry.symbol.name.value.length() - Names.USER_DEFINED_INIT_SUFFIX.value.length() - 1);
+                    dlog.error(pos, DiagnosticErrorCode.ATTEMPT_INITIALIZE_NON_ACCESSIBLE_OBJECT, objName);
+                } else {
+                    dlog.error(pos, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, entry.symbol.name);
+                }
                 return symTable.notFoundSymbol;
             }
         }
