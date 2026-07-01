@@ -635,7 +635,8 @@ public final class ProjectUtils {
                         s.append(c);
                     }
                 } catch (IOException e) {
-                    throw new ProjectException(e);
+                    throw new ProjectException("Failed to read service entry: " + e.getMessage() +
+                            ", for key: " + entryName + ", from jar: " + ballerinaRTJarPath, e);
                 }
                 if (c != '\n') {
                     s.append('\n');
@@ -663,10 +664,14 @@ public final class ProjectUtils {
         for (Map.Entry<String, StringBuilder> entry : services.entrySet()) {
             String s = entry.getKey();
             StringBuilder service = entry.getValue();
-            JarArchiveEntry e = new JarArchiveEntry(s);
-            outStream.putArchiveEntry(e);
-            outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
-            outStream.closeArchiveEntry();
+            try {
+                JarArchiveEntry e = new JarArchiveEntry(s);
+                outStream.putArchiveEntry(e);
+                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+                outStream.closeArchiveEntry();
+            } catch (IOException e) {
+                throw new IOException("Failed to put archive entry: " + e.getMessage() + ", for key: " + s, e);
+            }
         }
     }
 
