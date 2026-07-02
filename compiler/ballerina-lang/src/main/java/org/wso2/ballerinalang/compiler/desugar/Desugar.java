@@ -5533,23 +5533,24 @@ public class Desugar extends BLangNodeVisitor {
         return errorVarDef;
     }
 
+    private void setEnclosingOnFail() {
+        int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
+        int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
+                : (currentOnFailIndex - 1);
+        if (enclosingOnFailIndex >= 0 && !this.enclosingOnFailClause.isEmpty()) {
+            this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+        } else {
+            this.onFailClause = null;
+        }
+    }
+
     private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangOnFailClause currentOnFail = this.onFailClause;
 
-        if (!onFailClause.desugared) {
-            // Step back to the enclosing on-fail context before rewriting the body, so that
-            // any check/fail expression inside the on-fail body resolves against the correct
-            // outer clause rather than looping back into the current one.
-            int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
-            int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
-                    : (currentOnFailIndex - 1);
-            if (enclosingOnFailIndex >= 0 && !this.enclosingOnFailClause.isEmpty()) {
-                this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
-            } else {
-                this.onFailClause = null;
-            }
+        if (!onFailClause.bodyDesugared) {
+            setEnclosingOnFail();
             onFailClause.body = rewrite(onFailClause.body, env);
-            onFailClause.desugared = true;
+            onFailClause.bodyDesugared = true;
             this.onFailClause = currentOnFail;
         }
 
@@ -5561,14 +5562,7 @@ public class Desugar extends BLangNodeVisitor {
 
         handleOnFailErrorVarDefNode(onFailClause.variableDefinitionNode, onFailBody, fail);
 
-        int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
-        int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
-                : (currentOnFailIndex - 1);
-        if (enclosingOnFailIndex >= 0 && !this.enclosingOnFailClause.isEmpty()) {
-            this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
-        } else {
-            this.onFailClause = null;
-        }
+        setEnclosingOnFail();
         onFailBody = rewrite(onFailBody, env);
         BLangFail failToEndBlock = new BLangFail();
         if (onFailClause.isInternal && fail.exprStmt != null) {

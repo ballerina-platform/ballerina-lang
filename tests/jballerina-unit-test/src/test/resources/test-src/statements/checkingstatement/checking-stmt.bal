@@ -144,3 +144,25 @@ function testSingleFailSiteCheck() returns error? {
     }
     assertTrue(!onFailReached);
 }
+
+function testCheckInsideMatchAndOnFail() returns error? {
+    int[] items = [1, 2];
+    int selector = 0;
+
+    match selector {
+        0 => {
+            if items.length() == 0 {
+                fail error("empty");
+            }
+        }
+        1 => {
+            foreach int item in items {
+                _ = check mockOperation();
+            }
+        }
+    } on fail error e {
+        foreach int item in items {
+            _ = check mockOperation();
+        }
+    }
+}

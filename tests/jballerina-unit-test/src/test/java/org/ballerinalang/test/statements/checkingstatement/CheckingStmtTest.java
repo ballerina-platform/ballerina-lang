@@ -53,7 +53,8 @@ public class CheckingStmtTest {
                 "testFieldAccessExpr",
                 "testMemberAccessExpr",
                 "testCheckInsideForeachAndOnFail",
-                "testSingleFailSiteCheck"
+                "testSingleFailSiteCheck",
+                "testCheckInsideMatchAndOnFail"
         };
     }
 
