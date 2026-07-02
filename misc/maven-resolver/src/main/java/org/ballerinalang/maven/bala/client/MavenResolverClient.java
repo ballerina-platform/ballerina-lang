@@ -1024,6 +1024,22 @@ public class MavenResolverClient {
         version.setPlatform(getElementTextContent(element, "platform"));
         version.setIsDeprecated(Boolean.parseBoolean(getElementTextContent(element, "isDeprecated")));
         version.setBallerinaVersion(getElementTextContent(element, "ballerinaVersion"));
+
+        List<String> modules = new ArrayList<>();
+        Element modulesElement = (Element) element.getElementsByTagName("modules").item(0);
+        if (modulesElement != null) {
+            NodeList moduleNodes = modulesElement.getElementsByTagName("module");
+            for (int i = 0; i < moduleNodes.getLength(); i++) {
+                Node moduleNode = moduleNodes.item(i);
+                if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
+                    String moduleName = getElementTextContent((Element) moduleNode, "name");
+                    if (!moduleName.isEmpty()) {
+                        modules.add(moduleName);
+                    }
+                }
+            }
+        }
+        version.setModules(modules);
         return version;
     }
 

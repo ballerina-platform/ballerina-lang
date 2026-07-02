@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.maven.bala.client.model;
 
+import java.util.List;
+
 /**
  * Data class representing a single Ballerina package version parsed from maven-metadata.xml.
  *
@@ -27,6 +29,7 @@ public class Version {
     private String platform;
     private boolean isDeprecated;
     private String ballerinaVersion;
+    private List<String> modules;
 
     public Version() {
     }
@@ -63,6 +66,14 @@ public class Version {
         this.ballerinaVersion = ballerinaVersion;
     }
 
+    public List<String> getModules() {
+        return modules;
+    }
+
+    public void setModules(List<String> modules) {
+        this.modules = modules;
+    }
+
     @Override
     public String toString() {
         return "Version{" +
@@ -70,6 +81,7 @@ public class Version {
                 ", platform='" + platform + '\'' +
                 ", isDeprecated=" + isDeprecated +
                 ", ballerinaVersion='" + ballerinaVersion + '\'' +
+                ", modules=" + modules +
                 '}';
     }
 }
