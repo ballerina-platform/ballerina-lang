@@ -259,6 +259,41 @@ public class MavenResolverClient {
     }
 
     /**
+     * Get versions of a package from the central proxy Maven repository that contain the specified module,
+     * using a cached metadata lookup.
+     *
+     * <p>When the metadata includes a module list, only versions that export {@code moduleName} are returned.
+     * If a version's module list is empty (older packages that predate module metadata), it is included
+     * unconditionally to preserve backward compatibility.
+     *
+     * @param groupId            group ID of the package
+     * @param artifactId         artifact ID of the package
+     * @param moduleName         fully-qualified module name to filter by (e.g. {@code "openai.chat"})
+     * @param ballerinaVersion   current Ballerina distribution version for compatibility filtering
+     * @param localRepoPath      path to the local Maven repository
+     * @return list of version strings
+     * @throws MavenResolverClientException when version resolution fails
+     */
+    public List<String> getPackageVersionsInCentralProxy(String groupId, String artifactId, String moduleName,
+                                                         String ballerinaVersion, Path localRepoPath) throws
+            MavenResolverClientException {
+        try {
+            String cacheKey = groupId + ":" + artifactId;
+            if (!pkgMetadataCache.containsKey(cacheKey)) {
+                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(groupId, artifactId, localRepoPath,
+                        ballerinaVersion));
+            }
+            return pkgMetadataCache.get(cacheKey).getVersions().stream()
+                    .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
+                    .filter(v -> v.getModules().isEmpty() || v.getModules().contains(moduleName))
+                    .map(Version::getVersion)
+                    .collect(Collectors.toList());
+        } catch (MavenResolverClientException e) {
+            throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
+        }
+    }
+
+    /**
      * Get the Ballerina distribution version required by a specific package version.
      *
      * @param org              organization name
