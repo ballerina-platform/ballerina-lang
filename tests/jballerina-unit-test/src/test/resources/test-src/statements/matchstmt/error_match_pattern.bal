@@ -438,3 +438,55 @@ function assertEquals(anydata expected, anydata actual) {
 
     panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
+
+// Tests for exhaustiveness with error + wildcard pattern on json|error type
+function errorMatchPattern21(json j) returns string {
+    match j.kind {
+        "a" => {
+        return "A";
+        }
+        error(var _) => {
+        return "E";
+        }
+        _ => {
+        return "B";
+        }
+    }
+}
+
+function errorMatchPattern22(json j) returns string {
+    match j.kind {
+        "a" => {
+        return "A";
+        }
+        _ => {
+        return "B";
+        }
+        error(var _) => {
+        return "E";
+        }
+    }
+}
+
+function errorMatchPattern23(json j) returns string {
+    match j.kind {
+        "a" => {
+        return "A";
+        }
+        error(var _) => {
+        return "E";
+        }
+        var _ => {
+            return "B";
+        }
+    }
+}
+
+function testErrorMatchPattern18() {
+    assertEquals("A", errorMatchPattern21({kind: "a"}));
+    assertEquals("B", errorMatchPattern21({kind: "b"}));
+    assertEquals("A", errorMatchPattern22({kind: "a"}));
+    assertEquals("B", errorMatchPattern22({kind: "b"}));
+    assertEquals("A", errorMatchPattern23({kind: "a"}));
+//    assertEquals("B", errorMatchPattern23({kind: "b"})); // Bug. Uncomment after fix.
+}
