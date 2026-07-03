@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.maven.bala.client.model;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,7 +68,7 @@ public class Version {
     }
 
     public List<String> getModules() {
-        return modules;
+        return modules == null ? Collections.emptyList() : modules;
     }
 
     public void setModules(List<String> modules) {
