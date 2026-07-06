@@ -89,4 +89,12 @@ public interface SyntaxNodeAnalysisContext {
      * @param diagnostic the {@code Diagnostic} to be reported
      */
     void reportDiagnostic(Diagnostic diagnostic);
+
+    /**
+     * Adds endpoint metadata to be exported at the end of the build.
+     *
+     * @param endpointArtifact endpoint metadata to export
+     */
+    default void addEndpointArtifact(EndpointArtifact endpointArtifact) {
+    }
 }

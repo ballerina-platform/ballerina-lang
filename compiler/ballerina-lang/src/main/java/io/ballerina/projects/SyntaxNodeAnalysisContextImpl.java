@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.plugins.EndpointArtifact;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
@@ -96,6 +97,11 @@ class SyntaxNodeAnalysisContextImpl implements SyntaxNodeAnalysisContext {
     @Override
     public void reportDiagnostic(Diagnostic diagnostic) {
         diagnostics.add(diagnostic);
+    }
+
+    @Override
+    public void addEndpointArtifact(EndpointArtifact endpointArtifact) {
+        currentPackage.project().addEndpointArtifact(endpointArtifact);
     }
 
     List<Diagnostic> reportedDiagnostics() {
