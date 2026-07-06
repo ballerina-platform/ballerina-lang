@@ -328,6 +328,7 @@ public class DefaultPackageResolver implements PackageResolver {
         Collection<PackageMetadataResponse> latestVersionsInCentral =
                 centralRepo.getPackageMetadata(centralLoadRequests, options);
 
+
         // TODO Unit test following merge
         // Since packages can be resolved from multiple repos
         // the repos should be provided to the stream in the order of priority.

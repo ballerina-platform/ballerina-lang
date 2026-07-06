@@ -1,0 +1,2 @@
+[workspace]
+packages = ["app", "lib-with-tool", "lib-no-tool"]

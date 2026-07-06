@@ -223,15 +223,15 @@ public class ConfigTest {
 
         return new Object[][]{
                 {"a", new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY},
-                        arrayType, 0, true), "[2,3,4]", 5},
+                        arrayType, 0, true), "[2,3,4]", 4},
                 {"b", new BIntersectionType(ROOT_MODULE, new Type[]{tupleType, PredefinedTypes.TYPE_READONLY},
-                        tupleType, 0, true), "[5,\"hello\"]", 5},
+                        tupleType, 0, true), "[5,\"hello\"]", 4},
                 {"c", new BIntersectionType(ROOT_MODULE, new Type[]{recordType, PredefinedTypes.TYPE_READONLY},
-                        recordType, 0, true), null, 7},
+                        recordType, 0, true), null, 6},
                 {"d", new BIntersectionType(ROOT_MODULE, new Type[]{mapType, PredefinedTypes.TYPE_READONLY},
                         mapType, 0, true), "{\"a\":1}", 4},
                 {"e", new BIntersectionType(ROOT_MODULE, new Type[]{tableType, PredefinedTypes.TYPE_READONLY},
-                        tableType, 0, true), "[{\"aa\":2}]", 4},
+                        tableType, 0, true), "[{\"aa\":2}]", 3},
         };
     }
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.__packagesearchsolr__</groupId>
+  <artifactId>myquery</artifactId>
+  <count>1</count>
+  <limit>10</limit>
+  <offset>0</offset>
+  <packages>
+    <package>
+      <id>42</id>
+      <org>myorg</org>
+      <name>mypkg</name>
+      <version>1.0.0</version>
+      <summary>A test package</summary>
+      <createdDate>1700000000000</createdDate>
+      <balToolId>my-tool</balToolId>
+      <pullCount>100</pullCount>
+      <authors>
+        <author>Alice</author>
+      </authors>
+      <keywords>
+        <keyword>network</keyword>
+        <keyword>http</keyword>
+      </keywords>
+    </package>
+  </packages>
+</metadata>

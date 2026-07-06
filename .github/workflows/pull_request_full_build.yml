@@ -132,6 +132,7 @@ jobs:
             else
               repo_name="${module_name}"
             fi
+            rm -rf ~/.ballerina/repositories/central.ballerina.io
             echo "Building Standard Library: $repo_name" && cd $repo_name && ./gradlew clean build --stacktrace --scan && cd ..
           done
         shell: bash

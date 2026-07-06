@@ -27,6 +27,9 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -129,7 +132,25 @@ public class TypeCheckLogger {
             }
             return new LogConfig(Optional.empty(), false);
         }
-        return new LogConfig(Optional.of(logPath), isSilent);
+        try {
+            Path resolved = Path.of(logPath).toAbsolutePath().normalize();
+            Path allowedBase = Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize();
+            if (!resolved.startsWith(allowedBase)) {
+                throw new IllegalArgumentException(
+                        "BAL_LOG_TYPE_CHECK_PATH must be within the working directory: " + allowedBase);
+            }
+            Path check = resolved;
+            while (check != null && !check.equals(allowedBase)) {
+                if (Files.isSymbolicLink(check)) {
+                    throw new IllegalArgumentException(
+                            "BAL_LOG_TYPE_CHECK_PATH must not contain symlinks: " + logPath);
+                }
+                check = check.getParent();
+            }
+            return new LogConfig(Optional.of(resolved.toString()), isSilent);
+        } catch (InvalidPathException e) {
+            throw new IllegalArgumentException("BAL_LOG_TYPE_CHECK_PATH is not a valid path: " + logPath, e);
+        }
     }
 
     record LogConfig(Optional<String> filePath, boolean isSilent) {

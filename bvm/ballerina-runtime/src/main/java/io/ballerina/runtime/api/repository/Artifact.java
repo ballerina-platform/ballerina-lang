@@ -34,11 +34,12 @@ public abstract class Artifact {
     }
 
     public enum ArtifactType {
-        SERVICE
+        SERVICE, MAIN
     }
 
     /**
      * Get a detail of the Ballerina artifact.
+     * 
      * @param detailKey key of the detail.
      * @return the detail object.
      */
@@ -46,6 +47,7 @@ public abstract class Artifact {
 
     /**
      * Get all details of the Ballerina artifact.
+     * 
      * @return a map of all details.
      */
     public abstract Map<String, Object> getAllDetails();

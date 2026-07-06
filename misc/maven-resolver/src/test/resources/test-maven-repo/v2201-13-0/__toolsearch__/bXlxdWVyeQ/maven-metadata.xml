@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.__toolsearch__</groupId>
+  <artifactId>myquery</artifactId>
+  <count>1</count>
+  <limit>10</limit>
+  <offset>0</offset>
+  <tools>
+    <tool>
+      <org>myorg</org>
+      <name>toolpkg</name>
+      <version>1.0.0</version>
+      <summary>A test tool</summary>
+      <balToolId>my-tool</balToolId>
+      <createdDate>1700000000000</createdDate>
+    </tool>
+  </tools>
+</metadata>
