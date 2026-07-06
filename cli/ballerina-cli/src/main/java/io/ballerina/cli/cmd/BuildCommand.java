@@ -22,6 +22,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CacheArtifactsTask;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.ConsolidateEndpointsTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
@@ -375,6 +376,7 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true,
                         !rebuildNeeded, buildToolDiagnostics))
+                .addTask(new ConsolidateEndpointsTask(), !buildOptions.exportEndpoints())
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                          !rebuildNeeded, skipExecutable))
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
