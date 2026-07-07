@@ -61,7 +61,10 @@ public class BallerinaRecordTypeSymbol extends AbstractStructuredTypeSymbol impl
         BRecordType type = (BRecordType) this.getBType();
 
         for (BField field : type.fields.values()) {
-            fields.put(field.symbol.getOriginalName().value, new BallerinaRecordFieldSymbol(this.context, field));
+            // Skip fields with null symbols (can happen with anonymous types)
+            if (field.symbol != null) {
+                fields.put(field.symbol.getOriginalName().value, new BallerinaRecordFieldSymbol(this.context, field));
+            }
         }
 
         this.fieldSymbols = Collections.unmodifiableMap(fields);

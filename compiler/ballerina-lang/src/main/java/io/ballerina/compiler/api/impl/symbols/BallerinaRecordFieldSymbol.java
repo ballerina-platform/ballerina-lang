@@ -58,10 +58,11 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private final boolean deprecated;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
-        super(bField.symbol.getOriginalName().value, SymbolKind.RECORD_FIELD, bField.symbol, context);
+        super(bField.symbol != null ? bField.symbol.getOriginalName().value : bField.name.value, 
+              SymbolKind.RECORD_FIELD, bField.symbol, context);
         this.bField = bField;
-        this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
-        this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
+        this.docAttachment = bField.symbol != null ? new BallerinaDocumentation(bField.symbol.markdownDocumentation) : null;
+        this.deprecated = bField.symbol != null ? Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED) : false;
     }
 
     /**
@@ -69,12 +70,12 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
      */
     @Override
     public boolean isOptional() {
-        return Symbols.isFlagOn(this.bField.symbol.flags, Flags.OPTIONAL);
+        return bField.symbol != null && Symbols.isFlagOn(this.bField.symbol.flags, Flags.OPTIONAL);
     }
 
     @Override
     public boolean hasDefaultValue() {
-        return !isOptional() && !Symbols.isFlagOn(this.bField.symbol.flags, Flags.REQUIRED);
+        return bField.symbol != null && !isOptional() && !Symbols.isFlagOn(this.bField.symbol.flags, Flags.REQUIRED);
     }
 
     /**
@@ -96,13 +97,15 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
             return this.annots;
         }
 
-        List<AnnotationSymbol> annots = new ArrayList<>();
-        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
-            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        List<AnnotationSymbol> annotationsList = new ArrayList<>();
+        if (bField.symbol != null) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+                annotationsList.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            }
         }
 
-        this.annots = Collections.unmodifiableList(annots);
+        this.annots = Collections.unmodifiableList(annotationsList);
         return this.annots;
     }
 
@@ -112,14 +115,15 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
             return this.annotAttachments;
         }
 
-        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
-
-        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
-            annotAttachments.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+        List<AnnotationAttachmentSymbol> annotAttachmentList = new ArrayList<>();
+        if (bField.symbol != null) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+                annotAttachmentList.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+            }
         }
 
-        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachmentList);
         return this.annotAttachments;
     }
 
@@ -146,10 +150,12 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
         }
 
         List<Qualifier> quals = new ArrayList<>();
-        final long symFlags = this.bField.symbol.flags;
+        if (bField.symbol != null) {
+            final long symFlags = this.bField.symbol.flags;
 
-        if (Symbols.isFlagOn(symFlags, Flags.READONLY)) {
-            quals.add(READONLY);
+            if (Symbols.isFlagOn(symFlags, Flags.READONLY)) {
+                quals.add(READONLY);
+            }
         }
 
         this.qualifiers = Collections.unmodifiableList(quals);
