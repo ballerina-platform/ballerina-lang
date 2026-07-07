@@ -112,6 +112,20 @@ function testReadOnlyRecordFilter() {
     assertFalse(filteredGrades.isReadOnly());
 }
 
+// Issue #39436: removeAll() on a readonly record with only optional fields
+// should panic with OperationNotSupported. Previously it panicked with an incorrect
+// error message saying the field is "required" even though it is declared optional.
+type OptionalFieldRec record {|
+    string name?;
+    int age?;
+|};
+
+function testRemoveAllOnReadOnlyRecordWithOptionalFields() {
+    OptionalFieldRec rec = {name: "Alice", age: 30};
+    OptionalFieldRec & readonly readOnlyRec = rec.cloneReadOnly();
+    readOnlyRec.removeAll();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
