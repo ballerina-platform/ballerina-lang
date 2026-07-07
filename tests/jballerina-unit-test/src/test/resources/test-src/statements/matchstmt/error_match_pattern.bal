@@ -443,13 +443,13 @@ function assertEquals(anydata expected, anydata actual) {
 function errorMatchPattern21(json j) returns string {
     match j.kind {
         "a" => {
-        return "A";
+            return "A";
         }
         error(var _) => {
-        return "E";
+            return "E";
         }
         _ => {
-        return "B";
+            return "B";
         }
     }
 }
@@ -457,13 +457,13 @@ function errorMatchPattern21(json j) returns string {
 function errorMatchPattern22(json j) returns string {
     match j.kind {
         "a" => {
-        return "A";
+            return "A";
         }
         _ => {
-        return "B";
+            return "B";
         }
         error(var _) => {
-        return "E";
+            return "E";
         }
     }
 }
@@ -471,10 +471,10 @@ function errorMatchPattern22(json j) returns string {
 function errorMatchPattern23(json j) returns string {
     match j.kind {
         "a" => {
-        return "A";
+            return "A";
         }
         error(var _) => {
-        return "E";
+            return "E";
         }
         var _ => {
             return "B";

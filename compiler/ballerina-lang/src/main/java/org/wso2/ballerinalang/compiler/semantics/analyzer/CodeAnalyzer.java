@@ -802,21 +802,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (onFailExists) {
             data.failureHandled = true;
         }
-        List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
+
         boolean hasErrorMatchPattern = data.hasErrorMatchPattern;
         data.hasErrorMatchPattern = false;
-        for (BLangMatchClause clause : matchClauses) {
-            if (clause.matchGuard != null) {
-                continue;
-            }
-            for (BLangMatchPattern pattern : clause.matchPatterns) {
-                if (pattern.getKind() == NodeKind.ERROR_MATCH_PATTERN) {
-                    data.hasErrorMatchPattern = true;
-                    break;
-                }
-            }
-        }
-
+        List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         int clausesSize = matchClauses.size();
         for (int i = 0; i < clausesSize; i++) {
             BLangMatchClause firstClause = matchClauses.get(i);
@@ -1496,7 +1485,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangErrorBindingPattern errorBindingPattern, AnalyzerData data) {
-
     }
 
     @Override

@@ -77,5 +77,4 @@ function testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() returns str
         var _ => { return "other"; }
         error(var r) => { return <string> r; }
     }
-    return "no-match";
 }

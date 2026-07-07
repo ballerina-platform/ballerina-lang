@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -461,6 +463,42 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.statementReturnsPanicsOrFails = allClausesReturns && data.hasLastPatternInStatement;
         data.breakAsLastStatement = allClausesBreak && data.hasLastPatternInStatement;
         data.continueAsLastStatement = allClausesContinue && data.hasLastPatternInStatement;
+
+        // collective exhaustiveness check
+        if (allClausesReturns && !data.statementReturnsPanicsOrFails
+                && types.isAssignable(symTable.errorType, matchStatement.expr.getBType())) {
+            boolean hasWildCard = false;
+            boolean hasErrorPattern = false;
+
+            for (BLangMatchClause clause : matchStatement.matchClauses) {
+                if (clause.matchGuard != null) {
+                    continue;
+                }
+                for (BLangMatchPattern pattern : clause.matchPatterns) {
+                    switch (pattern.getKind()) {
+                        case WILDCARD_MATCH_PATTERN:
+                            hasWildCard = true;
+                            break;
+                        case ERROR_MATCH_PATTERN:
+                            hasErrorPattern = true;
+                            break;
+                        case VAR_BINDING_PATTERN_MATCH_PATTERN:
+                            BLangBindingPattern bindingPattern =
+                                    ((BLangVarBindingPatternMatchPattern) pattern).getBindingPattern();
+                            if (bindingPattern.getKind() == NodeKind.WILDCARD_BINDING_PATTERN
+                                    || bindingPattern.getKind() == NodeKind.CAPTURE_BINDING_PATTERN) {
+                                hasWildCard = true;
+                            }
+                            break;
+                    }
+                }
+            }
+            if (hasWildCard && hasErrorPattern) {
+                data.statementReturnsPanicsOrFails = allClausesReturns;
+                data.breakAsLastStatement = allClausesBreak;
+                data.continueAsLastStatement = allClausesContinue;
+            }
+        }
         data.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause, data);
         data.hasLastPatternInStatement = hasLastPatternInStatement;
