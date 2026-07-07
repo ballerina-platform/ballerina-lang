@@ -177,7 +177,7 @@ class IteratorWithCustomError {
     public isolated function next() returns record {|int value;|}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 1);
+            CustomError e = error CustomError("CustomError", message = "custom error occurred", accountID = 1);
             return e;
         } else {
             return {value: self.i};
@@ -218,7 +218,7 @@ class IteratorWithGenericError {
     public isolated function next() returns record {|int value;|}|error? {
         self.i += 1;
         if (self.i == 2) {
-            return error("GenericError", message = "generic error occured");
+            return error("GenericError", message = "generic error occurred");
         } else {
             return {value: self.i};
         }
@@ -288,10 +288,10 @@ class IteratorWithErrorUnion {
     public isolated function next() returns record {|int value;|}|Error? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 2);
+            CustomError e = error CustomError("CustomError", message = "custom error occurred", accountID = 2);
             return e;
         } else if (self.i == 3) {
-            CustomError1 e = error CustomError1("CustomError1", message = "custom error occured", accountID = 3);
+            CustomError1 e = error CustomError1("CustomError1", message = "custom error occurred", accountID = 3);
             return e;
         } else {
             return {value: self.i};

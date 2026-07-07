@@ -5,7 +5,7 @@ function incorrectMapAccessTest() returns (string?) {
 }
 
 function accessAllFields() {
-    map<any> fruits = {"name":"John", "address":"unkown"};
+    map<any> fruits = {"name":"John", "address":"unknown"};
     any a = fruits.*;
 }
 

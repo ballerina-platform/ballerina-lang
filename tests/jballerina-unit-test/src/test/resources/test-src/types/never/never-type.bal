@@ -17,7 +17,7 @@
 //------------ Testing a function with 'never' return type ---------
 
 function functionWithNeverReturnType() returns never {
-    panic error("Panic occured in function with never return");
+    panic error("Panic occurred in function with never return");
 }
 
 function testNeverReturnTypedFunctionCall() {
