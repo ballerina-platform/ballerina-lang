@@ -442,6 +442,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean currentErrorThrown = data.errorThrown;
         boolean hasLastPatternInStatement = data.hasLastPatternInStatement;
         data.hasLastPatternInStatement = false;
+        boolean hasNonErrorWildCardMatchPattern = data.hasNonErrorWildCardMatchPattern;
+        data.hasNonErrorWildCardMatchPattern = false;
         boolean allClausesReturns = true;
         boolean allClausesBreak = true;
         boolean allClausesContinue = true;
@@ -502,21 +504,54 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause, data);
         data.hasLastPatternInStatement = hasLastPatternInStatement;
+        data.hasNonErrorWildCardMatchPattern = hasNonErrorWildCardMatchPattern;
     }
 
     @Override
     public void visit(BLangMatchClause matchClause, AnalyzerData data) {
         boolean hasLastPatternInClause = false;
+        boolean hasNonErrorWildCardMatchPatternInClause = false;
+        boolean matchGuardAvailable = matchClause.matchGuard != null;
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
         for (BLangMatchPattern matchPattern : matchPatterns) {
-            if (data.hasLastPatternInStatement || (hasLastPatternInClause && matchClause.matchGuard == null)) {
+            if (data.hasLastPatternInStatement || (hasLastPatternInClause && !matchGuardAvailable) ||
+                    ((data.hasNonErrorWildCardMatchPattern || hasNonErrorWildCardMatchPatternInClause) &&
+                            !matchGuardAvailable && cannotMatchErrorValue(matchPattern))) {
                 dlog.warning(matchPattern.pos, DiagnosticWarningCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
+            hasNonErrorWildCardMatchPatternInClause =
+                    hasNonErrorWildCardMatchPatternInClause || isNonErrorWildCardMatchPattern(matchPattern);
         }
         analyzeReachability(matchClause.blockStmt, data);
         data.hasLastPatternInStatement = data.hasLastPatternInStatement ||
-                (matchClause.matchGuard == null && hasLastPatternInClause);
+                (!matchGuardAvailable && hasLastPatternInClause);
+        data.hasNonErrorWildCardMatchPattern = data.hasNonErrorWildCardMatchPattern ||
+                (!matchGuardAvailable && hasNonErrorWildCardMatchPatternInClause);
+    }
+
+    private boolean isNonErrorWildCardMatchPattern(BLangMatchPattern matchPattern) {
+        return switch (matchPattern.getKind()) {
+            case WILDCARD_MATCH_PATTERN -> true;
+            case VAR_BINDING_PATTERN_MATCH_PATTERN -> {
+                BLangBindingPattern bindingPattern =
+                        ((BLangVarBindingPatternMatchPattern) matchPattern).getBindingPattern();
+                yield bindingPattern.getKind() == NodeKind.WILDCARD_BINDING_PATTERN;
+            }
+            default -> false;
+        };
+    }
+
+    private boolean cannotMatchErrorValue(BLangMatchPattern matchPattern) {
+        return switch (matchPattern.getKind()) {
+            case ERROR_MATCH_PATTERN -> false;
+            case VAR_BINDING_PATTERN_MATCH_PATTERN -> {
+                BLangBindingPattern bindingPattern =
+                        ((BLangVarBindingPatternMatchPattern) matchPattern).getBindingPattern();
+                yield bindingPattern.getKind() != NodeKind.CAPTURE_BINDING_PATTERN;
+            }
+            default -> true;
+        };
     }
 
     @Override
@@ -1057,6 +1092,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean unreachableBlock;
         boolean breakStmtFound;
         boolean hasLastPatternInStatement;
+        boolean hasNonErrorWildCardMatchPattern;
         boolean failureHandled;
         boolean returnedWithinQuery;
         boolean skipFurtherAnalysisInUnreachableBlock;
