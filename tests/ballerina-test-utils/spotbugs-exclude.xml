@@ -53,4 +53,10 @@
         <Class name="org.ballerinalang.test.agent.server.Request"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
+
+    <Match>
+        <Class name="org.ballerinalang.test.agent.BallerinaServerAgent" />
+        <Method name="premain" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
 </FindBugsFilter>
