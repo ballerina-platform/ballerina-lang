@@ -4124,8 +4124,8 @@ public class Desugar extends BLangNodeVisitor {
 
         return switch (bindingPattern.getKind()) {
             case WILDCARD_BINDING_PATTERN ->
-                    createConditionForWildCardBindingPattern((BLangWildCardBindingPattern) bindingPattern,
-                            matchExprVarRef);
+                    createConditionForWildCardBindingPatternMatchPattern(
+                            (BLangWildCardBindingPattern) bindingPattern, matchExprVarRef);
             case CAPTURE_BINDING_PATTERN ->
                     createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern,
                             matchExprVarRef, pos);
@@ -4141,6 +4141,21 @@ public class Desugar extends BLangNodeVisitor {
             // TODO : Remove this after all patterns are implemented
             default -> null;
         };
+    }
+
+    private BLangExpression createConditionForWildCardBindingPatternMatchPattern(
+            BLangWildCardBindingPattern wildCardBindingPattern,
+            BLangSimpleVarRef matchExprVarRef) {
+
+        if (types.isAssignable(matchExprVarRef.getBType(), wildCardBindingPattern.getBType())) {
+            return ASTBuilderUtil.createLiteral(wildCardBindingPattern.pos,
+                    symTable.booleanType, true);
+        }
+
+        BLangValueType anyType = (BLangValueType) TreeBuilder.createValueTypeNode();
+        anyType.setBType(symTable.anyType);
+        anyType.typeKind = TypeKind.ANY;
+        return createTypeCheckExpr(wildCardBindingPattern.pos, matchExprVarRef, anyType);
     }
 
     private BLangExpression createConditionForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,

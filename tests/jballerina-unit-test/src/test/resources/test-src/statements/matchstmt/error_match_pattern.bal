@@ -488,5 +488,5 @@ function testErrorMatchPattern18() {
     assertEquals("A", errorMatchPattern22({kind: "a"}));
     assertEquals("B", errorMatchPattern22({kind: "b"}));
     assertEquals("A", errorMatchPattern23({kind: "a"}));
-//    assertEquals("B", errorMatchPattern23({kind: "b"})); // Bug. Uncomment after fix.
+    assertEquals("B", errorMatchPattern23({kind: "b"}));
 }
