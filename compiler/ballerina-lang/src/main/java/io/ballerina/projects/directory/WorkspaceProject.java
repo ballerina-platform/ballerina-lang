@@ -79,7 +79,15 @@ public class WorkspaceProject extends Project {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(path.resolve(BALLERINA_TOML)));
-                WorkspaceProject workspaceProject = new WorkspaceProject(path, buildOptions, tomlDocument);
+                // Parse workspace-level [dependency-resolution] options and merge with CLI options.
+                // CLI options (buildOptions) win over workspace-level defaults via acceptTheirs().
+                BuildOptions dependencyResolutionOptions = WorkspaceManifestBuilder
+                        .from(tomlDocument, path).manifest().dependencyResolutionOptions();
+                // CLI options (non-null) always win; TOML fills in when CLI leaves a field unset (null).
+                BuildOptions effectiveBuildOptions = (dependencyResolutionOptions != null)
+                        ? dependencyResolutionOptions.acceptTheirs(buildOptions)
+                        : buildOptions;
+                WorkspaceProject workspaceProject = new WorkspaceProject(path, effectiveBuildOptions, tomlDocument);
                 Environment environment = environmentBuilder.setWorkspace(workspaceProject).build();
                 List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
                 String org = null;

@@ -36,11 +36,12 @@ public class BuildOptions {
     private final Boolean nativeImage;
     private final Boolean exportComponentModel;
     private final String graalVMBuildOptions;
+    private final Boolean repairOnFailure;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath,
                  Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
-                 Boolean showDependencyDiagnostics) {
+                 Boolean showDependencyDiagnostics, Boolean repairOnFailure) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -51,6 +52,7 @@ public class BuildOptions {
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
         this.showDependencyDiagnostics = showDependencyDiagnostics;
+        this.repairOnFailure = repairOnFailure;
     }
 
     public boolean testReport() {
@@ -162,6 +164,10 @@ public class BuildOptions {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
 
+    public boolean repairOnFailure() {
+        return toBooleanDefaultIfNull(this.repairOnFailure);
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -214,6 +220,11 @@ public class BuildOptions {
             buildOptionsBuilder.setShowDependencyDiagnostics(theirOptions.showDependencyDiagnostics);
         } else {
             buildOptionsBuilder.setShowDependencyDiagnostics(this.showDependencyDiagnostics);
+        }
+        if (theirOptions.repairOnFailure != null) {
+            buildOptionsBuilder.setRepairOnFailure(theirOptions.repairOnFailure);
+        } else {
+            buildOptionsBuilder.setRepairOnFailure(this.repairOnFailure);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
@@ -282,7 +293,8 @@ public class BuildOptions {
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
         OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
         REMOTE_MANAGEMENT("remoteManagement"),
-        CLOUD("cloud");
+        CLOUD("cloud"),
+        REPAIR_ON_FAILURE("repairOnFailure");
 
         private final String name;
 
@@ -313,6 +325,7 @@ public class BuildOptions {
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
         private Boolean showDependencyDiagnostics;
+        private Boolean repairOnFailure;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -445,6 +458,11 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setRepairOnFailure(Boolean value) {
+            repairOnFailure = value;
+            return this;
+        }
+
         /**
          * (Experimental) option to specify that the memory usage must be optimized.
          *
@@ -465,7 +483,7 @@ public class BuildOptions {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
                     targetPath, nativeImage, exportComponentModel, graalVMBuildOptions,
-                    showDependencyDiagnostics);
+                    showDependencyDiagnostics, repairOnFailure);
         }
     }
 }

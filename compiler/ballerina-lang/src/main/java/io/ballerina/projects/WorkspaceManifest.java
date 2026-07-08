@@ -23,14 +23,28 @@ import java.util.List;
 public class WorkspaceManifest {
     private final DiagnosticResult diagnostics;
     private final List<Path> packages;
+    private final BuildOptions dependencyResolutionOptions;
 
     public WorkspaceManifest(List<Path> packages, DiagnosticResult diagnostics) {
         this.packages = packages;
         this.diagnostics = diagnostics;
+        this.dependencyResolutionOptions = null;
+    }
+
+    public WorkspaceManifest(List<Path> packages, DiagnosticResult diagnostics,
+                             BuildOptions dependencyResolutionOptions) {
+        this.packages = packages;
+        this.diagnostics = diagnostics;
+        this.dependencyResolutionOptions = dependencyResolutionOptions;
     }
 
     public static WorkspaceManifest from(List<Path> packages, DiagnosticResult diagnostics) {
-        return new WorkspaceManifest(packages, diagnostics);
+        return new WorkspaceManifest(packages, diagnostics, null);
+    }
+
+    public static WorkspaceManifest from(List<Path> packages, DiagnosticResult diagnostics,
+                                         BuildOptions dependencyResolutionOptions) {
+        return new WorkspaceManifest(packages, diagnostics, dependencyResolutionOptions);
     }
 
     public List<Path> packages() {
@@ -39,5 +53,13 @@ public class WorkspaceManifest {
 
     public DiagnosticResult diagnostics() {
         return diagnostics;
+    }
+
+    /**
+     * Returns build options parsed from the workspace {@code Ballerina.toml}
+     * {@code [dependency-resolution]} section, or {@code null} if not present.
+     */
+    public BuildOptions dependencyResolutionOptions() {
+        return dependencyResolutionOptions;
     }
 }
