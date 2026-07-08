@@ -162,7 +162,6 @@ public class MatchStmtErrorMatchPatternTest {
 
     @Test
     public void testErrorMatchPatternNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
         //Assert.assertEquals(resultNegative.getWarnCount(), 10);
         int i = 0;
         BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 31, 9);
@@ -203,6 +202,9 @@ public class MatchStmtErrorMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorB'", 121, 9);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorC'", 126, 9);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorD'", 127, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 148, 9);
+        BAssertUtil.validateError(resultNegative, i++, "this function must return a result", 167, 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
     }
 
     @AfterClass

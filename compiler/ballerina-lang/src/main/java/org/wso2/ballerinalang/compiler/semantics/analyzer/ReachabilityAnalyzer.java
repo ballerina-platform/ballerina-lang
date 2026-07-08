@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -482,7 +483,13 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                             hasWildCard = true;
                             break;
                         case ERROR_MATCH_PATTERN:
-                            hasErrorPattern = true;
+                            BLangErrorMatchPattern errorPattern = (BLangErrorMatchPattern) pattern;
+                            // only count as exhaustive if it's a generic error pattern
+                            if (errorPattern.errorTypeReference == null
+                                    || types.isAssignable(symTable.errorType,
+                                    errorPattern.errorTypeReference.getBType())) {
+                                hasErrorPattern = true;
+                            }
                             break;
                         case VAR_BINDING_PATTERN_MATCH_PATTERN:
                             BLangBindingPattern bindingPattern =

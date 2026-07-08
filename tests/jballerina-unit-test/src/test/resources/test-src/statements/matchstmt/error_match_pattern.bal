@@ -465,7 +465,6 @@ function errorMatchPattern22(json j) returns string {
         error(var _) => {
             return "E";
         }
-        "b" => { return "C"; }
     }
 }
 

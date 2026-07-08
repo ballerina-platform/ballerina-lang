@@ -1480,7 +1480,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangErrorMatchPattern errorMatchPattern, AnalyzerData data) {
-        data.hasErrorMatchPattern = true;
+        if (errorMatchPattern.errorTypeReference == null ||
+                types.isAssignable(symTable.errorType, errorMatchPattern.errorTypeReference.getBType())) {
+            data.hasErrorMatchPattern = true;
+        }
     }
 
     @Override
