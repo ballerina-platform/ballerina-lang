@@ -465,6 +465,7 @@ function errorMatchPattern22(json j) returns string {
         error(var _) => {
             return "E";
         }
+        "b" => { return "C"; }
     }
 }
 
@@ -489,4 +490,35 @@ function testErrorMatchPattern18() {
     assertEquals("B", errorMatchPattern22({kind: "b"}));
     assertEquals("A", errorMatchPattern23({kind: "a"}));
     assertEquals("B", errorMatchPattern23({kind: "b"}));
+}
+
+function errorMatchPattern24(json j) returns string {
+    match j.kind {
+        "a" => {
+            match j.value {
+                "x" => {
+                    return "A-X";
+                }
+            error(var _) => {
+                    return "A-E";
+                }
+            _ => {
+                    return "A-other";
+                }
+            }
+        }
+        error(var _) => {
+            return "E";
+        }
+        _ => {
+            return "B";
+        }
+    }
+}
+
+function testErrorMatchPattern19() {
+    assertEquals("A-X", errorMatchPattern24({kind: "a", value: "x"}));
+    assertEquals("A-other", errorMatchPattern24({kind: "a", value: "y"}));
+    assertEquals("A-E", errorMatchPattern24({kind: "a"}));
+    assertEquals("B", errorMatchPattern24({kind: "b"}));
 }
