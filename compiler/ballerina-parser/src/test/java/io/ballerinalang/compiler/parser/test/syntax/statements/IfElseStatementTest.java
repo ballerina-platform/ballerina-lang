@@ -72,4 +72,19 @@ public class IfElseStatementTest extends AbstractStatementTest {
     public void testMissingIfKeyword() {
         testFile("if-else/if_else_source_09.bal", "if-else/if_else_assert_09.json");
     }
+
+    @Test
+    public void testMissingIfKeywordWithBracedCondition() {
+        testFile("if-else/if_else_source_10.bal", "if-else/if_else_assert_10.json");
+    }
+
+    @Test
+    public void testMissingIfKeywordWithNestedParenthesesAndAnd() {
+        testFile("if-else/if_else_source_11.bal", "if-else/if_else_assert_11.json");
+    }
+
+    @Test
+    public void testMissingIfKeywordWithLogicalOr() {
+        testFile("if-else/if_else_source_12.bal", "if-else/if_else_assert_12.json");
+    }
 }

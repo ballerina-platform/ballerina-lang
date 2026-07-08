@@ -474,6 +474,11 @@
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.internal.SettingsBuilder" />
+        <Method name="getBooleanFromTomlTableNode"/>
+        <Bug pattern="NP_BOOLEAN_RETURN_NULL" />
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.util.ProjectUtils" />
         <Method name="addMatchingIncludePaths" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />

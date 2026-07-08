@@ -16,6 +16,7 @@
 
 package io.ballerina.runtime.internal.repository;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.repository.Artifact;
 import io.ballerina.runtime.api.repository.Node;
 import io.ballerina.runtime.api.repository.Repository;
@@ -32,7 +33,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * API implementation for the runtime-management module to provide Ballerina runtime artifacts.
+ * API implementation for the runtime-management module to provide Ballerina
+ * runtime artifacts.
  *
  * @since 2201.9.0
  */
@@ -41,6 +43,7 @@ public class RepositoryImpl implements Repository {
     private static final Map<ObjectValue, ObjectValue> serviceListenerMap = new HashMap<>();
     private static final Map<ObjectValue, ObjectValue> listenerServiceMap = new HashMap<>();
     private static final String nodeId = generateNodeId();
+    private static Module mainModule = null;
     private static String balHome;
     private static String balVersion;
     private static boolean isRemoteManagementEnabled = false;
@@ -62,6 +65,11 @@ public class RepositoryImpl implements Repository {
                 Artifact artifact = createArtifact(service, listener);
                 artifacts.add(artifact);
             }
+        }
+        Module module = mainModule;
+        if (module != null) {
+            Artifact artifact = createMainArtifact(module);
+            artifacts.add(artifact);
         }
         return artifacts;
     }
@@ -101,8 +109,24 @@ public class RepositoryImpl implements Repository {
         listenerServiceMap.put((ObjectValue) listener, (ObjectValue) service);
     }
 
-    public static void addBallerinaRuntimeInformation(String balHome, String balVersion,
-                                                      boolean isRemoteManagementEnabled) {
+    public static void addMainModule(Module module) {
+        if (!isRemoteManagementEnabled) {
+            return;
+        }
+        mainModule = module;
+    }
+
+    private Artifact createMainArtifact(Module module) {
+        ArtifactImpl artifact = new ArtifactImpl("main", Artifact.ArtifactType.MAIN);
+        artifact.addDetail("packageOrg", module.getOrg());
+        artifact.addDetail("packageName", module.getName());
+        artifact.addDetail("packageVersion", module.getMajorVersion());
+        return artifact;
+    }
+
+    public static void addBallerinaRuntimeInformation(String balHome, String balVersion, Module rootModule,
+            boolean isRemoteManagementEnabled) {
+        RepositoryImpl.mainModule = rootModule;
         RepositoryImpl.balHome = balHome;
         RepositoryImpl.balVersion = balVersion;
         RepositoryImpl.isRemoteManagementEnabled = isRemoteManagementEnabled;

@@ -48,6 +48,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeG
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.genLazyLoadingClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.genLoadDebugVariablesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.loadIdentifierValue;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.setSourceFileForClass;
 
 /**
  * Generates Jvm class for the used ballerina module global vars for given module.
@@ -85,9 +86,7 @@ public class JvmGlobalVariablesGen {
             }
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             String globalVarClassName = getVarStoreClass(globalVarsPkgName, varName);
-            if (globalVar.pos != null) {
-                cw.visitSource(globalVar.pos.lineRange().fileName(), null);
-            }
+            setSourceFileForClass(cw, globalVar.pos, asyncDataCollector);
             BType bType = JvmCodeGenUtil.getImpliedType(globalVar.type);
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
             // Create lazy loading class

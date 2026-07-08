@@ -473,6 +473,103 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Build a project with a Maven platform dependency: verify that with scope=provided " +
+            "the codec packages are excluded from the jar, and without scope=provided they are included")
+    public void testBuildProjectWithProvidedScope() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithProvidedScope1");
+        Path jarPath = projectPath.resolve(TARGET_DIR_NAME).resolve("bin").resolve("test2.jar");
+        Path ballerinaToml = projectPath.resolve(BALLERINA_TOML);
+        String originalToml = Files.readString(ballerinaToml);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+
+        // Step 1: Build WITH scope=provided — codec packages must NOT be bundled in the jar
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating executable"),
+                "Build log should contain 'Generating executable' when scope=provided");
+        Assert.assertFalse(jarContainsCodecPackages(jarPath),
+                "Jar built with scope=provided must not contain org.apache.commons.codec packages");
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+
+        // Step 2: Build WITHOUT scope=provided — codec packages MUST be bundled in the jar
+        Files.writeString(ballerinaToml, originalToml.replace("scope=\"provided\"", ""));
+        try {
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            try {
+                buildCommand.execute();
+            } catch (BLauncherException e) {
+                Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+            }
+            buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Generating executable"),
+                    "Build log should contain 'Generating executable' when scope is not provided");
+            Assert.assertTrue(jarContainsCodecPackages(jarPath),
+                    "Jar built without scope=provided must contain org.apache.commons.codec packages");
+        } finally {
+            Files.writeString(ballerinaToml, originalToml);
+            deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        }
+    }
+
+    @Test(description = "Build a project with a Maven platform dependency: verify that with scope=provided " +
+            "the codec packages are excluded from the jar, and without scope=provided they are included")
+    public void testBuildProjectWithProvidedScope2() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithProvidedScope2");
+        Path jarPath = projectPath.resolve(TARGET_DIR_NAME).resolve("bin").resolve("test2.jar");
+        Path ballerinaToml = projectPath.resolve(BALLERINA_TOML);
+        String originalToml = Files.readString(ballerinaToml);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+
+        // Step 1: Build WITH scope=provided — codec packages must NOT be bundled in the jar
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating executable"),
+                "Build log should contain 'Generating executable' when scope=provided");
+        Assert.assertFalse(jarContainsCodecPackages(jarPath),
+                "Jar built with scope=provided must not contain org.apache.commons.codec packages");
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+
+        // Step 2: Build WITHOUT scope=provided — codec packages MUST be bundled in the jar
+        Files.writeString(ballerinaToml, originalToml.replace("scope=\"provided\"", ""));
+        try {
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            try {
+                buildCommand.execute();
+            } catch (BLauncherException e) {
+                Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+            }
+            buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Generating executable"),
+                    "Build log should contain 'Generating executable' when scope is not provided");
+            Assert.assertTrue(jarContainsCodecPackages(jarPath),
+                    "Jar built without scope=provided must contain org.apache.commons.codec packages");
+        } finally {
+            Files.writeString(ballerinaToml, originalToml);
+            deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        }
+    }
+
+    private boolean jarContainsCodecPackages(Path jarPath) throws IOException {
+        try (JarFile jarFile = new JarFile(jarPath.toFile())) {
+            return jarFile.stream().anyMatch(entry ->
+                    entry.getName().startsWith("org/apache/commons/codec/"));
+        }
+    }
+
     @Test(description = "Build a valid ballerina project with provided scope platform jars in dependencies")
     public void testBuildProjectWithProvidedWarning() throws IOException {
         BCompileUtil.compileAndCacheBala(testResources.resolve("projectWithProvidedDependency")
@@ -1789,6 +1886,131 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand);
         buildCommand.execute();
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-wrong-path.txt"));
+    }
+
+    @Test(description = "Build workspace with build tool from root - verify two-phase execution order")
+    public void testWorkspaceWithBuildToolFromRoot() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-build-tool.txt"));
+    }
+
+    @Test(description = "Build specific project in workspace with build tool - verify two-phase execution order")
+    public void testWorkspaceWithBuildToolSpecificProject() throws IOException {
+        Path projectRoot = this.testResources.resolve("workspaces/wp-with-build-tool");
+        System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
+        Path projectPath = projectRoot.resolve("app");
+        cleanTarget(projectPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-build-tool-app.txt"));
+    }
+
+    @Test(description = "Build workspace with consolidator")
+    public void testWorkspaceWithConsolidator() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-with-consolidator.txt"));
+    }
+
+    @Test(description = "Build consolidator workspace twice - second build should be up-to-date")
+    public void testWorkspaceWithConsolidatorUpToDate() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        // First build
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
+                getOutput("wp-with-consolidator.txt"));
+
+        // Second build (no changes)
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertEquals(secondBuildLog.replace("\r", ""),
+                getOutput("wp-with-consolidator-up-to-date.txt"));
+    }
+
+    @Test(description = "Build consolidator workspace - modifying a dependency source invalidates cache")
+    public void testWorkspaceWithConsolidatorCacheInvalidation() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        // First build
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", ""),
+                getOutput("wp-with-consolidator.txt"));
+
+        // Modify a dependency source file
+        Path fooSource = projectPath.resolve("foo").resolve("lib.bal");
+        String originalContent = Files.readString(fooSource);
+        List<String> lines = Files.readAllLines(fooSource);
+        lines.add("// Modified to invalidate cache");
+        Files.write(fooSource, lines);
+
+        try {
+            // Second build after modification
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertEquals(secondBuildLog.replace("\r", ""),
+                    getOutput("wp-with-consolidator-cache-invalidated.txt"));
+        } finally {
+            // Restore the original file for other tests
+            Files.writeString(fooSource, originalContent);
+        }
+    }
+
+    @Test(description = "Build consolidator workspace after deleting a dependency package source")
+    public void testWorkspaceWithConsolidatorDeleteDependency() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator-deleted-pkg");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true).replace("\r", "");
+            Assert.assertEquals(failureLog, getOutput("wp-with-consolidator-dep-deleted.txt"));
+            return;
+        }
+        Assert.fail("Build should fail when dependency source is deleted");
     }
 
     @Test(description = "Build a project twice to test caching when Cloud.toml file is modified")

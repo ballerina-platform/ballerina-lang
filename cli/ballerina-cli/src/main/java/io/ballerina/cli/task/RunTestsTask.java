@@ -239,6 +239,18 @@ public class RunTestsTask implements Task {
                 this.testResult.set(testResult);
                 throw createLauncherException("there are test failures");
             }
+
+            if (minCoverage != null && coverage) {
+                if (testReport == null || testReport.getPackages().isEmpty()) {
+                    throw createLauncherException("Test report is not available for coverage evaluation.");
+                }
+                float coveragePercentage = testReport.getPackages().getLast().getCoveragePercentage();
+                if (coveragePercentage < minCoverage) {
+                    cleanTempCache(project, cachesRoot);
+                    throw createLauncherException("code coverage is below the minimum threshold of " + minCoverage
+                            + "%, current coverage is " + coveragePercentage + "%");
+                }
+            }
         } else {
             out.println("\tNo tests found");
             if (!project.buildOptions().testReport() && !coverage) {

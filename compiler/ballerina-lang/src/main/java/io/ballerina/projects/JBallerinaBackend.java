@@ -656,6 +656,34 @@ public class JBallerinaBackend extends CompilerBackend {
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createManifest();
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
+
+        // Remove platform dependencies with 'provided' scope of the current package from jarLibraries
+        HashSet<Path> providedJarPaths = new HashSet<>();
+        List<Map<String, Object>> providedMavenDeps = new ArrayList<>();
+        for (PackageManifest.Platform platform : this.packageContext().packageManifest().platforms().values()) {
+            if (platform == null || platform.dependencies().isEmpty()) {
+                continue;
+            }
+            for (Map<String, Object> dependency : platform.dependencies()) {
+                if (PlatformLibraryScope.PROVIDED == getPlatformLibraryScope(dependency)) {
+                    String depFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+                    if (depFilePath != null && !depFilePath.isEmpty()) {
+                        Path jarPath = Path.of(depFilePath);
+                        if (!jarPath.isAbsolute()) {
+                            jarPath = this.packageContext().project().sourceRoot().resolve(jarPath);
+                        }
+                        providedJarPaths.add(jarPath);
+                    } else {
+                        providedMavenDeps.add(dependency);
+                    }
+                }
+            }
+        }
+        jarLibraries = jarLibraries.stream()
+                .filter(jarLib -> !providedJarPaths.contains(jarLib.path()) &&
+                        !isProvidedMavenDep(jarLib, providedMavenDeps))
+                .toList();
+
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {
@@ -799,6 +827,33 @@ public class JBallerinaBackend extends CompilerBackend {
         } catch (MavenResolverException e) {
             throw new ProjectException("cannot resolve " + artifactId + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Checks whether the given JarLibrary matches any of the provided Maven dependencies
+     * by comparing groupId, artifactId, and version.
+     *
+     * @param jarLib            the jar library to check
+     * @param providedMavenDeps list of provided-scope dependency maps (without a path) from the package manifest
+     * @return true if the jar library matches a provided Maven dependency
+     */
+    private boolean isProvidedMavenDep(JarLibrary jarLib, List<Map<String, Object>> providedMavenDeps) {
+        if (jarLib.groupId().isEmpty() || jarLib.artifactId().isEmpty() || jarLib.version().isEmpty()) {
+            return false;
+        }
+        String jarGroupId = jarLib.groupId().get();
+        String jarArtifactId = jarLib.artifactId().get();
+        String jarVersion = jarLib.version().get();
+        for (Map<String, Object> dep : providedMavenDeps) {
+            String depGroupId = (String) dep.get(JarLibrary.KEY_GROUP_ID);
+            String depArtifactId = (String) dep.get(JarLibrary.KEY_ARTIFACT_ID);
+            String depVersion = (String) dep.get(JarLibrary.KEY_VERSION);
+            if (jarArtifactId.equals(depArtifactId) && jarGroupId.equals(depGroupId)
+                    && jarVersion.equals(depVersion)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
