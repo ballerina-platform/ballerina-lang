@@ -145,6 +145,7 @@ include(':project-api-test-artifact:pkg-provided-compiler-plugin-with-shared-dat
 include(':project-api-test-artifact:pkg-provided-compiler-plugin-with-resource-addition')
 include(':identifier-util')
 include(':ballerina-profiler')
+include(':misc:harbor-client')
 
 //include(':ballerina-libs')
 include(':bir-spec')
@@ -276,6 +277,7 @@ project(':ls-extensions:partial-parser').projectDir = file('misc/ls-extensions/m
 project(':ls-extensions:trigger-service').projectDir = file('misc/ls-extensions/modules/trigger-service')
 project(':ls-extensions:bal-shell-service').projectDir = file('misc/ls-extensions/modules/bal-shell-service')
 project(':ballerina-profiler').projectDir = file('bvm/ballerina-profiler')
+project(':misc:harbor-client').projectDir = file('misc/harbor-client')
 
 buildCache {
     remote(HttpBuildCache) {

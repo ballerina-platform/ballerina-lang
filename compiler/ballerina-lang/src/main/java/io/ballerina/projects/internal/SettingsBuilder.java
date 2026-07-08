@@ -52,6 +52,7 @@ public class SettingsBuilder {
 
     public static final String NAME = "name";
     public static final String MAVEN = "maven";
+    public static final String OCI = "oci";
     public static final String FILESYSTEM = "filesystem";
     private static final String CONNECT_TIMEOUT = "connectTimeout";
     private static final String READ_TIMEOUT = "readTimeout";
@@ -164,7 +165,7 @@ public class SettingsBuilder {
                 for (Map.Entry<String, TopLevelNode> entry : repoEntries.entrySet()) {
                     String repoKey = entry.getKey();
                     TopLevelNode repoValue = entry.getValue();
-                    if (!MAVEN.equals(repoKey) && !FILESYSTEM.equals(repoKey)) {
+                    if (!MAVEN.equals(repoKey) && !FILESYSTEM.equals(repoKey) && !OCI.equals(repoKey)) {
                         continue;
                     }
                     List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();

@@ -131,6 +131,7 @@ wso2TransportHttpVersion="6.3.11"
 wso2TransportLocalFileSystemVersion="6.0.55"
 zafarkhajaJsemverVersion="0.9.0"
 caffeineVersion = "3.2.0"
+jibCoreVersion="0.27.1"
 
 [libraries]
 apache-commons-axiom-api = { module = "org.apache.ws.commons.axiom:axiom-api", version.ref = "apacheCommonsAxiomApiVersion" }
@@ -242,6 +243,7 @@ slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4jJdk14Versi
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimpleVersion"}
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyamlVersion"}
 sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbcVersion"}
+jib-core = { module = "com.google.cloud.tools:jib-core", version.ref = "jibCoreVersion"}
 squareup-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion"}
 squareup-mock-webserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpVersion"}
 squareup-okio = { module = "com.squareup.okio:okio", version.ref = "squareupOkioVersion"}

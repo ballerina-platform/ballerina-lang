@@ -41,6 +41,7 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.internal.repositories.OCIPackageRepository;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -722,9 +723,12 @@ public class PackageResolution {
                                                   ProjectEnvironment projectEnvContext, boolean offline) {
         Map<String, MavenPackageRepository> customPackageRepositoryMap =
                 projectEnvContext.getService(CustomPkgRepositoryContainer.class).getCustomPackageRepositories();
+        Map<String, OCIPackageRepository> customOCIRepositoryMap =
+                projectEnvContext.getService(CustomPkgRepositoryContainer.class).getCustomOCIRepositories();
         return BlendedManifest.from(rootPackageContext.dependencyManifest(),
                 rootPackageContext.packageManifest(),
-                projectEnvContext.getService(LocalPackageRepository.class), customPackageRepositoryMap, offline);
+                projectEnvContext.getService(LocalPackageRepository.class), customPackageRepositoryMap,
+                customOCIRepositoryMap, offline);
     }
 
     private ResolutionOptions getResolutionOptions(CompilationOptions compilationOptions) {

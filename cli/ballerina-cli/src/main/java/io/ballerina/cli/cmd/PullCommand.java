@@ -36,6 +36,8 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.harbor.HarborClient;
+import org.ballerinalang.harbor.HarborClientException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -55,9 +57,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
-import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
-import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
+import static io.ballerina.projects.util.ProjectConstants.*;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
@@ -199,11 +199,21 @@ public class PullCommand implements BLauncherCmd {
 
         Settings settings;
         settings = RepoUtils.readSettings();
+        Repository targetRepository = findTargetRepository(settings);
+        boolean isOciRepository = repositoryName != null &&
+            (OCI_REPOSITORY_NAME.equals(repositoryName)
+                || (targetRepository != null && OCI_REPOSITORY_NAME.equals(targetRepository.type())));
 
         if (repositoryName == null) {
             repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
             version = pullFromCentral(settings, orgName, packageName, version);
-        } else if (!LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
+        }
+
+        else if (isOciRepository) {
+            pullFromOCIRepo(settings, orgName, packageName, version);
+        }
+
+        else if (!LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
             pullFromMavenRepo(settings, orgName, packageName, version);
         }
 
@@ -216,6 +226,18 @@ public class PullCommand implements BLauncherCmd {
             Runtime.getRuntime().exit(0);
         }
 
+    }
+
+    private Repository findTargetRepository(Settings settings) {
+        if (repositoryName == null) {
+            return null;
+        }
+        for (Repository repository : settings.getRepositories()) {
+            if (repositoryName.equals(repository.id())) {
+                return repository;
+            }
+        }
+        return null;
     }
 
     private String pullFromCentral(Settings settings, String orgName, String packageName, String version) {
@@ -327,6 +349,65 @@ public class PullCommand implements BLauncherCmd {
             }
             PrintStream out = System.out;
             out.println("Successfully pulled the package from the custom repository.");
+        }
+    }
+
+    private void pullFromOCIRepo(Settings settings, String orgName, String packageName, String version) {
+        Repository targetRepository = null;
+        for (Repository repository : settings.getRepositories()) {
+            if (repositoryName.equals(repository.id())) {
+                targetRepository = repository;
+                break;
+            }
+        }
+
+        if (targetRepository == null && repositoryName != null) {
+            String errMsg = "unsupported repository '" + repositoryName + "' found. Only " +
+                    "repositories mentioned in the Settings.toml are supported.";
+            CommandUtil.printError(this.errStream, errMsg, null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        Path ociBalaCachePath = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(targetRepository.id())
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(orgName).resolve(packageName).resolve(version);
+
+        HarborClient harborClient = new HarborClient(targetRepository.url(), targetRepository.username(),targetRepository.password());
+
+    Path tmpDownloadDirectory = null;
+    try {
+        Files.createDirectories(ociBalaCachePath);
+        tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
+
+            harborClient.pullMetadata(orgName,packageName,version,"", String.valueOf(tmpDownloadDirectory));
+
+            Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
+                    .resolve(packageName + "-" + version + BALA_EXTENSION);
+            Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
+                    .resolve(version).resolve(PLATFORM);
+            ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
+            Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
+            try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
+                JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
+                String platform = resultObj.get(PLATFORM).getAsString();
+                Path actualBalaPath = ociBalaCachePath.resolve(platform);
+                Files.createDirectories(actualBalaPath);
+                ProjectUtils.extractBala(balaDownloadPath, actualBalaPath);
+            }
+            outStream.println("Successfully pulled the package from the OCI repository.");
+        } catch (HarborClientException e) {
+            errStream.println("unexpected error occurred while pulling package: " + e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
+        } catch (Exception e) {
+            errStream.println("unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
+        } finally {
+            if (tmpDownloadDirectory != null) {
+                ProjectUtils.deleteDirectory(tmpDownloadDirectory);
+            }
         }
     }
 

@@ -25,11 +25,21 @@ import java.util.Map;
 
 public class CustomPkgRepositoryContainer {
     Map<String, MavenPackageRepository> customPackageRepositories;
+    Map<String, OCIPackageRepository> customOCIRepositories;
     public CustomPkgRepositoryContainer(Map<String, MavenPackageRepository> customPackageRepositories) {
         this.customPackageRepositories = customPackageRepositories;
     }
 
+    public CustomPkgRepositoryContainer(Map<String,MavenPackageRepository> customPackageRepositories, Map<String, OCIPackageRepository> customOCIRepositories) {
+        this.customPackageRepositories = customPackageRepositories;
+        this.customOCIRepositories = customOCIRepositories;
+    }
+
     public Map<String, MavenPackageRepository> getCustomPackageRepositories() {
         return customPackageRepositories;
+    }
+
+    public Map<String, OCIPackageRepository> getCustomOCIRepositories() {
+        return customOCIRepositories;
     }
 }

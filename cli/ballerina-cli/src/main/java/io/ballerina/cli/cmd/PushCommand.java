@@ -40,6 +40,7 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.harbor.HarborClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -172,8 +173,11 @@ public class PushCommand implements BLauncherCmd {
                         break;
                     }
                 }
+                boolean isOciRepository = repositoryName.equals(ProjectConstants.OCI_REPOSITORY_NAME)
+                        || (isCustomRepository && ProjectConstants.OCI_REPOSITORY_NAME.equals(targetRepository.type()));
 
-                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME) && !isCustomRepository) {
+                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)
+                        && !repositoryName.equals(ProjectConstants.OCI_REPOSITORY_NAME) && !isCustomRepository) {
                     String errMsg = "unsupported repository '" + repositoryName + "' found. Only '"
                             + ProjectConstants.LOCAL_REPOSITORY_NAME +
                             "' repository and repositories mentioned in the Settings.toml are supported.";
@@ -194,6 +198,19 @@ public class PushCommand implements BLauncherCmd {
                     }
                     validateReadmeAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath);
+                    return;
+                } else if (isOciRepository) {
+                    if (targetRepository == null) {
+                        String errMsg = "repository '" + ProjectConstants.OCI_REPOSITORY_NAME + "' is not configured "
+                                + "in the Settings.toml. Please add the repository with its url, username, and "
+                                + "password before pushing.";
+                        CommandUtil.printError(this.errStream, errMsg, null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        return;
+                    }
+                    HarborClient harborClient = new HarborClient(targetRepository.url(), targetRepository.username(),
+                            targetRepository.password());
+                    pushPackage(project, harborClient);
                     return;
                 }
 
@@ -285,6 +302,11 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project, MavenResolverClient client) {
         Path balaFilePath = validateBalaFile(project, this.balaPath);
         pushBalaToCustomRepo(balaFilePath, client);
+    }
+
+    private void pushPackage(BuildProject project, HarborClient client) {
+        Path balaFilePath = validateBalaFile(project, this.balaPath);
+        pushBalaToOCIRepo(balaFilePath, client);
     }
 
     private void pushPackage(BuildProject project, CentralAPIClient client)
@@ -542,6 +564,24 @@ public class PushCommand implements BLauncherCmd {
             }
             outStream.println("Successfully pushed " + relativePathToBalaFile
                     + " to '" + repositoryName + "' repository.");
+        }
+    }
+
+    private void pushBalaToOCIRepo(Path balaPath, HarborClient client) {
+        try {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+            String org =  balaProject.currentPackage().manifest().org().toString();
+            String name =  balaProject.currentPackage().manifest().name().toString();
+            String version =  balaProject.currentPackage().manifest().version().toString();
+            String platform = balaProject.platform();
+            client.pushOCIArtifact(org, name, version, platform, balaPath);
+            outStream.println("Successfully pushed " + userDir.relativize(balaPath)
+                    + " to '" + repositoryName + "' repository.");
+        } catch (Exception e) {
+            throw new ProjectException("error while pushing bala file '" + balaPath + "' to '"
+                    + ProjectConstants.OCI_REPOSITORY_NAME + "' repository: " + e.getMessage(), e);
         }
     }
 

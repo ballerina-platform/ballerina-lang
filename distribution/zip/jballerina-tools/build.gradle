@@ -49,7 +49,11 @@ configurations {
     jacocoAgentLib {
         transitive false
     }
-    docerina
+    docerina {
+        attributes {
+            attribute(org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, objects.named(org.gradle.api.attributes.java.TargetJvmEnvironment, org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM))
+        }
+    }
     bin
     bir
     birJar
@@ -121,6 +125,7 @@ dependencies {
     dist project(':semver-checker:semver-checker-cli')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
+    dist project(':misc:harbor-client')
     dist project(':diagram-util')
     dist project(':syntax-api-calls-gen')
     dist project(':language-server:language-server-commons')
@@ -128,6 +133,7 @@ dependencies {
     dist project(':testerina:testerina-runtime')
     dist project(':toml-parser')
     docerina project(':docerina-gradle-plugin')
+    docerina 'org.checkerframework:checker-qual:3.33.0'
     dist project(':ballerina-shell:shell-core')
     dist project(':ballerina-shell:shell-cli')
     dist project(':compiler-plugins:package-semantic-analyzer')

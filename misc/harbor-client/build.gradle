@@ -1,0 +1,67 @@
+plugins {
+    id 'javaProject'
+}
+
+group = 'org.ballerinalang'
+version = '2201.14.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Implementation-Title': 'Harbor Client',
+                'Implementation-Version': version
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+dependencies {
+    implementation project(':central-client')
+    implementation libs.squareup.okhttp
+    implementation libs.jib.core
+    implementation libs.tongfei.progressbar
+    implementation 'com.google.code.gson:gson:2.10.1'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaExec) {
+    // This instructs Jib Core's low-level engine to skip strict SSL checks
+    systemProperty 'com.google.cloud.tools.jib.http.Connection.allowInsecureRegistries', 'true'
+}
+
+//tasks.register('run', JavaExec) {
+//    group = 'application'
+//    description = 'Runs the HarborClient main method'
+//    classpath = sourceSets.main.runtimeClasspath
+//    mainClass = 'org.ballerinalang.harbor.HarborClient'
+//}
+
+ext.moduleName = 'org.ballerinalang.harbor'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
