@@ -27,7 +27,7 @@ dependencies {
     implementation project(':semtypes')
     implementation project(':central-client')
     implementation project(':maven-resolver')
-    implementation project(':misc:harbor-client')
+    implementation project(':misc:oci-client')
     implementation project(':identifier-util')
     implementation 'com.google.cloud.tools:jib-core:0.27.1'
     implementation libs.toml4j

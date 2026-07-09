@@ -1,4 +1,4 @@
-module org.ballerinalang.harbor {
+module org.ballerinalang.oci {
     requires com.google.cloud.tools.jib;
     requires com.google.cloud.tools.jib.api.buildplan;
     requires io.ballerina.central.client;
@@ -6,5 +6,6 @@ module org.ballerinalang.harbor {
     requires com.google.gson;
     requires progressbar;
     requires java.logging;
-    exports org.ballerinalang.harbor;
+    requires com.google.api.client;
+    exports org.ballerinalang.oci;
 }

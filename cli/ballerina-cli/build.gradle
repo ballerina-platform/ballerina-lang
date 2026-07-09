@@ -40,7 +40,7 @@ configurations {
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':misc:harbor-client')
+    implementation project(':misc:oci-client')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation libs.picocli

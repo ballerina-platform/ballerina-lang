@@ -13,7 +13,7 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
-                'Implementation-Title': 'Harbor Client',
+                'Implementation-Title': 'OCI Client',
                 'Implementation-Version': version
         )
     }
@@ -26,6 +26,7 @@ dependencies {
     implementation project(':central-client')
     implementation libs.squareup.okhttp
     implementation libs.jib.core
+    implementation 'com.google.http-client:google-http-client:1.42.2'
     implementation libs.tongfei.progressbar
     implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation platform('org.junit:junit-bom:5.10.0')
@@ -44,12 +45,12 @@ tasks.withType(JavaExec) {
 
 //tasks.register('run', JavaExec) {
 //    group = 'application'
-//    description = 'Runs the HarborClient main method'
+//    description = 'Runs the OciClient main method'
 //    classpath = sourceSets.main.runtimeClasspath
-//    mainClass = 'org.ballerinalang.harbor.HarborClient'
+//    mainClass = 'org.ballerinalang.oci.OciClient'
 //}
 
-ext.moduleName = 'org.ballerinalang.harbor'
+ext.moduleName = 'org.ballerinalang.oci'
 
 compileJava {
     inputs.property("moduleName", moduleName)

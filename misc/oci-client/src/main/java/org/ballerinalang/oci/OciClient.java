@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.harbor;
+package org.ballerinalang.oci;
 
 import com.google.cloud.tools.jib.blob.Blob;
 import com.google.cloud.tools.jib.blob.Blobs;
@@ -29,26 +29,36 @@ import com.google.cloud.tools.jib.api.buildplan.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.api.buildplan.ImageFormat;
 import com.google.cloud.tools.jib.event.EventHandlers;
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.CentralClientConstants;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class HarborClient {
+public class OciClient {
 
     private static final String BALA_EXTENSION = ".bala";
-    private static final Logger LOGGER = Logger.getLogger(HarborClient.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(OciClient.class.getName());
 
     /** Maximum number of attempts for transient-failure-prone OCI pull operations. */
     private static final int MAX_PULL_RETRIES = 3;
@@ -56,12 +66,22 @@ public class HarborClient {
     /** Initial delay in milliseconds before the first retry. Doubles on each subsequent attempt. */
     private static final long INITIAL_RETRY_DELAY_MS = 1000;
 
-    private String harborUrl;
+    /** Matches tags that look like Ballerina package versions (semver, optional pre-release). */
+    private static final Pattern VERSION_TAG_PATTERN =
+            Pattern.compile("^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$");
+
+    /** Matches {@code key="value"} pairs in a {@code WWW-Authenticate: Bearer ...} challenge header. */
+    private static final Pattern AUTH_CHALLENGE_PARAM_PATTERN = Pattern.compile("(\\w+)=\"([^\"]*)\"");
+
+    /** Matches the {@code rel="next"} entry in an RFC 5988 {@code Link} response header. */
+    private static final Pattern LINK_NEXT_PATTERN = Pattern.compile("<([^>]+)>;\\s*rel=\"next\"");
+
+    private String registryUrl;
     private String username;
     private String password;
 
-    public HarborClient(String harborUrl, String username, String password) {
-        this.harborUrl = harborUrl;
+    public OciClient(String registryUrl, String username, String password) {
+        this.registryUrl = registryUrl;
         this.username = username;
         this.password = password;
     }
@@ -75,7 +95,7 @@ public class HarborClient {
      *
      * @param action      the operation to attempt
      * @param operationName a human-readable label used in log messages
-     * @throws HarborClientException if all retry attempts are exhausted
+     * @throws OciClientException if all retry attempts are exhausted
      */
     private void withRetry(RunnableWithException action, String operationName) throws Exception {
         int attempt = 0;
@@ -90,7 +110,7 @@ public class HarborClient {
                     throw e;
                 }
                 LOGGER.log(Level.WARNING,
-                        "[HarborClient] {0} failed (attempt {1}/{2}), retrying in {3}ms: {4}",
+                        "[OciClient] {0} failed (attempt {1}/{2}), retrying in {3}ms: {4}",
                         new Object[]{operationName, attempt, MAX_PULL_RETRIES, delayMs, e.getMessage()});
                 try {
                     Thread.sleep(delayMs);
@@ -114,7 +134,8 @@ public class HarborClient {
             if (!balaFilePath.toFile().exists()) {
                 return;
             }
-            String imageReference = (harborUrl + "/" + org + "/" + platform + "/" + pkg + ":" + version).toLowerCase();
+            String imageReference =
+                    (registryUrl + "/" + org  + "/" + pkg + ":" + version).toLowerCase();
             Jib.fromScratch()
                     .setFormat(ImageFormat.OCI)
                     .addLayer(Collections.singletonList(balaFilePath), AbsoluteUnixPath.get("/"))
@@ -122,11 +143,11 @@ public class HarborClient {
                             Containerizer.to(RegistryImage.named(imageReference)
                                             .addCredential(username, password))
                                     .setAllowInsecureRegistries(true)
-                                    .setToolName("HarborClient")
+                                    .setToolName("OciClient")
 
                     );
         } catch (Exception exception) {
-            throw new HarborClientException("failed to push OCI artifact to Harbor", exception);
+            throw new OciClientException("failed to push OCI artifact to the registry", exception);
         }
     }
 
@@ -135,7 +156,7 @@ public class HarborClient {
             withRetry(() -> doPullBala(org, name, version, repoLocation),
                     "pull bala [" + org + "/" + name + ":" + version + "]");
         } catch (Exception exception) {
-            throw new HarborClientException("failed to pull bala from the repo", exception);
+            throw new OciClientException("failed to pull bala from the repo", exception);
         }
     }
 
@@ -144,7 +165,7 @@ public class HarborClient {
      * Separated from {@link #pullMetadata} so it can be cleanly retried by {@link #withRetry}.
      */
     private void doPullBala(String org, String name, String version, String repoLocation) throws Exception {
-        ImageReference imageRef = ImageReference.parse(harborUrl + "/" + org + "/" + name);
+        ImageReference imageRef = ImageReference.parse(registryUrl + "/" + org + "/" + name);
         Consumer<LogEvent> jibLogger = logEvent -> {};
 
         FailoverHttpClient httpClient = new FailoverHttpClient(
@@ -204,19 +225,27 @@ public class HarborClient {
             }
         }
 
+        if (blobBytes == null) {
+            throw new OciClientException("no layers found in the OCI manifest for "
+                    + org + "/" + name + ":" + version);
+        }
+        // Jib stores each pushed file inside a gzipped tar layer, so the pulled blob is a
+        // tar.gz wrapping the bala — unwrap it back to the raw bala (zip) bytes before saving.
+        byte[] balaBytes = OciClientUtils.extractBalaFromLayer(blobBytes);
+
         Path outputPath = Paths.get(repoLocation);
         Path balaFilePath = outputPath.resolve(org).resolve(name).resolve(version)
                 .resolve(name + "-" + version + BALA_EXTENSION);
         if (balaFilePath.getParent() != null) {
             Files.createDirectories(balaFilePath.getParent());
         }
-        Files.write(balaFilePath, blobBytes);
+        Files.write(balaFilePath, balaBytes);
     }
 
     public List<String> pullMetadata(String org, String pkg) {
-        try {
 
-            ImageReference imageRef = ImageReference.parse(harborUrl + "/" + org + "/" + pkg);
+        try {
+            ImageReference imageRef = ImageReference.parse(registryUrl + "/" + org + "/" + pkg);
             Consumer<LogEvent> jibLogger = logEvent -> {};
 
             FailoverHttpClient httpClient = new FailoverHttpClient(
@@ -250,8 +279,122 @@ public class HarborClient {
             }
             return Collections.emptyList();
         } catch (Exception exception) {
-            throw new HarborClientException("failed to pull metadata from Harbor", exception);
+            throw new OciClientException("failed to pull metadata from the registry", exception);
         }
     }
 
+    public List<String> listTags(String org, String pkg) {
+        List<String> versions = new ArrayList<>();
+        try {
+            FailoverHttpClient httpClient = new FailoverHttpClient(true, true, logEvent -> { });
+            ImageReference imageRef = ImageReference.parse(registryUrl + "/" + org + "/" + pkg);
+            URL url = URI.create(
+                    "https://" + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
+                            + "/tags/list").toURL();
+            Authorization authorization = Authorization.fromBasicCredentials(username, password);
+
+            while (url != null) {
+                Response response;
+                try {
+                    response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
+                } catch (ResponseException responseException) {
+                    if (responseException.getStatusCode() != 401) {
+                        throw responseException;
+                    }
+                    authorization = resolveBearerAuthorization(
+                            responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"),
+                            httpClient);
+                    response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
+                }
+
+                try (Response ignored = response) {
+                    String responseBody = OciClientUtils.readBody(response);
+                    TagsListTemplate tagsList = OciClientUtils.parseJson(responseBody, TagsListTemplate.class,
+                            "tags list response for " + org + "/" + pkg);
+                    if (tagsList.tags != null) {
+                        for (String tag : tagsList.tags) {
+                            if (VERSION_TAG_PATTERN.matcher(tag).matches()) {
+                                versions.add(tag);
+                            }
+                        }
+                    }
+                    url = nextPageUrl(response, url);
+                }
+            }
+            return versions;
+        } catch (OciClientException exception) {
+            throw exception;
+        } catch (IOException | InvalidImageReferenceException exception) {
+            throw new OciClientException("failed to list tags from the registry", exception);
+        }
+    }
+
+    private Authorization resolveBearerAuthorization(String wwwAuthenticate, FailoverHttpClient httpClient)
+            throws IOException {
+        if (wwwAuthenticate == null || !wwwAuthenticate.regionMatches(true, 0, "Bearer", 0, "Bearer".length())) {
+            throw new OciClientException("unsupported or missing authentication challenge: " + wwwAuthenticate);
+        }
+        Map<String, String> challengeParams = new HashMap<>();
+        Matcher matcher = AUTH_CHALLENGE_PARAM_PATTERN.matcher(wwwAuthenticate);
+        while (matcher.find()) {
+            challengeParams.put(matcher.group(1), matcher.group(2));
+        }
+        String realm = challengeParams.get("realm");
+        if (realm == null) {
+            throw new OciClientException("bearer challenge is missing 'realm': " + wwwAuthenticate);
+        }
+
+        StringBuilder tokenUrl = new StringBuilder(realm).append(realm.contains("?") ? '&' : '?');
+        if (challengeParams.containsKey("service")) {
+            tokenUrl.append("service=")
+                    .append(URLEncoder.encode(challengeParams.get("service"), StandardCharsets.UTF_8))
+                    .append('&');
+        }
+        if (challengeParams.containsKey("scope")) {
+            tokenUrl.append("scope=")
+                    .append(URLEncoder.encode(challengeParams.get("scope"), StandardCharsets.UTF_8));
+        }
+
+        Request tokenRequest = Request.builder()
+                .setAuthorization(Authorization.fromBasicCredentials(username, password))
+                .build();
+        try (Response tokenResponse = httpClient.get(URI.create(tokenUrl.toString()).toURL(), tokenRequest)) {
+            TokenResponseTemplate token = OciClientUtils.parseJson(
+                    OciClientUtils.readBody(tokenResponse), TokenResponseTemplate.class,
+                    "token response from " + realm);
+            String bearerToken = token.token != null ? token.token : token.accessToken;
+            if (bearerToken == null) {
+                throw new OciClientException("token endpoint returned no token: " + realm);
+            }
+            return Authorization.fromBearerToken(bearerToken);
+        }
+    }
+
+    /** Resolves the {@code rel="next"} link from an RFC 5988 {@code Link} header, if present. */
+    private URL nextPageUrl(Response response, URL currentUrl) throws IOException {
+        for (String linkHeader : response.getHeader("Link")) {
+            Matcher matcher = LINK_NEXT_PATTERN.matcher(linkHeader);
+            if (matcher.find()) {
+                try {
+                    return currentUrl.toURI().resolve(matcher.group(1)).toURL();
+                } catch (URISyntaxException e) {
+                    throw new IOException("invalid pagination link: " + matcher.group(1), e);
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Response body of {@code GET /v2/{name}/tags/list}. */
+    private static final class TagsListTemplate {
+        String name;
+        List<String> tags;
+    }
+
+    /** Response body of a Docker/OCI bearer token endpoint. */
+    private static final class TokenResponseTemplate {
+        String token;
+        @SerializedName("access_token")
+        String accessToken;
+    }
 }
