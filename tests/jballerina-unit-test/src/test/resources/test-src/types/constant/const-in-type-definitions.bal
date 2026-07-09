@@ -136,3 +136,25 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "Ballerina rocks";
     return t;
 }
+
+// -----------------------------------------------------------
+
+const MAP = {"foo": "bar"};
+
+type MapConstAlias MAP;
+
+function testMapConstAlias() returns MapConstAlias {
+    MapConstAlias m = {"foo": "bar"};
+    return m;
+}
+
+// -----------------------------------------------------------
+
+const ARR = ["a", "b"];
+
+type ArrConstAlias ARR;
+
+function testArrConstAlias() returns ArrConstAlias {
+    ArrConstAlias t = ["a", "b"];
+    return t;
+}

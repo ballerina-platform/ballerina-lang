@@ -419,6 +419,7 @@ public class Desugar extends BLangNodeVisitor {
     private final Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
     private final List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
     private List<BLangSimpleVariableDef> typedescList = new ArrayList<>();
+    private final Set<String> typedescCreatedForNames = new HashSet<>();
     private BLangSimpleVarRef shouldRetryRef;
 
     private SymbolEnv env;
@@ -898,6 +899,13 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createTypedescVariable(BType type, Location pos) {
         BType finalType = type;
+        Name name = generateTypedescVariableName(type);
+
+        if (!typedescCreatedForNames.add(name.value)) {
+            // A typedesc var with this generated name was already created
+            return;
+        }
+
         if ((Types.getReferredType(type).tag != TypeTags.INTERSECTION && this.env.enclPkg.typeDefinitions.stream()
                 .anyMatch(typeDef ->
                         (Types.getReferredType(typeDef.typeNode.getBType()).tag == TypeTags.INTERSECTION) &&
@@ -907,7 +915,6 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        Name name = generateTypedescVariableName(type);
         if (type.tag == TypeTags.TYPEREFDESC) {
             BType referredType = ((BTypeReferenceType) type).referredType;
             int tag = referredType.tag;
