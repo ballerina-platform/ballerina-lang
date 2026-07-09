@@ -130,7 +130,7 @@ public class HarborClient {
         }
     }
 
-    public void pullMetadata(String org, String name, String version, String platform, String repoLocation) {
+    public void pullMetadata(String org, String name, String version, String repoLocation) {
         try {
             withRetry(() -> doPullBala(org, name, version, repoLocation),
                     "pull bala [" + org + "/" + name + ":" + version + "]");
@@ -213,7 +213,7 @@ public class HarborClient {
         Files.write(balaFilePath, blobBytes);
     }
 
-    public List<String> pullMetadata(String org, String pkg, String platform) {
+    public List<String> pullMetadata(String org, String pkg) {
         try {
 
             ImageReference imageRef = ImageReference.parse(harborUrl + "/" + org + "/" + pkg);
@@ -253,5 +253,5 @@ public class HarborClient {
             throw new HarborClientException("failed to pull metadata from Harbor", exception);
         }
     }
-    
+
 }

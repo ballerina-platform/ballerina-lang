@@ -382,7 +382,7 @@ public class PullCommand implements BLauncherCmd {
         Files.createDirectories(ociBalaCachePath);
         tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
 
-            harborClient.pullMetadata(orgName,packageName,version,"", String.valueOf(tmpDownloadDirectory));
+            harborClient.pullMetadata(orgName, packageName, version, String.valueOf(tmpDownloadDirectory));
 
             Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
                     .resolve(packageName + "-" + version + BALA_EXTENSION);

@@ -26,10 +26,14 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.harbor.HarborClient;
@@ -44,10 +48,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -104,7 +109,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         boolean success;
         try {
             tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
-            harborClient.pullMetadata(orgName, packageName, version, "java21", tmpDownloadDirectory.toString());
+            harborClient.pullMetadata(orgName, packageName, version, tmpDownloadDirectory.toString());
             Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
                     .resolve(packageName + "-" + version + BALA_EXTENSION);
             Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
@@ -138,37 +143,42 @@ public class OCIPackageRepository extends AbstractPackageRepository {
                                                            ResolutionOptions resolutionOptions) {
         PackageOrg org = resolutionRequest.orgName();
         PackageName name = resolutionRequest.packageName();
-        List<PackageVersion> packageVersions = this.fileSystemRepository.getPackageVersions(
-                org, name, resolutionRequest.version().orElse(null));
+        Set<PackageVersion> packageVersions = new HashSet<>(this.fileSystemRepository.getPackageVersions(
+                org, name, resolutionRequest.version().orElse(null)));
         if (!resolutionOptions.offline() && this.harborClient != null) {
             try {
-                List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString(), "java21");
-                if (versions.isEmpty()) {
-                    return Collections.emptyList();
-                }
-                return versions.stream().map(PackageVersion::from).collect(Collectors.toList());
+                List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString());
+                versions.stream().map(PackageVersion::from).forEach(packageVersions::add);
             } catch (HarborClientException ignored) {
-                // fall through and return whatever is in the file system cache
+                // fall through and use whatever is in the file system cache
             }
         }
-        return packageVersions;
+
+        PackageVersion requestedVersion = resolutionRequest.version().orElse(null);
+        SemanticVersion minSemVer = requestedVersion == null
+                ? null : SemanticVersion.from(requestedVersion.toString());
+        List<SemanticVersion> semVers = packageVersions.stream()
+                .map(version -> SemanticVersion.from(version.toString())).toList();
+        ProjectUtils.CompatibleRange compatibleRange = ProjectUtils.getCompatibleRange(
+                minSemVer, resolutionOptions.packageLockingMode());
+        List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
+                minSemVer, semVers, compatibleRange);
+        return compatibleVersions.stream().map(PackageVersion::from).collect(Collectors.toList());
     }
 
     @Override
     protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
-        List<PackageVersion> packageVersions = this.fileSystemRepository.getPackageVersions(org, name, version);
+        Set<PackageVersion> packageVersions = new HashSet<>(
+                this.fileSystemRepository.getPackageVersions(org, name, version));
         if (this.harborClient != null) {
             try {
-                List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString(), "java21");
-                if (versions.isEmpty()) {
-                    return Collections.emptyList();
-                }
-                return versions.stream().map(PackageVersion::from).collect(Collectors.toList());
+                List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString());
+                versions.stream().map(PackageVersion::from).forEach(packageVersions::add);
             } catch (HarborClientException ignored) {
-                // fall through and return whatever is in the file system cache
+                // fall through and use whatever is in the file system cache
             }
         }
-        return packageVersions;
+        return new ArrayList<>(packageVersions);
     }
 
     @Override
@@ -179,6 +189,8 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     @Override
     protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
                                                                       PackageVersion version) {
+        // Ensure the bala is pulled from Harbor (if not already cached) before reading its dependency graph.
+        isPackageExists(org, name, version);
         return this.fileSystemRepository.getDependencyGraph(org, name, version);
     }
 
@@ -194,7 +206,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
             return false;
         }
         try {
-            List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString(), "java21");
+            List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString());
             if (versions == null || versions.isEmpty()) {
                 return false;
             }
@@ -218,7 +230,6 @@ public class OCIPackageRepository extends AbstractPackageRepository {
                 continue;
             }
             PackageVersion latest = findLatest(new ArrayList<>(packageVersions));
-            isPackageExists(request.orgName(), request.packageName(), latest);
             DependencyGraph<PackageDescriptor> dependencyGraph = getDependencyGraph(
                     request.orgName(), request.packageName(), latest);
             PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
@@ -227,6 +238,48 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         }
         return descriptorSet;
     }
+
+    @Override
+    public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                              ResolutionOptions options) {
+        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>(
+                this.fileSystemRepository.getPackageNames(requests, options));
+
+        if (options.offline() || this.harborClient == null) {
+            return importModuleResponseList;
+        }
+        for (ImportModuleRequest importModuleRequest : requests) {
+            boolean alreadyResolved = importModuleResponseList.stream()
+                    .anyMatch(response -> response.importModuleRequest().equals(importModuleRequest)
+                            && response.resolutionStatus() == ResolutionResponse.ResolutionStatus.RESOLVED);
+            if (alreadyResolved) {
+                continue;
+            }
+            PackageOrg org = importModuleRequest.packageOrg();
+            List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(
+                    org, importModuleRequest.moduleName());
+            for (PackageName packageName : possiblePackageNames) {
+                try {
+                    List<String> versions = this.harborClient.pullMetadata(
+                            org.toString(), packageName.toString());
+                    if (versions.isEmpty()) {
+                        continue;
+                    }
+                    PackageVersion latest = findLatest(
+                            versions.stream().map(PackageVersion::from).collect(Collectors.toList()));
+                    PackageDescriptor resolvedDescriptor = PackageDescriptor.from(org, packageName, latest);
+                    importModuleResponseList.removeIf(
+                            response -> response.importModuleRequest().equals(importModuleRequest));
+                    importModuleResponseList.add(new ImportModuleResponse(resolvedDescriptor, importModuleRequest));
+                    break;
+                } catch (HarborClientException ignored) {
+                    // fall through and try the next possible package name
+                }
+            }
+        }
+        return importModuleResponseList;
+    }
+
 
     @Override
     public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
