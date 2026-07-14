@@ -152,6 +152,48 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Push a package to the 'oci' repository when it is not configured in the Settings.toml")
+    public void testPushPackageToUnconfiguredOciRepo() throws IOException {
+        String expected = "ballerina: repository 'oci' is not configured in the Settings.toml. Please add the " +
+                "repository with its url, username, and password before pushing.\n";
+
+        Path mockRepo = Path.of("build/ballerina-home/repositories/repo-push-pull");
+        Path balaPath = Path.of(
+                "src/test/resources/test-resources/custom-repo/ballina_test-oci1-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
+        String[] args = { "--repository=oci" };
+        new CommandLine(pushCommand).parseArgs(args);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(
+                    readSettings(testResources.resolve("custom-repo/Settings.toml"),
+                            mockRepo.toAbsolutePath().toString()));
+            pushCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Push a package to a proxy mode OCI repository")
+    public void testPushPackageToProxyOciRepo() throws IOException {
+        String expected = "ballerina: cannot push to repository 'oci-proxy': it is configured as a 'proxy' " +
+                "repository in the Settings.toml, which is read-only.\n";
+
+        Path balaPath = Path.of(
+                "src/test/resources/test-resources/custom-repo/ballina_test-oci1-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
+        String[] args = { "--repository=oci-proxy" };
+        new CommandLine(pushCommand).parseArgs(args);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(
+                    readSettings(testResources.resolve("custom-repo/SettingsOci.toml"), ""));
+            pushCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertEquals(actual, expected);
+    }
+
     private static Settings readSettings(Path settingsFilePath, String repoPath) {
         try {
             String settingString = Files.readString(settingsFilePath);

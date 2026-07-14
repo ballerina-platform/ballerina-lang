@@ -1,19 +1,17 @@
 /*
- *  Copyright (c) 2026, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2026, WSO2 LLC. (http://wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.ballerina.projects.internal.repositories;
 
@@ -36,8 +34,8 @@ import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.harbor.HarborClient;
-import org.ballerinalang.harbor.HarborClientException;
+import org.ballerinalang.oci.OciClient;
+import org.ballerinalang.oci.OciClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
@@ -56,7 +54,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This class represents an OCI (Harbor) backed package repository.
+ * This class represents an OCI backed package repository.
  *
  * @since 2201.14.0
  */
@@ -66,20 +64,38 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     private static final String BALA_EXTENSION = ".bala";
 
     private final FileSystemRepository fileSystemRepository;
-    private final HarborClient harborClient;
+    private final OciClient ociClient;
     private final String repoLocation;
+    private final boolean hosted;
 
     public OCIPackageRepository(Environment environment, Path repositoryPath, String distributionVersion,
-                                 HarborClient harborClient) {
+                                 OciClient ociClient) {
+        this(environment, repositoryPath, distributionVersion, ociClient, true);
+    }
+
+    public OCIPackageRepository(Environment environment, Path repositoryPath, String distributionVersion,
+                                 OciClient ociClient, boolean hosted) {
         this.fileSystemRepository = new FileSystemRepository(environment, repositoryPath, distributionVersion);
-        this.harborClient = harborClient;
+        this.ociClient = ociClient;
         this.repoLocation = repositoryPath.toString();
+        this.hosted = hosted;
     }
 
     public static OCIPackageRepository from(Environment environment, Path repositoryPath, Repository repository) {
-        HarborClient harborClient = new HarborClient(repository.url(), repository.username(), repository.password());
+        OciClient ociClient = new OciClient(repository.url(), repository.username(), repository.password());
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
-        return new OCIPackageRepository(environment, repositoryPath, ballerinaShortVersion, harborClient);
+        boolean hosted = Repository.MODE_HOSTED.equals(repository.mode());
+        return new OCIPackageRepository(environment, repositoryPath, ballerinaShortVersion, ociClient, hosted);
+    }
+
+
+    private List<String> lookupVersions(String org, String pkg) {
+        return this.hosted ? this.ociClient.listTags(org, pkg) : this.ociClient.pullMetadata(org, pkg);
+    }
+
+    private void printWarning(String message) {
+        final PrintStream out = System.out;
+        out.println(message);
     }
 
     @Override
@@ -91,17 +107,18 @@ public class OCIPackageRepository extends AbstractPackageRepository {
 
         if (!resolutionOptions.offline() && resolutionRequest.version().isPresent()) {
             try {
-                getFromHarbor(resolutionRequest.orgName(), resolutionRequest.packageName(),
+                getFromOci(resolutionRequest.orgName(), resolutionRequest.packageName(),
                         resolutionRequest.version().get());
-            } catch (Exception ignored) {
-                // fall through and return whatever is (not) in the file system cache
+            } catch (RuntimeException e) {
+                printWarning("warning: failed to pull package '" + resolutionRequest.orgName() + "/"
+                        + resolutionRequest.packageName() + "' from OCI repository: " + e.getMessage());
             }
         }
 
         return this.fileSystemRepository.getPackage(resolutionRequest, resolutionOptions);
     }
 
-    public boolean getFromHarbor(PackageOrg org, PackageName name, PackageVersion pkgVersion) {
+    public boolean getFromOci(PackageOrg org, PackageName name, PackageVersion pkgVersion) {
         String orgName = org.toString();
         String packageName = name.toString();
         String version = pkgVersion.toString();
@@ -109,7 +126,9 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         boolean success;
         try {
             tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
-            harborClient.pullMetadata(orgName, packageName, version, tmpDownloadDirectory.toString());
+            String displayLocation = Path.of(this.repoLocation).resolve("bala").resolve(orgName)
+                    .resolve(packageName).resolve(version).toString();
+            ociClient.pullMetadata(orgName, packageName, version, tmpDownloadDirectory.toString(), displayLocation);
             Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
                     .resolve(packageName + "-" + version + BALA_EXTENSION);
             Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
@@ -128,7 +147,9 @@ public class OCIPackageRepository extends AbstractPackageRepository {
                 ProjectUtils.extractBala(balaDownloadPath, actualBalaPath);
             }
             return true;
-        } catch (HarborClientException | IOException e) {
+        } catch (OciClientException | IOException e) {
+            printWarning("warning: failed to pull package '" + orgName + "/" + packageName + ":" + version
+                    + "' from OCI repository: " + e.getMessage());
             success = false;
         } finally {
             if (tmpDownloadDirectory != null) {
@@ -145,12 +166,14 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         PackageName name = resolutionRequest.packageName();
         Set<PackageVersion> packageVersions = new HashSet<>(this.fileSystemRepository.getPackageVersions(
                 org, name, resolutionRequest.version().orElse(null)));
-        if (!resolutionOptions.offline() && this.harborClient != null) {
+        if (!resolutionOptions.offline() && this.ociClient != null) {
             try {
-                List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString());
+                List<String> versions = lookupVersions(org.toString(), name.toString());
                 versions.stream().map(PackageVersion::from).forEach(packageVersions::add);
-            } catch (HarborClientException ignored) {
+            } catch (OciClientException e) {
                 // fall through and use whatever is in the file system cache
+                printWarning("warning: failed to look up versions for '" + org + "/" + name
+                        + "' from OCI repository: " + e.getMessage());
             }
         }
 
@@ -170,12 +193,14 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
         Set<PackageVersion> packageVersions = new HashSet<>(
                 this.fileSystemRepository.getPackageVersions(org, name, version));
-        if (this.harborClient != null) {
+        if (this.ociClient != null) {
             try {
-                List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString());
+                List<String> versions = lookupVersions(org.toString(), name.toString());
                 versions.stream().map(PackageVersion::from).forEach(packageVersions::add);
-            } catch (HarborClientException ignored) {
+            } catch (OciClientException e) {
                 // fall through and use whatever is in the file system cache
+                printWarning("warning: failed to look up versions for '" + org + "/" + name
+                        + "' from OCI repository: " + e.getMessage());
             }
         }
         return new ArrayList<>(packageVersions);
@@ -189,8 +214,11 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     @Override
     protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
                                                                       PackageVersion version) {
-        // Ensure the bala is pulled from Harbor (if not already cached) before reading its dependency graph.
-        isPackageExists(org, name, version);
+        if (!isPackageExists(org, name, version)) {
+            if (version == null || this.ociClient == null || !getFromOci(org, name, version)) {
+                return DependencyGraph.emptyGraph();
+            }
+        }
         return this.fileSystemRepository.getDependencyGraph(org, name, version);
     }
 
@@ -199,24 +227,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         if (version == null) {
             return false;
         }
-        if (this.fileSystemRepository.isPackageExists(org, name, version)) {
-            return true;
-        }
-        if (this.harborClient == null) {
-            return false;
-        }
-        try {
-            List<String> versions = this.harborClient.pullMetadata(org.toString(), name.toString());
-            if (versions == null || versions.isEmpty()) {
-                return false;
-            }
-            return versions.contains(version.toString()) && getFromHarbor(org, name, version);
-        } catch (Exception e) {
-            PrintStream out = System.out;
-            out.println("Error while checking package existence [" + org + "/" + name + ":" + version + "]: "
-                    + e.getMessage());
-            return false;
-        }
+        return this.fileSystemRepository.isPackageExists(org, name, version);
     }
 
     @Override
@@ -245,7 +256,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         List<ImportModuleResponse> importModuleResponseList = new ArrayList<>(
                 this.fileSystemRepository.getPackageNames(requests, options));
 
-        if (options.offline() || this.harborClient == null) {
+        if (options.offline() || this.ociClient == null) {
             return importModuleResponseList;
         }
         for (ImportModuleRequest importModuleRequest : requests) {
@@ -260,8 +271,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
                     org, importModuleRequest.moduleName());
             for (PackageName packageName : possiblePackageNames) {
                 try {
-                    List<String> versions = this.harborClient.pullMetadata(
-                            org.toString(), packageName.toString());
+                    List<String> versions = lookupVersions(org.toString(), packageName.toString());
                     if (versions.isEmpty()) {
                         continue;
                     }
@@ -272,7 +282,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
                             response -> response.importModuleRequest().equals(importModuleRequest));
                     importModuleResponseList.add(new ImportModuleResponse(resolvedDescriptor, importModuleRequest));
                     break;
-                } catch (HarborClientException ignored) {
+                } catch (OciClientException ignored) {
                     // fall through and try the next possible package name
                 }
             }

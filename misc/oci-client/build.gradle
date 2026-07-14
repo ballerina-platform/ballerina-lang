@@ -38,18 +38,6 @@ test {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaExec) {
-    // This instructs Jib Core's low-level engine to skip strict SSL checks
-    systemProperty 'com.google.cloud.tools.jib.http.Connection.allowInsecureRegistries', 'true'
-}
-
-//tasks.register('run', JavaExec) {
-//    group = 'application'
-//    description = 'Runs the OciClient main method'
-//    classpath = sourceSets.main.runtimeClasspath
-//    mainClass = 'org.ballerinalang.oci.OciClient'
-//}
-
 ext.moduleName = 'org.ballerinalang.oci'
 
 compileJava {

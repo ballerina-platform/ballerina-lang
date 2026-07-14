@@ -6,7 +6,12 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.internal.model.Repository;
-import io.ballerina.projects.internal.repositories.*;
+import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
+import io.ballerina.projects.internal.repositories.FileSystemRepository;
+import io.ballerina.projects.internal.repositories.LocalPackageRepository;
+import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.internal.repositories.OCIPackageRepository;
+import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -19,8 +24,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.ballerina.projects.internal.SettingsBuilder.OCI;
 import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
+import static io.ballerina.projects.internal.SettingsBuilder.OCI;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.USER_HOME;
 
 /**

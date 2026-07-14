@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.oci;
+package org.ballerinalang.oci.model;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
- * Exception thrown for OCI registry client failures.
+ * Response body of a Docker/OCI bearer token endpoint.
  *
+ * @param token       the issued bearer token
+ * @param accessToken alternative field name some registries use for the issued token
  */
-public class OciClientException extends RuntimeException {
-
-    public OciClientException(String message) {
-        super(message);
-    }
-
-    public OciClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public record TokenResponse(String token, @SerializedName("access_token") String accessToken) {
 }

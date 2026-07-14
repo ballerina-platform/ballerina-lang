@@ -40,9 +40,9 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
-import org.ballerinalang.harbor.HarborClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.oci.OciClient;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -208,9 +208,29 @@ public class PushCommand implements BLauncherCmd {
                         CommandUtil.exitError(this.exitWhenFinish);
                         return;
                     }
-                    HarborClient harborClient = new HarborClient(targetRepository.url(), targetRepository.username(),
+                    if (Repository.MODE_PROXY.equals(targetRepository.mode())) {
+                        String errMsg = "cannot push to repository '" + repositoryName + "': it is configured as a "
+                                + "'" + Repository.MODE_PROXY + "' repository in the Settings.toml, which is "
+                                + "read-only.";
+                        CommandUtil.printError(this.errStream, errMsg, null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        return;
+                    }
+                    OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
                             targetRepository.password());
-                    pushPackage(project, harborClient);
+                    if (balaPath == null) {
+                        pushPackage(project, ociClient);
+                    } else {
+                        if (!balaPath.toFile().exists()) {
+                            throw new ProjectException("path provided for the bala file does not exist: "
+                                    + balaPath + ".");
+                        }
+                        if (!FileUtils.getExtension(balaPath).equals("bala")) {
+                            throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
+                        }
+                        validateReadmeAndBalToml(balaPath);
+                        pushBalaToOCIRepo(balaPath, ociClient);
+                    }
                     return;
                 }
 
@@ -304,7 +324,7 @@ public class PushCommand implements BLauncherCmd {
         pushBalaToCustomRepo(balaFilePath, client);
     }
 
-    private void pushPackage(BuildProject project, HarborClient client) {
+    private void pushPackage(BuildProject project, OciClient client) {
         Path balaFilePath = validateBalaFile(project, this.balaPath);
         pushBalaToOCIRepo(balaFilePath, client);
     }
@@ -567,7 +587,7 @@ public class PushCommand implements BLauncherCmd {
         }
     }
 
-    private void pushBalaToOCIRepo(Path balaPath, HarborClient client) {
+    private void pushBalaToOCIRepo(Path balaPath, OciClient client) {
         try {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
             defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -577,11 +597,17 @@ public class PushCommand implements BLauncherCmd {
             String version =  balaProject.currentPackage().manifest().version().toString();
             String platform = balaProject.platform();
             client.pushOCIArtifact(org, name, version, platform, balaPath);
-            outStream.println("Successfully pushed " + userDir.relativize(balaPath)
+            Path relativePathToBalaFile;
+            if (this.balaPath != null) {
+                relativePathToBalaFile = balaPath;
+            } else {
+                relativePathToBalaFile = userDir.relativize(balaPath);
+            }
+            outStream.println("Successfully pushed " + relativePathToBalaFile
                     + " to '" + repositoryName + "' repository.");
         } catch (Exception e) {
             throw new ProjectException("error while pushing bala file '" + balaPath + "' to '"
-                    + ProjectConstants.OCI_REPOSITORY_NAME + "' repository: " + e.getMessage(), e);
+                    + repositoryName + "' repository: " + e.getMessage(), e);
         }
     }
 

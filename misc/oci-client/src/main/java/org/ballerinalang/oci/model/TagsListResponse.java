@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.oci;
+package org.ballerinalang.oci.model;
+
+import java.util.List;
 
 /**
- * Exception thrown for OCI registry client failures.
+ * Response body of the OCI registry tags list endpoint ({@code GET /v2/{name}/tags/list}).
  *
+ * @param tags the tag names present in the repository
  */
-public class OciClientException extends RuntimeException {
+public record TagsListResponse(List<String> tags) {
 
-    public OciClientException(String message) {
-        super(message);
-    }
-
-    public OciClientException(String message, Throwable cause) {
-        super(message, cause);
+    public TagsListResponse {
+        tags = tags == null ? null : List.copyOf(tags);
     }
 }

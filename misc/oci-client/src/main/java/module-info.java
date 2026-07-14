@@ -8,4 +8,6 @@ module org.ballerinalang.oci {
     requires java.logging;
     requires com.google.api.client;
     exports org.ballerinalang.oci;
+    exports org.ballerinalang.oci.model;
+    opens org.ballerinalang.oci.model to com.google.gson;
 }

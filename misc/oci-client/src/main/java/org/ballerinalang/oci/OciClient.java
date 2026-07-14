@@ -1,41 +1,53 @@
 /*
- *  Copyright (c) 2026, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2026, WSO2 LLC. (http://wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.ballerinalang.oci;
 
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.http.*;
-import com.google.cloud.tools.jib.image.json.*;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.registry.RegistryClient;
-import com.google.cloud.tools.jib.api.*;
+import com.google.cloud.tools.jib.api.CacheDirectoryCreationException;
+import com.google.cloud.tools.jib.api.Containerizer;
+import com.google.cloud.tools.jib.api.Credential;
+import com.google.cloud.tools.jib.api.ImageReference;
+import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
+import com.google.cloud.tools.jib.api.Jib;
+import com.google.cloud.tools.jib.api.LogEvent;
+import com.google.cloud.tools.jib.api.RegistryException;
+import com.google.cloud.tools.jib.api.RegistryImage;
 import com.google.cloud.tools.jib.api.buildplan.AbsoluteUnixPath;
 import com.google.cloud.tools.jib.api.buildplan.ImageFormat;
+import com.google.cloud.tools.jib.blob.Blob;
+import com.google.cloud.tools.jib.blob.Blobs;
 import com.google.cloud.tools.jib.event.EventHandlers;
+import com.google.cloud.tools.jib.http.Authorization;
+import com.google.cloud.tools.jib.http.FailoverHttpClient;
+import com.google.cloud.tools.jib.http.Request;
+import com.google.cloud.tools.jib.http.Response;
+import com.google.cloud.tools.jib.http.ResponseException;
+import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
+import com.google.cloud.tools.jib.image.json.OciManifestTemplate;
+import com.google.cloud.tools.jib.registry.RegistryClient;
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.CentralClientConstants;
+import org.ballerinalang.oci.model.TagsListResponse;
+import org.ballerinalang.oci.model.TokenResponse;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -48,61 +60,63 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Client for pushing and pulling Ballerina packages to and from an OCI registry.
+ *
+ */
 public class OciClient {
 
     private static final String BALA_EXTENSION = ".bala";
     private static final Logger LOGGER = Logger.getLogger(OciClient.class.getName());
-
-    /** Maximum number of attempts for transient-failure-prone OCI pull operations. */
     private static final int MAX_PULL_RETRIES = 3;
-
-    /** Initial delay in milliseconds before the first retry. Doubles on each subsequent attempt. */
     private static final long INITIAL_RETRY_DELAY_MS = 1000;
-
-    /** Matches tags that look like Ballerina package versions (semver, optional pre-release). */
-    private static final Pattern VERSION_TAG_PATTERN =
-            Pattern.compile("^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$");
-
-    /** Matches {@code key="value"} pairs in a {@code WWW-Authenticate: Bearer ...} challenge header. */
-    private static final Pattern AUTH_CHALLENGE_PARAM_PATTERN = Pattern.compile("(\\w+)=\"([^\"]*)\"");
-
-    /** Matches the {@code rel="next"} entry in an RFC 5988 {@code Link} response header. */
+    private static final Pattern VERSION_TAG_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$");
     private static final Pattern LINK_NEXT_PATTERN = Pattern.compile("<([^>]+)>;\\s*rel=\"next\"");
+    private static final Pattern AUTH_CHALLENGE_PARAM_PATTERN = Pattern.compile("(\\w+)=\"([^\"]*)\"");
 
     private String registryUrl;
     private String username;
     private String password;
 
+    /**
+     * Creates an OCI registry client.
+     *
+     * @param registryUrl registry host and base path (any URL scheme is stripped)
+     * @param username    registry username
+     * @param password    registry password or access token
+     */
     public OciClient(String registryUrl, String username, String password) {
-        this.registryUrl = registryUrl;
+        if (registryUrl != null) {
+            this.registryUrl = registryUrl.replaceFirst("^(http://|https://)", "");
+        }
         this.username = username;
         this.password = password;
     }
 
+
     /**
-     * Executes the given action with retry logic and exponential backoff.
-     * <p>
-     * OCI registry operations (especially the first pull after startup) can fail transiently
-     * due to HTTP→HTTPS failover, auth token exchange latency, or TCP connection warm-up.
-     * Retrying with backoff handles these cases gracefully.
+     * Runs an action with retries and exponential backoff.
      *
-     * @param action      the operation to attempt
-     * @param operationName a human-readable label used in log messages
-     * @throws OciClientException if all retry attempts are exhausted
+     * @param action        action to run
+     * @param operationName operation name used in log messages
+     * @throws Exception the last failure once retries are exhausted
      */
-    private void withRetry(RunnableWithException action, String operationName) throws Exception {
+    private void withRetry(Callable<Void> action, String operationName) throws Exception {
         int attempt = 0;
         long delayMs = INITIAL_RETRY_DELAY_MS;
         while (true) {
             try {
-                action.run();
+                action.call();
                 return;
             } catch (Exception e) {
                 attempt++;
@@ -118,24 +132,30 @@ public class OciClient {
                     Thread.currentThread().interrupt();
                     throw e;
                 }
-                delayMs = Math.min(delayMs * 2, 8000); // cap at 8 s
+                delayMs = Math.min(delayMs * 2, 8000);
             }
         }
     }
 
-    /** Functional interface for operations that can throw checked exceptions. */
-    @FunctionalInterface
-    private interface RunnableWithException {
-        void run() throws Exception;
-    }
-
+    /**
+     * Pushes a bala file to the registry as a single-layer OCI artifact.
+     *
+     * @param org          package organization
+     * @param pkg          package name
+     * @param version      package version, used as the image tag
+     * @param platform     bala target platform
+     * @param balaFilePath path to the bala file
+     */
     public void pushOCIArtifact(String org, String pkg, String version, String platform, Path balaFilePath) {
+        if (!balaFilePath.toFile().exists()) {
+            throw new OciClientException("bala file does not exist: " + balaFilePath);
+        }
+        if (versionExists(org, pkg, version)) {
+            throw new OciClientException("package '" + org + "/" + pkg + ":" + version
+                    + "' already exists in the registry.");
+        }
         try {
-            if (!balaFilePath.toFile().exists()) {
-                return;
-            }
-            String imageReference =
-                    (registryUrl + "/" + org  + "/" + pkg + ":" + version).toLowerCase();
+            String imageReference = repositoryReference(org, pkg) + ":" + version;
             Jib.fromScratch()
                     .setFormat(ImageFormat.OCI)
                     .addLayer(Collections.singletonList(balaFilePath), AbsoluteUnixPath.get("/"))
@@ -146,27 +166,91 @@ public class OciClient {
                                     .setToolName("OciClient")
 
                     );
-        } catch (Exception exception) {
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new OciClientException("failed to push OCI artifact to the registry", exception);
+        } catch (RegistryException | IOException | CacheDirectoryCreationException | ExecutionException
+                | InvalidImageReferenceException exception) {
             throw new OciClientException("failed to push OCI artifact to the registry", exception);
         }
     }
 
-    public void pullMetadata(String org, String name, String version, String repoLocation) {
+    /**
+     * Builds the lowercased registry repository reference for a package.
+     *
+     * @param org package organization
+     * @param pkg package name
+     * @return {@code <registry>/<org>/<pkg>} in lowercase
+     */
+    private String repositoryReference(String org, String pkg) {
+        return (registryUrl + "/" + org + "/" + pkg).toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Checks whether a version tag already exists in the registry.
+     *
+     * @param org     package organization
+     * @param pkg     package name
+     * @param version version tag to check
+     * @return true if the tag already exists
+     */
+    private boolean versionExists(String org, String pkg, String version) {
         try {
-            withRetry(() -> doPullBala(org, name, version, repoLocation),
-                    "pull bala [" + org + "/" + name + ":" + version + "]");
+            return listTags(org, pkg).contains(version);
+        } catch (OciClientException exception) {
+            // The repository may not exist yet (first push of this package); let the push proceed
+            // and surface any real registry error itself.
+            return false;
+        }
+    }
+
+    /**
+     * Pulls a bala from the registry into the given location.
+     *
+     * @param org          package organization
+     * @param name         package name
+     * @param version      package version
+     * @param repoLocation directory to save the bala under
+     */
+    public void pullMetadata(String org, String name, String version, String repoLocation) {
+        pullMetadata(org, name, version, repoLocation, repoLocation);
+    }
+
+    /**
+     * Pulls a bala from the registry into the given location, retrying on failure.
+     *
+     * @param org             package organization
+     * @param name            package name
+     * @param version         package version
+     * @param repoLocation    directory to save the bala under
+     * @param displayLocation path shown in the progress bar
+     */
+    public void pullMetadata(String org, String name, String version, String repoLocation, String displayLocation) {
+        try {
+            withRetry(() -> {
+                doPullBala(org, name, version, repoLocation, displayLocation);
+                return null;
+            }, "pull bala [" + org + "/" + name + ":" + version + "]");
         } catch (Exception exception) {
             throw new OciClientException("failed to pull bala from the repo", exception);
         }
     }
 
+
     /**
-     * Core implementation of a single bala pull attempt.
-     * Separated from {@link #pullMetadata} so it can be cleanly retried by {@link #withRetry}.
+     * Downloads the bala layer of a package version and writes it to disk.
+     *
+     * @param org             package organization
+     * @param name            package name
+     * @param version         package version
+     * @param repoLocation    directory to save the bala under
+     * @param displayLocation path shown in the progress bar
+     * @throws Exception on registry or file system failures
      */
-    private void doPullBala(String org, String name, String version, String repoLocation) throws Exception {
-        ImageReference imageRef = ImageReference.parse(registryUrl + "/" + org + "/" + name);
-        Consumer<LogEvent> jibLogger = logEvent -> {};
+    private void doPullBala(String org, String name, String version, String repoLocation, String displayLocation)
+            throws Exception {
+        ImageReference imageRef = ImageReference.parse(repositoryReference(org, name));
+        Consumer<LogEvent> jibLogger = logEvent -> { };
 
         FailoverHttpClient httpClient = new FailoverHttpClient(
                 true,
@@ -181,8 +265,8 @@ public class OciClient {
 
         registryClient.configureBasicAuth();
 
-        OciManifestTemplate manifestTemplate = registryClient.pullManifest(version, OciManifestTemplate.class).getManifest();
-        String rawJson = JsonTemplateMapper.toUtf8String(manifestTemplate);
+        OciManifestTemplate manifestTemplate = registryClient
+                .pullManifest(version, OciManifestTemplate.class).getManifest();
         List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = manifestTemplate.getLayers();
 
         boolean enableOutputStream = Boolean.parseBoolean(
@@ -199,7 +283,7 @@ public class OciClient {
                             // an indeterminate / spinner-style bar in that case.
                             long totalSizeInKB = size > 0 ? (size + 1023) / 1024 : -1;
                             progressBar[0] = new ProgressBar(
-                                    org + "/" + name + ":" + version + " [OCI Registry -> " + repoLocation + "]",
+                                    org + "/" + name + ":" + version + " [OCI Registry -> " + displayLocation + "]",
                                     totalSizeInKB,
                                     1000,
                                     System.out,
@@ -219,9 +303,12 @@ public class OciClient {
                         }
                     }
             );
-            blobBytes = Blobs.writeToByteArray(blob);
-            if (progressBar[0] != null) {
-                progressBar[0].close();
+            try {
+                blobBytes = Blobs.writeToByteArray(blob);
+            } finally {
+                if (progressBar[0] != null) {
+                    progressBar[0].close();
+                }
             }
         }
 
@@ -236,17 +323,24 @@ public class OciClient {
         Path outputPath = Paths.get(repoLocation);
         Path balaFilePath = outputPath.resolve(org).resolve(name).resolve(version)
                 .resolve(name + "-" + version + BALA_EXTENSION);
-        if (balaFilePath.getParent() != null) {
-            Files.createDirectories(balaFilePath.getParent());
+        Path balaFileDir = balaFilePath.getParent();
+        if (balaFileDir != null) {
+            Files.createDirectories(balaFileDir);
         }
         Files.write(balaFilePath, balaBytes);
     }
 
+    /**
+     * Reads the version index published under the {@code latest} tag of a package.
+     *
+     * @param org package organization
+     * @param pkg package name
+     * @return the list of available versions
+     */
     public List<String> pullMetadata(String org, String pkg) {
-
         try {
-            ImageReference imageRef = ImageReference.parse(registryUrl + "/" + org + "/" + pkg);
-            Consumer<LogEvent> jibLogger = logEvent -> {};
+            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
+            Consumer<LogEvent> jibLogger = logEvent -> { };
 
             FailoverHttpClient httpClient = new FailoverHttpClient(
                     true,
@@ -261,33 +355,40 @@ public class OciClient {
 
             registryClient.configureBasicAuth();
 
-            OciManifestTemplate manifestTemplate = registryClient.pullManifest("latest", OciManifestTemplate.class).getManifest();
-            String rawJson = JsonTemplateMapper.toUtf8String(manifestTemplate);
+            OciManifestTemplate manifestTemplate = registryClient
+                    .pullManifest("latest", OciManifestTemplate.class).getManifest();
             List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = manifestTemplate.getLayers();
             for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
-                com.google.cloud.tools.jib.blob.Blob blob = registryClient.pullBlob(
+                Blob blob = registryClient.pullBlob(
                         layer.getDigest(),
-                        size -> {},
-                        count -> {}
+                        size -> { },
+                        count -> { }
                 );
 
                 byte[] blobBytes = Blobs.writeToByteArray(blob);
                 String text = new String(blobBytes, StandardCharsets.UTF_8);
                 Gson gson = new Gson();
-                List<String> versions = gson.fromJson(text, new TypeToken<List<String>>(){}.getType());
-                return versions;
+                return gson.fromJson(text, new TypeToken<List<String>>() { }.getType());
             }
             return Collections.emptyList();
-        } catch (Exception exception) {
+        } catch (IOException | RegistryException | InvalidImageReferenceException
+                | JsonSyntaxException exception) {
             throw new OciClientException("failed to pull metadata from the registry", exception);
         }
     }
 
+    /**
+     * Lists the version tags of a package repository, following pagination.
+     *
+     * @param org package organization
+     * @param pkg package name
+     * @return the SemVer tags across all result pages
+     */
     public List<String> listTags(String org, String pkg) {
         List<String> versions = new ArrayList<>();
         try {
             FailoverHttpClient httpClient = new FailoverHttpClient(true, true, logEvent -> { });
-            ImageReference imageRef = ImageReference.parse(registryUrl + "/" + org + "/" + pkg);
+            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
             URL url = URI.create(
                     "https://" + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
                             + "/tags/list").toURL();
@@ -309,14 +410,12 @@ public class OciClient {
 
                 try (Response ignored = response) {
                     String responseBody = OciClientUtils.readBody(response);
-                    TagsListTemplate tagsList = OciClientUtils.parseJson(responseBody, TagsListTemplate.class,
+                    TagsListResponse tagsList = OciClientUtils.parseJson(responseBody, TagsListResponse.class,
                             "tags list response for " + org + "/" + pkg);
-                    if (tagsList.tags != null) {
-                        for (String tag : tagsList.tags) {
-                            if (VERSION_TAG_PATTERN.matcher(tag).matches()) {
-                                versions.add(tag);
-                            }
-                        }
+                    if (tagsList.tags() != null) {
+                        tagsList.tags().stream()
+                                .filter(tag -> VERSION_TAG_PATTERN.matcher(tag).matches())
+                                .forEach(versions::add);
                     }
                     url = nextPageUrl(response, url);
                 }
@@ -329,6 +428,15 @@ public class OciClient {
         }
     }
 
+
+    /**
+     * Exchanges a bearer challenge for a token authorization.
+     *
+     * @param wwwAuthenticate the {@code WWW-Authenticate} challenge header
+     * @param httpClient      client used to call the token endpoint
+     * @return bearer authorization for retrying the request
+     * @throws IOException if the token endpoint cannot be reached
+     */
     private Authorization resolveBearerAuthorization(String wwwAuthenticate, FailoverHttpClient httpClient)
             throws IOException {
         if (wwwAuthenticate == null || !wwwAuthenticate.regionMatches(true, 0, "Bearer", 0, "Bearer".length())) {
@@ -359,10 +467,10 @@ public class OciClient {
                 .setAuthorization(Authorization.fromBasicCredentials(username, password))
                 .build();
         try (Response tokenResponse = httpClient.get(URI.create(tokenUrl.toString()).toURL(), tokenRequest)) {
-            TokenResponseTemplate token = OciClientUtils.parseJson(
-                    OciClientUtils.readBody(tokenResponse), TokenResponseTemplate.class,
+            TokenResponse token = OciClientUtils.parseJson(
+                    OciClientUtils.readBody(tokenResponse), TokenResponse.class,
                     "token response from " + realm);
-            String bearerToken = token.token != null ? token.token : token.accessToken;
+            String bearerToken = token.token() != null ? token.token() : token.accessToken();
             if (bearerToken == null) {
                 throw new OciClientException("token endpoint returned no token: " + realm);
             }
@@ -370,7 +478,14 @@ public class OciClient {
         }
     }
 
-    /** Resolves the {@code rel="next"} link from an RFC 5988 {@code Link} header, if present. */
+    /**
+     * Resolves the next page URL from a {@code Link} header.
+     *
+     * @param response   the current tags list response
+     * @param currentUrl the URL of the current page
+     * @return the next page URL, or null when there are no more pages
+     * @throws IOException if the pagination link is invalid
+     */
     private URL nextPageUrl(Response response, URL currentUrl) throws IOException {
         for (String linkHeader : response.getHeader("Link")) {
             Matcher matcher = LINK_NEXT_PATTERN.matcher(linkHeader);
@@ -385,16 +500,4 @@ public class OciClient {
         return null;
     }
 
-    /** Response body of {@code GET /v2/{name}/tags/list}. */
-    private static final class TagsListTemplate {
-        String name;
-        List<String> tags;
-    }
-
-    /** Response body of a Docker/OCI bearer token endpoint. */
-    private static final class TokenResponseTemplate {
-        String token;
-        @SerializedName("access_token")
-        String accessToken;
-    }
 }
