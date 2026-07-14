@@ -24,15 +24,6 @@
           }
         }
       }
-    },
-    "dependency-resolution": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "repairOnFailure": {
-          "type": "boolean"
-        }
-      }
     }
   }
 }

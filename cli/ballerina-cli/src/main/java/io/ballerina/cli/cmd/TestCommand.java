@@ -51,6 +51,10 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.projects.util.TomlUtil;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
@@ -631,8 +635,8 @@ public class TestCommand implements BLauncherCmd {
                 if (!e.getDetailedMessages().isEmpty()
                         && !e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
                     if (!isRecovery
-                            && workspaceProject.buildOptions().repairOnFailure()
-                            && hasMultipleMajorVersions(successfullyBuilt, failedProject)) {
+                            && isRepairOnFailureEnabled(workspaceProject)
+                            && hasMultipleVersions(successfullyBuilt, failedProject)) {
                         outStream.println("WARNING: Build failed due to version conflicts across workspace " +
                                 "dependencies. Retrying with soft locking mode...");
                         BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
@@ -740,8 +744,8 @@ public class TestCommand implements BLauncherCmd {
                 if (!e.getDetailedMessages().isEmpty()
                         && !e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
                     if (!isRecovery
-                            && workspaceProject.buildOptions().repairOnFailure()
-                            && hasMultipleMajorVersions(successfullyBuilt, failedProject)) {
+                            && isRepairOnFailureEnabled(workspaceProject)
+                            && hasMultipleVersions(successfullyBuilt, failedProject)) {
                         outStream.println("WARNING: Build failed due to version conflicts across workspace " +
                                 "dependencies. Retrying with soft locking mode...");
                         BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
@@ -798,11 +802,11 @@ public class TestCommand implements BLauncherCmd {
 
     /**
      * Returns true if the dependency graphs of the supplied projects (successfully built + the failed one, if any)
-     * contain the same package (org/name) with two or more different major.minor versions across projects.
+     * contain the same package (org/name) with two or more different versions across projects.
      * The failing project's graph is compared against the successfully built projects' graphs because a version
      * conflict between the failed project and its siblings is the primary workspace failure mode.
      */
-    private boolean hasMultipleMajorVersions(List<BuildProject> builtProjects, BuildProject failedProject) {
+    private boolean hasMultipleVersions(List<BuildProject> builtProjects, BuildProject failedProject) {
         Map<String, String> seenVersions = new HashMap<>();
         List<BuildProject> allProjects = new ArrayList<>(builtProjects);
         if (failedProject != null) {
@@ -813,14 +817,32 @@ public class TestCommand implements BLauncherCmd {
                     bp.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()) {
                 PackageDescriptor desc = dep.packageInstance().descriptor();
                 String key = desc.org().value() + "/" + desc.name().value();
-                String majorMinor = desc.version().value().major() + "." + desc.version().value().minor();
-                String existing = seenVersions.putIfAbsent(key, majorMinor);
-                if (existing != null && !existing.equals(majorMinor)) {
+                String version = desc.version().value().major() + "." + desc.version().value().minor()
+                        + "." + desc.version().value().patch();
+                String existing = seenVersions.putIfAbsent(key, version);
+                if (existing != null && !existing.equals(version)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    /**
+     * Resolves whether workspace build recovery (soft-locking retry on version conflicts) is enabled.
+     * The {@code --repair-on-failure} CLI flag wins if explicitly set; otherwise falls back to the
+     * {@code [dependency-resolution].repairOnFailure} property in the workspace {@code Ballerina.toml}.
+     */
+    private boolean isRepairOnFailureEnabled(WorkspaceProject workspaceProject) {
+        if (repairOnFailure != null) {
+            return repairOnFailure;
+        }
+        TomlTableNode rootNode = workspaceProject.ballerinaToml().tomlAstNode();
+        TopLevelNode depResNode = rootNode.entries().get("dependency-resolution");
+        if (depResNode == null || depResNode.kind() != TomlType.TABLE) {
+            return false;
+        }
+        return TomlUtil.getBooleanFromTableNode((TomlTableNode) depResNode, "repairOnFailure", false);
     }
 
     private List<Diagnostic> executeBuildToolsTask(BuildProject buildProject, boolean rebuildNeeded,
@@ -943,8 +965,7 @@ public class TestCommand implements BLauncherCmd {
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
-                .setLockingMode(lockingMode)
-                .setRepairOnFailure(repairOnFailure);
+                .setLockingMode(lockingMode);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

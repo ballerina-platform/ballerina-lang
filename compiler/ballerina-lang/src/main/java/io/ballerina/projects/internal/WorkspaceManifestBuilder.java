@@ -17,15 +17,12 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.WorkspaceManifest;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
-import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.validator.TomlValidator;
@@ -48,14 +45,12 @@ public class WorkspaceManifestBuilder {
     private final Path workspaceRoot;
     private final List<Path> packages;
     private final List<Diagnostic> diagnosticList;
-    private final TomlTableNode rootTomlNode;
 
     private WorkspaceManifestBuilder(TomlDocument tomlDocument, Path workspaceRoot) {
         this.workspaceBallerinaToml = tomlDocument;
         this.workspaceRoot = workspaceRoot;
         this.diagnosticList = new ArrayList<>();
-        this.rootTomlNode = validateAndGetBallerinaToml();
-        this.packages = extractPackages(this.rootTomlNode);
+        this.packages = extractPackages(validateAndGetBallerinaToml());
     }
 
     private TomlTableNode validateAndGetBallerinaToml() {
@@ -113,26 +108,6 @@ public class WorkspaceManifestBuilder {
     }
 
     public WorkspaceManifest manifest() {
-        BuildOptions dependencyResolutionOptions = parseDependencyResolutionOptions(this.rootTomlNode);
-        return new WorkspaceManifest(packages, new DefaultDiagnosticResult(diagnosticList),
-                dependencyResolutionOptions);
-    }
-
-    private BuildOptions parseDependencyResolutionOptions(TomlTableNode rootNode) {
-        TopLevelNode topLevelNode = rootNode.entries().get("dependency-resolution");
-        if (topLevelNode == null || topLevelNode.kind() != TomlType.TABLE) {
-            return null;
-        }
-        TomlTableNode depResNode = (TomlTableNode) topLevelNode;
-        TopLevelNode repairNode = depResNode.entries().get(
-                BuildOptions.OptionName.REPAIR_ON_FAILURE.toString());
-        if (repairNode != null && repairNode.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode kv = (TomlKeyValueNode) repairNode;
-            if (kv.value().kind() == TomlType.BOOLEAN) {
-                Boolean val = ((TomlBooleanValueNode) kv.value()).getValue();
-                return BuildOptions.builder().setRepairOnFailure(val).build();
-            }
-        }
-        return null;
+        return new WorkspaceManifest(packages, new DefaultDiagnosticResult(diagnosticList));
     }
 }
