@@ -245,7 +245,7 @@ public class BuildCommand implements BLauncherCmd {
             description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
     private PackageLockingMode lockingMode;
 
-    @CommandLine.Option(names = "--repair-on-failure",
+    @CommandLine.Option(names = "--repair-on-failure", hidden = true,
             description = "If the workspace build fails due to dependency version conflicts, " +
                           "retry the build with soft locking mode. Ignored for standalone packages.")
     private Boolean repairOnFailure;
@@ -385,7 +385,7 @@ public class BuildCommand implements BLauncherCmd {
                     && isRepairOnFailureEnabled(workspaceProject)
                     && hasMultipleVersions(successfullyBuilt, failedProject)) {
                 outStream.println("WARNING: Build failed due to version conflicts across workspace " +
-                        "dependencies. Retrying with soft locking mode...");
+                        "dependencies. Updating the dependency versions and rebuilding the workspace...");
                 BuildOptions recoveryOverride = BuildOptions.builder()
                         .setSticky(false)
                         .setLockingMode(PackageLockingMode.SOFT)
@@ -493,7 +493,7 @@ public class BuildCommand implements BLauncherCmd {
                     && isRepairOnFailureEnabled(workspaceProject)
                     && hasMultipleVersions(successfullyBuilt, failedProject)) {
                 outStream.println("WARNING: Build failed due to version conflicts across workspace " +
-                        "dependencies. Retrying with soft locking mode...");
+                        "dependencies. Updating the dependency versions and rebuilding the workspace...");
                 BuildOptions recoveryOverride = BuildOptions.builder()
                         .setSticky(false)
                         .setLockingMode(PackageLockingMode.SOFT)
@@ -585,7 +585,7 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     /**
-     * Resolves whether workspace build recovery (soft-locking retry on version conflicts) is enabled.
+     * Resolves if the workspace build recovery (soft-locking retry on version conflicts) is enabled.
      * The {@code --repair-on-failure} CLI flag wins if explicitly set; otherwise falls back to the
      * {@code [dependency-resolution].repairOnFailure} property in the workspace {@code Ballerina.toml}.
      */
