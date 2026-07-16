@@ -19,4 +19,24 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.shell.parser.trials.GetErrorMessageTrial" />
+        <Method name="processSource" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.shell.invoker.classload.ClassLoadInvoker" />
+        <Field name="noExecutables" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.shell.invoker.classload.ClassLoadInvoker" />
+        <Field name="noModuleDeclarations" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.shell.invoker.classload.ClassLoadInvoker" />
+        <Field name="noVariableDeclarations" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
 </FindBugsFilter>

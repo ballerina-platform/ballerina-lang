@@ -20,6 +20,8 @@ plugins {
     id 'javaProject'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations {
     dist {
         transitive false
@@ -74,7 +76,7 @@ dependencies {
 }
 
 @CacheableTask
-class BallerinaLangStdLibBuildTask extends JavaExec {
+abstract class BallerinaLangStdLibBuildTask extends JavaExec {
     @Internal def projectDir = project.layout.buildDirectory.dir("ballerina-src")
     @Internal def distCache = project.layout.buildDirectory
     @Internal def pkgName = project.name
@@ -180,7 +182,7 @@ def jarFileName = modOrg + "-" + modName + "-" + modVersion
 
 tasks.register('copyBallerinaProject', Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
-    into project.buildDir.toString() + "/ballerina-src"
+    into project.layout.buildDirectory.get().asFile.absolutePath + "/ballerina-src"
 }
 
 tasks.register('ballerinaLangLibBuild', BallerinaLangStdLibBuildTask) {
