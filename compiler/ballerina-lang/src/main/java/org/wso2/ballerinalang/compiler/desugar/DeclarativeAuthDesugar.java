@@ -190,9 +190,6 @@ public class DeclarativeAuthDesugar {
     private BPackageSymbol getPackageSymbol(SymbolEnv env, String packageName) {
         // This resolves the package symbol when the code have an import relevant to the particular service
         for (BLangImportPackage pkg : env.enclPkg.imports) {
-            if (pkg.symbol == null) {
-                continue;
-            }
             if (pkg.symbol.pkgID.orgName.value.equals(ORG_NAME) && pkg.symbol.pkgID.name.value.equals(packageName)) {
                 return pkg.symbol;
             }
