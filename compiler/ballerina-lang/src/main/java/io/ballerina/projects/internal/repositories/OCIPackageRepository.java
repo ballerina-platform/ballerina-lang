@@ -25,6 +25,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -32,6 +33,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.oci.OciClient;
@@ -83,6 +85,9 @@ public class OCIPackageRepository extends AbstractPackageRepository {
 
     public static OCIPackageRepository from(Environment environment, Path repositoryPath, Repository repository) {
         OciClient ociClient = new OciClient(repository.url(), repository.username(), repository.password());
+        Settings settings = RepoUtils.readSettings();
+        Proxy proxy = settings.getProxy();
+        ociClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         boolean hosted = Repository.MODE_HOSTED.equals(repository.mode());
         return new OCIPackageRepository(environment, repositoryPath, ballerinaShortVersion, ociClient, hosted);

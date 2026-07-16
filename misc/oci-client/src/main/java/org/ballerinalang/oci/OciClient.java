@@ -103,6 +103,36 @@ public class OciClient {
         this.password = password;
     }
 
+    /**
+     * Routes registry connections through an HTTP(S) proxy via the standard Java proxy
+     * system properties (JVM-wide; already-set properties are left untouched).
+     *
+     * @param host     proxy host; no-op if empty
+     * @param port     proxy port; no-op if zero
+     * @param username proxy username, may be empty
+     * @param password proxy password, may be empty
+     */
+    public void setProxy(String host, int port, String username, String password) {
+        if (host == null || host.isEmpty() || port == 0) {
+            return;
+        }
+        setPropertyIfAbsent("http.proxyHost", host);
+        setPropertyIfAbsent("http.proxyPort", String.valueOf(port));
+        setPropertyIfAbsent("https.proxyHost", host);
+        setPropertyIfAbsent("https.proxyPort", String.valueOf(port));
+        if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
+            setPropertyIfAbsent("http.proxyUser", username);
+            setPropertyIfAbsent("http.proxyPassword", password);
+            setPropertyIfAbsent("https.proxyUser", username);
+            setPropertyIfAbsent("https.proxyPassword", password);
+        }
+    }
+
+    private static void setPropertyIfAbsent(String key, String value) {
+        if (System.getProperty(key) == null) {
+            System.setProperty(key, value);
+        }
+    }
 
     /**
      * Runs an action with retries and exponential backoff.

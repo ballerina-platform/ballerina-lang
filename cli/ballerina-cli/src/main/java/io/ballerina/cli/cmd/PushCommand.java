@@ -218,6 +218,8 @@ public class PushCommand implements BLauncherCmd {
                     }
                     OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
                             targetRepository.password());
+                    Proxy ociProxy = settings.getProxy();
+                    ociClient.setProxy(ociProxy.host(), ociProxy.port(), ociProxy.username(), ociProxy.password());
                     if (balaPath == null) {
                         pushPackage(project, ociClient);
                     } else {

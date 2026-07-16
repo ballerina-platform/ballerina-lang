@@ -91,7 +91,7 @@ public final class BallerinaUserHome {
                     Files.createDirectories(repositoryPath);
                 } catch (IOException exception) {
                     throw new ProjectException("unable to create repository: " +
-                            ProjectConstants.LOCAL_REPOSITORY_NAME);
+                            repository.id());
                 }
 
                 if (!ociCustomRepositories.containsKey(repository.id())) {

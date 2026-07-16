@@ -370,6 +370,8 @@ public class PullCommand implements BLauncherCmd {
 
         OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
                 targetRepository.password());
+        Proxy proxy = settings.getProxy();
+        ociClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
         if (version.equals(Names.EMPTY.getValue())) {
             try {
