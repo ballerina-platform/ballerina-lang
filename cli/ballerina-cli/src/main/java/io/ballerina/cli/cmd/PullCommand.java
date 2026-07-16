@@ -211,7 +211,7 @@ public class PullCommand implements BLauncherCmd {
             repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
             version = pullFromCentral(settings, orgName, packageName, version);
         } else if (isOciRepository) {
-            pullFromOCIRepo(settings, orgName, packageName, version);
+            version = pullFromOCIRepo(settings, orgName, packageName, version);
         } else if (!LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
             pullFromMavenRepo(settings, orgName, packageName, version);
         }
@@ -351,7 +351,7 @@ public class PullCommand implements BLauncherCmd {
         }
     }
 
-    private void pullFromOCIRepo(Settings settings, String orgName, String packageName, String version) {
+    private String pullFromOCIRepo(Settings settings, String orgName, String packageName, String version) {
         Repository targetRepository = null;
         for (Repository repository : settings.getRepositories()) {
             if (repositoryName.equals(repository.id())) {
@@ -365,7 +365,29 @@ public class PullCommand implements BLauncherCmd {
                     "repositories mentioned in the Settings.toml are supported.";
             CommandUtil.printError(this.errStream, errMsg, null, false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
+            return version;
+        }
+
+        OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
+                targetRepository.password());
+
+        if (version.equals(Names.EMPTY.getValue())) {
+            try {
+                List<String> versions = Repository.MODE_HOSTED.equals(targetRepository.mode())
+                        ? ociClient.listTags(orgName, packageName)
+                        : ociClient.pullMetadata(orgName, packageName);
+                if (versions.isEmpty()) {
+                    errStream.println("package not found: " + orgName + "/" + packageName);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return version;
+                }
+                version = CommandUtil.getLatestVersion(versions);
+            } catch (OciClientException e) {
+                errStream.println("unexpected error occurred while resolving the latest version of '"
+                        + orgName + "/" + packageName + "': " + e.getMessage());
+                CommandUtil.exitError(this.exitWhenFinish);
+                return version;
+            }
         }
 
         Path ociBalaCachePath = RepoUtils.createAndGetHomeReposPath()
@@ -373,9 +395,6 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(targetRepository.id())
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(orgName).resolve(packageName).resolve(version);
-
-        OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
-                targetRepository.password());
 
         Path tmpDownloadDirectory = null;
         try {
@@ -411,6 +430,7 @@ public class PullCommand implements BLauncherCmd {
                 ProjectUtils.deleteDirectory(tmpDownloadDirectory);
             }
         }
+        return version;
     }
 
     private boolean resolveDependencies(String orgName, String packageName, String version) {
