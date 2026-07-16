@@ -81,20 +81,29 @@ public final class StrandDump {
             String[] subitems = lines[0].split("\" ");
             ArrayList<String> balTraceItems = new ArrayList<>();
             boolean isBalStrand = false;
-            if (subitems.length > 1 && subitems[1].equals(VIRTUAL_THREAD_IDENTIFIER)) {
-                balTraceItems.add("\tStrand " + lines[0].replace(VIRTUAL_THREAD_IDENTIFIER, ":") + "\n\t\tat");
-                String prefix = " ";
+            if (subitems.length > 1 && subitems[1].startsWith(VIRTUAL_THREAD_IDENTIFIER)) {
+                balTraceItems.add("\tStrand " + lines[0].replaceAll("\"\\s.*$", "\" :") + "\n\t\tat");
+                String prefix = "       ";
                 for (String line : lines) {
-                    if (!javaPattern.matcher(line).find() && !line.contains("\" " + VIRTUAL_THREAD_IDENTIFIER)) {
-                        balTraceItems.add(prefix + line + "\n");
-                        prefix = "\t\t   ";
-                        if (balPattern.matcher(line).find()) {
+                    if (line.stripLeading().startsWith("-")) {
+                        continue;
+                    }
+
+                    String normalizedLine = line.stripLeading().startsWith("at ")
+                            ? line.stripLeading().replaceFirst("^at\\s+", "")
+                            : line.stripLeading();
+
+                    if (!javaPattern.matcher(normalizedLine).find() &&
+                            !normalizedLine.contains("\" " + VIRTUAL_THREAD_IDENTIFIER)) {
+                        balTraceItems.add(prefix + normalizedLine + "\n");
+                        prefix = "\t\t         ";
+                        if (balPattern.matcher(normalizedLine).find()) {
                             isBalStrand = true;
                         }
                     } else {
-                        if (line.contains(ISOLATED_IDENTIFIER)) {
+                        if (normalizedLine.contains(ISOLATED_IDENTIFIER)) {
                             isolatedStrandList.add(id);
-                        } else if (line.contains(NON_ISOLATED_IDENTIFIER)) {
+                        } else if (normalizedLine.contains(NON_ISOLATED_IDENTIFIER)) {
                             nonIsolatedStrandList.add(id);
                         }
                     }
