@@ -5,7 +5,7 @@
         <Class name="org.ballerinalang.diagramutil.JSONGenerationException" />
     </Match>
     <Match>
-        <Package name="org.ballerinalang.diagramutil.connector.*"/>
+        <Package name="~org\.ballerinalang\.diagramutil\.connector\..*" regex="true"/>
     </Match>
     <Match>
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,EI_EXPOSE_REP,EI_EXPOSE_REP2,

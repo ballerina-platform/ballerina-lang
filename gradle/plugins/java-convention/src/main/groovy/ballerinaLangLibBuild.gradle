@@ -43,7 +43,7 @@ dependencies {
 }
 
 @CacheableTask
-class BallerinaLangLibBuildTask extends JavaExec {
+abstract class BallerinaLangLibBuildTask extends JavaExec {
     @Internal def projectDir = project.layout.buildDirectory.dir("ballerina-src")
     @Internal def distCache = project.layout.buildDirectory
     @Internal def pkgName = project.name

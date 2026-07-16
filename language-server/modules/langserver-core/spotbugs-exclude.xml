@@ -212,4 +212,56 @@
         <Class name="org.ballerinalang.langserver.apispec.TypeSchema$ObjectTypeSchema"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.CompilerPluginCompletionExtension"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.util.CompletionUtil"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.contexts.AbstractDocumentServiceContext"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.contexts.BallerinaCompletionContextImpl"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.contexts.BallerinaDefinitionContextImpl"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.contexts.HoverContextImpl"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.contexts.PositionedOperationContextImpl"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.contexts.SignatureContextImpl"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.rename.RenameUtil"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.toml.ballerinatoml.completion.BallerinaTomlCompletionContext"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.toml.ballerinatoml.completion.BallerinaTomlSnippetManager"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager$ProjectContext"/>
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+    </Match>
 </FindBugsFilter>

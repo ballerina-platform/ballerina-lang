@@ -15,13 +15,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          submodules: recursive
           ref: spec-conformance-test-runner
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "21.0.3"
+          java-version: "25"
 
       - name: Initialize sub-modules
         run: |

@@ -119,7 +119,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -165,6 +166,7 @@ test {
         showStackTraces = true
         showStandardStreams = true
     }
+    systemProperty "net.bytebuddy.experimental", "true"
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
     systemProperty "LANG_REPO_BUILD", "true"

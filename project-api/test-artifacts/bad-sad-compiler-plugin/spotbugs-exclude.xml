@@ -1,0 +1,14 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="io.samjs.plugins.badsad.BadSadCompilerPlugin21"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.samjs.plugins.badsad.BadSadCompilerPlugin40$BadSadCodeAnalyzer"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.samjs.plugins.badsad.BadSadCompilerPlugin41$BadSadCodeAnalyzer"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+</FindBugsFilter>

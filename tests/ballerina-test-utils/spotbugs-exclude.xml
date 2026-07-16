@@ -22,6 +22,10 @@
     </Match>
 
     <Match>
+        <Package name="org.ballerinalang.test.agent"/>
+    </Match>
+
+    <Match>
         <Package name="org.ballerinalang.test.context"/>
     </Match>
 

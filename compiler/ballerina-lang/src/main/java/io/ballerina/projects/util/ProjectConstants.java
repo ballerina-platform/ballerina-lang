@@ -125,8 +125,8 @@ public final class ProjectConstants {
     public static final String TEST_SUITE = "test_suite";
     public static final String TEST_SUITE_JSON = "test_suit.json";
 
-    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.12.jar";
-    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.12.jar";
+    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.13.jar";
+    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.13.jar";
     public static final String ASM_JAR = "asm-9.7.jar";
     public static final String ASM_TREE_JAR = "asm-tree-9.7.jar";
     public static final String ASM_COMMONS_JAR = "asm-commons-9.7.jar";
