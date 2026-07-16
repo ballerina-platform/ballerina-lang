@@ -37,10 +37,12 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -49,6 +51,10 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.projects.util.TomlUtil;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
@@ -69,6 +75,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -292,6 +299,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--min-coverage", description = "minimum code coverage percentage to pass the test")
     private Float minCoverage;
 
+    @CommandLine.Option(names = "--repair-on-failure", hidden = true,
+            description = "If the workspace build fails due to dependency version conflicts, " +
+                          "retry the build with soft locking mode. Ignored for standalone packages.")
+    private Boolean repairOnFailure;
+
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
@@ -440,11 +452,12 @@ public class TestCommand implements BLauncherCmd {
 
             if (workspaceProject.sourceRoot().equals(absProjectPath)) {
                 // Workspace root: test all projects
-                executeWorkspaceFromRoot(workspaceProject, isTestingDelegated, testResult, cliArgs, testReport);
+                executeWorkspaceFromRoot(workspaceProject, isTestingDelegated, testResult, cliArgs, testReport,
+                        buildOptions);
             } else {
                 // Specific project path within workspace
                 executeWorkspaceFromProjectPath(workspaceProject, absProjectPath, isTestingDelegated, testResult,
-                        cliArgs, testReport);
+                        cliArgs, testReport, buildOptions);
             }
         } else {
             if (testReport != null) {
@@ -566,7 +579,15 @@ public class TestCommand implements BLauncherCmd {
     }
 
     private void executeWorkspaceFromRoot(WorkspaceProject workspaceProject, boolean isTestingDelegated,
-                                           AtomicInteger testResult, String[] cliArgs, TestReport testReport) {
+                                           AtomicInteger testResult, String[] cliArgs, TestReport testReport,
+                                           BuildOptions buildOptions) {
+        executeWorkspaceFromRoot(workspaceProject, isTestingDelegated, testResult, cliArgs, testReport,
+                buildOptions, false);
+    }
+
+    private void executeWorkspaceFromRoot(WorkspaceProject workspaceProject, boolean isTestingDelegated,
+                                           AtomicInteger testResult, String[] cliArgs, TestReport testReport,
+                                           BuildOptions buildOptions, boolean isRecovery) {
         // Phase 1: Execute build tools for all projects
         boolean hasAnyTools = workspaceProject.projects().stream()
                 .anyMatch(p -> !p.currentPackage().manifest().tools().isEmpty());
@@ -587,6 +608,8 @@ public class TestCommand implements BLauncherCmd {
 
         // Phase 2: Execute remaining tasks in topological order
         int execResult = 0;
+        List<BuildProject> successfullyBuilt = new ArrayList<>();
+        BuildProject failedProject = null;
         for (BuildProject buildProject : topologicallySortedList) {
             String prevTestClassPath = "";
             boolean rebuildNeeded = true;
@@ -603,13 +626,33 @@ public class TestCommand implements BLauncherCmd {
             try {
                 List<Diagnostic> buildToolDiags = buildToolDiagnosticsMap.getOrDefault(
                         buildProject.sourceRoot(), new ArrayList<>());
+                failedProject = buildProject;
                 executeRemainingTasks(isTestingDelegated, buildProject, testResult, cliArgs, testReport,
                         rebuildNeeded, prevTestClassPath, false, buildToolDiags);
+                successfullyBuilt.add(buildProject);
+                failedProject = null;
             } catch (BLauncherException e) {
                 if (!e.getDetailedMessages().isEmpty()
                         && !e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
+                    if (!isRecovery
+                            && isRepairOnFailureEnabled(workspaceProject)
+                            && hasMultipleVersions(successfullyBuilt, failedProject)) {
+                        outStream.println("WARNING: Build failed due to version conflicts across workspace " +
+                                "dependencies. Updating the dependency versions and rebuilding the workspace...");
+                        BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
+                        cleanTargetDirs(successfullyBuilt, failedProject);
+                        WorkspaceProject recoveredProject = (WorkspaceProject)
+                                ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
+                        executeWorkspaceFromRoot(recoveredProject, isTestingDelegated, testResult, cliArgs,
+                                testReport, recoveryOptions, true);
+                        return;
+                    }
                     throw e;
                 }
+                // The project compiled and resolved dependencies successfully; only tests failed.
+                // Count it as built so later version-conflict detection has a complete picture.
+                successfullyBuilt.add(buildProject);
+                failedProject = null;
                 execResult = 1;
             }
         }
@@ -621,7 +664,16 @@ public class TestCommand implements BLauncherCmd {
 
     private void executeWorkspaceFromProjectPath(WorkspaceProject workspaceProject, Path absProjectPath,
                                                   boolean isTestingDelegated, AtomicInteger testResult,
-                                                  String[] cliArgs, TestReport testReport) {
+                                                  String[] cliArgs, TestReport testReport,
+                                                  BuildOptions buildOptions) {
+        executeWorkspaceFromProjectPath(workspaceProject, absProjectPath, isTestingDelegated, testResult,
+                cliArgs, testReport, buildOptions, false);
+    }
+
+    private void executeWorkspaceFromProjectPath(WorkspaceProject workspaceProject, Path absProjectPath,
+                                                  boolean isTestingDelegated, AtomicInteger testResult,
+                                                  String[] cliArgs, TestReport testReport,
+                                                  BuildOptions buildOptions, boolean isRecovery) {
         // Silent initial resolution to find the project and its dependencies (no output)
         DependencyGraph<BuildProject> initialGraph = CommandUtil.resolveWorkspaceDependencies(
                 workspaceProject);
@@ -661,6 +713,8 @@ public class TestCommand implements BLauncherCmd {
 
         // Phase 2: Execute remaining tasks in topological order
         int execResult = 0;
+        List<BuildProject> successfullyBuilt = new ArrayList<>();
+        BuildProject failedProject = null;
         for (BuildProject buildProject : topologicallySortedList) {
             boolean skipExecution = false;
             String prevTestClassPath = "";
@@ -681,13 +735,33 @@ public class TestCommand implements BLauncherCmd {
                 }
                 List<Diagnostic> buildToolDiags = buildToolDiagnosticsMap.getOrDefault(
                         buildProject.sourceRoot(), new ArrayList<>());
+                failedProject = buildProject;
                 executeRemainingTasks(isTestingDelegated, buildProject, testResult, cliArgs, testReport,
                         rebuildNeeded, prevTestClassPath, skipExecution, buildToolDiags);
+                successfullyBuilt.add(buildProject);
+                failedProject = null;
             } catch (BLauncherException e) {
                 if (!e.getDetailedMessages().isEmpty()
                         && !e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
+                    if (!isRecovery
+                            && isRepairOnFailureEnabled(workspaceProject)
+                            && hasMultipleVersions(successfullyBuilt, failedProject)) {
+                        outStream.println("WARNING: Build failed due to version conflicts across workspace " +
+                                "dependencies. Updating the dependency versions and rebuilding the workspace...");
+                        BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
+                        cleanTargetDirs(successfullyBuilt, failedProject);
+                        WorkspaceProject recoveredProject = (WorkspaceProject)
+                                ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
+                        executeWorkspaceFromProjectPath(recoveredProject, absProjectPath, isTestingDelegated,
+                                testResult, cliArgs, testReport, recoveryOptions, true);
+                        return;
+                    }
                     throw e;
                 }
+                // The project compiled and resolved dependencies successfully; only tests failed.
+                // Count it as built so later version-conflict detection has a complete picture.
+                successfullyBuilt.add(buildProject);
+                failedProject = null;
                 execResult = 1;
             }
         }
@@ -695,6 +769,80 @@ public class TestCommand implements BLauncherCmd {
             generateTestReport(workspaceProject, testReport);
             throw createLauncherException(TEST_FAILURES_ERROR);
         }
+    }
+
+    private BuildOptions repairedRecoveryOptions(BuildOptions buildOptions) {
+        BuildOptions recoveryOverride = BuildOptions.builder()
+                .setSticky(false)
+                .setLockingMode(PackageLockingMode.SOFT)
+                .build();
+        return buildOptions.acceptTheirs(recoveryOverride);
+    }
+
+    private void cleanTargetDirs(List<BuildProject> builtProjects, BuildProject failedProject) {
+        List<BuildProject> projectsToClean = new ArrayList<>(builtProjects);
+        if (failedProject != null) {
+            projectsToClean.add(failedProject);
+        }
+        for (BuildProject project : projectsToClean) {
+            Path targetDir = project.targetDir();
+            if (Files.exists(targetDir)) {
+                try (var paths = Files.walk(targetDir)) {
+                    paths.sorted(Comparator.reverseOrder()).forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (IOException ignored) {
+                        }
+                    });
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns true if the dependency graphs of the supplied projects (successfully built + the failed one, if any)
+     * contain the same package (org/name) with two or more different versions across projects.
+     * The failing project's graph is compared against the successfully built projects' graphs because a version
+     * conflict between the failed project and its siblings is the primary workspace failure mode.
+     */
+    private boolean hasMultipleVersions(List<BuildProject> builtProjects, BuildProject failedProject) {
+        Map<String, String> seenVersions = new HashMap<>();
+        List<BuildProject> allProjects = new ArrayList<>(builtProjects);
+        if (failedProject != null) {
+            allProjects.add(failedProject);
+        }
+        for (BuildProject bp : allProjects) {
+            for (ResolvedPackageDependency dep :
+                    bp.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()) {
+                PackageDescriptor desc = dep.packageInstance().descriptor();
+                String key = desc.org().value() + "/" + desc.name().value();
+                String version = desc.version().value().major() + "." + desc.version().value().minor()
+                        + "." + desc.version().value().patch();
+                String existing = seenVersions.putIfAbsent(key, version);
+                if (existing != null && !existing.equals(version)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Resolves if the workspace build recovery (soft-locking retry on version conflicts) is enabled.
+     * The {@code --repair-on-failure} CLI flag wins if explicitly set; otherwise falls back to the
+     * {@code [dependency-resolution].repairOnFailure} property in the workspace {@code Ballerina.toml}.
+     */
+    private boolean isRepairOnFailureEnabled(WorkspaceProject workspaceProject) {
+        if (repairOnFailure != null) {
+            return repairOnFailure;
+        }
+        TomlTableNode rootNode = workspaceProject.ballerinaToml().tomlAstNode();
+        TopLevelNode depResNode = rootNode.entries().get("dependency-resolution");
+        if (depResNode == null || depResNode.kind() != TomlType.TABLE) {
+            return false;
+        }
+        return TomlUtil.getBooleanFromTableNode((TomlTableNode) depResNode, "repairOnFailure", false);
     }
 
     private List<Diagnostic> executeBuildToolsTask(BuildProject buildProject, boolean rebuildNeeded,

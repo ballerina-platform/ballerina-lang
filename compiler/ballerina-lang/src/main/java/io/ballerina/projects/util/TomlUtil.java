@@ -20,6 +20,7 @@ package io.ballerina.projects.util;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
@@ -65,6 +66,26 @@ public class TomlUtil {
         return elements;
     }
 
+
+    /**
+     * Retrieves a boolean value from a TOML table node based on the specified key.
+     *
+     * @param tableNode The TOML table node to look up the key in
+     * @param key The key to look for in the TOML table
+     * @param defaultValue The value to return if the key is absent or not a boolean
+     * @return The boolean value associated with the specified key, or {@code defaultValue}
+     */
+    public static boolean getBooleanFromTableNode(TomlTableNode tableNode, String key, boolean defaultValue) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() != TomlType.KEY_VALUE) {
+            return defaultValue;
+        }
+        TomlValueNode valueNode = ((TomlKeyValueNode) topLevelNode).value();
+        if (valueNode.kind() != TomlType.BOOLEAN) {
+            return defaultValue;
+        }
+        return ((TomlBooleanValueNode) valueNode).getValue();
+    }
 
     /**
      * Creates a diagnostic message for a given TOML table node.

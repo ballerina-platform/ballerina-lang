@@ -2,6 +2,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBalaTask;
@@ -13,10 +14,12 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -25,15 +28,20 @@ import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.projects.util.TomlUtil;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,6 +119,11 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--locking-mode", hidden = true,
             description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
     private PackageLockingMode lockingMode;
+
+    @CommandLine.Option(names = "--repair-on-failure", hidden = true,
+            description = "If the workspace build fails due to dependency version conflicts, " +
+                          "retry the build with soft locking mode. Ignored for standalone packages.")
+    private Boolean repairOnFailure;
 
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
@@ -273,9 +286,9 @@ public class PackCommand implements BLauncherCmd {
             diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             if (workspaceProject.sourceRoot().equals(absProjectPath)) {
-                executeWorkspaceFromRoot(workspaceProject);
+                executeWorkspaceFromRoot(workspaceProject, buildOptions);
             } else {
-                executeWorkspaceFromProjectPath(workspaceProject, absProjectPath);
+                executeWorkspaceFromProjectPath(workspaceProject, absProjectPath, buildOptions);
             }
         } else {
             // Check package files are modified after last build
@@ -304,7 +317,12 @@ public class PackCommand implements BLauncherCmd {
         taskExecutor.executeTasks(project);
     }
 
-    private void executeWorkspaceFromRoot(WorkspaceProject workspaceProject) {
+    private void executeWorkspaceFromRoot(WorkspaceProject workspaceProject, BuildOptions buildOptions) {
+        executeWorkspaceFromRoot(workspaceProject, buildOptions, false);
+    }
+
+    private void executeWorkspaceFromRoot(WorkspaceProject workspaceProject, BuildOptions buildOptions,
+                                          boolean isRecovery) {
         // Phase 1: Execute build tools for all projects
         boolean hasAnyTools = workspaceProject.projects().stream()
                 .anyMatch(p -> !p.currentPackage().manifest().tools().isEmpty());
@@ -320,16 +338,45 @@ public class PackCommand implements BLauncherCmd {
         // Resolve workspace dependencies (after build tools, so generated code is visible)
         DependencyGraph<BuildProject> projectDependencyGraph = CommandUtil.resolveWorkspaceDependencies(
                 workspaceProject, this.outStream);
+        List<BuildProject> topologicallySortedList = new ArrayList<>(
+                projectDependencyGraph.toTopologicallySortedList());
 
         // Phase 2: Execute remaining tasks in topological order
-        for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
-            List<Diagnostic> buildToolDiags = buildToolDiagnosticsMap.getOrDefault(
-                    buildProject.sourceRoot(), new ArrayList<>());
-            executeRemainingTasks(buildProject, buildToolDiags);
+        List<BuildProject> successfullyBuilt = new ArrayList<>();
+        BuildProject failedProject = null;
+        try {
+            for (BuildProject buildProject : topologicallySortedList) {
+                List<Diagnostic> buildToolDiags = buildToolDiagnosticsMap.getOrDefault(
+                        buildProject.sourceRoot(), new ArrayList<>());
+                failedProject = buildProject;
+                executeRemainingTasks(buildProject, buildToolDiags);
+                successfullyBuilt.add(buildProject);
+                failedProject = null;
+            }
+        } catch (BLauncherException e) {
+            if (!isRecovery
+                    && isRepairOnFailureEnabled(workspaceProject)
+                    && hasMultipleVersions(successfullyBuilt, failedProject)) {
+                outStream.println("WARNING: Build failed due to version conflicts across workspace " +
+                        "dependencies. Updating the dependency versions and rebuilding the workspace...");
+                BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
+                cleanTargetDirs(successfullyBuilt, failedProject);
+                WorkspaceProject recoveredProject = (WorkspaceProject)
+                        ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
+                executeWorkspaceFromRoot(recoveredProject, recoveryOptions, true);
+            } else {
+                throw e;
+            }
         }
     }
 
-    private void executeWorkspaceFromProjectPath(WorkspaceProject workspaceProject, Path absProjectPath) {
+    private void executeWorkspaceFromProjectPath(WorkspaceProject workspaceProject, Path absProjectPath,
+                                                  BuildOptions buildOptions) {
+        executeWorkspaceFromProjectPath(workspaceProject, absProjectPath, buildOptions, false);
+    }
+
+    private void executeWorkspaceFromProjectPath(WorkspaceProject workspaceProject, Path absProjectPath,
+                                                  BuildOptions buildOptions, boolean isRecovery) {
         // Initial resolution to find the target project (silent, no output)
         DependencyGraph<BuildProject> initialGraph = CommandUtil.resolveWorkspaceDependencies(
                 workspaceProject);
@@ -348,9 +395,102 @@ public class PackCommand implements BLauncherCmd {
                 workspaceProject, this.outStream);
         Optional<BuildProject> resolvedTargetOpt = resolvedGraph.getNodes().stream()
                 .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+        BuildProject resolvedTarget = resolvedTargetOpt.orElseThrow();
 
         // Phase 2: Execute remaining tasks for target project only
-        executeRemainingTasks(resolvedTargetOpt.orElseThrow(), buildToolDiagnostics);
+        try {
+            executeRemainingTasks(resolvedTarget, buildToolDiagnostics);
+        } catch (BLauncherException e) {
+            List<BuildProject> allDependencies = new ArrayList<>(
+                    resolvedGraph.getAllDependencies(resolvedTarget));
+            if (!isRecovery
+                    && isRepairOnFailureEnabled(workspaceProject)
+                    && hasMultipleVersions(allDependencies, resolvedTarget)) {
+                outStream.println("WARNING: Build failed due to version conflicts across workspace " +
+                        "dependencies. Updating the dependency versions and rebuilding the workspace...");
+                BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
+                cleanTargetDirs(allDependencies, resolvedTarget);
+                WorkspaceProject recoveredProject = (WorkspaceProject)
+                        ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
+                executeWorkspaceFromProjectPath(recoveredProject, absProjectPath, recoveryOptions, true);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private BuildOptions repairedRecoveryOptions(BuildOptions buildOptions) {
+        BuildOptions recoveryOverride = BuildOptions.builder()
+                .setSticky(false)
+                .setLockingMode(PackageLockingMode.SOFT)
+                .build();
+        return buildOptions.acceptTheirs(recoveryOverride);
+    }
+
+    private void cleanTargetDirs(List<BuildProject> builtProjects, BuildProject failedProject) {
+        List<BuildProject> projectsToClean = new ArrayList<>(builtProjects);
+        if (failedProject != null) {
+            projectsToClean.add(failedProject);
+        }
+        for (BuildProject project : projectsToClean) {
+            Path targetDir = project.targetDir();
+            if (Files.exists(targetDir)) {
+                try (var paths = Files.walk(targetDir)) {
+                    paths.sorted(Comparator.reverseOrder()).forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (IOException ignored) {
+                        }
+                    });
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns true if the dependency graphs of the supplied projects (successfully built + the failed one, if any)
+     * contain the same package (org/name) with two or more different versions across projects.
+     * The failing project's graph is compared against the successfully built projects' graphs because a version
+     * conflict between the failed project and its siblings is the primary workspace failure mode.
+     */
+    private boolean hasMultipleVersions(List<BuildProject> builtProjects, BuildProject failedProject) {
+        Map<String, String> seenVersions = new HashMap<>();
+        List<BuildProject> allProjects = new ArrayList<>(builtProjects);
+        if (failedProject != null) {
+            allProjects.add(failedProject);
+        }
+        for (BuildProject bp : allProjects) {
+            for (ResolvedPackageDependency dep :
+                    bp.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()) {
+                PackageDescriptor desc = dep.packageInstance().descriptor();
+                String key = desc.org().value() + "/" + desc.name().value();
+                String version = desc.version().value().major() + "." + desc.version().value().minor()
+                        + "." + desc.version().value().patch();
+                String existing = seenVersions.putIfAbsent(key, version);
+                if (existing != null && !existing.equals(version)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Resolves if the workspace build recovery (soft-locking retry on version conflicts) is enabled.
+     * The {@code --repair-on-failure} CLI flag wins if explicitly set; otherwise falls back to the
+     * {@code [dependency-resolution].repairOnFailure} property in the workspace {@code Ballerina.toml}.
+     */
+    private boolean isRepairOnFailureEnabled(WorkspaceProject workspaceProject) {
+        if (repairOnFailure != null) {
+            return repairOnFailure;
+        }
+        TomlTableNode rootNode = workspaceProject.ballerinaToml().tomlAstNode();
+        TopLevelNode depResNode = rootNode.entries().get("dependency-resolution");
+        if (depResNode == null || depResNode.kind() != TomlType.TABLE) {
+            return false;
+        }
+        return TomlUtil.getBooleanFromTableNode((TomlTableNode) depResNode, "repairOnFailure", false);
     }
 
     private List<Diagnostic> executeBuildToolsTask(BuildProject buildProject) {
