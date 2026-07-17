@@ -22,6 +22,8 @@ plugins {
     id 'ballerinaLangLibLoad'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 description = 'Ballerina - Bal tools Test'
 
 def extractedDist = "$buildDir/extractedDistribution/jballerina-tools-${project.version}"

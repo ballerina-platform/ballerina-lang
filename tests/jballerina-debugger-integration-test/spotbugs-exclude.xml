@@ -39,4 +39,33 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,PA_PUBLIC_MUTABLE_OBJECT_ATTRIBUTE"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.FileUtils" />
+        <Method name="copy" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.client.DAPRequestManager" />
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.BreakpointEventListener" />
+        <Field name="breakpointEventFound" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.DebugHitListener" />
+        <Field name="debugHitFound" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.DebugOutputListener" />
+        <Field name="debugOutputFound" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugger.test.utils.DebugTerminationListener" />
+        <Field name="terminationFound" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
 </FindBugsFilter>

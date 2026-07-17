@@ -21,6 +21,8 @@ plugins {
     id 'javaLibsProject'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations {
     dist {
       transitive false

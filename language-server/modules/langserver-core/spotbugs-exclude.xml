@@ -194,7 +194,7 @@
         </OR>
     </Match>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR,CT_CONSTRUCTOR_THROW"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR,CT_CONSTRUCTOR_THROW,THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.langserver.apispec.TypeSchema"/>
@@ -211,5 +211,15 @@
     <Match>
         <Class name="org.ballerinalang.langserver.apispec.TypeSchema$ObjectTypeSchema"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager$ProjectContext" />
+        <Field name="compilationCrashed" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager$ProjectContext" />
+        <Field name="projectCrashed" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
     </Match>
 </FindBugsFilter>
