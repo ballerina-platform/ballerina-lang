@@ -19,6 +19,8 @@ plugins {
     id 'ballerinaStdLibBuild'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations {
     dist {
         transitive false
@@ -52,7 +54,7 @@ jar {
 tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
-                file: "${project.buildDir}/ballerina-src/Ballerina.toml",
+                file: "${project.layout.buildDirectory.get().asFile}/ballerina-src/Ballerina.toml",
                 match: "${project.name}-(.*).jar",
                 replace: "${project.name}-${project.version}.jar"
         )

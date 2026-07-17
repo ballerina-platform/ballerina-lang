@@ -120,4 +120,28 @@
         <Method name="getSrcFiles" />
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Method name="getPackageVersions" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.ToolUseCommand" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.utils.NativeUtils" />
+        <Method name="getURLList" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.task.RunTestsTask" />
+        <Field name="coverage" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.task.RunTestsTask" />
+        <Field name="report" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
 </FindBugsFilter>

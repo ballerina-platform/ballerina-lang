@@ -25,7 +25,7 @@ public class HttpResponse {
     /**
      * This method set data and response code of a HTTP request response.
      * @param data {@link String}
-     * @param responseCode {@link int}
+     * @param responseCode {@code int}
      */
     public HttpResponse(String data, int responseCode) {
         this.data = data;
@@ -42,7 +42,7 @@ public class HttpResponse {
 
     /**
      * This method returns response code of HTTP request.
-     * @return responseCode {@link int}
+     * @return responseCode {@code int}
      */
     public int getResponseCode() {
         return responseCode;
