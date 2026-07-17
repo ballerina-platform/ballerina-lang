@@ -866,6 +866,77 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_11.toml"));
     }
 
+    @Test(description = "Fresh package (no Dependencies.toml) built with sticky resolves the transitive " +
+            "dependencies to the latest compatible versions")
+    public void testCase0024(ITestContext ctx) throws IOException {
+        // package_c --> package_bb 1.0.0
+        // package_bb --> package_aa 1.0.0
+        // package_aa and package_bb are used only by testCase0024 and testCase0025, so that
+        // the dependency graph recorded in the package_bb bala (package_aa:1.0.0) is not
+        // affected by the packages cached by the other test cases.
+        // Cache package_aa:1.0.0 to central
+        cacheDependencyToCentralRepository(tempResourceDir.resolve("package_aa_1_0_0"));
+        // Cache package_bb while package_aa:1.0.0 is the only available version, so that
+        // the dependency graph of the package_bb bala records package_aa:1.0.0
+        BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_bb_1_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        // Cache package_aa patch version 1.0.2 and minor version 1.1.0 to central
+        cacheDependencyToCentralRepository(tempResourceDir.resolve("package_aa_1_0_2"));
+        cacheDependencyToCentralRepository(tempResourceDir.resolve("package_aa_1_1_0"));
+
+        Path projectDirPath = tempResourceDir.resolve("package_c_1_0_0_fresh_sticky");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+        ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
+
+        // Build package_c with sticky == true.
+        // package_bb's dependency graph records package_aa:1.0.0, but since nothing is locked
+        // in a Dependencies.toml, package_aa must resolve to the latest compatible version.
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(true).build());
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+        // Compare Dependencies.toml file
+        // package_aa ---> 1.1.0
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0024.toml"));
+    }
+
+    @Test(description = "Fresh package (no Dependencies.toml) built with sticky resolves the exact version " +
+            "of the dependency specified in the Ballerina.toml", dependsOnMethods = "testCase0024")
+    public void testCase0025(ITestContext ctx) throws IOException {
+        // package_c --> package_bb 1.0.0
+        // package_bb --> package_aa 1.0.0
+        // package_aa is pinned to 1.0.2 in the Ballerina.toml of package_c
+        // package_aa versions 1.0.0, 1.0.2 and 1.1.0 and the package_bb bala have been cached
+        // by testCase0024. package_bb must not be re-cached here: recompiling it now would
+        // record package_aa:1.1.0 in its dependency graph and change this scenario.
+        Path projectDirPath = tempResourceDir.resolve("package_c_1_0_0_pinned_dep");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+        ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
+
+        // 1. Build package_c with sticky == true
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(true).build());
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.0.2 (exact version specified in the Ballerina.toml)
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0025-1.toml"));
+
+        // 2. Build package_c again after deleting Dependencies.toml and build file,
+        // and setting sticky == false
+        deleteDependenciesTomlAndBuildFile(projectDirPath);
+        BuildProject buildProject2 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.1.0 (the version in the Ballerina.toml acts only as a minimum)
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0025-2.toml"));
+    }
+
     @AfterMethod
     private void afterMethod(ITestContext ctx) throws IOException {
         Path packagePath = Path.of(ctx.getCurrentXmlTest().getParameter("packagePath"));

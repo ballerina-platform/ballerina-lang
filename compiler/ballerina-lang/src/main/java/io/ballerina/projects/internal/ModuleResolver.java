@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionResponse;
@@ -59,7 +60,17 @@ public class ModuleResolver {
         this.moduleNames = moduleNames;
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
-        this.resolutionOptions = resolutionOptions;
+        if (PackageLockingMode.HARD.equals(resolutionOptions.packageLockingMode())
+                && blendedManifest.lockedDependencies().isEmpty()) {
+            this.resolutionOptions = ResolutionOptions.builder()
+                    .setOffline(resolutionOptions.offline())
+                    .setDumpGraph(resolutionOptions.dumpGraph())
+                    .setDumpRawGraphs(resolutionOptions.dumpRawGraphs())
+                    .setPackageLockingMode(PackageLockingMode.SOFT)
+                    .build();
+        } else {
+            this.resolutionOptions = resolutionOptions;
+        }
     }
 
     public ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest) {

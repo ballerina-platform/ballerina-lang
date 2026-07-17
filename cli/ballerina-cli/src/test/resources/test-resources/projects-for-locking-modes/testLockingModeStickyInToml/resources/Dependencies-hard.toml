@@ -88,7 +88,7 @@ version = "2.5.0"
 
 [[package]]
 org = "testorg"
-name = "testLockingMode"
+name = "testLockingModeStickyInToml"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "test"},
@@ -96,6 +96,6 @@ dependencies = [
 	{org = "testorg", name = "dep_b"}
 ]
 modules = [
-	{org = "testorg", packageName = "testLockingMode", moduleName = "testLockingMode"}
+	{org = "testorg", packageName = "testLockingModeStickyInToml", moduleName = "testLockingModeStickyInToml"}
 ]
 
