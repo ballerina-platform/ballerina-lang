@@ -384,3 +384,12 @@ function test20() returns int|string {
 
     return x;
 }
+
+function test21(int|error x) returns int {
+    if x is error {
+        return 0;
+    } else {}
+
+    int y = x;
+    return y;
+}

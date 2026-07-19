@@ -440,3 +440,12 @@ function test34(int|error? x) returns int {
     }
     return x; // ERROR: expected 'int', found '(int|error)?'
 }
+
+function test35(int|error x, boolean b) returns int {
+    if x is error {
+        if b {
+            return 0;
+        } else {}
+    }
+    return x; // ERROR incompatible types: expected 'int', found '(int|error)'
+}
