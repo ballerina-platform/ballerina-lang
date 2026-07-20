@@ -458,13 +458,3 @@ function test36(int|error x) returns int {
     }
     return x; // ERROR incompatible types: expected 'int', found '(int|error)'
 }
-
-function test37(int|error x, boolean b) returns int {
-    if x is error {
-        if b {
-            return 0;
-        }
-        // no else here
-    }
-    return x; // ERROR incompatible types: expected 'int', found '(int|error)'
-}

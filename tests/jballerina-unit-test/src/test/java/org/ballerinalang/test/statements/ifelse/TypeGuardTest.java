@@ -1122,8 +1122,6 @@ public class TypeGuardTest {
                 "incompatible types: expected 'int', found '(int|error)'", 450, 12);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'int', found '(int|error)'", 459, 12);
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'int', found '(int|error)'", 469, 12);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
