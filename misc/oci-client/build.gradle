@@ -10,6 +10,7 @@ repositories {
 }
 
 jar {
+    dependsOn configurations.runtimeClasspath
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
@@ -17,8 +18,9 @@ jar {
                 'Implementation-Version': version
         )
     }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    from({ configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }) {
+        exclude 'module-info.class'
+        exclude 'META-INF/versions/*/module-info.class'
     }
 }
 
@@ -26,6 +28,7 @@ dependencies {
     implementation project(':central-client')
     implementation libs.squareup.okhttp
     implementation libs.jib.core
+    implementation libs.apache.commons.compress
     implementation 'com.google.http-client:google-http-client:1.42.2'
     implementation libs.tongfei.progressbar
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -54,3 +57,4 @@ javadoc {
         classpath = files()
     }
 }
+

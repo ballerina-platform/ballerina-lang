@@ -19,19 +19,27 @@ package org.ballerinalang.oci;
 import com.google.cloud.tools.jib.http.Response;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
- * Shared helpers for reading and parsing HTTP responses from an OCI registry.
- *
+ * Shared helpers for reading/parsing OCI registry responses and publishing pulled balas to the bala cache.
  */
-final class OciClientUtils {
+public final class OciClientUtils {
 
     private OciClientUtils() {
     }
@@ -50,115 +58,130 @@ final class OciClientUtils {
     }
 
     /**
-     * Recovers the raw bala (zip) bytes from an OCI layer blob, unwrapping a (gzipped) tar if needed.
+     * Recovers the bala (zip) from an OCI layer blob (unwrapping a gzipped tar), streaming it to balaOutputFile.
      *
-     * @param blobBytes the layer blob content as pulled from the registry
-     * @return the bala file bytes
+     * @param blobFile       the layer blob content as pulled from the registry
+     * @param balaOutputFile where to write the recovered bala; its parent directory must exist
      * @throws IOException if the blob contains no bala
      */
-    static byte[] extractBalaFromLayer(byte[] blobBytes) throws IOException {
-        if (blobBytes.length >= 2 && blobBytes[0] == 'P' && blobBytes[1] == 'K') {
-            // already raw bala (zip) bytes
-            return blobBytes;
+    static void extractBalaFromLayer(Path blobFile, Path balaOutputFile) throws IOException {
+        byte[] magic = peekMagic(blobFile);
+        if (isZip(magic)) {
+            // already a raw bala (zip)
+            Files.copy(blobFile, balaOutputFile, StandardCopyOption.REPLACE_EXISTING);
+            return;
         }
-        byte[] tarBytes = blobBytes;
-        if (blobBytes.length >= 2 && (blobBytes[0] & 0xFF) == 0x1F && (blobBytes[1] & 0xFF) == 0x8B) {
-            try (GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(blobBytes))) {
-                tarBytes = gzipInputStream.readAllBytes();
+        try (InputStream fileStream = Files.newInputStream(blobFile);
+                InputStream layerStream = isGzip(magic) ? new GZIPInputStream(fileStream) : fileStream;
+                TarArchiveInputStream tar = new TarArchiveInputStream(layerStream)) {
+            TarArchiveEntry entry;
+            while ((entry = tar.getNextEntry()) != null) {
+                if (entry.isFile() && entry.getName().endsWith(".bala")) {
+                    Files.copy(tar, balaOutputFile, StandardCopyOption.REPLACE_EXISTING);
+                    return;
+                }
             }
         }
-        byte[] balaBytes = firstRegularFileFromTar(tarBytes);
-        if (balaBytes == null) {
-            throw new IOException("OCI layer blob is not a bala: expected a zip, or a (gzipped) tar "
-                    + "archive containing the bala file, but no file entry was found");
-        }
-        return balaBytes;
+        throw new IOException("OCI layer blob is not a bala: expected a zip, or a (gzipped) tar "
+                + "archive containing the bala file, but no .bala entry was found");
     }
 
     /**
-     * Returns the first regular file entry in a tar archive, preferring a {@code .bala} entry.
+     * Reads the first two bytes of a file, used to sniff its format.
      *
-     * @param tarBytes the tar archive bytes
-     * @return the file content, or null if none is found
+     * @param file the file to peek at
+     * @return the leading two bytes, or fewer if the file is shorter
+     * @throws IOException if the file cannot be read
      */
-    private static byte[] firstRegularFileFromTar(byte[] tarBytes) {
-        byte[] firstRegularFile = null;
-        int offset = 0;
-        while (offset + 512 <= tarBytes.length) {
-            if (isZeroBlock(tarBytes, offset)) {
-                break;
-            }
-            String entryName = readTarString(tarBytes, offset, 100);
-            long entrySize;
+    private static byte[] peekMagic(Path file) throws IOException {
+        try (InputStream in = Files.newInputStream(file)) {
+            return in.readNBytes(2);
+        }
+    }
+
+    private static boolean isZip(byte[] magic) {
+        return magic.length == 2 && magic[0] == 'P' && magic[1] == 'K';
+    }
+
+    private static boolean isGzip(byte[] magic) {
+        return magic.length == 2 && (magic[0] & 0xFF) == 0x1F && (magic[1] & 0xFF) == 0x8B;
+    }
+
+    /**
+     * Extracts a .bala into a bala cache atomically, via a sibling temp directory renamed into place.
+     *
+     * @param balaFilePath .bala file path
+     * @param versionDir   the {@code <org>/<name>/<version>} directory of the bala cache
+     * @param platform     the platform directory name inside the version directory
+     * @throws IOException if extraction or the rename fails
+     */
+    public static void extractBalaToBalaCache(Path balaFilePath, Path versionDir, String platform)
+            throws IOException {
+        Path versionTempDir = versionDir.resolveSibling(versionDir.getFileName() + "_temp");
+        try {
+            deleteDirectory(versionTempDir); // stale leftover from an interrupted pull
+            extractZip(balaFilePath, versionTempDir.resolve(platform));
+            deleteDirectory(versionDir);
             try {
-                entrySize = readTarOctal(tarBytes, offset + 124, 12);
-            } catch (NumberFormatException e) {
-                return firstRegularFile; // not a tar header — stop walking
+                Files.move(versionTempDir, versionDir, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(versionTempDir, versionDir);
             }
-            byte typeFlag = tarBytes[offset + 156];
-            int dataStart = offset + 512;
-            boolean isRegularFile = (typeFlag == '0' || typeFlag == 0) && !entryName.endsWith("/");
-            if (isRegularFile && entrySize > 0 && dataStart + entrySize <= tarBytes.length) {
-                byte[] content = Arrays.copyOfRange(tarBytes, dataStart, (int) (dataStart + entrySize));
-                if (entryName.endsWith(".bala")) {
-                    return content;
+        } finally {
+            deleteDirectory(versionTempDir);
+        }
+    }
+
+    /**
+     * Extracts a zip archive into the given directory.
+     *
+     * @param zipFilePath the zip file to extract
+     * @param destDir     directory to extract into
+     * @throws IOException if extraction fails or an entry escapes the destination directory
+     */
+    private static void extractZip(Path zipFilePath, Path destDir) throws IOException {
+        Path normalizedDestDir = destDir.toAbsolutePath().normalize();
+        Files.createDirectories(normalizedDestDir);
+        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(zipFilePath))) {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                Path outputPath = normalizedDestDir.resolve(entry.getName()).normalize();
+                if (!outputPath.startsWith(normalizedDestDir)) {
+                    throw new IOException("zip entry escapes the extraction directory: " + entry.getName());
                 }
-                if (firstRegularFile == null) {
-                    firstRegularFile = content;
+                if (entry.isDirectory()) {
+                    Files.createDirectories(outputPath);
+                } else {
+                    Path parent = outputPath.getParent();
+                    if (parent != null) {
+                        Files.createDirectories(parent);
+                    }
+                    Files.copy(zipInputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
-            offset = dataStart + (int) ((entrySize + 511) / 512) * 512;
         }
-        return firstRegularFile;
     }
 
     /**
-     * Checks whether a 512-byte tar block is all zeros.
+     * Deletes a directory tree if it exists; best effort, failures are ignored and surface later instead.
      *
-     * @param bytes  the archive bytes
-     * @param offset block start offset
-     * @return true if the block is all zeros
+     * @param directory the directory to delete
      */
-    private static boolean isZeroBlock(byte[] bytes, int offset) {
-        for (int i = 0; i < 512; i++) {
-            if (bytes[offset + i] != 0) {
-                return false;
-            }
+    private static void deleteDirectory(Path directory) {
+        if (!Files.exists(directory)) {
+            return;
         }
-        return true;
-    }
-
-    /**
-     * Reads a NUL-terminated string from a tar header field.
-     *
-     * @param bytes     the archive bytes
-     * @param offset    field start offset
-     * @param maxLength maximum field length
-     * @return the decoded string
-     */
-    private static String readTarString(byte[] bytes, int offset, int maxLength) {
-        int end = offset;
-        while (end < offset + maxLength && bytes[end] != 0) {
-            end++;
+        try (Stream<Path> paths = Files.walk(directory)) {
+            paths.sorted(Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.delete(path);
+                } catch (IOException ignored) {
+                    // best effort
+                }
+            });
+        } catch (IOException | UncheckedIOException ignored) {
+            // best effort
         }
-        return new String(bytes, offset, end - offset, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Parses an octal number from a tar header field.
-     *
-     * @param bytes  the archive bytes
-     * @param offset field start offset
-     * @param length field length
-     * @return the parsed value
-     */
-    private static long readTarOctal(byte[] bytes, int offset, int length) {
-        String value = new String(bytes, offset, length, StandardCharsets.US_ASCII)
-                .replace("\0", "").trim();
-        if (value.isEmpty()) {
-            return 0;
-        }
-        return Long.parseLong(value, 8);
     }
 
     /**
@@ -183,6 +206,4 @@ final class OciClientUtils {
                     "unexpected (non-JSON) response while parsing " + context + ": " + snippet, exception);
         }
     }
-
-
 }

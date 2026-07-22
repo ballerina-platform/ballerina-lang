@@ -48,15 +48,19 @@ import org.ballerinalang.oci.model.TagsListResponse;
 import org.ballerinalang.oci.model.TokenResponse;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -83,6 +87,7 @@ public class OciClient {
     private static final Pattern VERSION_TAG_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$");
     private static final Pattern LINK_NEXT_PATTERN = Pattern.compile("<([^>]+)>;\\s*rel=\"next\"");
     private static final Pattern AUTH_CHALLENGE_PARAM_PATTERN = Pattern.compile("(\\w+)=\"([^\"]*)\"");
+    private static final Pattern LOOPBACK_IPV4_PATTERN = Pattern.compile("127(?:\\.\\d{1,3}){3}");
 
     private String registryUrl;
     private String username;
@@ -104,8 +109,7 @@ public class OciClient {
     }
 
     /**
-     * Routes registry connections through an HTTP(S) proxy via the standard Java proxy
-     * system properties (JVM-wide; already-set properties are left untouched).
+     * Routes registry connections through an HTTP(S) proxy using the standard Java proxy system properties (JVM-wide).
      *
      * @param host     proxy host; no-op if empty
      * @param port     proxy port; no-op if zero
@@ -185,22 +189,25 @@ public class OciClient {
                     + "' already exists in the registry.");
         }
         try {
-            String imageReference = repositoryReference(org, pkg) + ":" + version;
+            String repositoryReference = repositoryReference(org, pkg);
+            ImageReference imageRef = ImageReference.parse(repositoryReference);
+            String imageReference = repositoryReference + ":" + version;
             Jib.fromScratch()
                     .setFormat(ImageFormat.OCI)
                     .addLayer(Collections.singletonList(balaFilePath), AbsoluteUnixPath.get("/"))
                     .containerize(
                             Containerizer.to(RegistryImage.named(imageReference)
                                             .addCredential(username, password))
-                                    .setAllowInsecureRegistries(true)
+                                    .setAllowInsecureRegistries(isLoopbackRegistry(imageRef))
                                     .setToolName("OciClient")
 
                     );
+        } catch (InvalidImageReferenceException exception) {
+            throw new OciClientException("invalid registry reference for " + org + "/" + pkg, exception);
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new OciClientException("failed to push OCI artifact to the registry", exception);
-        } catch (RegistryException | IOException | CacheDirectoryCreationException | ExecutionException
-                | InvalidImageReferenceException exception) {
+        } catch (RegistryException | IOException | CacheDirectoryCreationException | ExecutionException exception) {
             throw new OciClientException("failed to push OCI artifact to the registry", exception);
         }
     }
@@ -217,6 +224,73 @@ public class OciClient {
     }
 
     /**
+     * Reports whether a registry is reachable only on the local machine (e.g. a local Nexus/Harbor instance).
+     *
+     *
+     * @param imageRef the parsed image reference for the registry being contacted
+     * @return true if the registry host is, or resolves only to, a loopback address
+     */
+    private static boolean isLoopbackRegistry(ImageReference imageRef) {
+        return resolvesToLoopback(registryHost(imageRef.getRegistry()));
+    }
+
+    /**
+     * Checks whether a host is a literal loopback address or resolves exclusively to loopback addresses.
+     *
+     * @param host the bare hostname or IP address
+     * @return true if the host is, or resolves only to, a loopback address
+     */
+    private static boolean resolvesToLoopback(String host) {
+        if (host == null || host.isEmpty()) {
+            // InetAddress.getAllByName("") returns the loopback address; an absent host must not pass.
+            return false;
+        }
+        if (isLoopbackHost(host)) {
+            return true;
+        }
+        try {
+            return Arrays.stream(InetAddress.getAllByName(host)).allMatch(InetAddress::isLoopbackAddress);
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Strips an optional {@code :port} suffix from a {@code host} or {@code [ipv6]:port} value.
+     *
+     * @param registry the registry authority, as returned by {@link ImageReference#getRegistry()}
+     * @return the bare host, without a port
+     */
+    private static String registryHost(String registry) {
+        if (registry == null) {
+            return "";
+        }
+        if (registry.startsWith("[")) {
+            int end = registry.indexOf(']');
+            return end > 0 ? registry.substring(1, end) : registry;
+        }
+        int colon = registry.lastIndexOf(':');
+        if (colon > 0 && registry.substring(colon + 1).chars().allMatch(Character::isDigit)) {
+            return registry.substring(0, colon);
+        }
+        return registry;
+    }
+
+    /**
+     * Checks whether a host refers to the local machine.
+     *
+     * @param host the bare hostname or IP address
+     * @return true if {@code host} is {@code localhost}, an IPv4 127.0.0.0/8 address, or the
+     *         IPv6 loopback address
+     */
+    private static boolean isLoopbackHost(String host) {
+        return host.equalsIgnoreCase("localhost")
+                || host.equals("::1")
+                || host.equals("0:0:0:0:0:0:0:1")
+                || LOOPBACK_IPV4_PATTERN.matcher(host).matches();
+    }
+
+    /**
      * Checks whether a version tag already exists in the registry.
      *
      * @param org     package organization
@@ -228,10 +302,65 @@ public class OciClient {
         try {
             return listTags(org, pkg).contains(version);
         } catch (OciClientException exception) {
-            // The repository may not exist yet (first push of this package); let the push proceed
-            // and surface any real registry error itself.
-            return false;
+            if (isNotFoundError(exception)) {
+                // The repository does not exist yet (first push of this package); let the push proceed.
+                return false;
+            }
+            // Any other failure (auth, network, registry error) must abort the push: proceeding
+            // could overwrite an already published, immutable version.
+            throw new OciClientException("failed to verify whether '" + org + "/" + pkg + ":" + version
+                    + "' already exists in the registry: " + describeFailure(exception), exception);
         }
+    }
+
+    /**
+     * Checks whether a failure was caused by an HTTP 404 response.
+     *
+     * @param throwable the failure to inspect
+     * @return true if a 404 response is found in the cause chain
+     */
+    private static boolean isNotFoundError(Throwable throwable) {
+        ResponseException responseException = findResponseException(throwable);
+        return responseException != null && responseException.getStatusCode() == 404;
+    }
+
+    /**
+     * Describes the deepest useful cause of a failure: HTTP status and body if any, otherwise the exception itself.
+     *
+     * @param throwable the failure to describe
+     * @return a one-line description of the root cause
+     */
+    private static String describeFailure(Throwable throwable) {
+        ResponseException responseException = findResponseException(throwable);
+        if (responseException != null) {
+            String content = responseException.getContent();
+            if (content == null || content.isBlank()) {
+                return "HTTP " + responseException.getStatusCode();
+            }
+            String snippet = content.length() > 200 ? content.substring(0, 200) + "..." : content;
+            return "HTTP " + responseException.getStatusCode() + " - " + snippet;
+        }
+        Throwable last = throwable;
+        while (last.getCause() != null) {
+            last = last.getCause();
+        }
+        String message = last.getMessage();
+        return last.getClass().getSimpleName() + (message == null ? "" : ": " + message);
+    }
+
+    /**
+     * Finds the first {@link ResponseException} in a failure's cause chain.
+     *
+     * @param throwable the failure to inspect
+     * @return the response exception, or null if none is found in the chain
+     */
+    private static ResponseException findResponseException(Throwable throwable) {
+        for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
+            if (cause instanceof ResponseException responseException) {
+                return responseException;
+            }
+        }
+        return null;
     }
 
     /**
@@ -282,11 +411,8 @@ public class OciClient {
         ImageReference imageRef = ImageReference.parse(repositoryReference(org, name));
         Consumer<LogEvent> jibLogger = logEvent -> { };
 
-        FailoverHttpClient httpClient = new FailoverHttpClient(
-                true,
-                true,
-                jibLogger
-        );
+        boolean insecure = isLoopbackRegistry(imageRef);
+        FailoverHttpClient httpClient = new FailoverHttpClient(insecure, insecure, jibLogger);
 
         RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
                     imageRef.getRepository(), httpClient)
@@ -298,66 +424,65 @@ public class OciClient {
         OciManifestTemplate manifestTemplate = registryClient
                 .pullManifest(version, OciManifestTemplate.class).getManifest();
         List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = manifestTemplate.getLayers();
-
-        boolean enableOutputStream = Boolean.parseBoolean(
-                System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
-        byte[] blobBytes = null;
-        for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
-            final ProgressBar[] progressBar = {null};
-            Blob blob = registryClient.pullBlob(
-                    layer.getDigest(),
-                    size -> {
-                        if (enableOutputStream) {
-                            // size is -1 when the server uses chunked transfer encoding
-                            // (no Content-Length header). Use -1 as initialMax to create
-                            // an indeterminate / spinner-style bar in that case.
-                            long totalSizeInKB = size > 0 ? (size + 1023) / 1024 : -1;
-                            progressBar[0] = new ProgressBar(
-                                    org + "/" + name + ":" + version + " [OCI Registry -> " + displayLocation + "]",
-                                    totalSizeInKB,
-                                    1000,
-                                    System.out,
-                                    ProgressBarStyle.ASCII,
-                                    " KB",
-                                    1
-                            );
-                        }
-                    },
-                    count -> {
-                        // NotifyingOutputStream calls this listener with the byte count
-                        // written in the *current chunk* (it resets its counter after each
-                        // callback), so `count` is already a delta — not a cumulative total.
-                        if (enableOutputStream && progressBar[0] != null && count > 0) {
-                            long deltaKB = (count + 1023) / 1024;
-                            progressBar[0].stepBy(deltaKB);
-                        }
-                    }
-            );
-            try {
-                blobBytes = Blobs.writeToByteArray(blob);
-            } finally {
-                if (progressBar[0] != null) {
-                    progressBar[0].close();
-                }
-            }
-        }
-
-        if (blobBytes == null) {
+        if (layers.isEmpty()) {
             throw new OciClientException("no layers found in the OCI manifest for "
                     + org + "/" + name + ":" + version);
         }
-        // Jib stores each pushed file inside a gzipped tar layer, so the pulled blob is a
-        // tar.gz wrapping the bala — unwrap it back to the raw bala (zip) bytes before saving.
-        byte[] balaBytes = OciClientUtils.extractBalaFromLayer(blobBytes);
 
-        Path outputPath = Paths.get(repoLocation);
-        Path balaFilePath = outputPath.resolve(org).resolve(name).resolve(version)
-                .resolve(name + "-" + version + BALA_EXTENSION);
-        Path balaFileDir = balaFilePath.getParent();
-        if (balaFileDir != null) {
-            Files.createDirectories(balaFileDir);
+        boolean enableOutputStream = Boolean.parseBoolean(
+                System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+        Path blobTempFile = Files.createTempFile("ballerina-oci-blob-", ".tmp");
+        try {
+            for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
+                final ProgressBar[] progressBar = {null};
+                Blob blob = registryClient.pullBlob(
+                        layer.getDigest(),
+                        size -> {
+                            if (enableOutputStream) {
+
+                                long totalSizeInKB = size > 0 ? (size + 1023) / 1024 : -1;
+                                progressBar[0] = new ProgressBar(
+                                        org + "/" + name + ":" + version + " [OCI Registry -> "
+                                                + displayLocation + "]",
+                                        totalSizeInKB,
+                                        1000,
+                                        System.out,
+                                        ProgressBarStyle.ASCII,
+                                        " KB",
+                                        1
+                                );
+                            }
+                        },
+                        count -> {
+                            if (enableOutputStream && progressBar[0] != null && count > 0) {
+                                long deltaKB = (count + 1023) / 1024;
+                                progressBar[0].stepBy(deltaKB);
+                            }
+                        }
+                );
+                try (OutputStream blobOutputStream = Files.newOutputStream(blobTempFile)) {
+                    // Streamed straight to disk so an oversized blob can't exhaust the heap.
+                    blob.writeTo(blobOutputStream);
+                } finally {
+                    if (progressBar[0] != null) {
+                        progressBar[0].close();
+                    }
+                }
+            }
+
+            Path outputPath = Paths.get(repoLocation);
+            Path balaFilePath = outputPath.resolve(org).resolve(name).resolve(version)
+                    .resolve(name + "-" + version + BALA_EXTENSION);
+            Path balaFileDir = balaFilePath.getParent();
+            if (balaFileDir != null) {
+                Files.createDirectories(balaFileDir);
+            }
+            // Jib stores each pushed file inside a gzipped tar layer, so the pulled blob is a
+            // tar.gz wrapping the bala — unwrap it back to the raw bala (zip) before saving.
+            OciClientUtils.extractBalaFromLayer(blobTempFile, balaFilePath);
+        } finally {
+            Files.deleteIfExists(blobTempFile);
         }
-        Files.write(balaFilePath, balaBytes);
     }
 
     /**
@@ -372,11 +497,8 @@ public class OciClient {
             ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
             Consumer<LogEvent> jibLogger = logEvent -> { };
 
-            FailoverHttpClient httpClient = new FailoverHttpClient(
-                    true,
-                    true,
-                    jibLogger
-            );
+            boolean insecure = isLoopbackRegistry(imageRef);
+            FailoverHttpClient httpClient = new FailoverHttpClient(insecure, insecure, jibLogger);
 
             RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
                         imageRef.getRepository(), httpClient)
@@ -397,8 +519,9 @@ public class OciClient {
 
                 byte[] blobBytes = Blobs.writeToByteArray(blob);
                 String text = new String(blobBytes, StandardCharsets.UTF_8);
-                Gson gson = new Gson();
-                return gson.fromJson(text, new TypeToken<List<String>>() { }.getType());
+                List<String> parsedVersions = new Gson().fromJson(text, new TypeToken<List<String>>() { }.getType());
+                // Gson returns null (rather than throwing) for an empty or literal-null blob.
+                return parsedVersions != null ? parsedVersions : Collections.emptyList();
             }
             return Collections.emptyList();
         } catch (IOException | RegistryException | InvalidImageReferenceException
@@ -417,11 +540,13 @@ public class OciClient {
     public List<String> listTags(String org, String pkg) {
         List<String> versions = new ArrayList<>();
         try {
-            FailoverHttpClient httpClient = new FailoverHttpClient(true, true, logEvent -> { });
             ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
+            boolean insecure = isLoopbackRegistry(imageRef);
+            FailoverHttpClient httpClient = new FailoverHttpClient(insecure, insecure, logEvent -> { });
             URL url = URI.create(
                     "https://" + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
                             + "/tags/list").toURL();
+            URL registryOrigin = url;
             Authorization authorization = Authorization.fromBasicCredentials(username, password);
 
             while (url != null) {
@@ -447,7 +572,7 @@ public class OciClient {
                                 .filter(tag -> VERSION_TAG_PATTERN.matcher(tag).matches())
                                 .forEach(versions::add);
                     }
-                    url = nextPageUrl(response, url);
+                    url = nextPageUrl(response, url, registryOrigin);
                 }
             }
             return versions;
@@ -481,6 +606,17 @@ public class OciClient {
         if (realm == null) {
             throw new OciClientException("bearer challenge is missing 'realm': " + wwwAuthenticate);
         }
+        URI realmUri;
+        try {
+            realmUri = URI.create(realm);
+        } catch (IllegalArgumentException e) {
+            throw new OciClientException("invalid token realm in bearer challenge: " + realm, e);
+        }
+        // The registry chooses the realm, so require HTTPS (or a loopback host) before sending
+        // credentials to it: a compromised registry must not be able to redirect them over plaintext.
+        if (!"https".equalsIgnoreCase(realmUri.getScheme()) && !resolvesToLoopback(realmUri.getHost())) {
+            throw new OciClientException("refusing to send credentials to a non-HTTPS token realm: " + realm);
+        }
 
         StringBuilder tokenUrl = new StringBuilder(realm).append(realm.contains("?") ? '&' : '?');
         if (challengeParams.containsKey("service")) {
@@ -511,23 +647,56 @@ public class OciClient {
     /**
      * Resolves the next page URL from a {@code Link} header.
      *
-     * @param response   the current tags list response
-     * @param currentUrl the URL of the current page
+     * <p>The resolved URL is required to share the registry's scheme, host, and effective port:
+     * a registry could otherwise point pagination at an arbitrary host via the {@code Link}
+     * header, and the next request would carry the current Basic/Bearer authorization to it.
+     *
+     * @param response       the current tags list response
+     * @param currentUrl     the URL of the current page
+     * @param registryOrigin the registry URL the pull started from
      * @return the next page URL, or null when there are no more pages
-     * @throws IOException if the pagination link is invalid
+     * @throws IOException if the pagination link is invalid, or points outside the registry's origin
      */
-    private URL nextPageUrl(Response response, URL currentUrl) throws IOException {
+    private URL nextPageUrl(Response response, URL currentUrl, URL registryOrigin) throws IOException {
         for (String linkHeader : response.getHeader("Link")) {
             Matcher matcher = LINK_NEXT_PATTERN.matcher(linkHeader);
             if (matcher.find()) {
+                URL nextUrl;
                 try {
-                    return currentUrl.toURI().resolve(matcher.group(1)).toURL();
+                    nextUrl = currentUrl.toURI().resolve(matcher.group(1)).toURL();
                 } catch (URISyntaxException e) {
                     throw new IOException("invalid pagination link: " + matcher.group(1), e);
                 }
+                if (!isSameOrigin(registryOrigin, nextUrl)) {
+                    throw new IOException("refusing to follow pagination link to a different origin: " + nextUrl);
+                }
+                return nextUrl;
             }
         }
         return null;
+    }
+
+    /**
+     * Checks whether two URLs share the same scheme, host, and effective port.
+     *
+     * @param a the first URL
+     * @param b the second URL
+     * @return true if {@code a} and {@code b} are the same origin
+     */
+    private static boolean isSameOrigin(URL a, URL b) {
+        return a.getProtocol().equalsIgnoreCase(b.getProtocol())
+                && a.getHost().equalsIgnoreCase(b.getHost())
+                && effectivePort(a) == effectivePort(b);
+    }
+
+    /**
+     * Returns a URL's port, substituting the protocol's default port when none is specified.
+     *
+     * @param url the URL to inspect
+     * @return the effective port
+     */
+    private static int effectivePort(URL url) {
+        return url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
     }
 
 }

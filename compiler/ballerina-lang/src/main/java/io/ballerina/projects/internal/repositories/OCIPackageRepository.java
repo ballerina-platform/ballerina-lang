@@ -38,6 +38,7 @@ import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.oci.OciClient;
 import org.ballerinalang.oci.OciClientException;
+import org.ballerinalang.oci.OciClientUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
@@ -143,16 +144,12 @@ public class OCIPackageRepository extends AbstractPackageRepository {
             try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
                 JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
                 String platform = resultObj.get(PLATFORM).getAsString();
-                Path actualBalaPath = Path.of(this.repoLocation).resolve("bala").resolve(orgName)
-                        .resolve(packageName).resolve(version).resolve(platform);
-                if (Files.exists(actualBalaPath)) {
-                    ProjectUtils.deleteDirectory(actualBalaPath);
-                }
-                Files.createDirectories(actualBalaPath);
-                ProjectUtils.extractBala(balaDownloadPath, actualBalaPath);
+                Path versionDir = Path.of(this.repoLocation).resolve("bala").resolve(orgName)
+                        .resolve(packageName).resolve(version);
+                OciClientUtils.extractBalaToBalaCache(balaDownloadPath, versionDir, platform);
             }
             return true;
-        } catch (OciClientException | IOException e) {
+        } catch (IOException | RuntimeException e) {
             printWarning("warning: failed to pull package '" + orgName + "/" + packageName + ":" + version
                     + "' from OCI repository: " + e.getMessage());
             success = false;

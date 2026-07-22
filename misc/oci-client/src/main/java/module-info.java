@@ -7,6 +7,7 @@ module org.ballerinalang.oci {
     requires progressbar;
     requires java.logging;
     requires com.google.api.client;
+    requires org.apache.commons.compress;
     exports org.ballerinalang.oci;
     exports org.ballerinalang.oci.model;
     opens org.ballerinalang.oci.model to com.google.gson;

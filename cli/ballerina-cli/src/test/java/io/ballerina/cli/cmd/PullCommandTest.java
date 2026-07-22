@@ -199,8 +199,8 @@ public class PullCommandTest extends BaseCommandTest {
         }
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: unsupported repository 'oci' found. Only repositories " +
-                "mentioned in the Settings.toml are supported.\n"));
+        Assert.assertEquals(actual, "ballerina: unsupported repository 'oci' found. Only repositories " +
+                "mentioned in the Settings.toml are supported.\n");
     }
 
     private static Settings readMockSettings(Path settingsFilePath, String repoPath) {

@@ -40,6 +40,7 @@ import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.ballerinalang.oci.OciClient;
 import org.ballerinalang.oci.OciClientException;
+import org.ballerinalang.oci.OciClientUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -53,6 +54,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
@@ -211,7 +213,12 @@ public class PullCommand implements BLauncherCmd {
             repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
             version = pullFromCentral(settings, orgName, packageName, version);
         } else if (isOciRepository) {
-            version = pullFromOCIRepo(settings, orgName, packageName, version);
+            Optional<String> pulledVersion = pullFromOCIRepo(settings, orgName, packageName, version);
+            if (pulledVersion.isEmpty()) {
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            version = pulledVersion.get();
         } else if (!LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
             pullFromMavenRepo(settings, orgName, packageName, version);
         }
@@ -351,7 +358,7 @@ public class PullCommand implements BLauncherCmd {
         }
     }
 
-    private String pullFromOCIRepo(Settings settings, String orgName, String packageName, String version) {
+    private Optional<String> pullFromOCIRepo(Settings settings, String orgName, String packageName, String version) {
         Repository targetRepository = null;
         for (Repository repository : settings.getRepositories()) {
             if (repositoryName.equals(repository.id())) {
@@ -364,8 +371,7 @@ public class PullCommand implements BLauncherCmd {
             String errMsg = "unsupported repository '" + repositoryName + "' found. Only " +
                     "repositories mentioned in the Settings.toml are supported.";
             CommandUtil.printError(this.errStream, errMsg, null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return version;
+            return Optional.empty();
         }
 
         OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
@@ -380,15 +386,13 @@ public class PullCommand implements BLauncherCmd {
                         : ociClient.pullMetadata(orgName, packageName);
                 if (versions.isEmpty()) {
                     errStream.println("package not found: " + orgName + "/" + packageName);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return version;
+                    return Optional.empty();
                 }
                 version = CommandUtil.getLatestVersion(versions);
             } catch (OciClientException e) {
                 errStream.println("unexpected error occurred while resolving the latest version of '"
                         + orgName + "/" + packageName + "': " + e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-                return version;
+                return Optional.empty();
             }
         }
 
@@ -399,6 +403,7 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(orgName).resolve(packageName).resolve(version);
 
         Path tmpDownloadDirectory = null;
+        boolean success = true;
         try {
             Files.createDirectories(ociBalaCachePath);
             tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
@@ -415,24 +420,22 @@ public class PullCommand implements BLauncherCmd {
             try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
                 JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
                 String platform = resultObj.get(PLATFORM).getAsString();
-                Path actualBalaPath = ociBalaCachePath.resolve(platform);
-                Files.createDirectories(actualBalaPath);
-                ProjectUtils.extractBala(balaDownloadPath, actualBalaPath);
+                OciClientUtils.extractBalaToBalaCache(balaDownloadPath, ociBalaCachePath, platform);
             }
             outStream.println("Successfully pulled the package from the OCI repository.");
         } catch (OciClientException e) {
             errStream.println("unexpected error occurred while pulling package: " + e.getMessage());
-            CommandUtil.exitError(this.exitWhenFinish);
+            success = false;
         } catch (Exception e) {
             errStream.println("unexpected error occurred while creating package repository in bala cache: "
                     + e.getMessage());
-            CommandUtil.exitError(this.exitWhenFinish);
+            success = false;
         } finally {
             if (tmpDownloadDirectory != null) {
                 ProjectUtils.deleteDirectory(tmpDownloadDirectory);
             }
         }
-        return version;
+        return success ? Optional.of(version) : Optional.empty();
     }
 
     private boolean resolveDependencies(String orgName, String packageName, String version) {
