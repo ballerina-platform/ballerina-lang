@@ -103,7 +103,6 @@ dependencies {
     dist libs.commons.logging
     dist libs.open.telemetry.api
     dist libs.open.telemetry.context
-    dist libs.open.telemetry.common
     dist libs.awaitility
     dist libs.hdr.histogram
 

@@ -99,7 +99,6 @@ okhttpVersion="4.9.2"
 openhftCompilerVersion="2.23ea0"
 openTelemetryApiVersion="1.63.0"
 openTelemetryContextVersion="1.63.0"
-openTelemetryCommonVersion="1.63.0"
 openTelemetrySdkTestingVersion="1.63.0"
 openTelemetrySdkTraceVersion="1.63.0"
 ow2AsmAnalysisVersion="9.7"
@@ -227,7 +226,6 @@ netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll
 netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kqueue", version.ref = "nettyTransportNativeKqueueVersion"}
 open-telemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "openTelemetryApiVersion"}
 open-telemetry-context = { module = "io.opentelemetry:opentelemetry-context", version.ref = "openTelemetryContextVersion"}
-open-telemetry-common = { module = "io.opentelemetry:opentelemetry-common", version.ref = "openTelemetryCommonVersion"}
 open-telemetry-sdk-testing = { module = "io.opentelemetry:opentelemetry-sdk-testing", version.ref = "openTelemetrySdkTestingVersion"}
 open-telemetry-sdk-trace = { module = "io.opentelemetry:opentelemetry-sdk-trace", version.ref = "openTelemetrySdkTraceVersion"}
 openhft-compiler = { module = "net.openhft:compiler", version.ref = "openhftCompilerVersion"}
