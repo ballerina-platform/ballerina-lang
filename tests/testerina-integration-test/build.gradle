@@ -20,6 +20,8 @@ plugins {
     id 'javaProject'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 description = 'Ballerina - Testerina Test'
 
 def extractedDist = "$buildDir/extractedDistribution/jballerina-tools-${project.version}"

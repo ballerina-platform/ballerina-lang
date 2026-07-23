@@ -66,7 +66,7 @@ public class CreateBalaTask implements Task {
 
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
+            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_25);
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();

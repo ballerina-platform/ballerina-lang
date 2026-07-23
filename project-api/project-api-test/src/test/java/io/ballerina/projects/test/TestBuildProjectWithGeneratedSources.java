@@ -26,7 +26,6 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -119,7 +118,7 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
     public void testBuildProjectWithNoReadPermission() {
         // Skip test in windows due to file permission setting issue
         if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
+            return;
         }
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
         Path generatedDirPath = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);

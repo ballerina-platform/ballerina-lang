@@ -3,7 +3,7 @@ org-name = "jdbctest"
 version = "0.7.2"
 
 [platform]
-target = "java21"
+target = "java25"
 
   [[platform.libraries]]
   path = "./libs/serviceA.jar"

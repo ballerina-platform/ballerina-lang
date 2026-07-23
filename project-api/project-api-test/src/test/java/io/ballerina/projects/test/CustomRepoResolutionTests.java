@@ -148,6 +148,11 @@ public class CustomRepoResolutionTests extends BaseTest {
         if (Files.exists(projectPath.resolve("target"))) {
             FileUtils.deleteDirectory(projectPath.resolve("target").toFile());
         }
+        Path projectPath2 = TMP_RESOURCES_DIR.resolve("myproject2");
+        Files.deleteIfExists(projectPath2.resolve("Dependencies.toml"));
+        if (Files.exists(projectPath2.resolve("target"))) {
+            FileUtils.deleteDirectory(projectPath2.resolve("target").toFile());
+        }
     }
 
     @Test

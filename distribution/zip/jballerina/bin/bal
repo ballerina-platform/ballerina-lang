@@ -32,7 +32,7 @@
 # OS specific support.  $var _must_ be set to either true or false.
 
 # Set JAVA_HOME for installers
-JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk-21.0.5+11-jre
+JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk-25.0.3+9-jre
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi
@@ -219,6 +219,7 @@ CMD_LINE_ARGS="-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
                -Xms256m -Xmx2048m \
                -XX:+HeapDumpOnOutOfMemoryError \
                -XX:+ExitOnOutOfMemoryError \
+               --sun-misc-unsafe-memory-access=allow \
                $JAVA_OPTS \
                -classpath "$BALLERINA_CLASSPATH" \
                -Dballerina.home="$BALLERINA_HOME" \

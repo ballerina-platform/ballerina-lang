@@ -27,4 +27,19 @@
         <Class name="io.ballerina.shell.cli.PropertiesLoader"/>
         <Bug pattern="CT_CONSTRUCTOR_THROW"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.shell.cli.BallerinaShell" />
+        <Method name="reset" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.shell.cli.PropertiesLoader" />
+        <Method name="getInstance" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.shell.cli.ReplShellApplication" />
+        <Method name="execute" />
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION" />
+    </Match>
 </FindBugsFilter>

@@ -59,7 +59,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
-        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_25.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
         Assert.assertTrue(platform.graalvmCompatible());
@@ -112,7 +112,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
 
-        List<Map<String, Object>> platformDependencies = packageManifest.platform(JvmTarget.JAVA_21.code())
+        List<Map<String, Object>> platformDependencies = packageManifest.platform(JvmTarget.JAVA_25.code())
                 .dependencies();
         Assert.assertEquals(platformDependencies.size(), 0);
     }
@@ -122,7 +122,7 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_25.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 3);
         for (Map<String, Object> library : platformDependencies) {
@@ -256,8 +256,8 @@ public class BallerinaTomlTests {
                 "incompatible type found for key '[targetModule]': expected 'STRING'");
     }
 
-    @Test(description = "Platform libs should be given as [[platform.java21.dependency]], " +
-            "Here checking error when it given as [platform.java21.dependency]")
+    @Test(description = "Platform libs should be given as [[platform.java25.dependency]], " +
+            "Here checking error when it given as [platform.java25.dependency]")
     public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
         PackageManifest packageManifest =
                 getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
@@ -467,7 +467,7 @@ public class BallerinaTomlTests {
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
-                            "incompatible type for key 'java21': expected 'OBJECT', found 'ARRAY'");
+                            "incompatible type for key 'java25': expected 'OBJECT', found 'ARRAY'");
     }
 
     @Test(description = "Test Ballerina.toml having invalid types for entries in package and build options")
