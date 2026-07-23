@@ -62,14 +62,15 @@ public final class OciClientUtils {
      *
      * @param blobFile       the layer blob content as pulled from the registry
      * @param balaOutputFile where to write the recovered bala; its parent directory must exist
-     * @throws IOException if the blob contains no bala
+     * @return true if a bala was found in the blob and written; false if the blob holds no bala
+     * @throws IOException if reading the blob fails
      */
-    static void extractBalaFromLayer(Path blobFile, Path balaOutputFile) throws IOException {
+    static boolean extractBalaFromLayer(Path blobFile, Path balaOutputFile) throws IOException {
         byte[] magic = peekMagic(blobFile);
         if (isZip(magic)) {
             // already a raw bala (zip)
             Files.copy(blobFile, balaOutputFile, StandardCopyOption.REPLACE_EXISTING);
-            return;
+            return true;
         }
         try (InputStream fileStream = Files.newInputStream(blobFile);
                 InputStream layerStream = isGzip(magic) ? new GZIPInputStream(fileStream) : fileStream;
@@ -78,12 +79,11 @@ public final class OciClientUtils {
             while ((entry = tar.getNextEntry()) != null) {
                 if (entry.isFile() && entry.getName().endsWith(".bala")) {
                     Files.copy(tar, balaOutputFile, StandardCopyOption.REPLACE_EXISTING);
-                    return;
+                    return true;
                 }
             }
         }
-        throw new IOException("OCI layer blob is not a bala: expected a zip, or a (gzipped) tar "
-                + "archive containing the bala file, but no .bala entry was found");
+        return false;
     }
 
     /**

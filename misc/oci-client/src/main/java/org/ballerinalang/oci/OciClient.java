@@ -428,8 +428,15 @@ public class OciClient {
 
             boolean enableOutputStream = Boolean.parseBoolean(
                     System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+            Path balaFilePath = Paths.get(repoLocation).resolve(org).resolve(name).resolve(version)
+                    .resolve(name + "-" + version + BALA_EXTENSION);
+            Path balaFileDir = balaFilePath.getParent();
+            if (balaFileDir != null) {
+                Files.createDirectories(balaFileDir);
+            }
             Path blobTempFile = Files.createTempFile("ballerina-oci-blob-", ".tmp");
             try {
+                boolean balaExtracted = false;
                 for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
                     final ProgressBar[] progressBar = {null};
                     Blob blob = registryClient.pullBlob(
@@ -465,18 +472,15 @@ public class OciClient {
                             progressBar[0].close();
                         }
                     }
+                    if (OciClientUtils.extractBalaFromLayer(blobTempFile, balaFilePath)) {
+                        balaExtracted = true;
+                        break;
+                    }
                 }
-
-                Path outputPath = Paths.get(repoLocation);
-                Path balaFilePath = outputPath.resolve(org).resolve(name).resolve(version)
-                        .resolve(name + "-" + version + BALA_EXTENSION);
-                Path balaFileDir = balaFilePath.getParent();
-                if (balaFileDir != null) {
-                    Files.createDirectories(balaFileDir);
+                if (!balaExtracted) {
+                    throw new OciClientException("no bala layer found in the OCI manifest for "
+                            + org + "/" + name + ":" + version);
                 }
-                // Jib stores each pushed file inside a gzipped tar layer, so the pulled blob is a
-                // tar.gz wrapping the bala — unwrap it back to the raw bala (zip) before saving.
-                OciClientUtils.extractBalaFromLayer(blobTempFile, balaFilePath);
             } finally {
                 Files.deleteIfExists(blobTempFile);
             }
@@ -484,7 +488,6 @@ public class OciClient {
             try {
                 httpClient.shutDown();
             } catch (IOException ignored) {
-                // best effort — the connection pool is reclaimed on GC anyway
             }
         }
     }
@@ -633,8 +636,6 @@ public class OciClient {
         } catch (IllegalArgumentException e) {
             throw new OciClientException("invalid token realm in bearer challenge: " + realm, e);
         }
-        // The registry chooses the realm, so require HTTPS (or a loopback host) before sending
-        // credentials to it: a compromised registry must not be able to redirect them over plaintext.
         if (!"https".equalsIgnoreCase(realmUri.getScheme()) && !resolvesToLoopback(realmUri.getHost())) {
             throw new OciClientException("refusing to send credentials to a non-HTTPS token realm: " + realm);
         }
