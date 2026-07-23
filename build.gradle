@@ -32,9 +32,9 @@ subprojects {
         repositories {
             maven {
                 if(project.version.endsWith('-SNAPSHOT')) {
-                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
+                    url "https://maven3-upgrade.wso2.org/nexus/repository/snapshots/"
                 } else {
-                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+                    url "https://maven3-upgrade.wso2.org/nexus/repository/releases/"
                 }
                 credentials {
                     username System.getenv("NEXUS_USERNAME")
