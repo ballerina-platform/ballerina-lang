@@ -132,6 +132,7 @@ CopySpec copyResourceSpec = copySpec {
 
 
 tasks.register('createZip', Zip) {
+    useFileSystemPermissions()
     with copyJarSpec
     with copyBalaSpec
     with copyBinSpec

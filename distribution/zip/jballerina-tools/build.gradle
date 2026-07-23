@@ -429,6 +429,7 @@ tasks.register('createApiDocsZip', Zip) {
 }
 
 tasks.register('createZip', Zip) {
+    useFileSystemPermissions()
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
