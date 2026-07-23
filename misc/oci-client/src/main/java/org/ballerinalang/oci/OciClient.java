@@ -242,7 +242,6 @@ public class OciClient {
      */
     private static boolean resolvesToLoopback(String host) {
         if (host == null || host.isEmpty()) {
-            // InetAddress.getAllByName("") returns the loopback address; an absent host must not pass.
             return false;
         }
         if (isLoopbackHost(host)) {
@@ -303,11 +302,9 @@ public class OciClient {
             return listTags(org, pkg).contains(version);
         } catch (OciClientException exception) {
             if (isNotFoundError(exception)) {
-                // The repository does not exist yet (first push of this package); let the push proceed.
                 return false;
             }
-            // Any other failure (auth, network, registry error) must abort the push: proceeding
-            // could overwrite an already published, immutable version.
+
             throw new OciClientException("failed to verify whether '" + org + "/" + pkg + ":" + version
                     + "' already exists in the registry: " + describeFailure(exception), exception);
         }
@@ -413,75 +410,82 @@ public class OciClient {
 
         boolean insecure = isLoopbackRegistry(imageRef);
         FailoverHttpClient httpClient = new FailoverHttpClient(insecure, insecure, jibLogger);
-
-        RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
-                    imageRef.getRepository(), httpClient)
-                    .setCredential(Credential.from(username, password))
-                    .newRegistryClient();
-
-        registryClient.configureBasicAuth();
-
-        OciManifestTemplate manifestTemplate = registryClient
-                .pullManifest(version, OciManifestTemplate.class).getManifest();
-        List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = manifestTemplate.getLayers();
-        if (layers.isEmpty()) {
-            throw new OciClientException("no layers found in the OCI manifest for "
-                    + org + "/" + name + ":" + version);
-        }
-
-        boolean enableOutputStream = Boolean.parseBoolean(
-                System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
-        Path blobTempFile = Files.createTempFile("ballerina-oci-blob-", ".tmp");
         try {
-            for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
-                final ProgressBar[] progressBar = {null};
-                Blob blob = registryClient.pullBlob(
-                        layer.getDigest(),
-                        size -> {
-                            if (enableOutputStream) {
+            RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
+                        imageRef.getRepository(), httpClient)
+                        .setCredential(Credential.from(username, password))
+                        .newRegistryClient();
 
-                                long totalSizeInKB = size > 0 ? (size + 1023) / 1024 : -1;
-                                progressBar[0] = new ProgressBar(
-                                        org + "/" + name + ":" + version + " [OCI Registry -> "
-                                                + displayLocation + "]",
-                                        totalSizeInKB,
-                                        1000,
-                                        System.out,
-                                        ProgressBarStyle.ASCII,
-                                        " KB",
-                                        1
-                                );
+            registryClient.configureBasicAuth();
+
+            OciManifestTemplate manifestTemplate = registryClient
+                    .pullManifest(version, OciManifestTemplate.class).getManifest();
+            List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = manifestTemplate.getLayers();
+            if (layers.isEmpty()) {
+                throw new OciClientException("no layers found in the OCI manifest for "
+                        + org + "/" + name + ":" + version);
+            }
+
+            boolean enableOutputStream = Boolean.parseBoolean(
+                    System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+            Path blobTempFile = Files.createTempFile("ballerina-oci-blob-", ".tmp");
+            try {
+                for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
+                    final ProgressBar[] progressBar = {null};
+                    Blob blob = registryClient.pullBlob(
+                            layer.getDigest(),
+                            size -> {
+                                if (enableOutputStream) {
+
+                                    long totalSizeInKB = size > 0 ? (size + 1023) / 1024 : -1;
+                                    progressBar[0] = new ProgressBar(
+                                            org + "/" + name + ":" + version + " [OCI Registry -> "
+                                                    + displayLocation + "]",
+                                            totalSizeInKB,
+                                            1000,
+                                            System.out,
+                                            ProgressBarStyle.ASCII,
+                                            " KB",
+                                            1
+                                    );
+                                }
+                            },
+                            count -> {
+                                if (enableOutputStream && progressBar[0] != null && count > 0) {
+                                    long deltaKB = (count + 1023) / 1024;
+                                    progressBar[0].stepBy(deltaKB);
+                                }
                             }
-                        },
-                        count -> {
-                            if (enableOutputStream && progressBar[0] != null && count > 0) {
-                                long deltaKB = (count + 1023) / 1024;
-                                progressBar[0].stepBy(deltaKB);
-                            }
+                    );
+                    try (OutputStream blobOutputStream = Files.newOutputStream(blobTempFile)) {
+                        // Streamed straight to disk so an oversized blob can't exhaust the heap.
+                        blob.writeTo(blobOutputStream);
+                    } finally {
+                        if (progressBar[0] != null) {
+                            progressBar[0].close();
                         }
-                );
-                try (OutputStream blobOutputStream = Files.newOutputStream(blobTempFile)) {
-                    // Streamed straight to disk so an oversized blob can't exhaust the heap.
-                    blob.writeTo(blobOutputStream);
-                } finally {
-                    if (progressBar[0] != null) {
-                        progressBar[0].close();
                     }
                 }
-            }
 
-            Path outputPath = Paths.get(repoLocation);
-            Path balaFilePath = outputPath.resolve(org).resolve(name).resolve(version)
-                    .resolve(name + "-" + version + BALA_EXTENSION);
-            Path balaFileDir = balaFilePath.getParent();
-            if (balaFileDir != null) {
-                Files.createDirectories(balaFileDir);
+                Path outputPath = Paths.get(repoLocation);
+                Path balaFilePath = outputPath.resolve(org).resolve(name).resolve(version)
+                        .resolve(name + "-" + version + BALA_EXTENSION);
+                Path balaFileDir = balaFilePath.getParent();
+                if (balaFileDir != null) {
+                    Files.createDirectories(balaFileDir);
+                }
+                // Jib stores each pushed file inside a gzipped tar layer, so the pulled blob is a
+                // tar.gz wrapping the bala — unwrap it back to the raw bala (zip) before saving.
+                OciClientUtils.extractBalaFromLayer(blobTempFile, balaFilePath);
+            } finally {
+                Files.deleteIfExists(blobTempFile);
             }
-            // Jib stores each pushed file inside a gzipped tar layer, so the pulled blob is a
-            // tar.gz wrapping the bala — unwrap it back to the raw bala (zip) before saving.
-            OciClientUtils.extractBalaFromLayer(blobTempFile, balaFilePath);
         } finally {
-            Files.deleteIfExists(blobTempFile);
+            try {
+                httpClient.shutDown();
+            } catch (IOException ignored) {
+                // best effort — the connection pool is reclaimed on GC anyway
+            }
         }
     }
 
@@ -493,12 +497,13 @@ public class OciClient {
      * @return the list of available versions
      */
     public List<String> pullMetadata(String org, String pkg) {
+        FailoverHttpClient httpClient = null;
         try {
             ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
             Consumer<LogEvent> jibLogger = logEvent -> { };
 
             boolean insecure = isLoopbackRegistry(imageRef);
-            FailoverHttpClient httpClient = new FailoverHttpClient(insecure, insecure, jibLogger);
+            httpClient = new FailoverHttpClient(insecure, insecure, jibLogger);
 
             RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
                         imageRef.getRepository(), httpClient)
@@ -527,6 +532,14 @@ public class OciClient {
         } catch (IOException | RegistryException | InvalidImageReferenceException
                 | JsonSyntaxException exception) {
             throw new OciClientException("failed to pull metadata from the registry", exception);
+        } finally {
+            if (httpClient != null) {
+                try {
+                    httpClient.shutDown();
+                } catch (IOException ignored) {
+                    // best effort — the connection pool is reclaimed on GC anyway
+                }
+            }
         }
     }
 
@@ -539,10 +552,11 @@ public class OciClient {
      */
     public List<String> listTags(String org, String pkg) {
         List<String> versions = new ArrayList<>();
+        FailoverHttpClient httpClient = null;
         try {
             ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
             boolean insecure = isLoopbackRegistry(imageRef);
-            FailoverHttpClient httpClient = new FailoverHttpClient(insecure, insecure, logEvent -> { });
+            httpClient = new FailoverHttpClient(insecure, insecure, logEvent -> { });
             URL url = URI.create(
                     "https://" + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
                             + "/tags/list").toURL();
@@ -580,6 +594,13 @@ public class OciClient {
             throw exception;
         } catch (IOException | InvalidImageReferenceException exception) {
             throw new OciClientException("failed to list tags from the registry", exception);
+        } finally {
+            if (httpClient != null) {
+                try {
+                    httpClient.shutDown();
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 

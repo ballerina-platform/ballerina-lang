@@ -118,17 +118,51 @@ public final class OciClientUtils {
     public static void extractBalaToBalaCache(Path balaFilePath, Path versionDir, String platform)
             throws IOException {
         Path versionTempDir = versionDir.resolveSibling(versionDir.getFileName() + "_temp");
+        Path platformDir = versionTempDir.resolve(platform).normalize();
+        if (!versionTempDir.equals(platformDir.getParent())) {
+            throw new IOException("invalid platform in package metadata: " + platform);
+        }
+        Path versionBackupDir = versionDir.resolveSibling(versionDir.getFileName() + "_old");
+
+        if (Files.exists(versionBackupDir) && !Files.exists(versionDir)) {
+            moveDirectory(versionBackupDir, versionDir);
+        }
+
         try {
-            deleteDirectory(versionTempDir); // stale leftover from an interrupted pull
-            extractZip(balaFilePath, versionTempDir.resolve(platform));
-            deleteDirectory(versionDir);
+            deleteDirectory(versionTempDir);
+            deleteDirectory(versionBackupDir);
+            extractZip(balaFilePath, platformDir);
+
+            boolean hadExisting = Files.exists(versionDir);
+            if (hadExisting) {
+                moveDirectory(versionDir, versionBackupDir);
+            }
             try {
-                Files.move(versionTempDir, versionDir, StandardCopyOption.ATOMIC_MOVE);
-            } catch (AtomicMoveNotSupportedException e) {
-                Files.move(versionTempDir, versionDir);
+                moveDirectory(versionTempDir, versionDir);
+            } catch (IOException e) {
+                if (hadExisting && !Files.exists(versionDir)) {
+                    moveDirectory(versionBackupDir, versionDir);
+                }
+                throw e;
             }
         } finally {
             deleteDirectory(versionTempDir);
+            deleteDirectory(versionBackupDir);
+        }
+    }
+
+    /**
+     * Renames a directory, falling back to a non-atomic move on filesystems that lack atomic rename.
+     *
+     * @param source the directory to move
+     * @param target the destination path
+     * @throws IOException if the move fails
+     */
+    private static void moveDirectory(Path source, Path target) throws IOException {
+        try {
+            Files.move(source, target, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(source, target);
         }
     }
 
