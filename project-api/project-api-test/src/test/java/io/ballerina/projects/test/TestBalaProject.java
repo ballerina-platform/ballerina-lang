@@ -51,11 +51,15 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Contains cases to test the load bala project.
@@ -366,5 +370,88 @@ public class TestBalaProject {
         } catch (UnsupportedOperationException e) {
             Assert.assertEquals(e.getMessage(), "target directory is not supported for BalaProject");
         }
+    }
+
+    @Test(description = "tests that a bala with a path-traversal platformDependencies path is rejected")
+    public void testPlatformDependencyPathTraversalRejected() throws IOException {
+        Path testRoot = Files.createTempDirectory("bala-path-traversal-test");
+        try {
+            // balaDir is the intended extraction directory; the malicious path below tries to
+            // escape it and write two directories up, into testRoot.
+            Path balaDir = testRoot.resolve("nested").resolve("bala-dir");
+            Files.createDirectories(balaDir);
+            Path maliciousBala = balaDir.resolve("testorg-attackpkg-any-0.1.0.bala");
+            String packageJson = "{"
+                    + "\"organization\":\"testorg\","
+                    + "\"name\":\"attackpkg\","
+                    + "\"version\":\"0.1.0\","
+                    + "\"platform\":\"java17\","
+                    + "\"platformDependencies\":[{"
+                    + "\"path\":\"../../evil-marker.txt\","
+                    + "\"artifactId\":\"evil\",\"groupId\":\"evil\",\"version\":\"1.0.0\"}]"
+                    + "}";
+            writeSingleEntryBala(maliciousBala, "package.json", packageJson);
+
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            try {
+                BalaProject.loadProject(defaultBuilder, maliciousBala);
+                Assert.fail("expected a ProjectException due to the path traversal in platformDependencies");
+            } catch (ProjectException e) {
+                Assert.assertTrue(e.getMessage().contains("resolves outside the bala directory"),
+                        "unexpected exception message: " + e.getMessage());
+            }
+
+            Assert.assertFalse(Files.exists(testRoot.resolve("evil-marker.txt")),
+                    "path traversal wrote a file outside the intended bala directory");
+        } finally {
+            TestUtils.deleteDirectory(testRoot.toFile());
+        }
+    }
+
+    @Test(description = "tests that a bala with a path-traversal compiler-plugin dependency path is rejected")
+    public void testCompilerPluginDependencyPathTraversalRejected() throws IOException {
+        Path testRoot = Files.createTempDirectory("bala-path-traversal-test");
+        try {
+            Path balaDir = testRoot.resolve("nested").resolve("bala-dir");
+            Files.createDirectories(balaDir);
+            Path maliciousBala = balaDir.resolve("testorg-attackpkg-any-0.1.0.bala");
+
+            try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(maliciousBala))) {
+                writeEntry(zipOut, "package.json", "{"
+                        + "\"organization\":\"testorg\",\"name\":\"attackpkg\",\"version\":\"0.1.0\","
+                        + "\"platform\":\"java17\"}");
+                writeEntry(zipOut, "compiler-plugin/compiler-plugin.json", "{"
+                        + "\"plugin_id\":\"evil\",\"plugin_class\":\"io.evil.Plugin\","
+                        + "\"dependency_paths\":[\"../../evil-cp.txt\"]}");
+            }
+
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            try {
+                BalaProject.loadProject(defaultBuilder, maliciousBala);
+                Assert.fail("expected a ProjectException due to the path traversal in compiler-plugin dependency");
+            } catch (ProjectException e) {
+                Assert.assertTrue(e.getMessage().contains("resolves outside the bala directory"),
+                        "unexpected exception message: " + e.getMessage());
+            }
+
+            Assert.assertFalse(Files.exists(testRoot.resolve("evil-cp.txt")),
+                    "path traversal wrote a file outside the intended bala directory");
+        } finally {
+            TestUtils.deleteDirectory(testRoot.toFile());
+        }
+    }
+
+    private static void writeSingleEntryBala(Path zipPath, String entryName, String content) throws IOException {
+        try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(zipPath))) {
+            writeEntry(zipOut, entryName, content);
+        }
+    }
+
+    private static void writeEntry(ZipOutputStream zipOut, String entryName, String content) throws IOException {
+        zipOut.putNextEntry(new ZipEntry(entryName));
+        zipOut.write(content.getBytes(StandardCharsets.UTF_8));
+        zipOut.closeEntry();
     }
 }
