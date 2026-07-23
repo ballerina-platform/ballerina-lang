@@ -1,0 +1,6 @@
+[[repository.oci]]
+id = "oci-proxy"
+url = "localhost:5000/proxy-repo"
+username = "admin"
+accesstoken = "password"
+mode = "proxy"
