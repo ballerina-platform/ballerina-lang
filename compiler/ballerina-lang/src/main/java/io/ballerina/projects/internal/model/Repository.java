@@ -38,9 +38,10 @@ public class Repository {
     private final String type;
     private final Path path;
     private final String mode;
+    private final boolean proxyCentral;
 
     private Repository(String id, String url, String username, String password, String remoteType, Path path,
-                        String mode) {
+                       String mode, boolean proxyCentral) {
         this.id = id;
         this.url = url;
         this.username = username;
@@ -48,23 +49,24 @@ public class Repository {
         this.type = remoteType;
         this.path = path;
         this.mode = (mode == null || mode.isEmpty()) ? MODE_HOSTED : mode;
+        this.proxyCentral = proxyCentral;
     }
 
     public static Repository from(String id, String url, String username, String password) {
-        return new Repository(id, url, username, password, MAVEN, null, MODE_HOSTED);
+        return new Repository(id, url, username, password, MAVEN, null, MODE_HOSTED, false);
     }
 
     public static Repository from(String id, String url, String username, String password, String type, Path path) {
-        return new Repository(id, url, username, password, type, path, MODE_HOSTED);
+        return new Repository(id, url, username, password, type, path, MODE_HOSTED, false);
     }
 
     public static Repository from(String id, String url, String username, String password, String type, Path path,
-                                   String mode) {
-        return new Repository(id, url, username, password, type, path, mode);
+                                  String mode, boolean proxyCentral) {
+        return new Repository(id, url, username, password, type, path, mode, proxyCentral);
     }
 
     public static Repository from() {
-        return new Repository("", "", "", "", MAVEN, null, MODE_HOSTED);
+        return new Repository("", "", "", "", MAVEN, null, MODE_HOSTED, false);
     }
 
     public String id() {
@@ -93,5 +95,9 @@ public class Repository {
 
     public String mode() {
         return mode;
+    }
+
+    public boolean proxyCentral() {
+        return proxyCentral;
     }
 }

@@ -26,6 +26,7 @@ import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
@@ -76,6 +77,7 @@ public class SettingsBuilder {
     private static final String URL = "url";
     public static final String PATH = "path";
     private static final String MODE = "mode";
+    public static final String PROXY_CENTRAL = "proxyCentral";
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
     private static final int DEFAULT_READ_TIMEOUT = 60;
     private static final int DEFAULT_WRITE_TIMEOUT = 60;
@@ -170,19 +172,29 @@ public class SettingsBuilder {
                         continue;
                     }
                     List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();
+                    boolean proxyCentralFound = false;
                     for (TomlTableNode repositoryNode : repositoryNodes) {
                         url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
                         repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
                         repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESS_TOKEN, "");
                         String pathStr = getStringOrDefaultFromTomlTableNode(repositoryNode, PATH, "");
+                        boolean proxyCentral = getBooleanOrDefaultFromTomlTableNode(repositoryNode,
+                                PROXY_CENTRAL, false);
+                        if (proxyCentral && proxyCentralFound) {
+                            throw new ProjectException("Multiple repositories cannot be configured to " +
+                                    "proxy Ballerina central.");
+                        }
+                        if (proxyCentral) {
+                            proxyCentralFound = true;
+                        }
                         if (!pathStr.isEmpty()) {
                             path = Path.of(pathStr);
                         }
                         String mode = getStringOrDefaultFromTomlTableNode(
                                 repositoryNode, MODE, Repository.MODE_HOSTED);
                         repositories.add(Repository.from(
-                                id, url, repositoryUsername, repositoryPassword, repoKey, path, mode));
+                                id, url, repositoryUsername, repositoryPassword, repoKey, path, mode, proxyCentral));
                     }
                 }
             }
@@ -241,5 +253,30 @@ public class SettingsBuilder {
             }
         }
         return 0;
+    }
+
+    private boolean getBooleanOrDefaultFromTomlTableNode(TomlTableNode pkgNode, String key, boolean defaultValue) {
+        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            // return default value
+            return defaultValue;
+        }
+        Boolean value = getBooleanFromTomlTableNode(topLevelNode);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    private Boolean getBooleanFromTomlTableNode(TopLevelNode topLevelNode) {
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode booleanValueNode = (TomlBooleanValueNode) value;
+                return booleanValueNode.getValue();
+            }
+        }
+        return null;
     }
 }

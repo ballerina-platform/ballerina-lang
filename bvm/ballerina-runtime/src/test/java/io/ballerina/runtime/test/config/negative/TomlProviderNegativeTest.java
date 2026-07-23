@@ -131,11 +131,10 @@ public class TomlProviderNegativeTest {
                                 "of type 'string', but found 'boolean'"
                 }, 2},
                 {"PrimitiveStructureError", new String[]{
-                        "[PrimitiveStructureError.toml:(2:1,2:24)] configurable variable 'intVar' is expected to be " +
-                                "of type 'int', but found 'record'",
+                        "value not provided for required configurable variable 'intVar'",
                         "[PrimitiveStructureError.toml:(3:13,3:18)] configurable variable 'stringVar' is expected to " +
                                 "be of type 'string', but found 'boolean'"
-                }, 2},
+                }, 3},
         };
     }
 
@@ -235,8 +234,8 @@ public class TomlProviderNegativeTest {
                                 "to be of type 'string', but found 'int'"
                 }},
                 {"RecordFieldStructureError", new String[] {
-                        "[RecordFieldStructureError.toml:(2:1,2:24)] configurable variable 'recordVar.name' is " +
-                                "expected to be of type 'string', but found 'record'"
+                        "[RecordFieldStructureError.toml:(2:1,2:24)] unused configuration value " +
+                                "'test_module.recordVar.name.structure'"
                 }},
                 {"AdditionalFieldRecord", new String[] {
                         "[AdditionalFieldRecord.toml:(3:1,3:9)] undefined field 'age' provided for closed record " +
@@ -251,8 +250,6 @@ public class TomlProviderNegativeTest {
                                 " to be of type 'string', but found 'int'"
                 }},
                 {"RecordInlineTypeError2",  new String[] {
-                        "[RecordInlineTypeError2.toml:(1:27,1:45)] configurable variable 'recordVar.name' is " +
-                                "expected to be of type 'string', but found 'record'",
                         "[RecordInlineTypeError2.toml:(1:36,1:43)] unused configuration value " +
                                 "'test_module.recordVar.name.a'"
                 }},
@@ -264,7 +261,7 @@ public class TomlProviderNegativeTest {
         VariableKey anyVar = new VariableKey(ROOT_MODULE, "anyVar", PredefinedTypes.TYPE_ANY, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{anyVar}));
         String errorMsg = "configurable variable 'anyVar' with type 'any' is not supported";
-        validateTomlProviderErrors("InvalidType",  new String[] {errorMsg}, configVarMap, 4);
+        validateTomlProviderErrors("InvalidType",  new String[] {errorMsg}, configVarMap, 3);
     }
 
     @Test()
@@ -314,9 +311,9 @@ public class TomlProviderNegativeTest {
                         "[TableFieldTypeError.toml:(3:1,3:9)] unused configuration value 'tableVar.age'"
                 }},
                 {"TableFieldStructureError", new String[] {
-                        "[TableFieldStructureError.toml:(2:1,2:24)] configurable variable 'tableVar.name' is expected" +
-                                " to be of type 'string', but found 'record'",
-                        "[TableFieldStructureError.toml:(3:1,3:9)] unused configuration value 'tableVar.age'"
+                       "[TableFieldStructureError.toml:(1:1,3:9)] value not provided for non-defaultable " +
+                       "required field 'id' of record 'test_module:PersonTPNT' in configurable variable 'tableVar'",
+                       "[TableFieldStructureError.toml:(2:1,2:24)] unused configuration value 'tableVar.name.structure'"
                 }},
                 {"AdditionalField", new String[] {
                         "[AdditionalField.toml:(4:1,4:17)] undefined field 'city' provided for closed record " +
@@ -331,8 +328,8 @@ public class TomlProviderNegativeTest {
                                 "to be of type 'string', but found 'int'"
                 }},
                 {"TableInlineTypeError2", new String[] {
-                        "[TableInlineTypeError2.toml:(1:39,1:56)] configurable variable 'tableVar.age' is expected " +
-                                "to be of type 'int', but found 'record'"
+                        "[TableInlineTypeError2.toml:(1:25,1:58)] value not provided for non-defaultable " +
+                        "required field 'id' of record 'test_module:PersonTPNT' in configurable variable 'tableVar'"
                 }},
                 {"TableInlineTypeError3", new String[] {
                         "[TableInlineTypeError3.toml:(1:24,1:53)] configurable variable 'tableVar' is expected to be " +
@@ -545,13 +542,12 @@ public class TomlProviderNegativeTest {
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases("UnusedTomlParts.toml"),
                         configVarMap.keySet())));
         configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getErrorCount(), 7);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 6);
         String[] warnings = new String[]{
                 "error: [UnusedTomlParts.toml:(3:1,3:20)] unused configuration value 'undefinedVar1'",
                 "error: [UnusedTomlParts.toml:(11:1,11:20)] unused configuration value 'test_module.util.foo" +
                         ".undefinedVar2'",
                 "error: [UnusedTomlParts.toml:(16:1,16:20)] unused configuration value 'myOrg.mod.undefinedVar3'",
-                "error: [UnusedTomlParts.toml:(18:1,19:20)] unused configuration value 'undefined_Module'",
                 "error: [UnusedTomlParts.toml:(19:1,19:20)] unused configuration value 'undefined_Module" +
                         ".undefinedVar4'",
                 "error: [UnusedTomlParts.toml:(21:1,22:20)] unused configuration value 'undefined_Table'",
@@ -571,8 +567,6 @@ public class TomlProviderNegativeTest {
 
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(importedModule, variableKeys));
         String[] errors = new String[]{
-                "[OptionalImportedModule.toml:(1:1,3:18)] invalid TOML structure found for module 'mod'. " +
-                        "Please provide the module name as '[myOrg.mod]'",
                 "[OptionalImportedModule.toml:(2:1,2:13)] unused configuration value 'mod.intVar'",
                 "[OptionalImportedModule.toml:(3:1,3:18)] unused configuration value 'mod.stringVar'"
         };
@@ -601,16 +595,14 @@ public class TomlProviderNegativeTest {
                                 "expected to be of type 'string', but found 'int'"
                 }},
                 {"MapFieldStructureError", new String[] {
-                        "[MapFieldStructureError.toml:(2:1,2:24)] configurable variable 'mapVar" +
-                                ".name' is expected to be of type 'string', but found 'record'"
+                        "[MapFieldStructureError.toml:(2:1,2:24)] unused configuration value " +
+                                "'test_module.mapVar.name.structure'"
                 }},
                 {"MapInlineTypeError1", new String[] {
                         "[MapInlineTypeError1.toml:(1:45,1:47)] configurable variable 'mapVar.age' is " +
                                 "expected to be of type 'string', but found 'int'"
                 }},
                 {"MapInlineTypeError2", new String[] {
-                        "[MapInlineTypeError2.toml:(1:39,1:61)] configurable variable 'mapVar" +
-                                ".mapField' is expected to be of type 'string', but found 'record'",
                         "[MapInlineTypeError2.toml:(1:52,1:59)] unused configuration value " +
                                 "'test_module.mapVar.mapField.a'"
                 }},
@@ -804,8 +796,6 @@ public class TomlProviderNegativeTest {
         return new Object[][]{
                 {simpleTypes, "TupleTypeError", "[TupleTypeError.toml:(1:12,1:33)] configurable variable 'tupleVar' " +
                         "is expected to be of type '[int,string] & readonly', but found 'string'", null},
-                {simpleTypes, "TupleStructureError", "[TupleStructureError.toml:(1:1,1:35)] configurable variable " +
-                        "'tupleVar' is expected to be of type '[int,string] & readonly', but found 'record'", null},
                 {simpleTypes, "TupleElementStructure", "[TupleElementStructure.toml:(1:13,1:24)] configurable " +
                         "variable 'tupleVar[0]' is expected to be of type 'int', but found 'record'", null},
                 {simpleTypes, "TupleElementType", "[TupleElementType.toml:(1:16,1:17)] configurable variable " +

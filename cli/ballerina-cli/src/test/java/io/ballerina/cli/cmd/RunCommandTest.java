@@ -231,6 +231,105 @@ public class RunCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
+    @Test(description = "Run a project with a Maven platform dependency: verify that with scope=provided " +
+            "the codec packages are excluded from the jar and the program runs correctly, " +
+            "and without scope=provided the codec packages are included in the jar")
+    public void testRunProjectWithProvidedScope() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithProvidedScope1");
+        Path jarPath = projectPath.resolve("target").resolve("bin").resolve("test2.jar");
+        Path ballerinaToml = projectPath.resolve("Ballerina.toml");
+        String originalToml = Files.readString(ballerinaToml);
+        System.setProperty("user.dir", projectPath.toString());
+
+        // Step 1: Run WITH scope=provided — codec packages must NOT be in the jar,
+        // but the dep is on the classpath so the MD5 computation succeeds.
+        ByteArrayOutputStream programOut = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(programOut));
+        try {
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            runCommand.execute();
+        } finally {
+            System.setOut(originalOut);
+        }
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Running executable"),
+                "Build log should contain 'Running executable' when scope=provided");
+        Assert.assertFalse(jarContainsCodecPackages(jarPath),
+                "Jar built with scope=provided must not contain org.apache.commons.codec packages");
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+
+        // Step 2: Run WITHOUT scope=provided — codec packages MUST be bundled in the jar.
+        Files.writeString(ballerinaToml, originalToml.replace("scope=\"provided\"", ""));
+        programOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(programOut));
+        try {
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            runCommand.execute();
+        } finally {
+            System.setOut(originalOut);
+            Files.writeString(ballerinaToml, originalToml);
+        }
+        buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Running executable"),
+                "Build log should contain 'Running executable' when scope is not provided");
+        Assert.assertTrue(jarContainsCodecPackages(jarPath),
+                "Jar built without scope=provided must contain org.apache.commons.codec packages");
+    }
+
+    @Test(description = "Run a project with a Maven platform dependency: verify that with scope=provided " +
+            "the codec packages are excluded from the jar and the program runs correctly, " +
+            "and without scope=provided the codec packages are included in the jar")
+    public void testRunProjectWithProvidedScope2() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithProvidedScope2");
+        Path jarPath = projectPath.resolve("target").resolve("bin").resolve("test2.jar");
+        Path ballerinaToml = projectPath.resolve("Ballerina.toml");
+        String originalToml = Files.readString(ballerinaToml);
+        System.setProperty("user.dir", projectPath.toString());
+
+        // Step 1: Run WITH scope=provided — codec packages must NOT be in the jar,
+        // but the dep is on the classpath so the MD5 computation succeeds.
+        ByteArrayOutputStream programOut = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(programOut));
+        try {
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            runCommand.execute();
+        } finally {
+            System.setOut(originalOut);
+        }
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Running executable"),
+                "Build log should contain 'Running executable' when scope=provided");
+        Assert.assertFalse(jarContainsCodecPackages(jarPath),
+                "Jar built with scope=provided must not contain org.apache.commons.codec packages");
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+
+        // Step 2: Run WITHOUT scope=provided — codec packages MUST be bundled in the jar.
+        Files.writeString(ballerinaToml, originalToml.replace("scope=\"provided\"", ""));
+        programOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(programOut));
+        try {
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            runCommand.execute();
+        } finally {
+            System.setOut(originalOut);
+            Files.writeString(ballerinaToml, originalToml);
+        }
+        buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Running executable"),
+                "Build log should contain 'Running executable' when scope is not provided");
+        Assert.assertTrue(jarContainsCodecPackages(jarPath),
+                "Jar built without scope=provided must contain org.apache.commons.codec packages");
+    }
+
+    private boolean jarContainsCodecPackages(Path jarPath) throws IOException {
+        try (java.util.jar.JarFile jarFile = new java.util.jar.JarFile(jarPath.toFile())) {
+            return jarFile.stream().anyMatch(entry ->
+                    entry.getName().startsWith("org/apache/commons/codec/"));
+        }
+    }
+
     @Test(description = "Run a jar file")
     public void testRunJarFile() {
         Path projectPath = this.testResources.resolve("jar-file");
@@ -660,6 +759,93 @@ public class RunCommandTest extends BaseCommandTest {
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs("hello-app");
         runCommand.execute();
+    }
+
+    @Test(description = "Run consolidator package in workspace with build tool that imports other workspace packages")
+    public void testRunWorkspaceWithConsolidator() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator.txt"));
+    }
+
+    @Test(description = "Run consolidator workspace twice - second run should be up-to-date")
+    public void testRunWorkspaceWithConsolidatorUpToDate() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator.txt"));
+
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator-up-to-date.txt"));
+    }
+
+    @Test(description = "Run consolidator workspace - modifying a dependency source invalidates cache")
+    public void testRunWorkspaceWithConsolidatorCacheInvalidation() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Assert.assertEquals(firstBuildLog.replace("\r", "").replace("\\", "/"),
+                getOutput("run-wp-with-consolidator.txt"));
+
+        Path fooSource = projectPath.resolve("foo").resolve("lib.bal");
+        String originalContent = Files.readString(fooSource);
+        List<String> lines = Files.readAllLines(fooSource);
+        lines.add("// Modified to invalidate cache");
+        Files.write(fooSource, lines);
+
+        try {
+            runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+            runCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertEquals(secondBuildLog.replace("\r", "").replace("\\", "/"),
+                    getOutput("run-wp-with-consolidator-cache-invalidated.txt"));
+        } finally {
+            Files.writeString(fooSource, originalContent);
+        }
+    }
+
+    @Test(description = "Run consolidator workspace after deleting a dependency package")
+    public void testRunWorkspaceWithConsolidatorDeleteDependency() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-consolidator-deleted-pkg");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs(projectPath.resolve("consolidator").toString());
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true).replace("\r", "");
+            Assert.assertEquals(failureLog, getOutput("run-wp-with-consolidator-dep-deleted.txt"));
+            return;
+        }
+        Assert.fail("Run should fail when dependency package is deleted");
     }
 
     @AfterSuite

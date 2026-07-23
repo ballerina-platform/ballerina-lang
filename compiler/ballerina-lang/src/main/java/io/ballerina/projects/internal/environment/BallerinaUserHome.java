@@ -37,6 +37,7 @@ public final class BallerinaUserHome {
 
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
+    private final MavenPackageRepository centralProxyMavenRepository;
     private final LocalPackageRepository localPackageRepository;
     private Map<String, MavenPackageRepository> mavenCustomRepositories;
     private Map<String, FileSystemRepository> customFSRepositories;
@@ -56,17 +57,27 @@ public final class BallerinaUserHome {
                     remotePackageRepositoryPath);
         }
 
-        this.remotePackageRepository = RemotePackageRepository
-                .from(environment, remotePackageRepositoryPath, readSettings());
+        Settings settings = readSettings();
+        Repository[] repositories = readSettings().getRepositories();
         this.localPackageRepository = createLocalRepository(environment);
-        createCustomRepositories(environment);
+        createCustomRepositories(environment, settings);
+        for (Repository repository : repositories) {
+            if (MAVEN.equals(repository.type()) && repository.proxyCentral()) {
+                centralProxyMavenRepository = MavenPackageRepository.from(environment, remotePackageRepositoryPath,
+                        repository);
+                remotePackageRepository = null;
+                return;
+            }
+        }
+        this.remotePackageRepository = RemotePackageRepository.from(environment, remotePackageRepositoryPath, settings);
+        this.centralProxyMavenRepository = null;
     }
 
-    private void createCustomRepositories(Environment environment) {
+    private void createCustomRepositories(Environment environment, Settings settings) {
         mavenCustomRepositories = new HashMap<>();
         customFSRepositories = new HashMap<>();
         ociCustomRepositories = new HashMap<>();
-        Repository[] repositories = readSettings().getRepositories();
+        Repository[] repositories = settings.getRepositories();
         for (Repository repository : repositories) {
             if (MAVEN.equals(repository.type())) {
                 Path repositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
@@ -75,7 +86,11 @@ public final class BallerinaUserHome {
                     Files.createDirectories(repositoryPath);
                 } catch (IOException exception) {
                     throw new ProjectException("unable to create repository: " +
-                            ProjectConstants.LOCAL_REPOSITORY_NAME);
+                            ProjectConstants.LOCAL_REPOSITORY_NAME, exception);
+                }
+
+                if (repository.proxyCentral()) {
+                    continue;
                 }
 
                 if (!mavenCustomRepositories.containsKey(repository.id())) {
@@ -110,7 +125,7 @@ public final class BallerinaUserHome {
             try {
                 Files.createDirectories(repositoryPath);
             } catch (IOException exception) {
-                throw new ProjectException("unable to create repository: " + repositoryPath);
+                throw new ProjectException("unable to create repository: " + repositoryPath, exception);
             }
 
             if (!customFSRepositories.containsKey(repository.id())) {
@@ -164,6 +179,10 @@ public final class BallerinaUserHome {
         return localPackageRepository;
     }
 
+    public MavenPackageRepository centralProxyMavenRepository() {
+        return centralProxyMavenRepository;
+    }
+
     /**
      * Read Settings.toml to populate the configurations.
      *
@@ -212,7 +231,8 @@ public final class BallerinaUserHome {
         try {
             Files.createDirectories(repositoryPath);
         } catch (IOException exception) {
-            throw new ProjectException("unable to create repository: " + ProjectConstants.LOCAL_REPOSITORY_NAME);
+            throw new ProjectException("unable to create repository: " + ProjectConstants.LOCAL_REPOSITORY_NAME,
+                    exception);
         }
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         return new LocalPackageRepository(environment, repositoryPath, ballerinaShortVersion);
