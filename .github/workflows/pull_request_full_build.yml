@@ -95,7 +95,7 @@ jobs:
 
       - name: Download Module Data
         run: |
-          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/grpc-master-failure-luhee/dependabot/resources/extensions.json
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/master/gradle.properties
 
       - name: Clone Modules
