@@ -58,7 +58,10 @@ public final class ReplShellApplication {
                     .streams(configuration.getInputStream(), configuration.getOutputStream())
                     .jna(false).jansi(false).dumb(true).build();
         } else {
-            terminal = TerminalBuilder.terminal();
+            // Disable the 'exec' terminal provider: in non-interactive/CI environments (no TTY) it
+            // spawns an 'stty' subprocess that blocks indefinitely, hanging the REPL. Real terminals
+            // are still served by the native providers; otherwise jline falls back to a dumb terminal.
+            terminal = TerminalBuilder.builder().exec(false).build();
             configuration.setDumb(terminal.getType().equals(Terminal.TYPE_DUMB));
         }
 
