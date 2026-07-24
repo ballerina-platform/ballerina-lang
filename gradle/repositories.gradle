@@ -1,6 +1,10 @@
 repositories {
     mavenLocal()
     maven {
+        url = 'https://maven3-upgrade.wso2.org/nexus/repository/ballerina-test-releases/'
+    }
+
+    maven {
         url = 'https://maven3-upgrade.wso2.org/nexus/repository/releases/'
     }
 
