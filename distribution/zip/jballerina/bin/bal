@@ -227,6 +227,7 @@ CMD_LINE_ARGS="-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
                -Djava.security.egd=file:/dev/./urandom \
                -Dfile.encoding=UTF8 \
                -Dballerina.target=jvm \
+               -Dorg.jline.terminal.exec=false \
                -Djava.command=$JAVACMD"
 
 if [[ $1 == "native-img" ]]; then
