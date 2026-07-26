@@ -89,13 +89,6 @@
               },
               "accesstoken": {
                 "type": "string"
-              },
-              "path": {
-                "type": "string"
-              },
-              "mode": {
-                "type": "string",
-                "enum": ["hosted", "proxy"]
               }
             }
           }

@@ -528,7 +528,6 @@ public class OciClient {
                 byte[] blobBytes = Blobs.writeToByteArray(blob);
                 String text = new String(blobBytes, StandardCharsets.UTF_8);
                 List<String> parsedVersions = new Gson().fromJson(text, new TypeToken<List<String>>() { }.getType());
-                // Gson returns null (rather than throwing) for an empty or literal-null blob.
                 return parsedVersions != null ? parsedVersions : Collections.emptyList();
             }
             return Collections.emptyList();

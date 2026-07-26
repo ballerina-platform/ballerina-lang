@@ -38,6 +38,7 @@ public final class BallerinaUserHome {
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
     private final MavenPackageRepository centralProxyMavenRepository;
+    private final OCIPackageRepository centralProxyOciRepository;
     private final LocalPackageRepository localPackageRepository;
     private Map<String, MavenPackageRepository> mavenCustomRepositories;
     private Map<String, FileSystemRepository> customFSRepositories;
@@ -61,16 +62,33 @@ public final class BallerinaUserHome {
         Repository[] repositories = readSettings().getRepositories();
         this.localPackageRepository = createLocalRepository(environment);
         createCustomRepositories(environment, settings);
+        Repository centralProxyRepository = null;
         for (Repository repository : repositories) {
-            if (MAVEN.equals(repository.type()) && repository.proxyCentral()) {
-                centralProxyMavenRepository = MavenPackageRepository.from(environment, remotePackageRepositoryPath,
-                        repository);
-                remotePackageRepository = null;
-                return;
+            if (!repository.proxyCentral()
+                    || (!MAVEN.equals(repository.type()) && !OCI.equals(repository.type()))) {
+                continue;
             }
+            if (centralProxyRepository != null) {
+                throw new ProjectException("Multiple repositories cannot be configured to proxy Ballerina central.");
+            }
+            centralProxyRepository = repository;
+        }
+        if (centralProxyRepository != null) {
+            if (MAVEN.equals(centralProxyRepository.type())) {
+                this.centralProxyMavenRepository = MavenPackageRepository.from(environment,
+                        remotePackageRepositoryPath, centralProxyRepository);
+                this.centralProxyOciRepository = null;
+            } else {
+                this.centralProxyOciRepository = OCIPackageRepository.from(environment,
+                        remotePackageRepositoryPath, centralProxyRepository);
+                this.centralProxyMavenRepository = null;
+            }
+            this.remotePackageRepository = null;
+            return;
         }
         this.remotePackageRepository = RemotePackageRepository.from(environment, remotePackageRepositoryPath, settings);
         this.centralProxyMavenRepository = null;
+        this.centralProxyOciRepository = null;
     }
 
     private void createCustomRepositories(Environment environment, Settings settings) {
@@ -107,6 +125,10 @@ public final class BallerinaUserHome {
                 } catch (IOException exception) {
                     throw new ProjectException("unable to create repository: " +
                             repository.id());
+                }
+
+                if (repository.proxyCentral()) {
+                    continue;
                 }
 
                 if (!ociCustomRepositories.containsKey(repository.id())) {
@@ -181,6 +203,10 @@ public final class BallerinaUserHome {
 
     public MavenPackageRepository centralProxyMavenRepository() {
         return centralProxyMavenRepository;
+    }
+
+    public OCIPackageRepository centralProxyOciRepository() {
+        return centralProxyOciRepository;
     }
 
     /**

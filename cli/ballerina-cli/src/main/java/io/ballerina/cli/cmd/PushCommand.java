@@ -208,10 +208,9 @@ public class PushCommand implements BLauncherCmd {
                         CommandUtil.exitError(this.exitWhenFinish);
                         return;
                     }
-                    if (Repository.MODE_PROXY.equals(targetRepository.mode())) {
-                        String errMsg = "cannot push to repository '" + repositoryName + "': it is configured as a "
-                                + "'" + Repository.MODE_PROXY + "' repository in the Settings.toml, which is "
-                                + "read-only.";
+                    if (targetRepository.proxyCentral()) {
+                        String errMsg = "cannot push to repository '" + repositoryName + "': it is configured to "
+                                + "proxy Ballerina Central in the Settings.toml, which is read-only.";
                         CommandUtil.printError(this.errStream, errMsg, null, false);
                         CommandUtil.exitError(this.exitWhenFinish);
                         return;

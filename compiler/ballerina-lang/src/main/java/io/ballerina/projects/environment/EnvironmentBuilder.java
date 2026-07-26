@@ -93,6 +93,9 @@ public class EnvironmentBuilder {
         if (ballerinaCentralRepo == null) {
             ballerinaCentralRepo = ballerinaUserHome.centralProxyMavenRepository();
         }
+        if (ballerinaCentralRepo == null) {
+            ballerinaCentralRepo = ballerinaUserHome.centralProxyOciRepository();
+        }
         environment.addService(LocalPackageRepository.class, ballerinaUserHome.localPackageRepository());
         environment.addService(CustomPkgRepositoryContainer.class, ballerinaUserHome.customPkgRepositoryContainer());
 

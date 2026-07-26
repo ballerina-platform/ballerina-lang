@@ -28,45 +28,40 @@ import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
  */
 public class Repository {
 
-    public static final String MODE_HOSTED = "hosted";
-    public static final String MODE_PROXY = "proxy";
-
     private final String id;
     private final String url;
     private final String username;
     private final String password;
     private final String type;
     private final Path path;
-    private final String mode;
     private final boolean proxyCentral;
 
     private Repository(String id, String url, String username, String password, String remoteType, Path path,
-                       String mode, boolean proxyCentral) {
+                       boolean proxyCentral) {
         this.id = id;
         this.url = url;
         this.username = username;
         this.password = password;
         this.type = remoteType;
         this.path = path;
-        this.mode = (mode == null || mode.isEmpty()) ? MODE_HOSTED : mode;
         this.proxyCentral = proxyCentral;
     }
 
     public static Repository from(String id, String url, String username, String password) {
-        return new Repository(id, url, username, password, MAVEN, null, MODE_HOSTED, false);
+        return new Repository(id, url, username, password, MAVEN, null, false);
     }
 
     public static Repository from(String id, String url, String username, String password, String type, Path path) {
-        return new Repository(id, url, username, password, type, path, MODE_HOSTED, false);
+        return new Repository(id, url, username, password, type, path, false);
     }
 
     public static Repository from(String id, String url, String username, String password, String type, Path path,
-                                  String mode, boolean proxyCentral) {
-        return new Repository(id, url, username, password, type, path, mode, proxyCentral);
+                                  boolean proxyCentral) {
+        return new Repository(id, url, username, password, type, path, proxyCentral);
     }
 
     public static Repository from() {
-        return new Repository("", "", "", "", MAVEN, null, MODE_HOSTED, false);
+        return new Repository("", "", "", "", MAVEN, null, false);
     }
 
     public String id() {
@@ -91,10 +86,6 @@ public class Repository {
 
     public Optional<Path> path() {
         return Optional.ofNullable(path);
-    }
-
-    public String mode() {
-        return mode;
     }
 
     public boolean proxyCentral() {

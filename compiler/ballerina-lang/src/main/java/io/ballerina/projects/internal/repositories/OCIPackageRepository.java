@@ -27,6 +27,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -49,12 +50,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class represents an OCI backed package repository.
@@ -69,19 +73,19 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     private final FileSystemRepository fileSystemRepository;
     private final OciClient ociClient;
     private final String repoLocation;
-    private final boolean hosted;
+    private final boolean isProxyCentral;
 
     public OCIPackageRepository(Environment environment, Path repositoryPath, String distributionVersion,
                                  OciClient ociClient) {
-        this(environment, repositoryPath, distributionVersion, ociClient, true);
+        this(environment, repositoryPath, distributionVersion, ociClient, false);
     }
 
     public OCIPackageRepository(Environment environment, Path repositoryPath, String distributionVersion,
-                                 OciClient ociClient, boolean hosted) {
+                                 OciClient ociClient, boolean isProxyCentral) {
         this.fileSystemRepository = new FileSystemRepository(environment, repositoryPath, distributionVersion);
         this.ociClient = ociClient;
         this.repoLocation = repositoryPath.toString();
-        this.hosted = hosted;
+        this.isProxyCentral = isProxyCentral;
     }
 
     public static OCIPackageRepository from(Environment environment, Path repositoryPath, Repository repository) {
@@ -90,13 +94,14 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         Proxy proxy = settings.getProxy();
         ociClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
-        boolean hosted = Repository.MODE_HOSTED.equals(repository.mode());
-        return new OCIPackageRepository(environment, repositoryPath, ballerinaShortVersion, ociClient, hosted);
+        return new OCIPackageRepository(environment, repositoryPath, ballerinaShortVersion, ociClient,
+                repository.proxyCentral());
     }
 
-
+    // A proxy of Ballerina Central is a pull-through cache whose tags only reflect what has been
+    // pulled so far; versions must come from the index artifact instead.
     private List<String> lookupVersions(String org, String pkg) {
-        return this.hosted ? this.ociClient.listTags(org, pkg) : this.ociClient.pullMetadata(org, pkg);
+        return this.isProxyCentral ? this.ociClient.pullMetadata(org, pkg) : this.ociClient.listTags(org, pkg);
     }
 
     private void printWarning(String message) {
@@ -235,6 +240,14 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     @Override
     public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
                                                                     ResolutionOptions options) {
+        if (isProxyCentral) {
+            return getPackageMetadataProxyCentral(requests, options);
+        }
+        return resolvePackageMetadata(requests, options);
+    }
+
+    private Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
+                                                                       ResolutionOptions options) {
         List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
         for (ResolutionRequest request : requests) {
             Collection<PackageVersion> packageVersions = getPackageVersions(request, options);
@@ -250,6 +263,55 @@ public class OCIPackageRepository extends AbstractPackageRepository {
             descriptorSet.add(PackageMetadataResponse.from(request, resolvedDescriptor, dependencyGraph));
         }
         return descriptorSet;
+    }
+
+    private Collection<PackageMetadataResponse> getPackageMetadataProxyCentral(Collection<ResolutionRequest> requests,
+                                                                               ResolutionOptions options) {
+        if (requests.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Collection<PackageMetadataResponse> cachedPackages =
+                this.fileSystemRepository.getPackageMetadata(requests, options);
+        if (options.offline()) {
+            return cachedPackages;
+        }
+
+        // Requests locked to an exact version and already resolved locally need no registry round trip
+        List<ResolutionRequest> updatedRequests = new ArrayList<>(requests);
+        for (PackageMetadataResponse response : cachedPackages) {
+            if (response.packageLoadRequest().version().isPresent()
+                    && response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
+                    && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+                updatedRequests.remove(response.packageLoadRequest());
+            }
+        }
+        if (updatedRequests.isEmpty()) {
+            return cachedPackages;
+        }
+        return mergeResolution(resolvePackageMetadata(updatedRequests, options), cachedPackages);
+    }
+
+    private Collection<PackageMetadataResponse> mergeResolution(
+            Collection<PackageMetadataResponse> remoteResolution,
+            Collection<PackageMetadataResponse> filesystem) {
+        return new ArrayList<>(Stream.of(filesystem, remoteResolution)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(
+                        PackageMetadataResponse::packageLoadRequest, Function.identity(),
+                        (x, y) -> {
+                            if (ResolutionResponse.ResolutionStatus.UNRESOLVED.equals(y.resolutionStatus())) {
+                                return x;
+                            }
+                            if (ResolutionResponse.ResolutionStatus.UNRESOLVED.equals(x.resolutionStatus())) {
+                                return y;
+                            }
+                            if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor().version())) {
+                                return x;
+                            }
+                            // The registry resolved a version the cache does not have; prefer the latest
+                            return y;
+                        })).values());
     }
 
     @Override

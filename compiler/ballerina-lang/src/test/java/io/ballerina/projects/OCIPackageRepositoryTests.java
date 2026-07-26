@@ -17,9 +17,14 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.repositories.OCIPackageRepository;
+import org.ballerinalang.oci.OciClient;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,6 +41,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 /**
  * Test OCI backed package repository.
  *
@@ -46,7 +55,7 @@ public class OCIPackageRepositoryTests {
     private static class MockOciPackageRepository extends OCIPackageRepository {
 
         public MockOciPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
-            super(environment, cacheDirectory, distributionVersion, null, true);
+            super(environment, cacheDirectory, distributionVersion, null);
         }
 
         @Override
@@ -205,5 +214,75 @@ public class OCIPackageRepositoryTests {
         Collection<PackageVersion> versions = ociPackageRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
         Assert.assertEquals(versions.size(), 0);
+    }
+
+
+    private static final Path PROXY_TEST_REPO =
+            RESOURCE_DIRECTORY.resolve("custom-repo-resources/local-custom-repo");
+
+    private static final Environment PROXY_ENV = new Environment() {
+        @Override
+        public <T> T getService(Class<T> clazz) {
+            return null;
+        }
+    };
+
+    private OCIPackageRepository proxyRepo(OciClient client) {
+        return new OCIPackageRepository(PROXY_ENV, PROXY_TEST_REPO, "1.2.3", client, true);
+    }
+
+    @Test(description = "Proxy: version discovery reads the central index instead of listing tags",
+            groups = {"proxy"})
+    public void testGetPackageVersionsProxyCentralUsesIndex() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.when(mockClient.pullMetadata(anyString(), anyString())).thenReturn(List.of("0.1.0", "0.2.0"));
+
+        OCIPackageRepository repo = proxyRepo(mockClient);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("testorg"), PackageName.from("packA")),
+                PackageDependencyScope.DEFAULT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.2.0")));
+        verify(mockClient, never()).listTags(anyString(), anyString());
+    }
+
+    @Test(description = "Proxy: offline resolution never calls the registry", groups = {"proxy"})
+    public void testGetPackageVersionsProxyCentralOffline() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        OCIPackageRepository repo = proxyRepo(mockClient);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packA"), PackageVersion.from("0.1.0")),
+                PackageDependencyScope.DEFAULT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(true).build());
+
+        verify(mockClient, never()).pullMetadata(anyString(), anyString());
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.1.0")));
+    }
+
+    @Test(description = "Proxy: a HARD-locked version already resolved locally skips the registry round trip",
+            groups = {"proxy"})
+    public void testGetPackageMetadataProxyCentralHardLockSkipsRegistry() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        OCIPackageRepository repo = proxyRepo(mockClient);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packA"), PackageVersion.from("0.1.0")),
+                PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE,
+                PackageLockingMode.HARD);
+
+        Collection<PackageMetadataResponse> responses = repo.getPackageMetadata(
+                List.of(request), ResolutionOptions.builder().setOffline(false).build());
+
+        verify(mockClient, never()).pullMetadata(anyString(), anyString());
+        Assert.assertFalse(responses.isEmpty());
+        Assert.assertEquals(responses.iterator().next().resolutionStatus(),
+                ResolutionResponse.ResolutionStatus.RESOLVED);
     }
 }

@@ -174,10 +174,10 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Push a package to a proxy mode OCI repository")
+    @Test(description = "Push a package to an OCI repository proxying Ballerina Central")
     public void testPushPackageToProxyOciRepo() throws IOException {
-        String expected = "ballerina: cannot push to repository 'oci-proxy': it is configured as a 'proxy' " +
-                "repository in the Settings.toml, which is read-only.\n";
+        String expected = "ballerina: cannot push to repository 'oci-proxy': it is configured to proxy " +
+                "Ballerina Central in the Settings.toml, which is read-only.\n";
 
         Path balaPath = Path.of(
                 "src/test/resources/test-resources/custom-repo/ballina_test-oci1-any-0.1.0.bala");

@@ -76,7 +76,6 @@ public class SettingsBuilder {
     private static final String ID = "id";
     private static final String URL = "url";
     public static final String PATH = "path";
-    private static final String MODE = "mode";
     public static final String PROXY_CENTRAL = "proxyCentral";
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
     private static final int DEFAULT_READ_TIMEOUT = 60;
@@ -191,10 +190,8 @@ public class SettingsBuilder {
                         if (!pathStr.isEmpty()) {
                             path = Path.of(pathStr);
                         }
-                        String mode = getStringOrDefaultFromTomlTableNode(
-                                repositoryNode, MODE, Repository.MODE_HOSTED);
                         repositories.add(Repository.from(
-                                id, url, repositoryUsername, repositoryPassword, repoKey, path, mode, proxyCentral));
+                                id, url, repositoryUsername, repositoryPassword, repoKey, path, proxyCentral));
                     }
                 }
             }

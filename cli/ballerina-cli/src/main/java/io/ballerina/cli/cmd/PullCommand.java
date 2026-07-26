@@ -215,7 +215,8 @@ public class PullCommand implements BLauncherCmd {
             repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
             version = pullFromCentral(settings, orgName, packageName, version);
         } else if (isOciRepository) {
-            Optional<String> pulledVersion = pullFromOCIRepo(settings, orgName, packageName, version);
+            Optional<String> pulledVersion = pullFromOCIRepo(settings, targetRepository, orgName, packageName,
+                    version);
             if (pulledVersion.isEmpty()) {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -414,15 +415,8 @@ public class PullCommand implements BLauncherCmd {
         }
     }
 
-    private Optional<String> pullFromOCIRepo(Settings settings, String orgName, String packageName, String version) {
-        Repository targetRepository = null;
-        for (Repository repository : settings.getRepositories()) {
-            if (repositoryName.equals(repository.id())) {
-                targetRepository = repository;
-                break;
-            }
-        }
-
+    private Optional<String> pullFromOCIRepo(Settings settings, Repository targetRepository, String orgName,
+                                             String packageName, String version) {
         if (targetRepository == null) {
             String errMsg = "unsupported repository '" + repositoryName + "' found. Only " +
                     "repositories mentioned in the Settings.toml are supported.";
@@ -437,9 +431,9 @@ public class PullCommand implements BLauncherCmd {
 
         if (version.equals(Names.EMPTY.getValue())) {
             try {
-                List<String> versions = Repository.MODE_HOSTED.equals(targetRepository.mode())
-                        ? ociClient.listTags(orgName, packageName)
-                        : ociClient.pullMetadata(orgName, packageName);
+                List<String> versions = targetRepository.proxyCentral()
+                        ? ociClient.pullMetadata(orgName, packageName)
+                        : ociClient.listTags(orgName, packageName);
                 if (versions.isEmpty()) {
                     errStream.println("package not found: " + orgName + "/" + packageName);
                     return Optional.empty();
