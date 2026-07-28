@@ -62,6 +62,7 @@ dependencies {
     implementation libs.jacoco.core
     implementation libs.jacoco.report
     implementation libs.commons.io
+    implementation libs.zafarkhaja.jsemver
 
     testImplementation libs.testng
     testImplementation libs.mockito.core

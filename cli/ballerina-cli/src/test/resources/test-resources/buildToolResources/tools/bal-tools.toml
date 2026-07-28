@@ -53,3 +53,17 @@ org = "foo"
 name = "tool_sample_build_tool"
 version = "1.0.0"
 active = false
+
+[[tool]]
+id = "central_test_tool"
+org = "testorg"
+name = "central_test_pkg"
+version = "1.0.0"
+active = true
+
+[[tool]]
+id = "my-tool"
+org = "luheerathan"
+name = "pact1"
+version = "0.1.0"
+active = true

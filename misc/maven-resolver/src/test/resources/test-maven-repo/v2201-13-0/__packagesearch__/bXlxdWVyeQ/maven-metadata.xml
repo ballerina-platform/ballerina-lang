@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.__packagesearch__</groupId>
+  <artifactId>myquery</artifactId>
+  <packages>
+    <package>
+      <org>myorg</org>
+      <name>mypkg</name>
+      <version>1.0.0</version>
+      <summary>A test package</summary>
+      <createdDate>1700000000000</createdDate>
+      <authors>
+        <author>Alice</author>
+        <author>Bob</author>
+      </authors>
+    </package>
+  </packages>
+</metadata>

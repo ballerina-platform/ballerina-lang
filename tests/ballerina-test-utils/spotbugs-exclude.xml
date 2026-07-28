@@ -48,4 +48,9 @@
     <Match>
         <Class name="org.ballerinalang.test.agent.server.WebServer"/>
     </Match>
+    
+    <Match>
+        <Class name="org.ballerinalang.test.agent.server.Request"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>

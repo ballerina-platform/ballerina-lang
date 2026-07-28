@@ -27,6 +27,11 @@ OPTIONS
            Generate a coverage report in the specified format. Only
            'xml' format is supported.
 
+       --min-coverage <percentage>
+           Specify the minimum code coverage percentage required to pass the
+           test run. If the code coverage is below this percentage, the test
+           run will fail.
+
        --debug <port>
            Run in the remote debugging mode.
 

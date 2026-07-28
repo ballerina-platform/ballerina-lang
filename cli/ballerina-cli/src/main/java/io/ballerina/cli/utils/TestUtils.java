@@ -162,6 +162,7 @@ public final class TestUtils {
             projectName = project.currentPackage().packageName().toString();
         }
         packageTestResult.setProjectName(projectName);
+        packageTestResult.finalizeTestResults(project.buildOptions().codeCoverage());
     }
 
     /**
