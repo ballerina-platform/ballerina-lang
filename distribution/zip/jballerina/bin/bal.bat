@@ -202,7 +202,7 @@ if "%1" == "run" if "%~2" == "--debug" if "%jar:~-4%" == ".jar" goto debugJar
 
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% io.ballerina.cli.launcher.Main %CMD%
-goto end
+exit /b %ERRORLEVEL%
 
 :runJar
 for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b
