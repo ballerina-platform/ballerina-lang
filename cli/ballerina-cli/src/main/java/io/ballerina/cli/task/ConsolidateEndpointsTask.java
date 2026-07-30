@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -64,22 +65,53 @@ public class ConsolidateEndpointsTask implements Task {
 
     private static String toYaml(List<EndpointArtifact> endpoints) {
         StringBuilder content = new StringBuilder();
-        content.append(ENDPOINTS_KEY).append(':').append(System.lineSeparator());
-        for (EndpointArtifact endpoint : endpoints) {
+        content.append(ENDPOINTS_KEY).append(':').append('\n');
+        for (EndpointArtifact endpoint : sorted(endpoints)) {
             content.append("  - ").append(NAME_KEY).append(": ").append(quote(endpoint.name()))
-                    .append(System.lineSeparator());
-            content.append("    ").append(PORT_KEY).append(": ").append(endpoint.port()).append(System.lineSeparator());
+                    .append('\n');
+            content.append("    ").append(PORT_KEY).append(": ").append(endpoint.port()).append('\n');
             content.append("    ").append(BASE_PATH_KEY).append(": ").append(quote(endpoint.basePath()))
-                    .append(System.lineSeparator());
+                    .append('\n');
             content.append("    ").append(TYPE_KEY).append(": ").append(quote(endpoint.type()))
-                    .append(System.lineSeparator());
+                    .append('\n');
             content.append("    ").append(SCHEMA_PATH_KEY).append(": ").append(quote(endpoint.schemaPath()))
-                    .append(System.lineSeparator());
+                    .append('\n');
         }
         return content.toString();
     }
 
+    private static List<EndpointArtifact> sorted(List<EndpointArtifact> endpoints) {
+        return endpoints.stream()
+                .sorted(Comparator.comparing(EndpointArtifact::name)
+                        .thenComparing(EndpointArtifact::type)
+                        .thenComparing(EndpointArtifact::basePath)
+                        .thenComparingInt(EndpointArtifact::port)
+                        .thenComparing(EndpointArtifact::schemaPath))
+                .toList();
+    }
+
     private static String quote(String value) {
-        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        StringBuilder escapedValue = new StringBuilder(value.length() + 2);
+        escapedValue.append('"');
+        for (int i = 0; i < value.length(); i++) {
+            char ch = value.charAt(i);
+            switch (ch) {
+                case '\\' -> escapedValue.append("\\\\");
+                case '"' -> escapedValue.append("\\\"");
+                case '\b' -> escapedValue.append("\\b");
+                case '\f' -> escapedValue.append("\\f");
+                case '\n' -> escapedValue.append("\\n");
+                case '\r' -> escapedValue.append("\\r");
+                case '\t' -> escapedValue.append("\\t");
+                default -> {
+                    if (ch < 0x20 || ch == 0x85 || ch == 0x2028 || ch == 0x2029) {
+                        escapedValue.append(String.format("\\u%04X", (int) ch));
+                    } else {
+                        escapedValue.append(ch);
+                    }
+                }
+            }
+        }
+        return escapedValue.append('"').toString();
     }
 }
