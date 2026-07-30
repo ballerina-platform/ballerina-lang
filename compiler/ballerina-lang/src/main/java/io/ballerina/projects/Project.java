@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,7 +43,6 @@ public abstract class Project {
     private final ProjectKind projectKind;
     private Map<PackageManifest.Tool.Field, ToolContext> toolContextMap;
     private final List<CompilerPluginContextIml> compilerPluginContexts;
-    private final List<EndpointArtifact> endpointArtifacts;
     protected WorkspaceProject workspaceProject;
 
     protected Project(ProjectKind projectKind, Path projectPath,
@@ -55,7 +53,6 @@ public abstract class Project {
         this.buildOptions = buildOptions;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.compilerPluginContexts = new ArrayList<>();
-        this.endpointArtifacts = new ArrayList<>();
         this.workspaceProject = workspaceProject;
     }
 
@@ -64,7 +61,6 @@ public abstract class Project {
         this.sourceRoot = projectPath.toAbsolutePath().normalize();
         this.buildOptions = buildOptions;
         this.compilerPluginContexts = new ArrayList<>();
-        this.endpointArtifacts = new ArrayList<>();
     }
 
     void setBuildOptions(BuildOptions buildOptions) {
@@ -167,15 +163,11 @@ public abstract class Project {
     }
 
     public void addEndpointArtifact(EndpointArtifact endpointArtifact) {
-        this.endpointArtifacts.add(endpointArtifact);
-    }
-
-    public void clearEndpointArtifacts() {
-        this.endpointArtifacts.clear();
+        this.currentPackage.packageContext().addEndpointArtifact(endpointArtifact);
     }
 
     public List<EndpointArtifact> endpointArtifacts() {
-        return Collections.unmodifiableList(this.endpointArtifacts);
+        return this.currentPackage.packageContext().endpointArtifacts();
     }
 
     public Optional<WorkspaceProject> workspaceProject () {

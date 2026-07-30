@@ -85,7 +85,7 @@ public class PackageCompilation {
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
-        rootPackageContext.project().clearEndpointArtifacts();
+        rootPackageContext.clearEndpointArtifacts();
         PackageCompilation compilation = new PackageCompilation(rootPackageContext, compilationOptions);
         return compile(compilation);
     }
