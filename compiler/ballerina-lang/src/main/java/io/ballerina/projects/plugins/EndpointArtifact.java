@@ -28,4 +28,15 @@ package io.ballerina.projects.plugins;
  * @since 2201.14.0
  */
 public record EndpointArtifact(String name, int port, String basePath, String type, String schemaPath) {
+
+    public EndpointArtifact {
+        name = defaultIfNull(name);
+        basePath = defaultIfNull(basePath);
+        type = defaultIfNull(type);
+        schemaPath = defaultIfNull(schemaPath);
+    }
+
+    private static String defaultIfNull(String value) {
+        return value == null ? "" : value;
+    }
 }
