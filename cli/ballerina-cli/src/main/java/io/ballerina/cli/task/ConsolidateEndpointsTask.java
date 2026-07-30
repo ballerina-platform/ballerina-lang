@@ -32,7 +32,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 /**
  * Consolidates endpoint metadata emitted by protocol compiler plugins.
  *
- * @since 2201.14.0
+ * @since 2201.13.6
  */
 public class ConsolidateEndpointsTask implements Task {
 

@@ -25,7 +25,7 @@ package io.ballerina.projects.plugins;
  * @param basePath endpoint base path
  * @param type endpoint type
  * @param schemaPath endpoint schema path
- * @since 2201.14.0
+ * @since 2201.13.6
  */
 public record EndpointArtifact(String name, int port, String basePath, String type, String schemaPath) {
 
