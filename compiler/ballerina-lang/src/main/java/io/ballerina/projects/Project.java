@@ -162,10 +162,6 @@ public abstract class Project {
         return this.compilerPluginContexts;
     }
 
-    public void addEndpointArtifact(EndpointArtifact endpointArtifact) {
-        this.currentPackage.packageContext().addEndpointArtifact(endpointArtifact);
-    }
-
     public List<EndpointArtifact> endpointArtifacts() {
         return this.currentPackage.packageContext().endpointArtifacts();
     }

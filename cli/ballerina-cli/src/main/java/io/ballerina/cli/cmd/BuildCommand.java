@@ -544,9 +544,9 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildNeeded))
                 .addTask(new CompileTask(outStream, errStream, false, true,
                         !rebuildNeeded, buildToolDiagnostics))
-                .addTask(new ConsolidateEndpointsTask(), !buildProject.buildOptions().exportEndpoints())
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                         !rebuildNeeded, skipExecutable))
+                .addTask(new ConsolidateEndpointsTask(), !buildProject.buildOptions().exportEndpoints())
                 .addTask(new DumpBuildTimeTask(outStream), !buildProject.buildOptions().dumpBuildTime())
                 .addTask(new CacheArtifactsTask(BUILD_COMMAND, skipExecutable), !rebuildNeeded)
                 .addTask(new CreateFingerprintTask(false, skipExecutable), !rebuildNeeded)
@@ -618,9 +618,9 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true,
                         !rebuildNeeded, buildToolDiagnostics))
-                .addTask(new ConsolidateEndpointsTask(), !buildOptions.exportEndpoints())
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                          !rebuildNeeded, skipExecutable))
+                .addTask(new ConsolidateEndpointsTask(), !buildOptions.exportEndpoints())
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
                 .addTask(new CacheArtifactsTask(BUILD_COMMAND, skipExecutable), !rebuildNeeded || isSingleFile)
                 .addTask(new CreateFingerprintTask(false, skipExecutable), !rebuildNeeded || isSingleFile)

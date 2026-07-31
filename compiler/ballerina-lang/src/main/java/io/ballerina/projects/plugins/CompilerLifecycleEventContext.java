@@ -55,6 +55,13 @@ public interface CompilerLifecycleEventContext {
     public void reportDiagnostic(Diagnostic diagnostic);
 
     /**
+     * Adds endpoint metadata to be exported at the end of the build.
+     *
+     * @param endpointArtifact endpoint metadata to export
+     */
+    public void addEndpointArtifact(EndpointArtifact endpointArtifact);
+
+    /**
      * Returns the path of the generated binary artifact.
      *
      * @return path to the generated artifact.
