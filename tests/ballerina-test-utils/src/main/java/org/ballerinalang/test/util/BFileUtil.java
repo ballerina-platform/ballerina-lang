@@ -116,9 +116,7 @@ public final class BFileUtil {
                     if (exc != null) {
                         throw exc;
                     }
-                    if (Files.exists(dir)) {
-                        Files.delete(dir);
-                    }
+                    Files.deleteIfExists(dir);
                     return FileVisitResult.CONTINUE;
                 }
             });
