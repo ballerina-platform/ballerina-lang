@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.myorg</groupId>
+  <artifactId>filterpkg</artifactId>
+  <versions>
+    <version>
+      <number>1.0.0</number>
+      <platform>java17</platform>
+      <isDeprecated>false</isDeprecated>
+      <ballerinaVersion>2201.13.0</ballerinaVersion>
+    </version>
+    <version>
+      <number>2.0.0</number>
+      <platform>java17</platform>
+      <isDeprecated>false</isDeprecated>
+      <ballerinaVersion>2201.14.0</ballerinaVersion>
+    </version>
+  </versions>
+</metadata>

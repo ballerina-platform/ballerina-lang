@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="maven-resolver-tests">
+    <test name="maven-resolver-unit-tests">
+        <packages>
+            <package name="org.ballerinalang.maven.bala.client"/>
+        </packages>
+    </test>
+</suite>

@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
@@ -24,15 +26,24 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.model.PackageJson;
+import io.ballerina.projects.internal.model.Repository;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -197,5 +208,158 @@ public class BalToolsUtil {
         }
 
         return Optional.of(SemanticVersion.from(packageJson.getBallerinaVersion()));
+    }
+
+    /**
+     * Get the latest compatible tool version from Maven proxy central repository.
+     *
+     * @param toolId        the tool ID (command name)
+     * @param localRepoPath path to the local Maven repository
+     * @return the latest compatible version string
+     * @throws MavenResolverClientException when Maven resolution fails
+     */
+    public static String getLatestToolVersionFromCentralProxy(String toolId, Path localRepoPath)
+            throws MavenResolverClientException {
+        Settings settings = RepoUtils.readSettings();
+        Repository proxyCentralRepo = findProxyCentralRepository(settings);
+        if (proxyCentralRepo == null) {
+            throw new MavenResolverClientException("ProxyCentral repository not configured");
+        }
+        MavenResolverClient mavenClient = new MavenResolverClient();
+        mavenClient.addRepository("", proxyCentralRepo.url(),
+                proxyCentralRepo.username(), proxyCentralRepo.password());
+        mavenClient.setProxy(settings.getProxy().host(), settings.getProxy().port(),
+                settings.getProxy().username(), settings.getProxy().password());
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        List<String> compatibleVersions = mavenClient.getCompatibleToolVersions(
+                toolId, ballerinaVersion, localRepoPath);
+        if (compatibleVersions.isEmpty()) {
+            throw new MavenResolverClientException(
+                    "No compatible versions found for tool: " + toolId);
+        }
+
+        return compatibleVersions.stream()
+                .map(SemanticVersion::from)
+                .max((v1, v2) -> v1.greaterThan(v2) ? 1 : v2.greaterThan(v1) ? -1 : 0)
+                .map(SemanticVersion::toString)
+                .orElseThrow(() -> new MavenResolverClientException(
+                        "No compatible versions found for tool: " + toolId));
+    }
+
+    /**
+     * Check if a repository with proxyCentral enabled is configured in the settings.
+     *
+     * @param settings the settings to search
+     * @return true if a proxyCentral repository is configured, false otherwise
+     */
+    public static boolean hasProxyCentralRepository(Settings settings) {
+        return findProxyCentralRepository(settings) != null;
+    }
+
+    /**
+     * Extract a downloaded tool bala file and place it in the repository location.
+     * The tool bala is downloaded to a temporary location and extracted to the proper repository path.
+     *
+     * @param org             tool organization
+     * @param name            tool name
+     * @param version         tool version
+     * @param localRepoPath   path to the local repository where the tool was downloaded
+     * @throws MavenResolverClientException if extraction fails
+     */
+    public static void extractAndPlaceTool(String org, String name, String version, Path localRepoPath)
+            throws MavenResolverClientException {
+        try {
+            // Construct paths for the downloaded bala and extraction
+            Path balaDownloadPath = localRepoPath.resolve(org).resolve(name).resolve(version)
+                    .resolve(name + "-" + version + ProjectConstants.BALA_EXTENSION);
+            Path temporaryExtractionPath = localRepoPath.resolve(org).resolve(name)
+                    .resolve(version).resolve(ProjectConstants.PLATFORM);
+
+            // Extract the bala file
+            ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
+
+            // Read package.json to get platform info
+            Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
+            try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
+                JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
+                String platform = resultObj.get(ProjectConstants.PLATFORM).getAsString();
+
+                // Determine the final repository path
+                Path toolRepositoryPath = RepoUtils.createAndGetHomeReposPath()
+                        .resolve(ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                        .resolve(ProjectConstants.BALA_DIR_NAME)
+                        .resolve(org)
+                        .resolve(name)
+                        .resolve(version)
+                        .resolve(platform);
+
+                // Copy extracted files to the final repository location
+                FileUtils.copyDirectory(temporaryExtractionPath.toFile(), toolRepositoryPath.toFile());
+            }
+        } catch (IOException e) {
+            throw new MavenResolverClientException("Failed to extract and place tool: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Find a repository with proxyCentral enabled in the settings.
+     *
+     * @param settings the settings to search
+     * @return the proxyCentral repository if found, null otherwise
+     */
+    public static Repository findProxyCentralRepository(Settings settings) {
+        for (Repository repo : settings.getRepositories()) {
+            if (repo.proxyCentral()) {
+                return repo;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Initialize a MavenResolverClient with the proxyCentral repository configured in settings.
+     *
+     * @param settings the settings containing proxy repository configuration
+     * @return the initialized MavenResolverClient with proxyCentral repository added
+     * @throws MavenResolverClientException if no proxyCentral repository is configured
+     */
+    public static MavenResolverClient initializeMavenClientWithProxyRepo(Settings settings)
+            throws MavenResolverClientException {
+        Repository proxyCentralRepo = findProxyCentralRepository(settings);
+        if (proxyCentralRepo == null) {
+            throw new MavenResolverClientException("ProxyCentral repository not configured");
+        }
+        MavenResolverClient client = new MavenResolverClient();
+        client.addRepository("", proxyCentralRepo.url(),
+                proxyCentralRepo.username(), proxyCentralRepo.password());
+        client.setProxy(settings.getProxy().host(), settings.getProxy().port(),
+                settings.getProxy().username(), settings.getProxy().password());
+        return client;
+    }
+
+    /**
+     * Pull a tool package from Maven proxy repository and extract it to the repository location.
+     *
+     * @param org         the tool organization
+     * @param name        the tool name
+     * @param version     the tool version
+     * @param mavenClient the initialized MavenResolverClient
+     * @throws MavenResolverClientException if pulling or extracting fails
+     */
+    public static void pullAndExtractToolFromMavenProxy(String org, String name, String version,
+                                                        MavenResolverClient mavenClient)
+            throws MavenResolverClientException {
+        try {
+            Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-tool-" + System.nanoTime());
+            try {
+                mavenClient.pullPackage(org, name, version, tmpDownloadDirectory.toAbsolutePath().toString());
+                extractAndPlaceTool(org, name, version, tmpDownloadDirectory);
+            } finally {
+                FileUtils.deleteDirectory(tmpDownloadDirectory.toFile());
+            }
+        } catch (IOException e) {
+            throw new MavenResolverClientException("Failed to download tool: " + e.getMessage());
+        }
     }
 }

@@ -38,6 +38,7 @@ dependencies {
     implementation libs.zafarkhaja.jsemver
     implementation libs.commons.io
     implementation libs.squareup.okhttp
+    implementation libs.jetbrains.kotlin.stdlib
     implementation libs.squareup.okio
 
     testImplementation libs.squareup.mock.webserver

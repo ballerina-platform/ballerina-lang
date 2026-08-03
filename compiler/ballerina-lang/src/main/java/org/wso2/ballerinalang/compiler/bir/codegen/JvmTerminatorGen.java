@@ -591,8 +591,7 @@ public class JvmTerminatorGen {
             jvmClass = functionWrapper.fullQualifiedClassName();
             methodDesc = functionWrapper.jvmMethodDescription();
         } else {
-            BPackageSymbol symbol = packageCache.getSymbol(
-                    packageID.orgName.getValue() + "/" + packageID.name.getValue());
+            BPackageSymbol symbol = packageCache.getSymbol(packageID);
             Name decodedMethodName = new Name(Utils.decodeIdentifier(methodName));
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(decodedMethodName).symbol;
             if (funcSymbol == null && JvmCodeGenUtil.isModuleInitializerMethod(decodedMethodName.value)) {
