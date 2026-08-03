@@ -20,7 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageResolution.DependencyResolution;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
-import io.ballerina.projects.plugins.EndpointArtifact;
+import io.ballerina.projects.plugins.EndpointMetaInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +71,7 @@ class PackageContext {
     private PackageResolution packageResolution;
     private BuildToolResolution buildToolResolution;
     private PackageCompilation packageCompilation;
-    private final List<EndpointArtifact> endpointArtifacts;
+    private final List<EndpointMetaInfo> endpointMetadata;
 
     // TODO Try to reuse the unaffected compilations if possible
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
@@ -112,7 +112,7 @@ class PackageContext {
         this.testResourceContextMap = testResourceContextMap;
         this.resourceIds = Collections.unmodifiableCollection(resourceContextMap.keySet());
         this.testResourceIds = Collections.unmodifiableCollection(testResourceContextMap.keySet());
-        this.endpointArtifacts = new ArrayList<>();
+        this.endpointMetadata = new ArrayList<>();
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -381,16 +381,16 @@ class PackageContext {
         }
     }
 
-    void addEndpointArtifact(EndpointArtifact endpointArtifact) {
-        this.endpointArtifacts.add(endpointArtifact);
+    void addEndpointMetadata(EndpointMetaInfo endpointMetadata) {
+        this.endpointMetadata.add(endpointMetadata);
     }
 
-    void clearEndpointArtifacts() {
-        this.endpointArtifacts.clear();
+    void clearEndpointMetadata() {
+        this.endpointMetadata.clear();
     }
 
-    List<EndpointArtifact> endpointArtifacts() {
-        return Collections.unmodifiableList(this.endpointArtifacts);
+    List<EndpointMetaInfo> endpointMetadata() {
+        return Collections.unmodifiableList(this.endpointMetadata);
     }
 
     PackageContext duplicate(Project project) {

@@ -89,5 +89,4 @@ public interface SyntaxNodeAnalysisContext {
      * @param diagnostic the {@code Diagnostic} to be reported
      */
     void reportDiagnostic(Diagnostic diagnostic);
-
 }

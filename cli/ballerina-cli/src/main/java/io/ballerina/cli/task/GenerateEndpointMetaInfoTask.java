@@ -18,8 +18,9 @@
 
 package io.ballerina.cli.task;
 
+import com.google.gson.Gson;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.plugins.EndpointArtifact;
+import io.ballerina.projects.plugins.EndpointMetaInfo;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,11 +32,11 @@ import java.util.List;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 /**
- * Consolidates endpoint metadata emitted by protocol compiler plugins.
+ * Generates endpoint metadata emitted by protocol compiler plugins.
  *
  * @since 2201.13.6
  */
-public class ConsolidateEndpointsTask implements Task {
+public class GenerateEndpointMetaInfoTask implements Task {
 
     private static final String ARTIFACT_DIR = "artifact";
     private static final String ENDPOINTS_FILE = "endpoints.yaml";
@@ -45,28 +46,29 @@ public class ConsolidateEndpointsTask implements Task {
     private static final String BASE_PATH_KEY = "basePath";
     private static final String TYPE_KEY = "type";
     private static final String SCHEMA_PATH_KEY = "schemaPath";
+    private static final Gson GSON = new Gson();
 
     @Override
     public void execute(Project project) {
         try {
-            writeEndpointArtifacts(project.targetDir().resolve(ARTIFACT_DIR), project.endpointArtifacts());
+            writeEndpointMetadata(project.targetDir().resolve(ARTIFACT_DIR), project.endpointMetadata());
         } catch (IOException e) {
-            throw createLauncherException("unable to export endpoint artifacts: " + e.getMessage());
+            throw createLauncherException("unable to export endpoint metadata: " + e.getMessage());
         }
     }
 
-    static void writeEndpointArtifacts(Path artifactDir, List<EndpointArtifact> endpointArtifacts) throws IOException {
-        if (endpointArtifacts.isEmpty()) {
+    static void writeEndpointMetadata(Path artifactDir, List<EndpointMetaInfo> endpointMetadata) throws IOException {
+        if (endpointMetadata.isEmpty()) {
             return;
         }
         Files.createDirectories(artifactDir);
-        Files.writeString(artifactDir.resolve(ENDPOINTS_FILE), toYaml(endpointArtifacts), StandardCharsets.UTF_8);
+        Files.writeString(artifactDir.resolve(ENDPOINTS_FILE), toYaml(endpointMetadata), StandardCharsets.UTF_8);
     }
 
-    private static String toYaml(List<EndpointArtifact> endpoints) {
+    private static String toYaml(List<EndpointMetaInfo> endpoints) {
         StringBuilder content = new StringBuilder();
         content.append(ENDPOINTS_KEY).append(':').append('\n');
-        for (EndpointArtifact endpoint : sorted(endpoints)) {
+        for (EndpointMetaInfo endpoint : sorted(endpoints)) {
             content.append("  - ").append(NAME_KEY).append(": ").append(quote(endpoint.name()))
                     .append('\n');
             content.append("    ").append(PORT_KEY).append(": ").append(endpoint.port()).append('\n');
@@ -80,38 +82,17 @@ public class ConsolidateEndpointsTask implements Task {
         return content.toString();
     }
 
-    private static List<EndpointArtifact> sorted(List<EndpointArtifact> endpoints) {
+    private static List<EndpointMetaInfo> sorted(List<EndpointMetaInfo> endpoints) {
         return endpoints.stream()
-                .sorted(Comparator.comparing(EndpointArtifact::name)
-                        .thenComparing(EndpointArtifact::type)
-                        .thenComparing(EndpointArtifact::basePath)
-                        .thenComparingInt(EndpointArtifact::port)
-                        .thenComparing(EndpointArtifact::schemaPath))
+                .sorted(Comparator.comparing(EndpointMetaInfo::name)
+                        .thenComparing(EndpointMetaInfo::type)
+                        .thenComparing(EndpointMetaInfo::basePath)
+                        .thenComparingInt(EndpointMetaInfo::port)
+                        .thenComparing(EndpointMetaInfo::schemaPath))
                 .toList();
     }
 
     private static String quote(String value) {
-        StringBuilder escapedValue = new StringBuilder(value.length() + 2);
-        escapedValue.append('"');
-        for (int i = 0; i < value.length(); i++) {
-            char ch = value.charAt(i);
-            switch (ch) {
-                case '\\' -> escapedValue.append("\\\\");
-                case '"' -> escapedValue.append("\\\"");
-                case '\b' -> escapedValue.append("\\b");
-                case '\f' -> escapedValue.append("\\f");
-                case '\n' -> escapedValue.append("\\n");
-                case '\r' -> escapedValue.append("\\r");
-                case '\t' -> escapedValue.append("\\t");
-                default -> {
-                    if (ch < 0x20 || ch == 0x85 || ch == 0x2028 || ch == 0x2029) {
-                        escapedValue.append(String.format("\\u%04X", (int) ch));
-                    } else {
-                        escapedValue.append(ch);
-                    }
-                }
-            }
-        }
-        return escapedValue.append('"').toString();
+        return GSON.toJson(value);
     }
 }

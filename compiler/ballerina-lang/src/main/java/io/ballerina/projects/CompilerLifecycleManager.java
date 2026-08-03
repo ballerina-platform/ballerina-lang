@@ -21,7 +21,7 @@ import io.ballerina.projects.plugins.CompilerLifecycleContext;
 import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleListener;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
-import io.ballerina.projects.plugins.EndpointArtifact;
+import io.ballerina.projects.plugins.EndpointMetaInfo;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.nio.file.Path;
@@ -66,6 +66,7 @@ class CompilerLifecycleManager {
     }
 
     public List<Diagnostic> runCodeGeneratedTasks(Path binaryPath, BalCommand balCommand) {
+        this.currentPackage.packageContext().clearEndpointMetadata();
         CompilerLifecycleEventContextImpl lifecycleEventContext =
                 new CompilerLifecycleEventContextImpl(this.currentPackage, this.compilation, balCommand);
         lifecycleEventContext.setBinaryPath(binaryPath);
@@ -220,8 +221,8 @@ class CompilerLifecycleManager {
         }
 
         @Override
-        public void addEndpointArtifact(EndpointArtifact endpointArtifact) {
-            currentPackage.packageContext().addEndpointArtifact(endpointArtifact);
+        public void addEndpointMetadata(EndpointMetaInfo endpointMetadata) {
+            currentPackage.packageContext().addEndpointMetadata(endpointMetadata);
         }
 
         @Override

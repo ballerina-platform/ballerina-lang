@@ -110,7 +110,6 @@ public class PackageCompilation {
         CodeAnalyzerManager codeAnalyzerManager = compilerPluginManager.getCodeAnalyzerManager();
         // At the moment, we run SyntaxNodeAnalysis and CompilationAnalysis tasks at the same time.
         // We can run SyntaxNodeAnalysis for each module compilation in the future.
-        compilation.packageContext().clearEndpointArtifacts();
         List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
         addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
         return compilation;

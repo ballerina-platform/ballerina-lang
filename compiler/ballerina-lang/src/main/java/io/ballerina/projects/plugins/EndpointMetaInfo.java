@@ -27,9 +27,9 @@ package io.ballerina.projects.plugins;
  * @param schemaPath endpoint schema path
  * @since 2201.13.6
  */
-public record EndpointArtifact(String name, int port, String basePath, String type, String schemaPath) {
+public record EndpointMetaInfo(String name, int port, String basePath, String type, String schemaPath) {
 
-    public EndpointArtifact {
+    public EndpointMetaInfo {
         name = defaultIfNull(name);
         basePath = defaultIfNull(basePath);
         type = defaultIfNull(type);

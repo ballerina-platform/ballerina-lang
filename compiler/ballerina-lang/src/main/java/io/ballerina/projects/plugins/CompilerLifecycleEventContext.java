@@ -57,9 +57,9 @@ public interface CompilerLifecycleEventContext {
     /**
      * Adds endpoint metadata to be exported at the end of the build.
      *
-     * @param endpointArtifact endpoint metadata to export
+     * @param endpointMetadata endpoint metadata to export
      */
-    public void addEndpointArtifact(EndpointArtifact endpointArtifact);
+    public void addEndpointMetadata(EndpointMetaInfo endpointMetadata);
 
     /**
      * Returns the path of the generated binary artifact.
