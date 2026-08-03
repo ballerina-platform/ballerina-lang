@@ -207,7 +207,7 @@ exit /b %ERRORLEVEL%
 :runJar
 for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -jar %ARGS%
-goto end
+exit /b %ERRORLEVEL%
 
 :debugJar
 setlocal ENABLEDELAYEDEXPANSION
@@ -226,7 +226,7 @@ for /f "tokens=1,* " %%a in ("%t%") do (
 )
 if defined t goto :loop
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%3 -jar %ARGS%
-goto end
+exit /b %ERRORLEVEL%
 
 :end
 goto endlocal
