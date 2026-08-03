@@ -54,13 +54,14 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/PrivateObjAccess1Project");
 
         Assert.assertEquals(compileResult.getErrorCount(), 5);
-        String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
+        String expectedErrMsg1 = "attempt to initialize object ";
+        String expectedErrMsg2 = " with a non-accessible initialization method";
         int i = 0;
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo.init'", 4, 23);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo.init'", 4, 31);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 12, 40);
-        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson.init'", 16, 47);
-        BAssertUtil.validateError(compileResult, i, expectedErrMsg1 + "'PrivatePerson.init'", 20, 27);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ParentFoo'" + expectedErrMsg2, 4, 23);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'ChildFoo'" + expectedErrMsg2, 4, 31);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'" + expectedErrMsg2, 12, 40);
+        BAssertUtil.validateError(compileResult, i++, expectedErrMsg1 + "'PrivatePerson'" + expectedErrMsg2, 16, 47);
+        BAssertUtil.validateError(compileResult, i, expectedErrMsg1 + "'PrivatePerson'" + expectedErrMsg2, 20, 27);
     }
 
     @Test(description = "Test private object access in public functions")
