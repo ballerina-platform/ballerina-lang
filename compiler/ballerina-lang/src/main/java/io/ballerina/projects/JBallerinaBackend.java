@@ -237,6 +237,7 @@ public class JBallerinaBackend extends CompilerBackend {
         };
 
         EmitResult emitResult = getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+        // TODO: Properly design additional artifact generation as a post-compilation phase in Project API.
         if (!emitResult.diagnostics().hasErrors() && packageContext.project().buildOptions().exportEndpoints() &&
                 (outputType == OutputType.EXEC || outputType == OutputType.GRAAL_EXEC)) {
             writeEndpointMetadata();
