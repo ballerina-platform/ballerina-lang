@@ -20,7 +20,6 @@ package io.ballerina.projects;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ProjectEnvironment;
-import io.ballerina.projects.plugins.EndpointMetaInfo;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -160,10 +159,6 @@ public abstract class Project {
 
     List<CompilerPluginContextIml> compilerPluginContexts() {
         return this.compilerPluginContexts;
-    }
-
-    public List<EndpointMetaInfo> endpointMetadata() {
-        return this.currentPackage.packageContext().endpointMetadata();
     }
 
     public Optional<WorkspaceProject> workspaceProject () {

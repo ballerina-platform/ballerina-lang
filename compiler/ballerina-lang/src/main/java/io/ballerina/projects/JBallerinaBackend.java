@@ -17,12 +17,14 @@
  */
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.plugins.EndpointMetaInfo;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -89,9 +91,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FIL
 //    todo that, we would have to move PackageContext class into an internal package.
 public class JBallerinaBackend extends CompilerBackend {
 
+    private static final String ARTIFACT_DIR = "artifact";
+    private static final String ENDPOINTS_FILE = "endpoints.yaml";
+    private static final String ENDPOINTS_KEY = "endpoints";
+    private static final String NAME_KEY = "name";
+    private static final String PORT_KEY = "port";
+    private static final String BASE_PATH_KEY = "basePath";
+    private static final String TYPE_KEY = "type";
+    private static final String SCHEMA_PATH_KEY = "schemaPath";
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
+    private static final Gson GSON = new Gson();
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
     public static final String JAR_NAME_SEPARATOR = "-";
@@ -232,7 +243,12 @@ public class JBallerinaBackend extends CompilerBackend {
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
-        return getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+        EmitResult emitResult = getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+        if (!emitResult.diagnostics().hasErrors() && packageContext.project().buildOptions().exportEndpoints() &&
+                (outputType == OutputType.EXEC || outputType == OutputType.GRAAL_EXEC)) {
+            writeEndpointMetadata();
+        }
+        return emitResult;
     }
 
     public EmitResult emit(TestEmitArgs testEmitArgs) {
@@ -268,6 +284,52 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // TODO handle the EmitResult properly
         return new EmitResult(true, new DefaultDiagnosticResult(emitDiagnostics), generatedArtifact);
+    }
+
+    private void writeEndpointMetadata() {
+        List<EndpointMetaInfo> endpointMetadata = packageContext.endpointMetadata();
+        if (endpointMetadata.isEmpty()) {
+            return;
+        }
+
+        Path artifactDir = packageContext.project().targetDir().resolve(ARTIFACT_DIR);
+        try {
+            Files.createDirectories(artifactDir);
+            Files.writeString(artifactDir.resolve(ENDPOINTS_FILE), toYaml(endpointMetadata), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new ProjectException("unable to export endpoint metadata: " + e.getMessage(), e);
+        }
+    }
+
+    private static String toYaml(List<EndpointMetaInfo> endpoints) {
+        StringBuilder content = new StringBuilder();
+        content.append(ENDPOINTS_KEY).append(':').append('\n');
+        for (EndpointMetaInfo endpoint : sorted(endpoints)) {
+            content.append("  - ").append(NAME_KEY).append(": ").append(quote(endpoint.name()))
+                    .append('\n');
+            content.append("    ").append(PORT_KEY).append(": ").append(endpoint.port()).append('\n');
+            content.append("    ").append(BASE_PATH_KEY).append(": ").append(quote(endpoint.basePath()))
+                    .append('\n');
+            content.append("    ").append(TYPE_KEY).append(": ").append(quote(endpoint.type()))
+                    .append('\n');
+            content.append("    ").append(SCHEMA_PATH_KEY).append(": ").append(quote(endpoint.schemaPath()))
+                    .append('\n');
+        }
+        return content.toString();
+    }
+
+    private static List<EndpointMetaInfo> sorted(List<EndpointMetaInfo> endpoints) {
+        return endpoints.stream()
+                .sorted(Comparator.comparing(EndpointMetaInfo::name)
+                        .thenComparing(EndpointMetaInfo::type)
+                        .thenComparing(EndpointMetaInfo::basePath)
+                        .thenComparingInt(EndpointMetaInfo::port)
+                        .thenComparing(EndpointMetaInfo::schemaPath))
+                .toList();
+    }
+
+    private static String quote(String value) {
+        return GSON.toJson(value);
     }
 
     public List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {

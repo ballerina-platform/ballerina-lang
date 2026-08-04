@@ -25,7 +25,6 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
-import io.ballerina.cli.task.GenerateEndpointMetaInfoTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -546,7 +545,6 @@ public class BuildCommand implements BLauncherCmd {
                         !rebuildNeeded, buildToolDiagnostics))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                         !rebuildNeeded, skipExecutable))
-                .addTask(new GenerateEndpointMetaInfoTask(), !buildProject.buildOptions().exportEndpoints())
                 .addTask(new DumpBuildTimeTask(outStream), !buildProject.buildOptions().dumpBuildTime())
                 .addTask(new CacheArtifactsTask(BUILD_COMMAND, skipExecutable), !rebuildNeeded)
                 .addTask(new CreateFingerprintTask(false, skipExecutable), !rebuildNeeded)
@@ -620,7 +618,6 @@ public class BuildCommand implements BLauncherCmd {
                         !rebuildNeeded, buildToolDiagnostics))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                          !rebuildNeeded, skipExecutable))
-                .addTask(new GenerateEndpointMetaInfoTask(), !buildOptions.exportEndpoints())
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
                 .addTask(new CacheArtifactsTask(BUILD_COMMAND, skipExecutable), !rebuildNeeded || isSingleFile)
                 .addTask(new CreateFingerprintTask(false, skipExecutable), !rebuildNeeded || isSingleFile)
