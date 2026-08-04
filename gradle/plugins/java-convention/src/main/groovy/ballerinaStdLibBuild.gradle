@@ -183,6 +183,17 @@ tasks.register('copyBallerinaProject', Copy) {
     into project.buildDir.toString() + "/ballerina-src"
 }
 
+tasks.register('ensureDependenciesToml') {
+    doLast {
+        def dependenciesToml = file("${project.buildDir}/ballerina-src/Dependencies.toml")
+        if (!dependenciesToml.exists()) {
+            dependenciesToml.createNewFile()
+        }
+    }
+}
+
+copyBallerinaProject.finalizedBy(ensureDependenciesToml)
+
 tasks.register('ballerinaLangLibBuild', BallerinaLangStdLibBuildTask) {
     classpath = files(project.configurations.balaCreat, jar.archiveFile)
     outputJarFileName = jarFileName
