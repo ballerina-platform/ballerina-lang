@@ -23,6 +23,8 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.plugins.EndpointMetaInfo;
+import io.ballerina.projects.util.EndpointMetadataYamlUtil;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -89,6 +91,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FIL
 //    todo that, we would have to move PackageContext class into an internal package.
 public class JBallerinaBackend extends CompilerBackend {
 
+    private static final String ARTIFACT_DIR = "artifact";
+    private static final String ENDPOINTS_FILE = "endpoints.yaml";
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
@@ -232,7 +236,13 @@ public class JBallerinaBackend extends CompilerBackend {
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
-        return getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+        EmitResult emitResult = getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+        // TODO: Properly design additional artifact generation as a post-compilation phase in Project API.
+        if (!emitResult.diagnostics().hasErrors() && packageContext.project().buildOptions().exportEndpoints() &&
+                (outputType == OutputType.EXEC || outputType == OutputType.GRAAL_EXEC)) {
+            writeEndpointMetadata();
+        }
+        return emitResult;
     }
 
     public EmitResult emit(TestEmitArgs testEmitArgs) {
@@ -268,6 +278,22 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // TODO handle the EmitResult properly
         return new EmitResult(true, new DefaultDiagnosticResult(emitDiagnostics), generatedArtifact);
+    }
+
+    private void writeEndpointMetadata() {
+        List<EndpointMetaInfo> endpointMetadata = packageContext.endpointMetadata();
+        if (endpointMetadata.isEmpty()) {
+            return;
+        }
+
+        Path artifactDir = packageContext.project().targetDir().resolve(ARTIFACT_DIR);
+        try {
+            Files.createDirectories(artifactDir);
+            Files.writeString(artifactDir.resolve(ENDPOINTS_FILE), EndpointMetadataYamlUtil.toYaml(endpointMetadata),
+                    StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new ProjectException("unable to export endpoint metadata: " + e.getMessage(), e);
+        }
     }
 
     public List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {
