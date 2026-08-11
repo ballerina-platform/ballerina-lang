@@ -89,7 +89,7 @@ public final class PackageResolutionTestCaseBuilder {
                 filePaths.expectedGraphSoftPath().orElse(null));
 
         BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
-                packageManifest, packageResolver.localRepo(), new HashMap<>(), new HashMap<>(), false);
+                packageManifest, packageResolver.localRepo(), new HashMap<>(), false);
         ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
                 getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
                 blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());
@@ -126,7 +126,7 @@ public final class PackageResolutionTestCaseBuilder {
                 filePaths.expectedGraphSoftPath().orElse(null));
 
         BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
-                packageManifest, packageResolver.localRepo(), new HashMap<>(), new HashMap<>(), false);
+                packageManifest, packageResolver.localRepo(), new HashMap<>(), false);
         ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
                 getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
                 blendedManifest, packageResolver, ResolutionOptions.builder().setPackageLockingMode(lockingMode)

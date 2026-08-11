@@ -65,8 +65,7 @@ public class BlendedManifest {
     public static BlendedManifest from(DependencyManifest dependencyManifest,
                                        PackageManifest packageManifest,
                                        AbstractPackageRepository localPackageRepository,
-                                       Map<String, MavenPackageRepository> mavenPackageRepositoryMap,
-                                       Map<String, OCIPackageRepository> ociPackageRepositoryMap,
+                                       Map<String, PackageRepository> customRepositoryMap,
                                        boolean offline) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
@@ -90,8 +89,7 @@ public class BlendedManifest {
 
             if (depInPkgManifest.repository() != null) {
                 if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) &&
-                    !mavenPackageRepositoryMap.containsKey(depInPkgManifest.repository()) &&
-                    !ociPackageRepositoryMap.containsKey(depInPkgManifest.repository())) {
+                    !customRepositoryMap.containsKey(depInPkgManifest.repository())) {
                     var diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.CUSTOM_REPOSITORY_NOT_FOUND.diagnosticId(),
                             "Provided custom repository (" + depInPkgManifest.repository() +
@@ -117,10 +115,8 @@ public class BlendedManifest {
                     diagnostics.add(diagnostic);
                     continue;
                 }
-                if (ociPackageRepositoryMap.containsKey(depInPkgManifest.repository())) {
-                    targetRepository = ociPackageRepositoryMap.get(depInPkgManifest.repository());
-                } else if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                    targetRepository = mavenPackageRepositoryMap.get(depInPkgManifest.repository());
+                if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                    targetRepository = customRepositoryMap.get(depInPkgManifest.repository());
                 }
             } else {
                 Collection<String> moduleNames = existingDepOptional.isPresent() ?

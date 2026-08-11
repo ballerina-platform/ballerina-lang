@@ -49,18 +49,16 @@ import org.ballerinalang.oci.model.TokenResponse;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -69,8 +67,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,31 +77,38 @@ import java.util.regex.Pattern;
 public class OciClient {
 
     private static final String BALA_EXTENSION = ".bala";
-    private static final Logger LOGGER = Logger.getLogger(OciClient.class.getName());
     private static final int MAX_PULL_RETRIES = 3;
     private static final long INITIAL_RETRY_DELAY_MS = 1000;
     private static final Pattern VERSION_TAG_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$");
     private static final Pattern LINK_NEXT_PATTERN = Pattern.compile("<([^>]+)>;\\s*rel=\"next\"");
     private static final Pattern AUTH_CHALLENGE_PARAM_PATTERN = Pattern.compile("(\\w+)=\"([^\"]*)\"");
-    private static final Pattern LOOPBACK_IPV4_PATTERN = Pattern.compile("127(?:\\.\\d{1,3}){3}");
 
     private String registryUrl;
     private String username;
     private String password;
+    private final boolean insecureRegistry;
+    private final PrintStream outStream;
 
     /**
      * Creates an OCI registry client.
+     *
+     * <p>The URL scheme selects the transport: {@code http://} marks the registry as insecure, so plain HTTP and
+     * credentials over HTTP are permitted. Any other form, including a scheme-less URL, is treated as a secure
+     * registry reached over HTTPS.
      *
      * @param registryUrl registry host and base path (any URL scheme is stripped)
      * @param username    registry username
      * @param password    registry password or access token
      */
     public OciClient(String registryUrl, String username, String password) {
+        this.insecureRegistry = registryUrl != null
+                && registryUrl.toLowerCase(Locale.ROOT).startsWith("http://");
         if (registryUrl != null) {
-            this.registryUrl = registryUrl.replaceFirst("^(http://|https://)", "");
+            this.registryUrl = registryUrl.replaceFirst("^(?i)(http://|https://)", "");
         }
         this.username = username;
         this.password = password;
+        this.outStream = System.out;
     }
 
     /**
@@ -142,7 +145,7 @@ public class OciClient {
      * Runs an action with retries and exponential backoff.
      *
      * @param action        action to run
-     * @param operationName operation name used in log messages
+     * @param operationName operation name used in retry messages
      * @throws Exception the last failure once retries are exhausted
      */
     private void withRetry(Callable<Void> action, String operationName) throws Exception {
@@ -157,9 +160,8 @@ public class OciClient {
                 if (attempt >= MAX_PULL_RETRIES) {
                     throw e;
                 }
-                LOGGER.log(Level.WARNING,
-                        "[OciClient] {0} failed (attempt {1}/{2}), retrying in {3}ms: {4}",
-                        new Object[]{operationName, attempt, MAX_PULL_RETRIES, delayMs, e.getMessage()});
+                outStream.println(operationName + " failed (attempt " + attempt + "/"
+                        + MAX_PULL_RETRIES + "), retrying in " + delayMs + "ms: " + e.getMessage());
                 try {
                     Thread.sleep(delayMs);
                 } catch (InterruptedException ie) {
@@ -190,7 +192,6 @@ public class OciClient {
         }
         try {
             String repositoryReference = repositoryReference(org, pkg);
-            ImageReference imageRef = ImageReference.parse(repositoryReference);
             String imageReference = repositoryReference + ":" + version;
             Jib.fromScratch()
                     .setFormat(ImageFormat.OCI)
@@ -198,7 +199,7 @@ public class OciClient {
                     .containerize(
                             Containerizer.to(RegistryImage.named(imageReference)
                                             .addCredential(username, password))
-                                    .setAllowInsecureRegistries(isLoopbackRegistry(imageRef))
+                                    .setAllowInsecureRegistries(insecureRegistry)
                                     .setToolName("OciClient")
 
                     );
@@ -224,69 +225,12 @@ public class OciClient {
     }
 
     /**
-     * Reports whether a registry is reachable only on the local machine (e.g. a local Nexus/Harbor instance).
+     * Returns the URL scheme to contact the registry with.
      *
-     *
-     * @param imageRef the parsed image reference for the registry being contacted
-     * @return true if the registry host is, or resolves only to, a loopback address
+     * @return {@code http://} for an insecure registry, {@code https://} otherwise
      */
-    private static boolean isLoopbackRegistry(ImageReference imageRef) {
-        return resolvesToLoopback(registryHost(imageRef.getRegistry()));
-    }
-
-    /**
-     * Checks whether a host is a literal loopback address or resolves exclusively to loopback addresses.
-     *
-     * @param host the bare hostname or IP address
-     * @return true if the host is, or resolves only to, a loopback address
-     */
-    private static boolean resolvesToLoopback(String host) {
-        if (host == null || host.isEmpty()) {
-            return false;
-        }
-        if (isLoopbackHost(host)) {
-            return true;
-        }
-        try {
-            return Arrays.stream(InetAddress.getAllByName(host)).allMatch(InetAddress::isLoopbackAddress);
-        } catch (UnknownHostException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Strips an optional {@code :port} suffix from a {@code host} or {@code [ipv6]:port} value.
-     *
-     * @param registry the registry authority, as returned by {@link ImageReference#getRegistry()}
-     * @return the bare host, without a port
-     */
-    private static String registryHost(String registry) {
-        if (registry == null) {
-            return "";
-        }
-        if (registry.startsWith("[")) {
-            int end = registry.indexOf(']');
-            return end > 0 ? registry.substring(1, end) : registry;
-        }
-        int colon = registry.lastIndexOf(':');
-        if (colon > 0 && registry.substring(colon + 1).chars().allMatch(Character::isDigit)) {
-            return registry.substring(0, colon);
-        }
-        return registry;
-    }
-
-    /**
-     * Checks whether a host refers to the local machine.
-     *
-     * @param host the bare hostname or IP address
-     * @return true if {@code host} is {@code localhost}, an IPv4 127.0.0.0/8 address, or the
-     *         IPv6 loopback address
-     */
-    private static boolean isLoopbackHost(String host) {
-        return host.equalsIgnoreCase("localhost")
-                || host.equals("::1")
-                || host.equals("0:0:0:0:0:0:0:1")
-                || LOOPBACK_IPV4_PATTERN.matcher(host).matches();
+    private String registryScheme() {
+        return insecureRegistry ? "http://" : "https://";
     }
 
     /**
@@ -408,8 +352,7 @@ public class OciClient {
         ImageReference imageRef = ImageReference.parse(repositoryReference(org, name));
         Consumer<LogEvent> jibLogger = logEvent -> { };
 
-        boolean insecure = isLoopbackRegistry(imageRef);
-        FailoverHttpClient httpClient = new FailoverHttpClient(insecure, insecure, jibLogger);
+        FailoverHttpClient httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, jibLogger);
         try {
             RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
                         imageRef.getRepository(), httpClient)
@@ -450,7 +393,7 @@ public class OciClient {
                                                     + displayLocation + "]",
                                             totalSizeInKB,
                                             1000,
-                                            System.out,
+                                            outStream,
                                             ProgressBarStyle.ASCII,
                                             " KB",
                                             1
@@ -505,8 +448,7 @@ public class OciClient {
             ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
             Consumer<LogEvent> jibLogger = logEvent -> { };
 
-            boolean insecure = isLoopbackRegistry(imageRef);
-            httpClient = new FailoverHttpClient(insecure, insecure, jibLogger);
+            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, jibLogger);
 
             RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
                         imageRef.getRepository(), httpClient)
@@ -557,10 +499,9 @@ public class OciClient {
         FailoverHttpClient httpClient = null;
         try {
             ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
-            boolean insecure = isLoopbackRegistry(imageRef);
-            httpClient = new FailoverHttpClient(insecure, insecure, logEvent -> { });
+            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, logEvent -> { });
             URL url = URI.create(
-                    "https://" + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
+                    registryScheme() + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
                             + "/tags/list").toURL();
             URL registryOrigin = url;
             Authorization authorization = Authorization.fromBasicCredentials(username, password);
@@ -635,7 +576,8 @@ public class OciClient {
         } catch (IllegalArgumentException e) {
             throw new OciClientException("invalid token realm in bearer challenge: " + realm, e);
         }
-        if (!"https".equalsIgnoreCase(realmUri.getScheme()) && !resolvesToLoopback(realmUri.getHost())) {
+        // Credentials may only leave over plain HTTP when the registry was explicitly configured as insecure.
+        if (!"https".equalsIgnoreCase(realmUri.getScheme()) && !insecureRegistry) {
             throw new OciClientException("refusing to send credentials to a non-HTTPS token realm: " + realm);
         }
 

@@ -455,6 +455,7 @@ public class PullCommand implements BLauncherCmd {
         Path tmpDownloadDirectory = null;
         boolean success = true;
         try {
+            ensureWritable(ociBalaCachePath);
             Files.createDirectories(ociBalaCachePath);
             tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
 
@@ -476,6 +477,10 @@ public class PullCommand implements BLauncherCmd {
         } catch (OciClientException e) {
             errStream.println("unexpected error occurred while pulling package: " + e.getMessage());
             success = false;
+        } catch (IOException e) {
+            errStream.println("failed to create package repository in bala cache at '" + ociBalaCachePath
+                    + "': " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            success = false;
         } catch (Exception e) {
             errStream.println("unexpected error occurred while creating package repository in bala cache: "
                     + e.getMessage());
@@ -486,6 +491,17 @@ public class PullCommand implements BLauncherCmd {
             }
         }
         return success ? Optional.of(version) : Optional.empty();
+    }
+
+
+    private void ensureWritable(Path targetPath) throws IOException {
+        Path existingAncestor = targetPath;
+        while (existingAncestor != null && !Files.exists(existingAncestor)) {
+            existingAncestor = existingAncestor.getParent();
+        }
+        if (existingAncestor != null && !Files.isWritable(existingAncestor)) {
+            throw new IOException("no write access to directory '" + existingAncestor + "'");
+        }
     }
 
     private boolean packageExistsWithPlatform(Path versionPath) {

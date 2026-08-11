@@ -4,6 +4,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
@@ -194,7 +195,9 @@ public final class BallerinaUserHome {
     }
 
     public CustomPkgRepositoryContainer customPkgRepositoryContainer() {
-        return new CustomPkgRepositoryContainer(mavenCustomRepositories, ociCustomRepositories);
+        Map<String, PackageRepository> customRepositories = new HashMap<>(mavenCustomRepositories);
+        customRepositories.putAll(ociCustomRepositories);
+        return new CustomPkgRepositoryContainer(customRepositories);
     }
 
     public LocalPackageRepository localPackageRepository() {

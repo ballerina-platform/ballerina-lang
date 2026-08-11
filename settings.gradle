@@ -92,6 +92,7 @@ include(':jballerina-tools')
 include(':nballerina-tools')
 include(':jballerina-integration-test')
 include(':central-client')
+include(':oci-client')
 include(':testerina:testerina-runtime')
 include(':testerina:report-tools')
 include(':testerina-integration-test')
@@ -145,7 +146,6 @@ include(':project-api-test-artifact:pkg-provided-compiler-plugin-with-shared-dat
 include(':project-api-test-artifact:pkg-provided-compiler-plugin-with-resource-addition')
 include(':identifier-util')
 include(':ballerina-profiler')
-include(':misc:oci-client')
 
 //include(':ballerina-libs')
 include(':bir-spec')
@@ -224,6 +224,7 @@ project(':jballerina-benchmark-test').projectDir = file('tests/jballerina-benchm
 project(':jballerina-semtype-port-test').projectDir = file('tests/jballerina-semtype-port-test')
 project(':ballerina-compiler-plugin-test').projectDir = file('tests/ballerina-compiler-plugin-test')
 project(':central-client').projectDir = file('cli/central-client')
+project(':oci-client').projectDir = file('cli/oci-client')
 project(':ballerina-cli').projectDir = file('cli/ballerina-cli')
 project(':diagram-util').projectDir = file('misc/diagram-util')
 project(':syntax-api-calls-gen').projectDir = file('misc/syntax-api-calls-gen')
@@ -277,7 +278,6 @@ project(':ls-extensions:partial-parser').projectDir = file('misc/ls-extensions/m
 project(':ls-extensions:trigger-service').projectDir = file('misc/ls-extensions/modules/trigger-service')
 project(':ls-extensions:bal-shell-service').projectDir = file('misc/ls-extensions/modules/bal-shell-service')
 project(':ballerina-profiler').projectDir = file('bvm/ballerina-profiler')
-project(':misc:oci-client').projectDir = file('misc/oci-client')
 
 buildCache {
     remote(HttpBuildCache) {

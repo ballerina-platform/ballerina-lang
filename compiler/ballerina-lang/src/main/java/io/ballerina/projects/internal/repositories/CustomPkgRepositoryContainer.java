@@ -15,7 +15,8 @@
  */
 package io.ballerina.projects.internal.repositories;
 
-import java.util.Collections;
+import io.ballerina.projects.environment.PackageRepository;
+
 import java.util.Map;
 
 /**
@@ -25,23 +26,13 @@ import java.util.Map;
  */
 
 public class CustomPkgRepositoryContainer {
-    Map<String, MavenPackageRepository> customPackageRepositories;
-    Map<String, OCIPackageRepository> customOCIRepositories;
-    public CustomPkgRepositoryContainer(Map<String, MavenPackageRepository> customPackageRepositories) {
-        this(customPackageRepositories, Collections.emptyMap());
+    Map<String, PackageRepository> customRepositories;
+
+    public CustomPkgRepositoryContainer(Map<String, PackageRepository> customRepositories) {
+        this.customRepositories = customRepositories;
     }
 
-    public CustomPkgRepositoryContainer(Map<String, MavenPackageRepository> customPackageRepositories,
-                                        Map<String, OCIPackageRepository> customOCIRepositories) {
-        this.customPackageRepositories = customPackageRepositories;
-        this.customOCIRepositories = customOCIRepositories;
-    }
-
-    public Map<String, MavenPackageRepository> getCustomPackageRepositories() {
-        return customPackageRepositories;
-    }
-
-    public Map<String, OCIPackageRepository> getCustomOCIRepositories() {
-        return customOCIRepositories;
+    public Map<String, PackageRepository> getCustomRepositories() {
+        return customRepositories;
     }
 }
