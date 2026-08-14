@@ -597,35 +597,65 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         int stmtCount = -1;
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
-            boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null, funcBodyEnv, data);
-            if (analyzedStmt) {
-                continue;
+            if (analyzeBlockStmtFollowingIfWithoutElse(body.stmts, stmtCount, funcBodyEnv, data)) {
+                break;
             }
             data.env = funcBodyEnv;
             analyzeStmt(stmt, data);
         }
-        // Remove explicitly added function body env if exists
         data.prevEnvs.remove(funcBodyEnv);
         resetNotCompletedNormally(data);
     }
 
-    private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement,
-                                                           SymbolEnv currentEnv, AnalyzerData data) {
-        if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
-                && ((BLangIf) prevStatement).elseStmt == null && data.notCompletedNormally) {
-            BLangIf ifStmt = (BLangIf) prevStatement;
-            data.notCompletedNormally =
-                    ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
-            // Explicitly add block env since it's required for resetting the types
-            data.prevEnvs.push(currentEnv);
-            // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
-            data.env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
-            analyzeStmt(currentStmt, data);
-            data.prevEnvs.pop();
-            return true;
+    private boolean analyzeBlockStmtFollowingIfWithoutElse(List<BLangStatement> stmts, int startIndex,
+                                                           SymbolEnv blockEnv, AnalyzerData data) {
+        BLangStatement prevStatement = startIndex > 0 ? stmts.get(startIndex - 1) : null;
+        if (prevStatement == null || prevStatement.getKind() != NodeKind.IF || !data.notCompletedNormally) {
+            return false;
         }
-        return false;
+
+        data.prevEnvs.push(blockEnv);
+        SymbolEnv env = blockEnv;
+
+        for (int i = startIndex; i < stmts.size(); i++) {
+            BLangStatement currentStmt = stmts.get(i);
+            BLangStatement prev = i == startIndex ? prevStatement : stmts.get(i - 1);
+
+            if (prev.getKind() == NodeKind.IF && data.notCompletedNormally) {
+                BLangIf ifStmt = (BLangIf) prev;
+                if (ifStmt.elseStmt == null || endsWithEmptyElse(ifStmt)) {
+                    data.notCompletedNormally =
+                            ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+                    if (ifStmt.elseStmt == null) {
+                        env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, env, false);
+                    } else {
+                        BLangIf currentIf = ifStmt;
+                        while (currentIf != null) {
+                            currentIf.expr.narrowedTypeInfo = null;
+                            env = typeNarrower.evaluateFalsity(currentIf.expr, currentStmt, env, false);
+                            currentIf = (currentIf.elseStmt != null && currentIf.elseStmt.getKind() == NodeKind.IF)
+                                    ? (BLangIf) currentIf.elseStmt : null;
+                        }
+                    }
+                }
+            }
+
+            data.env = env;
+            analyzeStmt(currentStmt, data);
+        }
+
+        data.prevEnvs.pop();
+        return true;
+    }
+
+    private boolean endsWithEmptyElse(BLangIf ifStmt) {
+        BLangStatement elseStmt = ifStmt.elseStmt;
+        while (elseStmt != null && elseStmt.getKind() == NodeKind.IF) {
+            elseStmt = ((BLangIf) elseStmt).elseStmt;
+        }
+        return elseStmt != null
+                && elseStmt.getKind() == NodeKind.BLOCK
+                && ((BLangBlockStmt) elseStmt).stmts.isEmpty();
     }
 
     @Override
@@ -2168,19 +2198,27 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
-    // Statements
     @Override
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
         data.env = SymbolEnv.createBlockEnv(blockNode, data.env);
+        SymbolEnv blockEnv = data.env;
         int stmtCount = -1;
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
-            boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null, data.env, data);
-            if (analyzedStmt) {
-                continue;
+            if (analyzeBlockStmtFollowingIfWithoutElse(blockNode.stmts, stmtCount, blockEnv, data)) {
+                break;
             }
             analyzeStmt(stmt, data);
+        }
+
+        if (data.notCompletedNormally && !blockNode.stmts.isEmpty()) {
+            BLangStatement lastStmt = blockNode.stmts.get(blockNode.stmts.size() - 1);
+            if (lastStmt.getKind() == NodeKind.IF) {
+                BLangIf lastIf = (BLangIf) lastStmt;
+                if (lastIf.elseStmt == null || endsWithEmptyElse(lastIf)) {
+                    data.notCompletedNormally = false;
+                }
+            }
         }
     }
 
@@ -2842,8 +2880,16 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangStatement elseStmt = ifNode.elseStmt;
             data.env = elseEnv;
             analyzeStmt(elseStmt, data);
+
             if (elseStmt.getKind() == NodeKind.IF) {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
+            } else {
+                boolean elseCompletesNormally = !data.notCompletedNormally;
+                if (elseCompletesNormally) {
+                    data.notCompletedNormally = ifCompletionStatus;
+                } else {
+                    data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
+                }
             }
         }
         data.narrowedTypeInfo = prevNarrowedTypeInfo;

@@ -429,3 +429,32 @@ function test33(2|"foo"|"bar"? x) {
 
     int _ = x; // error incompatible types: expected 'int', found '(bar|2|foo)?'
 }
+
+function test34(int|error? x) returns int {
+    if x is error {
+        return -1;
+    } else if x is () {
+        // falls through
+    } else {
+        // falls through
+    }
+    return x; // ERROR: expected 'int', found '(int|error)?'
+}
+
+function test35(int|error x, boolean b) returns int {
+    if x is error {
+        if b {
+            return 0;
+        } else {}
+    }
+    return x; // ERROR incompatible types: expected 'int', found '(int|error)'
+}
+
+function test36(int|error x) returns int {
+    if x is error {
+        return 0;
+    } else if false {
+        // no final else
+    }
+    return x; // ERROR incompatible types: expected 'int', found '(int|error)'
+}
