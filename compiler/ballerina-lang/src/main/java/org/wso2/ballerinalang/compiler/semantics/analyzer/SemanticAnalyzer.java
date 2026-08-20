@@ -2883,13 +2883,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             if (elseStmt.getKind() == NodeKind.IF) {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
+            } else if (elseStmt.getKind() == NodeKind.BLOCK && ((BLangBlockStmt) elseStmt).stmts.isEmpty()) {
+                // A trivial (empty) else always completes normally on its own, so it carries no information about
+                // whether this if/else statement can fall through.
+                data.notCompletedNormally = ifCompletionStatus;
             } else {
-                boolean elseCompletesNormally = !data.notCompletedNormally;
-                if (elseCompletesNormally) {
-                    data.notCompletedNormally = ifCompletionStatus;
-                } else {
-                    data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
-                }
+                data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
             }
         }
         data.narrowedTypeInfo = prevNarrowedTypeInfo;
