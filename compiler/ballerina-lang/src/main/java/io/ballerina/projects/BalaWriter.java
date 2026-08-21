@@ -34,12 +34,11 @@ import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.projects.util.SbomGenerator;
-import org.ballerinalang.toml.exceptions.TomlException;
-import org.wso2.ballerinalang.util.RepoUtils;
-import org.ballerinalang.compiler.BLangCompilerException;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.apache.commons.compress.utils.IOUtils;
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -47,6 +46,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -56,18 +56,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
+import static io.ballerina.projects.util.ProjectConstants.BOM_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getBalaName;
@@ -93,8 +94,12 @@ public abstract class BalaWriter {
     private static final String BALLERINA_SHORT_VERSION = RepoUtils.getBallerinaShortVersion();
     private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
     protected PackageContext packageContext;
+    // Reports the platform libraries actually packaged for a package; the SBOM is built from that set.
+    protected CompilerBackend compilerBackend;
     Optional<CompilerPluginDescriptor> compilerPluginToml;
     protected Optional<BalToolDescriptor> balToolToml;
+
+    private static final PrintStream err = System.err;
 
     protected BalaWriter() {
     }
@@ -158,63 +163,44 @@ public abstract class BalaWriter {
     }
 
     private void addBOM(ZipOutputStream balaOutputStream) {
+        String bomJson;
         try {
-            Path sourceRoot = this.packageContext.project().sourceRoot();
-            Path manifestPath = sourceRoot.resolve("Ballerina.toml");
-            if (!Files.exists(manifestPath)) {
-                Path alt = sourceRoot.resolve("dependencies.toml");
-                if (Files.exists(alt)) {
-                    manifestPath = alt;
-                } else {
-                    Path alt2 = sourceRoot.resolve("Dependencies.toml");
-                    if (Files.exists(alt2)) {
-                        manifestPath = alt2;
-                    }
-                }
-            }
-
-            if (!Files.exists(manifestPath)) {
-                return;
-            }
-
-            Path tmpDir = Files.createTempDirectory("bala-sbom-");
-            try {
-                Path outPath = tmpDir.resolve("bom.cdx.json");
-                try {
-                    // Generate SBOM into the temporary directory
-                    SbomGenerator.generateBom(manifestPath, outPath);
-                } catch (TomlException | IOException se) {
-                    String pkg = packageContext != null ? packageContext.packageName().toString() : "<unknown>";
-                    throw new ProjectException("Failed to generate SBOM for the package: " + se.getMessage(), se);
-                }
-
-                // Find the generated .cdx.json file (SbomGenerator may adjust extension)
-                Optional<Path> generated = Files.list(tmpDir)
-                        .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".cdx.json"))
-                        .findFirst();
-                if (generated.isPresent()) {
-                    try (InputStream in = Files.newInputStream(generated.get())) {
-                        putZipEntry(balaOutputStream, Path.of("bom.cdx.json"), in);
-                    }
-                }
-            } finally {
-                try (Stream<Path> stream = Files.list(tmpDir)) {
-                    stream.forEach(p -> {
-                        try {
-                            Files.deleteIfExists(p);
-                        } catch (IOException ignored) {
-                        }
-                    });
-                } catch (IOException ignored) {
-                }
-                try {
-                    Files.deleteIfExists(tmpDir);
-                } catch (IOException ignored) {
-                }
-            }
-        } catch (IOException e) {
-            // ignore and continue
+            bomJson = SbomGenerator.generateBom(
+                    this.packageContext.getResolution().dependencyGraph(), this.compilerBackend,
+                    bundledJarsByRole());
+        } catch (RuntimeException e) {
+            err.println("Skipping SBOM for package '" + this.packageContext.packageName() + "': " + e);
+            return;
         }
+        if (bomJson == null) {
+            return;
+        }
+        try {
+            putZipEntry(balaOutputStream, Path.of(BOM_JSON),
+                    new ByteArrayInputStream(bomJson.getBytes(StandardCharsets.UTF_8)));
+        } catch (IOException e) {
+
+            throw new ProjectException("Failed to write '" + BOM_JSON + "' file: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Collect the JARs this bala ships outside {@code platform/}, keyed by their role.
+     *
+     * <p>These are declared by {@code CompilerPlugin.toml} and {@code BalTool.toml} and written by
+     * {@code addCompilerPlugin} and {@code addBalTool}. They carry no Maven coordinates, so the SBOM identifies
+     * them by file name and hash. Without this they would ship inside the bala undescribed.</p>
+     *
+     * @return bundled JAR paths keyed by role, empty when the package declares neither
+     */
+    private Map<String, List<Path>> bundledJarsByRole() {
+        Map<String, List<Path>> bundledJars = new LinkedHashMap<>();
+        Path sourceRoot = this.packageContext.project().sourceRoot();
+        this.compilerPluginToml.ifPresent(descriptor -> bundledJars.put(SbomGenerator.ROLE_COMPILER_PLUGIN,
+                descriptor.getCompilerPluginDependencies().stream().map(sourceRoot::resolve).toList()));
+        this.balToolToml.ifPresent(descriptor -> bundledJars.put(SbomGenerator.ROLE_BAL_TOOL,
+                descriptor.getBalToolDependencies().stream().map(sourceRoot::resolve).toList()));
+        return bundledJars;
     }
 
     private void addPackageJson(ZipOutputStream balaOutputStream, Optional<JsonArray> platformLibs) {
