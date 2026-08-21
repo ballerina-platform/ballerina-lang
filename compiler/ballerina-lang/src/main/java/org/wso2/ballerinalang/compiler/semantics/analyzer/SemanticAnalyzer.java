@@ -616,19 +616,23 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         data.prevEnvs.push(blockEnv);
         SymbolEnv env = blockEnv;
+        BLangStatement prev = prevStatement;
 
         for (int i = startIndex; i < stmts.size(); i++) {
             BLangStatement currentStmt = stmts.get(i);
-            BLangStatement prev = i == startIndex ? prevStatement : stmts.get(i - 1);
 
             if (prev.getKind() == NodeKind.IF && data.notCompletedNormally) {
                 BLangIf ifStmt = (BLangIf) prev;
-                if (ifStmt.elseStmt == null || endsWithEmptyElse(ifStmt)) {
+                if (hasTrivialOrNoElse(ifStmt)) {
                     data.notCompletedNormally =
                             ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
                     if (ifStmt.elseStmt == null) {
                         env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, env, false);
                     } else {
+                        // Re-derive falsity narrowing against currentStmt for every link in the chain: the
+                        // narrowedTypeInfo cached on each condition during the original visit(BLangIf) pass was
+                        // computed against a different target, so it must be nulled out and recomputed here for
+                        // this statement.
                         BLangIf currentIf = ifStmt;
                         while (currentIf != null) {
                             currentIf.expr.narrowedTypeInfo = null;
@@ -642,10 +646,17 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             data.env = env;
             analyzeStmt(currentStmt, data);
+            prev = currentStmt;
         }
 
         data.prevEnvs.pop();
         return true;
+    }
+
+    // An if/else-if chain whose final else is absent or trivially empty never diverts control on its own:
+    // reaching the statement after it implies every condition in the chain was false.
+    private boolean hasTrivialOrNoElse(BLangIf ifStmt) {
+        return ifStmt.elseStmt == null || endsWithEmptyElse(ifStmt);
     }
 
     private boolean endsWithEmptyElse(BLangIf ifStmt) {
@@ -653,9 +664,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         while (elseStmt != null && elseStmt.getKind() == NodeKind.IF) {
             elseStmt = ((BLangIf) elseStmt).elseStmt;
         }
-        return elseStmt != null
-                && elseStmt.getKind() == NodeKind.BLOCK
-                && ((BLangBlockStmt) elseStmt).stmts.isEmpty();
+        return elseStmt != null && isEmptyBlock(elseStmt);
+    }
+
+    private boolean isEmptyBlock(BLangStatement stmt) {
+        return stmt.getKind() == NodeKind.BLOCK && ((BLangBlockStmt) stmt).stmts.isEmpty();
     }
 
     @Override
@@ -2202,6 +2215,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
         data.env = SymbolEnv.createBlockEnv(blockNode, data.env);
         SymbolEnv blockEnv = data.env;
+
         int stmtCount = -1;
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
@@ -2215,7 +2229,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangStatement lastStmt = blockNode.stmts.get(blockNode.stmts.size() - 1);
             if (lastStmt.getKind() == NodeKind.IF) {
                 BLangIf lastIf = (BLangIf) lastStmt;
-                if (lastIf.elseStmt == null || endsWithEmptyElse(lastIf)) {
+                if (hasTrivialOrNoElse(lastIf)) {
                     data.notCompletedNormally = false;
                 }
             }
@@ -2850,6 +2864,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.narrowedTypeInfo = new HashMap<>();
 
         data.env = ifEnv;
+        // Whatever completion status was carried in from before this if-statement is irrelevant to whether its own
+        // true-branch terminates.
+        resetNotCompletedNormally(data);
         analyzeStmt(ifNode.body, data);
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
@@ -2883,7 +2900,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             if (elseStmt.getKind() == NodeKind.IF) {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
-            } else if (elseStmt.getKind() == NodeKind.BLOCK && ((BLangBlockStmt) elseStmt).stmts.isEmpty()) {
+            } else if (isEmptyBlock(elseStmt)) {
                 // A trivial (empty) else always completes normally on its own, so it carries no information about
                 // whether this if/else statement can fall through.
                 data.notCompletedNormally = ifCompletionStatus;

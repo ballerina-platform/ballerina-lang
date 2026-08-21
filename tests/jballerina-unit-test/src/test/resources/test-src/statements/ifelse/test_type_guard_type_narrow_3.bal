@@ -469,3 +469,18 @@ function test37(int|error x, boolean b) returns int {
     }
     return x; // ERROR incompatible types: expected 'int', found '(int|error)'
 }
+
+function test38(int|error a, int|error cond) returns int {
+    if a is error {
+        return 0;
+    } else {
+        return 1;
+    }
+
+    if cond is error {
+        // empty - no-op
+    }
+
+    int y = cond; // ERROR incompatible types: expected 'int', found '(int|error)'
+    return y;
+}
