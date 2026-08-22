@@ -146,8 +146,11 @@ function testSingleFailSiteCheck() returns error? {
 }
 
 function testCheckInsideMatchAndOnFail() returns error? {
-    int[] items = [1, 2];
+    int[] items = [];
+    int[] onFailItems = [1, 2];
     int selector = 0;
+    boolean onFailReached = false;
+    int count = 0;
 
     match selector {
         0 => {
@@ -161,8 +164,12 @@ function testCheckInsideMatchAndOnFail() returns error? {
             }
         }
     } on fail error e {
-        foreach int item in items {
+        onFailReached = true;
+        foreach int item in onFailItems {
             _ = check mockOperation();
+            count += 1;
         }
     }
+    assertTrue(onFailReached);
+    assertEquality(2, count);
 }
