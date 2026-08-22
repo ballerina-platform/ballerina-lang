@@ -901,7 +901,7 @@ public class Desugar extends BLangNodeVisitor {
         BType finalType = type;
         Name name = generateTypedescVariableName(type);
 
-        if (!typedescCreatedForNames.add(name.value)) {
+        if (typedescCreatedForNames.contains(name.value)) {
             // A typedesc var with this generated name was already created
             return;
         }
@@ -927,6 +927,7 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
         BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
         typedescList.add(createSimpleVariableDef(pos, name.value, typedescType, typedescExpr, varSymbol));
+        typedescCreatedForNames.add(name.value);
     }
 
     private void createTypedescVariableForAnonType(BLangType typeNode) {
@@ -11065,6 +11066,7 @@ public class Desugar extends BLangNodeVisitor {
         this.funcParamCount = 1;
         this.typedescCount = 0;
         this.transactionBlockCount = 0;
+        this.typedescCreatedForNames.clear();
     }
 
     private BLangSimpleVariableDef createGeneratorVariableDefinition(BLangNaturalExpression naturalExpression,

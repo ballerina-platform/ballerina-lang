@@ -139,7 +139,7 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
 
 // -----------------------------------------------------------
 
-const MAP = {"foo": "bar"};
+public const MAP = {"foo": "bar"};
 
 type MapConstAlias MAP;
 
