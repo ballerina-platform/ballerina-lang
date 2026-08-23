@@ -131,3 +131,49 @@ function testNegative7() {
 function getCustomError() returns error {
     return error MyError1("Message", x = 2);
 }
+
+type MyError error<record {| string message?; |}>;
+
+function testNegative8(json j) returns string {
+    match j.kind {
+        "a" => {
+            return "A";
+        }
+        _ => {
+            return "B";
+        }
+        error(var _) => {
+            return "E";
+        }
+        "b" => {            // unreachable pattern
+            return "C";
+        }
+    }
+}
+
+// specific error type + _ does not make match exhaustive
+function testNegative9(json j) returns string { // this function must return a result
+    match j.kind {
+        "a" => {
+            return "A";
+        }
+        error MyError(var _) => {
+            return "MY-E";
+        }
+        _ => {
+            return "B";
+        }
+    }
+}
+
+// a guarded generic error pattern does not make match exhaustive
+function testNegative10(any|error e) returns string { // this function must return a result
+    match e {
+        error(var _) if false => {
+            return "ERR";
+        }
+        _ => {
+            return "OTHER";
+        }
+    }
+}
