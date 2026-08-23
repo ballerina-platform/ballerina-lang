@@ -31,24 +31,6 @@ function testUninitializedPrivateFieldPassedAsSelf() {
     take(c);
 }
 
-class D {
-    int n;
-    private int pending;
-
-    function init(int n) {
-        self.n = n;
-        self.modify(self);
-        self.pending = 0;
-    }
-
-    function modify(D value) {
-    }
-}
-
-function testUninitializedPrivateFieldPassedAsSelfWithinMethod() {
-    D _ = new D(1);
-}
-
 class E {
     int n;
     private int pending;

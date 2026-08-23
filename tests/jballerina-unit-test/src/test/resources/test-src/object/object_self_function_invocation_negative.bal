@@ -176,3 +176,22 @@ function change(Person8... person) {
 public function testSelfKeywordInvocationWithModuleLevelFunctionInvocationWithRestArgs() {
     Person8 _ = new("person");
 }
+
+class Person9 {
+    int n;
+    private int pending;
+
+    function init(int n) {
+        self.n = n;
+        self.modify(self);
+        self.pending = 0;
+    }
+
+    function modify(Person9 value) {
+        int _ = value.pending;
+    }
+}
+
+public function testUninitializedPrivateFieldSameClass() {
+    Person9 _ = new(1);
+}
