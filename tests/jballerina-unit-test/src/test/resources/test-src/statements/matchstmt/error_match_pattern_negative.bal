@@ -165,3 +165,15 @@ function testNegative9(json j) returns string { // this function must return a r
         }
     }
 }
+
+// a guarded generic error pattern does not make match exhaustive
+function testNegative10(any|error e) returns string { // this function must return a result
+    match e {
+        error(var _) if false => {
+            return "ERR";
+        }
+        _ => {
+            return "OTHER";
+        }
+    }
+}

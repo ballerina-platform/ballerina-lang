@@ -141,6 +141,11 @@ public class MatchStmtErrorMatchPatternTest {
     }
 
     @Test
+    public void testErrorMatchPattern20() {
+        BRunUtil.invoke(result, "testErrorMatchPattern20");
+    }
+
+    @Test
     public void testErrorMatchPatternWithRestPattern1() {
         BRunUtil.invoke(restPatternResult, "testErrorMatchPattern1");
     }
@@ -204,7 +209,8 @@ public class MatchStmtErrorMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'errorD'", 127, 9);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 148, 9);
         BAssertUtil.validateError(resultNegative, i++, "this function must return a result", 167, 1);
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, i++, "this function must return a result", 179, 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
     }
 
     @AfterClass

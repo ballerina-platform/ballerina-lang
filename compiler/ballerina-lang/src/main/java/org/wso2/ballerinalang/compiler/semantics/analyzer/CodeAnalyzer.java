@@ -1406,13 +1406,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeNode(bindingPattern, data);
         switch (bindingPattern.getKind()) {
             case WILDCARD_BINDING_PATTERN:
+                if (varBindingPattern.matchExpr == null) {
+                    return;
+                }
                 BType matchExprType = varBindingPattern.matchExpr.getBType();
                 BType effectiveType = data.hasErrorMatchPattern
                         ? types.getRemainingType(matchExprType, symTable.errorType, data.env)
                         : matchExprType;
-                varBindingPattern.isLastPattern =
-                        varBindingPattern.matchExpr != null && types.isAssignable(
-                                effectiveType, symTable.anyType);
+                varBindingPattern.isLastPattern = types.isAssignable(effectiveType, symTable.anyType);
                 return;
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.isLastPattern =
@@ -1480,6 +1481,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangErrorMatchPattern errorMatchPattern, AnalyzerData data) {
+        if (errorMatchPattern.matchGuardIsAvailable) {
+            return;
+        }
         if (errorMatchPattern.errorTypeReference == null ||
                 types.isAssignable(symTable.errorType, errorMatchPattern.errorTypeReference.getBType())) {
             data.hasErrorMatchPattern = true;

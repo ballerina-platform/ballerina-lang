@@ -521,3 +521,21 @@ function testErrorMatchPattern19() {
     assertEquals("A-E", errorMatchPattern24({kind: "a"}));
     assertEquals("B", errorMatchPattern24({kind: "b"}));
 }
+
+// Test for a nested `var _` binding pattern (within a list pattern) matching against an any|error subject.
+function errorMatchPattern25(anydata|error x) returns string {
+    [int, anydata|error] t = [1, x];
+    match t {
+        [1, var _] => {
+            return "matched";
+        }
+        _ => {
+            return "no match";
+        }
+    }
+}
+
+function testErrorMatchPattern20() {
+    assertEquals("matched", errorMatchPattern25("text"));
+    assertEquals("no match", errorMatchPattern25(error("e")));
+}
