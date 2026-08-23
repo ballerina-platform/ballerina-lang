@@ -1997,6 +1997,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean isFirstUninitializedField = true;
         StringBuilder uninitializedFields = new StringBuilder();
         for (BField field : objType.fields.values()) {
+            if (Symbols.isPrivate(field.symbol)) {
+                // Private fields can remain uninitialized as long as they are not accessed before
+                // initialization, and they are not accessible outside the object.
+                continue;
+            }
             if (this.uninitializedVars.containsKey(field.symbol)) {
                 if (isFirstUninitializedField) {
                     uninitializedFields = new StringBuilder(field.symbol.getName().value);

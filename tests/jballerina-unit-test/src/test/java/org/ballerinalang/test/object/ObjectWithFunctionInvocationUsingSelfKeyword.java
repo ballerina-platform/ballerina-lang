@@ -44,4 +44,12 @@ public class ObjectWithFunctionInvocationUsingSelfKeyword {
         BAssertUtil.validateError(compileResult, 6, "field(s) 'name' not initialized", 151, 9);
         BAssertUtil.validateError(compileResult, 7, "field(s) 'name' not initialized", 168, 9);
     }
+
+    @Test(description = "Test that passing self as an argument does not report uninitialized private fields, " +
+            "since private fields are not accessible outside the object")
+    public void testSelfKeywordInvocationWithUninitializedPrivateFields() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/object/object_self_function_invocation_positive.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+    }
 }
