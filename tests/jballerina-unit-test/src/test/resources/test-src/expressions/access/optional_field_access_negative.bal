@@ -144,3 +144,9 @@ public function testNestedOptionalFieldAccessOnIntersectionTypesNegative() {
     string v3 = q2?.baz?.i;
     string v4 = q2?.baz["i"];
 }
+
+function testInvalidOptionalFieldAccessOnChainedLaxAccess() {
+    map<map<json>> value = {};
+    json assignedAsJson = value.missing?.x;
+}
+
