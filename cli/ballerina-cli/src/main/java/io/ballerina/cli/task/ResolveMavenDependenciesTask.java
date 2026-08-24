@@ -28,10 +28,15 @@ import org.ballerinalang.maven.exceptions.MavenResolverException;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.JarLibrary.KEY_DEPENDS_ON;
+import static io.ballerina.projects.JarLibrary.KEY_TRANSITIVE_DEPENDENCIES;
 
 /**
  * Resolve maven dependencies.
@@ -110,17 +115,53 @@ public class ResolveMavenDependenciesTask implements Task {
                 return;
             }
             for (Map<String, Object> library : mavenDependencies) {
+                String groupId = library.get("groupId").toString();
+                String artifactId = library.get("artifactId").toString();
+                String version = library.get("version").toString();
+                Dependency dependency;
                 try {
-                    Dependency dependency = resolver.resolve(library.get("groupId").toString(),
-                            library.get("artifactId").toString(),
-                            library.get("version").toString(), false);
-                    library.put("path", Utils.getJarPath(targetRepo, dependency));
+                    dependency = resolver.resolveWithDependencyTree(groupId, artifactId, version);
                 } catch (MavenResolverException e) {
-                    throw createLauncherException("cannot resolve "
-                            + library.get("artifactId").toString() + ": " + e.getMessage());
+                    throw createLauncherException("cannot resolve " + artifactId + ": " + e.getMessage());
                 }
+                library.put(KEY_TRANSITIVE_DEPENDENCIES, flattenDependencyTree(dependency));
+                library.put("path", Utils.getJarPath(targetRepo, dependency));
             }
             out.println();
         }
+    }
+
+
+    private static List<Map<String, Object>> flattenDependencyTree(Dependency root) {
+        List<Map<String, Object>> flattened = new ArrayList<>();
+        collectDependencyNodes(root, flattened, new HashSet<>());
+        return flattened;
+    }
+
+    private static void collectDependencyNodes(Dependency node, List<Map<String, Object>> flattened,
+                                               Set<String> visited) {
+
+        if (!visited.add(coordinate(node))) {
+            return;
+        }
+        List<String> dependsOn = new ArrayList<>();
+        for (Dependency child : node.getDepedencies()) {
+            dependsOn.add(coordinate(child));
+        }
+
+        Map<String, Object> entry = new LinkedHashMap<>();
+        entry.put("groupId", node.getGroupId());
+        entry.put("artifactId", node.getArtifactId());
+        entry.put("version", node.getVersion());
+        entry.put(KEY_DEPENDS_ON, dependsOn);
+        flattened.add(entry);
+
+        for (Dependency child : node.getDepedencies()) {
+            collectDependencyNodes(child, flattened, visited);
+        }
+    }
+
+    private static String coordinate(Dependency dependency) {
+        return dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion();
     }
 }

@@ -180,9 +180,77 @@ public final class SbomGenerator {
             String ref = jarRef(jarLibrary, pkg);
             componentsByRef.computeIfAbsent(ref, key -> jarComponent(jarLibrary, ref));
 
-            dependsOnByRef.computeIfAbsent(ref, key -> new TreeSet<>());
+            Set<String> jarDependsOn = dependsOnByRef.computeIfAbsent(ref, key -> new TreeSet<>());
             dependsOn.add(ref);
+            collectMavenTransitives(jarLibrary, ref, componentsByRef, dependsOnByRef, jarDependsOn);
         }
+    }
+
+    /**
+     * Attach the artifacts a Maven library pulls in with it.
+     *
+     * @param jarLibrary        packaged JAR library, carrying its resolved dependency tree
+     * @param declaredRef       bom-ref already assigned to the declared library
+     * @param componentsByRef   accumulating component map, keyed by bom-ref
+     * @param dependsOnByRef    accumulating dependency map, so each artifact also gets its own entry
+     * @param declaredDependsOn dependsOn set of the declared library
+     */
+    private static void collectMavenTransitives(JarLibrary jarLibrary,
+                                                String declaredRef,
+                                                Map<String, Map<String, Object>> componentsByRef,
+                                                Map<String, Set<String>> dependsOnByRef,
+                                                Set<String> declaredDependsOn) {
+        List<JarLibrary.MavenDependencyNode> nodes = jarLibrary.transitiveDependencies();
+        if (nodes.isEmpty()) {
+            return;
+        }
+        // The declared artifact is the first entry and already has a component of its own, built from the
+        // manifest. Reusing its bom-ref keeps the two from appearing as separate components of the same JAR.
+        String declaredCoordinate = nodes.get(0).coordinate();
+        Map<String, String> refsByCoordinate = new TreeMap<>();
+        for (JarLibrary.MavenDependencyNode node : nodes) {
+            refsByCoordinate.put(node.coordinate(), node.coordinate().equals(declaredCoordinate) ? declaredRef
+                    : mavenPurl(node.groupId(), node.artifactId(), node.version()));
+        }
+
+        for (JarLibrary.MavenDependencyNode node : nodes) {
+            String nodeRef = refsByCoordinate.get(node.coordinate());
+            boolean isDeclared = nodeRef.equals(declaredRef);
+            if (!isDeclared) {
+                componentsByRef.computeIfAbsent(nodeRef, key -> mavenComponent(node, nodeRef));
+            }
+            Set<String> nodeDependsOn = isDeclared ? declaredDependsOn
+                    : dependsOnByRef.computeIfAbsent(nodeRef, key -> new TreeSet<>());
+            for (String coordinate : node.dependsOn()) {
+                String childRef = refsByCoordinate.get(coordinate);
+                // A coordinate with no entry was filtered out of the tree during resolution, so there is no
+                // component to point at; recording the edge anyway would leave a dangling bom-ref.
+                if (childRef != null) {
+                    nodeDependsOn.add(childRef);
+                }
+            }
+        }
+    }
+
+    /**
+     * Build a component entry for an artifact within a collected Maven dependency tree.
+     *
+     * <p>The component carries coordinates but no hash. The bala does not ship these artifacts, so there is no
+     * file of theirs to hash;
+     *
+     * @param node artifact from the collected tree
+     * @param ref  bom-ref of the artifact
+     * @return CycloneDX component
+     */
+    private static Map<String, Object> mavenComponent(JarLibrary.MavenDependencyNode node, String ref) {
+        Map<String, Object> component = new LinkedHashMap<>();
+        component.put("type", COMPONENT_TYPE_LIBRARY);
+        component.put("bom-ref", ref);
+        component.put("group", node.groupId());
+        component.put("name", node.artifactId());
+        component.put("version", node.version());
+        component.put("purl", mavenPurl(node.groupId(), node.artifactId(), node.version()));
+        return component;
     }
 
     /**
