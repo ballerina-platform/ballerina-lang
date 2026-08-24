@@ -953,6 +953,7 @@ class JvmObservabilityGen {
      */
     private boolean isObservable(Call callIns) {
         boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
+        boolean isResource = callIns.calleeFlags.contains(Flag.RESOURCE);
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
             if (OBSERVABLE_ANNOTATION.equals(getPackageName(new PackageID(annot.annotPkgId.orgName,
@@ -961,7 +962,7 @@ class JvmObservabilityGen {
                 break;
             }
         }
-        return isRemote || isObservableAnnotationPresent;
+        return isRemote || isResource || isObservableAnnotationPresent;
     }
 
     /**
