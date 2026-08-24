@@ -573,7 +573,10 @@ class JvmObservabilityGen {
                     if (callIns.isVirtual) {
                         // Every virtual call instruction has self as the first argument
                         objectTypeOperand = callIns.args.getFirst();
-                        if (callIns.name.getValue().contains(".")) {
+                        // Resource method names are mangled using "$" (e.g. "$get$." for the root path), so they
+                        // can contain "." (used to denote the root path) without being dot-qualified names.
+                        boolean isResourceCall = callIns.calleeFlags.contains(Flag.RESOURCE);
+                        if (!isResourceCall && callIns.name.getValue().contains(".")) {
                             String[] split = callIns.name.getValue().split("\\.");
                             action = split[1];
                         } else {
