@@ -87,7 +87,7 @@ public final class SbomGenerator {
      */
     public static String generateBom(DependencyGraph<ResolvedPackageDependency> dependencyGraph,
                                      CompilerBackend backend) {
-        return generateBom(dependencyGraph, backend, Map.of());
+        return generateBom(dependencyGraph, backend, Map.of(), new ArrayList<>());
     }
 
     /**
@@ -103,6 +103,26 @@ public final class SbomGenerator {
     public static String generateBom(DependencyGraph<ResolvedPackageDependency> dependencyGraph,
                                      CompilerBackend backend,
                                      Map<String, ? extends Collection<Path>> bundledJarsByRole) {
+        return generateBom(dependencyGraph, backend, bundledJarsByRole, new ArrayList<>());
+    }
+
+    /**
+     * Build a CycloneDX BOM for the given resolved dependency graph, including JARs bundled into the bala outside
+     * {@code platform/}, and collect the file names of JARs shipped with no Maven coordinates.
+     *
+     * @param dependencyGraph            resolved package dependency graph
+     * @param backend                    backend reporting the platform libraries packaged for each package, or
+     *                                   {@code null}
+     * @param bundledJarsByRole          JARs the bala ships outside {@code platform/}, keyed by role
+     *                                   ({@link #ROLE_COMPILER_PLUGIN}, {@link #ROLE_BAL_TOOL})
+     * @param jarsWithoutMavenCoordinates populated with the file name of every JAR component the BOM identifies by
+     *                                   file name and content hash instead of Maven coordinates
+     * @return the BOM as pretty-printed JSON, or {@code null} if the graph has no root package to describe
+     */
+    public static String generateBom(DependencyGraph<ResolvedPackageDependency> dependencyGraph,
+                                     CompilerBackend backend,
+                                     Map<String, ? extends Collection<Path>> bundledJarsByRole,
+                                     List<String> jarsWithoutMavenCoordinates) {
         if (dependencyGraph == null || dependencyGraph.isEmpty()) {
             return null;
         }
@@ -141,10 +161,12 @@ public final class SbomGenerator {
                 dependsOn.add(ballerinaPurl(directDependency.packageInstance().descriptor()));
             }
 
-            collectPlatformDependencies(nodePackage, backend, componentsByRef, dependsOnByRef, dependsOn);
+            collectPlatformDependencies(nodePackage, backend, componentsByRef, dependsOnByRef, dependsOn,
+                    jarsWithoutMavenCoordinates);
 
             if (purl.equals(rootPurl)) {
-                collectBundledJars(nodePackage, bundledJarsByRole, componentsByRef, dependsOnByRef, dependsOn);
+                collectBundledJars(nodePackage, bundledJarsByRole, componentsByRef, dependsOnByRef, dependsOn,
+                        jarsWithoutMavenCoordinates);
             }
         }
 
@@ -159,12 +181,14 @@ public final class SbomGenerator {
      * @param componentsByRef accumulating component map, keyed by bom-ref
      * @param dependsOnByRef  accumulating dependency map, so each library also gets its own leaf entry
      * @param dependsOn       dependsOn set of the declaring package
+     * @param jarsWithoutMavenCoordinates populated with the file name of each coordinate-less JAR encountered
      */
     private static void collectPlatformDependencies(Package pkg,
                                                     CompilerBackend backend,
                                                     Map<String, Map<String, Object>> componentsByRef,
                                                     Map<String, Set<String>> dependsOnByRef,
-                                                    Set<String> dependsOn) {
+                                                    Set<String> dependsOn,
+                                                    List<String> jarsWithoutMavenCoordinates) {
         if (backend == null) {
             return;
         }
@@ -179,7 +203,8 @@ public final class SbomGenerator {
 
             String sha256 = sha256(jarLibrary.path());
             String ref = jarRef(jarLibrary, pkg, sha256);
-            componentsByRef.computeIfAbsent(ref, key -> jarComponent(jarLibrary, ref, sha256));
+            componentsByRef.computeIfAbsent(ref,
+                    key -> jarComponent(jarLibrary, ref, sha256, jarsWithoutMavenCoordinates));
 
             Set<String> jarDependsOn = dependsOnByRef.computeIfAbsent(ref, key -> new TreeSet<>());
             dependsOn.add(ref);
@@ -262,12 +287,15 @@ public final class SbomGenerator {
      * @param componentsByRef   accumulating component map, keyed by bom-ref
      * @param dependsOnByRef    accumulating dependency map, so each JAR also gets its own leaf entry
      * @param dependsOn         dependsOn set of the root package
+     * @param jarsWithoutMavenCoordinates appended with the file name of each bundled JAR, since none of these
+     *                                    carry Maven coordinates
      */
     private static void collectBundledJars(Package rootPackage,
                                            Map<String, ? extends Collection<Path>> bundledJarsByRole,
                                            Map<String, Map<String, Object>> componentsByRef,
                                            Map<String, Set<String>> dependsOnByRef,
-                                           Set<String> dependsOn) {
+                                           Set<String> dependsOn,
+                                           List<String> jarsWithoutMavenCoordinates) {
         if (bundledJarsByRole == null || bundledJarsByRole.isEmpty()) {
             return;
         }
@@ -284,7 +312,8 @@ public final class SbomGenerator {
                 String fileName = name != null ? name.toString() : jarPath.toString();
                 String ref = JAR_REF_PREFIX + rootPackage.packageOrg().value() + "/"
                         + rootPackage.packageName().value() + "/" + role + "/" + fileName;
-                componentsByRef.computeIfAbsent(ref, key -> bundledJarComponent(fileName, ref, role, jarPath));
+                componentsByRef.computeIfAbsent(ref, key -> bundledJarComponent(fileName, ref, role, jarPath,
+                        jarsWithoutMavenCoordinates));
                 dependsOnByRef.computeIfAbsent(ref, key -> new TreeSet<>());
                 dependsOn.add(ref);
             }
@@ -298,13 +327,16 @@ public final class SbomGenerator {
      * @param ref      bom-ref of the JAR
      * @param role     role of the JAR within the bala
      * @param jarPath  path to the JAR on disk, used to hash it
+     * @param jarsWithoutMavenCoordinates appended with {@code fileName}, since bundled JARs carry no coordinates
      * @return CycloneDX component
      */
-    private static Map<String, Object> bundledJarComponent(String fileName, String ref, String role, Path jarPath) {
+    private static Map<String, Object> bundledJarComponent(String fileName, String ref, String role, Path jarPath,
+                                                            List<String> jarsWithoutMavenCoordinates) {
         Map<String, Object> component = new LinkedHashMap<>();
         component.put("type", COMPONENT_TYPE_LIBRARY);
         component.put("bom-ref", ref);
         component.put("name", fileName);
+        jarsWithoutMavenCoordinates.add(fileName);
 
         String sha256 = sha256(jarPath);
         if (sha256 != null) {
@@ -392,9 +424,11 @@ public final class SbomGenerator {
      * @param jarLibrary packaged JAR library
      * @param ref        bom-ref of the library
      * @param sha256     hash of the library's JAR file, or {@code null} when it could not be computed
+     * @param jarsWithoutMavenCoordinates appended with this JAR's file name when it carries no Maven coordinates
      * @return CycloneDX component
      */
-    private static Map<String, Object> jarComponent(JarLibrary jarLibrary, String ref, String sha256) {
+    private static Map<String, Object> jarComponent(JarLibrary jarLibrary, String ref, String sha256,
+                                                     List<String> jarsWithoutMavenCoordinates) {
         Map<String, Object> component = new LinkedHashMap<>();
         component.put("type", COMPONENT_TYPE_LIBRARY);
         component.put("bom-ref", ref);
@@ -409,6 +443,7 @@ public final class SbomGenerator {
             component.put("purl", mavenPurl(groupId.get(), artifactId.get(), version.get()));
         } else {
             component.put("name", fileName(jarLibrary));
+            jarsWithoutMavenCoordinates.add(fileName(jarLibrary));
         }
 
         if (sha256 != null) {

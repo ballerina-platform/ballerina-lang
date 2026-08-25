@@ -189,16 +189,28 @@ public abstract class BalaWriter {
     }
 
     private void addBOM(ZipOutputStream balaOutputStream) {
+        if (this.packageContext.project().buildOptions().skipSbom()) {
+            return;
+        }
+        List<String> jarsWithoutMavenCoordinates = new ArrayList<>();
         try {
             this.bomJson = SbomGenerator.generateBom(
                     this.packageContext.getResolution().dependencyGraph(), this.compilerBackend,
-                    bundledJarsByRole());
+                    bundledJarsByRole(), jarsWithoutMavenCoordinates);
         } catch (RuntimeException e) {
-            err.println("Skipping SBOM for package '" + this.packageContext.packageName() + "': " + e);
-            return;
+            String message = "Failed to generate SBOM for package '" + this.packageContext.packageName() + "': "
+                    + e.getMessage() + ". Use '--skip-sbom' to pack the bala without an SBOM.";
+            err.println("error: " + message);
+            throw new ProjectException(message, e);
         }
         if (this.bomJson == null) {
             return;
+        }
+        if (!jarsWithoutMavenCoordinates.isEmpty()) {
+            err.println("WARNING: SBOM for package '" + this.packageContext.packageName() + "' includes "
+                    + jarsWithoutMavenCoordinates.size() + " JAR(s) with no Maven coordinates, identified only by "
+                    + "file name and content hash: " + String.join(", ", jarsWithoutMavenCoordinates)
+                    );
         }
         try {
             putZipEntry(balaOutputStream, Path.of(BOM_JSON),

@@ -125,6 +125,10 @@ public class PackCommand implements BLauncherCmd {
                           "retry the build with soft locking mode. Ignored for standalone packages.")
     private Boolean repairOnFailure;
 
+    @CommandLine.Option(names = "--skip-sbom", hidden = true,
+            description = "skip SBOM generation and pack the bala without it")
+    private Boolean skipSbom;
+
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -528,7 +532,8 @@ public class PackCommand implements BLauncherCmd {
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
-                .setLockingMode(lockingMode);
+                .setLockingMode(lockingMode)
+                .setSkipSbom(skipSbom);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
