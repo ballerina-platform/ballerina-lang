@@ -57,7 +57,7 @@ import java.util.UUID;
  * <p>The BOM is built from the resolved dependency graph and the platform libraries the bala writer packages, so
  * it describes what the bala actually ships.</p>
  *
- * @since 2201.14.0
+ * @since 2201.13.6
  */
 public final class SbomGenerator {
 
@@ -177,8 +177,9 @@ public final class SbomGenerator {
                continue;
             }
 
-            String ref = jarRef(jarLibrary, pkg);
-            componentsByRef.computeIfAbsent(ref, key -> jarComponent(jarLibrary, ref));
+            String sha256 = sha256(jarLibrary.path());
+            String ref = jarRef(jarLibrary, pkg, sha256);
+            componentsByRef.computeIfAbsent(ref, key -> jarComponent(jarLibrary, ref, sha256));
 
             Set<String> jarDependsOn = dependsOnByRef.computeIfAbsent(ref, key -> new TreeSet<>());
             dependsOn.add(ref);
@@ -390,9 +391,10 @@ public final class SbomGenerator {
      *
      * @param jarLibrary packaged JAR library
      * @param ref        bom-ref of the library
+     * @param sha256     hash of the library's JAR file, or {@code null} when it could not be computed
      * @return CycloneDX component
      */
-    private static Map<String, Object> jarComponent(JarLibrary jarLibrary, String ref) {
+    private static Map<String, Object> jarComponent(JarLibrary jarLibrary, String ref, String sha256) {
         Map<String, Object> component = new LinkedHashMap<>();
         component.put("type", COMPONENT_TYPE_LIBRARY);
         component.put("bom-ref", ref);
@@ -409,7 +411,6 @@ public final class SbomGenerator {
             component.put("name", fileName(jarLibrary));
         }
 
-        String sha256 = sha256(jarLibrary.path());
         if (sha256 != null) {
             Map<String, Object> hash = new LinkedHashMap<>();
             hash.put("alg", HASH_ALG_SHA_256);
@@ -431,17 +432,19 @@ public final class SbomGenerator {
      *
      * @param jarLibrary packaged JAR library
      * @param pkg        package that declares the library
+     * @param sha256     hash of the library's JAR file, or {@code null} when it could not be computed
      * @return bom-ref string
      */
-    private static String jarRef(JarLibrary jarLibrary, Package pkg) {
+    private static String jarRef(JarLibrary jarLibrary, Package pkg, String sha256) {
         Optional<String> groupId = jarLibrary.groupId();
         Optional<String> artifactId = jarLibrary.artifactId();
         Optional<String> version = jarLibrary.version();
         if (groupId.isPresent() && artifactId.isPresent() && version.isPresent()) {
             return mavenPurl(groupId.get(), artifactId.get(), version.get());
         }
+        String identity = sha256 != null ? sha256 : fileName(jarLibrary);
         return JAR_REF_PREFIX + pkg.packageOrg().value() + "/" + pkg.packageName().value() + "/"
-                + fileName(jarLibrary);
+                + fileName(jarLibrary) + "/" + identity;
     }
 
     /**
