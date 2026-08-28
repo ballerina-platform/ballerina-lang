@@ -361,10 +361,45 @@ public class JBallerinaBackend extends CompilerBackend {
                     jarPath = pkg.project().sourceRoot().resolve(jarPath);
                 }
                 platformLibraries.add(new JarLibrary(jarPath, dependencyScope, artifactId, groupId, version,
-                        pkg.packageOrg().value() + "/" + pkg.packageName().value()));
+                        pkg.packageOrg().value() + "/" + pkg.packageName().value(),
+                        readTransitiveDependencies(dependency)));
             }
         }
         return platformLibraries;
+    }
+
+
+    private static List<JarLibrary.MavenDependencyNode> readTransitiveDependencies(Map<String, Object> dependency) {
+        if (!(dependency.get(JarLibrary.KEY_TRANSITIVE_DEPENDENCIES) instanceof List<?> entries)) {
+            return List.of();
+        }
+        List<JarLibrary.MavenDependencyNode> nodes = new ArrayList<>();
+        for (Object element : entries) {
+            if (!(element instanceof Map<?, ?> entry)) {
+                continue;
+            }
+            String groupId = asString(entry.get(JarLibrary.KEY_GROUP_ID));
+            String artifactId = asString(entry.get(JarLibrary.KEY_ARTIFACT_ID));
+            String version = asString(entry.get(JarLibrary.KEY_VERSION));
+            if (groupId == null || artifactId == null || version == null) {
+                continue;
+            }
+            List<String> dependsOn = new ArrayList<>();
+            if (entry.get(JarLibrary.KEY_DEPENDS_ON) instanceof List<?> edges) {
+                for (Object edge : edges) {
+                    String coordinate = asString(edge);
+                    if (coordinate != null) {
+                        dependsOn.add(coordinate);
+                    }
+                }
+            }
+            nodes.add(new JarLibrary.MavenDependencyNode(groupId, artifactId, version, dependsOn));
+        }
+        return nodes;
+    }
+
+    private static String asString(Object value) {
+        return value instanceof String string && !string.isEmpty() ? string : null;
     }
 
     @Override

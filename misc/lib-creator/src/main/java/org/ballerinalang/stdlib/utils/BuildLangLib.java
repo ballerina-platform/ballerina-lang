@@ -43,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -113,8 +114,20 @@ public final class BuildLangLib {
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
             Path balaFilePath;
+            List<Path> filesInBalaDir;
             try (Stream<Path> paths = Files.list(balaPath)) {
-                balaFilePath = paths.findAny().orElseThrow();
+                filesInBalaDir = paths.toList();
+            }
+            balaFilePath = filesInBalaDir.stream()
+                    .filter(path -> path.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT))
+                    .findAny().orElseThrow();
+            // BalaWriter also writes a standalone SBOM file next to the bala (see
+            // BalaWriter#writeBomToTargetDir); it is not part of the extracted bala-dir layout this tool
+            // produces, so drop anything other than the bala file itself before extracting.
+            for (Path file : filesInBalaDir) {
+                if (!file.equals(balaFilePath)) {
+                    Files.delete(file);
+                }
             }
             ProjectUtils.extractBala(balaFilePath, balaPath);
             Files.delete(balaFilePath);

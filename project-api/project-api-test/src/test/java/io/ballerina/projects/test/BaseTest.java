@@ -98,8 +98,12 @@ public class BaseTest {
             Files.createDirectories(localRepoBalaCache);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
             Path balaPath;
+            // BalaWriter also writes a standalone SBOM file next to the bala; filter it out so it isn't
+            // mistaken for the bala itself.
             try (Stream<Path> paths = Files.list(localRepoBalaCache)) {
-                balaPath = paths.findAny().orElseThrow();
+                balaPath = paths
+                        .filter(path -> path.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT))
+                        .findAny().orElseThrow();
             }
             ProjectUtils.extractBala(balaPath, localRepoBalaCache);
             try {
@@ -146,8 +150,12 @@ public class BaseTest {
         Files.createDirectories(centralRepoBalaCache);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
         Path balaPath;
+        // BalaWriter also writes a standalone SBOM file next to the bala; filter it out so it isn't
+        // mistaken for the bala itself.
         try (Stream<Path> paths = Files.list(centralRepoBalaCache)) {
-            balaPath = paths.findAny().orElseThrow();
+            balaPath = paths
+                    .filter(path -> path.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT))
+                    .findAny().orElseThrow();
         }
         ProjectUtils.extractBala(balaPath, centralRepoBalaCache);
         try {
