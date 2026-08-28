@@ -393,3 +393,14 @@ function test21(int|error x) returns int {
     int y = x;
     return y;
 }
+
+function test22(int|error x, boolean b) returns int {
+    if x is error {
+        if b {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+    return x; // OK: inner if-else has a genuinely terminating (non-trivial) else, so it always terminates
+}
