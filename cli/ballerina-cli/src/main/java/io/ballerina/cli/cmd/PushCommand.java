@@ -62,7 +62,6 @@ import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
-import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_TOOLS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
@@ -491,7 +490,7 @@ public class PushCommand implements BLauncherCmd {
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
 
-            authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
+            authenticate(settingsTomlFilePath, client);
 
             try {
                 client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_21.code(),
