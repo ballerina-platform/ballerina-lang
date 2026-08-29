@@ -830,7 +830,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4074", "expected.type.for.const.natural.expr.must.be.a.subtype.of.anydata"),
     EXPECTED_A_SINGLE_ARG_OF_TYPE_GENERATOR_IN_A_NATURAL_EXPR(
             "BCE4075", "expected.a.single.arg.of.type.generator.in.a.natural.expr"),
-    EXPECTED_NO_ARGS_IN_A_CONST_NATURAL_EXPR("BCE4076", "expected.no.args.in.a.const.natural.expr")
+    EXPECTED_NO_ARGS_IN_A_CONST_NATURAL_EXPR("BCE4076", "expected.no.args.in.a.const.natural.expr"),
+    ATTEMPT_INITIALIZE_NON_ACCESSIBLE_OBJECT("BCE4077", "attempt.initialize.non.accessible.object")
     ;
 
     private final String diagnosticId;

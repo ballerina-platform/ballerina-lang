@@ -3649,7 +3649,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         if (!pkgID.equals(symbol.pkgID) && !Symbols.isPublic(symbol)) {
-            dlog.error(position, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
+            DiagnosticUtils.logNonAccessibleSymbolError(dlog, position, symbol);
         }
     }
 
