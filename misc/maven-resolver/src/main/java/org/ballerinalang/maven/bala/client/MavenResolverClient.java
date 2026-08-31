@@ -111,11 +111,8 @@ public class MavenResolverClient {
     public static final String ARTIFACT_SEPERATOR = "-";
     private static final String METADATA_UPDATE_INTERVAL = "interval:10";
     private static final int CACHE_MAX_SIZE = 100;
-    // Fixed name the SBOM is uploaded under, matching ProjectConstants.BOM_JSON in the ballerina-lang module
-    // (duplicated here since this module does not depend on ballerina-lang). Uploaded as a raw file via
-    // Transporter rather than as a classified Maven artifact, so it keeps this exact name in the repository
-    // instead of being renamed to <artifactId>-<version>-<classifier>.<extension> per Maven layout conventions.
-    public static final String SBOM_FILE_NAME = "bom.cdx.json";
+
+    private static final String SBOM_FILE_EXTENSION = ".cdx.json";
 
     private final RepositorySystem system;
     private final DefaultRepositorySystemSession session;
@@ -201,12 +198,14 @@ public class MavenResolverClient {
     /**
      * Deploys the provided artifact, together with its SBOM, into the repository.
      *
-     * <p>The SBOM is uploaded separately as a raw file under the fixed name {@value #SBOM_FILE_NAME}, next to
+     /**
+     * <p>The SBOM is uploaded separately as a raw file named {@code <packageName>-<version>.cdx.json}, next to
      * the bala/pom, rather than as a classified Maven artifact via {@link SubArtifact}. A classified artifact
      * would be renamed by Maven's repository layout to {@code <artifactId>-<version>-<classifier>.<extension>};
      * uploading it directly through the repository's {@link Transporter} instead keeps this exact file name, at
      * the cost of it no longer being resolvable via Maven GAV+classifier coordinates — a consumer needs to know
-     * this fixed relative path convention to fetch it back.</p>
+     * this naming convention to fetch it back.</p>
+
      *
      * @param balaPath      path to the bala
      * @param orgName       organization name
@@ -230,7 +229,8 @@ public class MavenResolverClient {
             deployRequest.addArtifact(new SubArtifact(mainArtifact, "", POM, temporaryPom));
             system.deploy(session, deployRequest);
             if (sbomPath != null && Files.isRegularFile(sbomPath)) {
-                uploadRawFile(remoteRepository, mainArtifact, sbomPath, SBOM_FILE_NAME);
+                uploadRawFile(remoteRepository, mainArtifact, sbomPath, packageName + "-" + version
+                        + SBOM_FILE_EXTENSION);
             }
         } catch (DeploymentException | IOException e) {
             throw new MavenResolverClientException(e.getMessage());
