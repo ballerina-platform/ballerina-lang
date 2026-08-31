@@ -141,8 +141,8 @@ public abstract class BalaWriter {
      * bala, so it can be published as a separate artifact alongside the bala. Writing this file is best-effort:
      * a failure here should not fail the pack, since the BOM is already embedded inside the bala itself.
      *
-     * <p>Named after the package and version so each package's standalone SBOM remains uniquely identifiable and separate from any
-     * other package's (or version's) SBOM written into the same {@code balaDir}.</p>
+     * <p>Named after the package and version so each package's standalone SBOM remains uniquely identifiable and
+     * separate from any other package's (or version's) SBOM written into the same {@code balaDir}.</p>
      *
      * @param balaDir directory the bala was written to
      */

@@ -198,14 +198,12 @@ public class MavenResolverClient {
     /**
      * Deploys the provided artifact, together with its SBOM, into the repository.
      *
-     /**
      * <p>The SBOM is uploaded separately as a raw file named {@code <packageName>-<version>.cdx.json}, next to
      * the bala/pom, rather than as a classified Maven artifact via {@link SubArtifact}. A classified artifact
      * would be renamed by Maven's repository layout to {@code <artifactId>-<version>-<classifier>.<extension>};
      * uploading it directly through the repository's {@link Transporter} instead keeps this exact file name, at
      * the cost of it no longer being resolvable via Maven GAV+classifier coordinates — a consumer needs to know
      * this naming convention to fetch it back.</p>
-
      *
      * @param balaPath      path to the bala
      * @param orgName       organization name
