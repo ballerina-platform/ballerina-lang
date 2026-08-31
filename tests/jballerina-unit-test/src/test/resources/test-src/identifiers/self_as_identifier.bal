@@ -53,3 +53,49 @@ function testSelfAsIdentifier() {
     int n = x.n + self;
     test:assertEquals(n, 20);
 }
+
+function testSelfAsVariableName() {
+    int self = 3;
+    test:assertEquals(self, 3);
+}
+
+function testSelfAsArgument() {
+    int self = 3;
+    int result = funcWithSelfAsParamName(self);
+    test:assertEquals(result, 8);
+}
+
+function testQuotedSelfAsVariableName() {
+    int 'self = 3;
+    test:assertEquals('self, 3);
+}
+
+function testQuotedSelfAsArgument() {
+    int 'self = 3;
+    int result = funcWithSelfAsParamName('self);
+    test:assertEquals(result, 8);
+}
+
+function testObjectTypedSelfAsVariableName() {
+    MyClass self = new MyClass(5);
+    test:assertEquals(self.n, 5);
+}
+
+function testObjectTypedSelfAsArgument() {
+    MyClass self = new MyClass(5);
+    test:assertEquals(funcTakingMyClass(self).n, 5);
+}
+
+function testObjectTypedQuotedSelfAsVariableName() {
+    MyClass 'self = new MyClass(5);
+    test:assertEquals('self.n, 5);
+}
+
+function testObjectTypedQuotedSelfAsArgument() {
+    MyClass 'self = new MyClass(5);
+    test:assertEquals(funcTakingMyClass('self).n, 5);
+}
+
+function funcTakingMyClass(MyClass c) returns MyClass {
+    return c;
+}

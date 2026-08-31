@@ -1737,10 +1737,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
             return;
         }
-        if (!isFieldsInitializedForSelfInvocation(invocationExpr.requiredArgs, invocationExpr.pos)) {
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.requiredArgs, invocationExpr.pos, symbol)) {
             return;
         }
-        if (!isFieldsInitializedForSelfInvocation(invocationExpr.restArgs, invocationExpr.pos)) {
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.restArgs, invocationExpr.pos, symbol)) {
             return;
         }
 
@@ -1926,7 +1926,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
         StringBuilder uninitializedFields =
                 getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
-                        invocationExpr.expr).symbol.type);
+                        invocationExpr.expr).symbol.type, false);
         if (!uninitializedFields.isEmpty()) {
             this.dlog.error(invocationExpr.pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                     uninitializedFields.toString());
@@ -1936,12 +1936,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions,
-                                                         Location location) {
+                                                         Location location, BSymbol invokedSymbol) {
 
         for (BLangExpression expr : argExpressions) {
             if (isSelfKeyWordExpr(expr)) {
+                BObjectType objType = (BObjectType) ((BLangSimpleVarRef) expr).symbol.type;
+                boolean checkPrivateFields = invokedSymbol != null && invokedSymbol.owner == objType.tsymbol;
                 StringBuilder uninitializedFields =
-                        getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
+                        getUninitializedFieldsForSelfKeyword(objType, checkPrivateFields);
                 if (!uninitializedFields.isEmpty()) {
                     this.dlog.error(location, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
@@ -1983,16 +1985,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isSelfKeyWordExpr(BLangExpression expr) {
-
-        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                Names.SELF.value.equals(((BLangSimpleVarRef) expr).getVariableName().getValue());
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+        return Names.SELF.value.equals(varRef.getVariableName().getValue())
+                && varRef.symbol != null
+                && varRef.symbol.type.tag == TypeTags.OBJECT;
     }
 
-    private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
+    private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType, boolean checkPrivateFields) {
 
         boolean isFirstUninitializedField = true;
         StringBuilder uninitializedFields = new StringBuilder();
         for (BField field : objType.fields.values()) {
+            if (!checkPrivateFields && Symbols.isPrivate(field.symbol)) {
+                // Private fields can remain uninitialized as long as they are not accessed before
+                // initialization, and they are not accessible outside the object.
+                continue;
+            }
             if (this.uninitializedVars.containsKey(field.symbol)) {
                 if (isFirstUninitializedField) {
                     uninitializedFields = new StringBuilder(field.symbol.getName().value);
