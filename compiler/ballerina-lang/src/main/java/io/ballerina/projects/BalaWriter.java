@@ -207,10 +207,13 @@ public abstract class BalaWriter {
             return;
         }
         if (!jarsWithoutMavenCoordinates.isEmpty()) {
-            err.println("WARNING: SBOM for package '" + this.packageContext.packageName() + "' includes "
-                    + jarsWithoutMavenCoordinates.size() + " JAR(s) with no Maven coordinates, identified only by "
-                    + "file name and content hash: " + String.join(", ", jarsWithoutMavenCoordinates)
-                    );
+            String bulletedJars = jarsWithoutMavenCoordinates.stream()
+                    .map(jarName -> "     - " + jarName + ", ")
+                    .collect(Collectors.joining(System.lineSeparator()));
+            err.println("WARNING: The package '" + this.packageContext.packageName() + "' includes "
+                    + jarsWithoutMavenCoordinates.size() + " platform libraries with no Maven coordinates "
+                    + "(group-id, artifact-id and version), this will result in missing features in "
+                    + "vulnerability scanners: " + System.lineSeparator() + bulletedJars);
         }
         try {
             putZipEntry(balaOutputStream, Path.of(BOM_JSON),
