@@ -782,6 +782,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         observabilityDesugar.addObserveInternalModuleImport(pkgNode);
+        observabilityDesugar.addOtelModuleImport(pkgNode);
 
         code2CloudDesugar.addCode2CloudModuleImport(pkgNode);
 

@@ -345,6 +345,12 @@ public class PackageResolution {
                         PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
                         PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
             allModuleLoadRequests.add(observeModuleLoadReq);
+
+            String otelModuleName = Names.OTEL.getValue();
+            ModuleLoadRequest otelModuleLoadReq = new ModuleLoadRequest(
+                        PackageOrg.from(Names.BALLERINA_ORG.value), otelModuleName,
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
+            allModuleLoadRequests.add(otelModuleLoadReq);
         }
 
         // TODO Can we make this a builtin compiler plugin
