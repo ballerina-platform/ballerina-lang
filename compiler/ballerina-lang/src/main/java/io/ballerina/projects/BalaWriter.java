@@ -206,14 +206,16 @@ public abstract class BalaWriter {
         if (this.bomJson == null) {
             return;
         }
-        if (!jarsWithoutMavenCoordinates.isEmpty()) {
-            String bulletedJars = jarsWithoutMavenCoordinates.stream()
-                    .map(jarName -> "     - " + jarName + ", ")
-                    .collect(Collectors.joining(System.lineSeparator()));
-            err.println("WARNING: The package '" + this.packageContext.packageName() + "' includes "
-                    + jarsWithoutMavenCoordinates.size() + " platform libraries with no 'group-id', "
-                    + "'artifact-id', and 'version' fields: " + System.lineSeparator() + bulletedJars);
-        }
+        // TODO: enable this after fixing the standard libraries.
+//        if (!jarsWithoutMavenCoordinates.isEmpty()) {
+//            String bulletedJars = jarsWithoutMavenCoordinates.stream()
+//                    .map(jarName -> "     - " + jarName + ", ")
+//                    .collect(Collectors.joining(System.lineSeparator()));
+//            err.println("WARNING: The package '" + this.packageContext.packageName() + "' includes "
+//                    + jarsWithoutMavenCoordinates.size() + " platform libraries with no 'group-id', "
+//                    + "'artifact-id', and 'version' fields. This may result in missing features in " +
+//                    "vulnerability scanners: " + System.lineSeparator() + bulletedJars);
+//        }
         try {
             putZipEntry(balaOutputStream, Path.of(BOM_JSON),
                     new ByteArrayInputStream(this.bomJson.getBytes(StandardCharsets.UTF_8)));
