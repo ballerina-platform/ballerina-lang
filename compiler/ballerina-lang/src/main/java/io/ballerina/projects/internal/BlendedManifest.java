@@ -28,6 +28,7 @@ import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.internal.repositories.OCIPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -64,7 +65,7 @@ public class BlendedManifest {
     public static BlendedManifest from(DependencyManifest dependencyManifest,
                                        PackageManifest packageManifest,
                                        AbstractPackageRepository localPackageRepository,
-                                       Map<String, MavenPackageRepository> mavenPackageRepositoryMap,
+                                       Map<String, PackageRepository> customRepositoryMap,
                                        boolean offline) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
@@ -88,7 +89,7 @@ public class BlendedManifest {
 
             if (depInPkgManifest.repository() != null) {
                 if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) &&
-                    !mavenPackageRepositoryMap.containsKey(depInPkgManifest.repository())) {
+                    !customRepositoryMap.containsKey(depInPkgManifest.repository())) {
                     var diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.CUSTOM_REPOSITORY_NOT_FOUND.diagnosticId(),
                             "Provided custom repository (" + depInPkgManifest.repository() +
@@ -108,15 +109,14 @@ public class BlendedManifest {
                             "Dependency version (" + depInPkgManifest.version() +
                                     ") cannot be found in the local repository. " +
                                     "org: `" + depInPkgManifest.org() + "` name: " + depInPkgManifest.name() + "",
-                            DiagnosticSeverity.WARNING);
+                                DiagnosticSeverity.WARNING);
                     PackageDiagnostic diagnostic = new PackageDiagnostic(
                             diagnosticInfo, depInPkgManifest.location().orElseThrow());
                     diagnostics.add(diagnostic);
                     continue;
                 }
-
                 if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                    targetRepository = mavenPackageRepositoryMap.get(depInPkgManifest.repository());
+                    targetRepository = customRepositoryMap.get(depInPkgManifest.repository());
                 }
             } else {
                 Collection<String> moduleNames = existingDepOptional.isPresent() ?
@@ -139,8 +139,10 @@ public class BlendedManifest {
                     moduleNames = moduleNames(depInPkgManifest, localPackageRepository);
                 } else if (targetRepository instanceof MavenPackageRepository) {
                     moduleNames = moduleNames(depInPkgManifest, (MavenPackageRepository) targetRepository);
+                } else if (targetRepository instanceof OCIPackageRepository) {
+                    moduleNames = moduleNames(depInPkgManifest, (OCIPackageRepository) targetRepository);
                 } else {
-                    // This should not be reached since the repo type is either maven or local
+                    // This should not be reached since the repo type is either maven, OCI or local
                     moduleNames = Collections.emptyList();
                 }
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
@@ -159,8 +161,10 @@ public class BlendedManifest {
                         moduleNames = moduleNames(depInPkgManifest, localPackageRepository);
                     } else if (targetRepository instanceof MavenPackageRepository) {
                         moduleNames = moduleNames(depInPkgManifest, (MavenPackageRepository) targetRepository);
+                    } else if (targetRepository instanceof OCIPackageRepository) {
+                        moduleNames = moduleNames(depInPkgManifest, (OCIPackageRepository) targetRepository);
                     } else {
-                        // This should not be reached since the repo type is either maven or local
+                        // This should not be reached since the repo type is either maven, OCI or local
                         moduleNames = Collections.emptyList();
                     }
                     Dependency newDep = new Dependency(depInPkgManifest.org(), depInPkgManifest.name(),

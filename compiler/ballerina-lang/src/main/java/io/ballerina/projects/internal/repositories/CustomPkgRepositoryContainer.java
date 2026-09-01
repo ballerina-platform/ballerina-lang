@@ -15,6 +15,8 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.environment.PackageRepository;
+
 import java.util.Map;
 
 /**
@@ -24,12 +26,13 @@ import java.util.Map;
  */
 
 public class CustomPkgRepositoryContainer {
-    Map<String, MavenPackageRepository> customPackageRepositories;
-    public CustomPkgRepositoryContainer(Map<String, MavenPackageRepository> customPackageRepositories) {
-        this.customPackageRepositories = customPackageRepositories;
+    Map<String, PackageRepository> customRepositories;
+
+    public CustomPkgRepositoryContainer(Map<String, PackageRepository> customRepositories) {
+        this.customRepositories = customRepositories;
     }
 
-    public Map<String, MavenPackageRepository> getCustomPackageRepositories() {
-        return customPackageRepositories;
+    public Map<String, PackageRepository> getCustomRepositories() {
+        return customRepositories;
     }
 }

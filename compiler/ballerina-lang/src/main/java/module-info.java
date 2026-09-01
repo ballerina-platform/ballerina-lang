@@ -19,7 +19,10 @@ module io.ballerina.lang {
     requires io.ballerina.semtype;
     requires io.ballerina.identifier;
     requires java.semver;
+    requires org.ballerinalang.oci;
     requires maven.resolver;
+    requires com.google.cloud.tools.jib;
+
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;

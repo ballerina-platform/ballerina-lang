@@ -22,6 +22,7 @@ import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -40,7 +41,6 @@ import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
-import io.ballerina.projects.internal.repositories.MavenPackageRepository;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -720,11 +720,11 @@ public class PackageResolution {
 
     private BlendedManifest createBlendedManifest(PackageContext rootPackageContext,
                                                   ProjectEnvironment projectEnvContext, boolean offline) {
-        Map<String, MavenPackageRepository> customPackageRepositoryMap =
-                projectEnvContext.getService(CustomPkgRepositoryContainer.class).getCustomPackageRepositories();
+        Map<String, PackageRepository> customRepositoryMap =
+                projectEnvContext.getService(CustomPkgRepositoryContainer.class).getCustomRepositories();
         return BlendedManifest.from(rootPackageContext.dependencyManifest(),
                 rootPackageContext.packageManifest(),
-                projectEnvContext.getService(LocalPackageRepository.class), customPackageRepositoryMap, offline);
+                projectEnvContext.getService(LocalPackageRepository.class), customRepositoryMap, offline);
     }
 
     private ResolutionOptions getResolutionOptions(CompilationOptions compilationOptions) {
