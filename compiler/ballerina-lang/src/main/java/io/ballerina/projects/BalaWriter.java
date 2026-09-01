@@ -211,9 +211,8 @@ public abstract class BalaWriter {
                     .map(jarName -> "     - " + jarName + ", ")
                     .collect(Collectors.joining(System.lineSeparator()));
             err.println("WARNING: The package '" + this.packageContext.packageName() + "' includes "
-                    + jarsWithoutMavenCoordinates.size() + " platform libraries with no Maven coordinates "
-                    + "(group-id, artifact-id and version), this will result in missing features in "
-                    + "vulnerability scanners: " + System.lineSeparator() + bulletedJars);
+                    + jarsWithoutMavenCoordinates.size() + " platform libraries with no 'group-id', "
+                    + "'artifact-id', and 'version' fields: " + System.lineSeparator() + bulletedJars);
         }
         try {
             putZipEntry(balaOutputStream, Path.of(BOM_JSON),
