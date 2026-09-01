@@ -527,7 +527,7 @@ public class PushCommand implements BLauncherCmd {
             String name = balaProject.currentPackage().manifest().name().toString();
             String version = balaProject.currentPackage().manifest().version().toString();
 
-            Path sbomPath = findSiblingSbomFile(balaPath);
+            Path sbomPath = findSiblingSbomFile(balaPath, name, version);
             try {
                 Path customRepoPath = Files.createTempDirectory("ballerina-" + System.nanoTime());
                 client.pushPackage(balaPath, org, name, version, customRepoPath, sbomPath);
@@ -579,9 +579,9 @@ public class PushCommand implements BLauncherCmd {
         File[] balaFiles = new File(balaOutputDir.toString()).listFiles();
         if (balaFiles != null && balaFiles.length > 0) {
             for (File balaFile : balaFiles) {
-                // The name check alone is not enough to disambiguate: the standalone SBOM file `bal pack` writes
-                // next to the bala (see BalaWriter#writeBomToTargetDir) shares the same "<org>-<name>" prefix, so
-                // the extension must also be checked here.
+                // The name check alone is not enough to disambiguate, so the extension must also be checked
+                // to avoid picking up the standalone SBOM file (`<packageName>-<version>.cdx.json`) written
+                // next to the bala (see BalaWriter#writeBomToTargetDir).
                 if (balaFile != null && balaFile.getName().startsWith(orgName + "-" + pkgName)
                         && balaFile.getName().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)) {
                     balaFilePath = balaFile.toPath();
@@ -593,18 +593,16 @@ public class PushCommand implements BLauncherCmd {
     }
 
     /**
-     * Find the standalone SBOM file {@code bal pack} writes next to the bala, under the fixed name
-     * {@link ProjectConstants#BOM_JSON} (see {@code BalaWriter#writeBomToTargetDir}).
-     *
-     * <p>Because this name is fixed rather than derived from the bala, it always reflects the most recently
-     * packed bala in this directory. If {@code balaPath} is a stale bala left over from an earlier pack (e.g.
-     * after a version bump), the SBOM found here will belong to the newer bala, not this one.</p>
+     * Find the standalone SBOM file {@code bal pack} writes next to the bala, named after the package and
+     * version being pushed (see {@code BalaWriter#writeBomToTargetDir}).
      *
      * @param balaPath path to the bala file being pushed
+     * @param name     name of the package being pushed
+     * @param version  version of the package being pushed
      * @return path to the sibling SBOM file, or {@code null} if none exists next to it
      */
-    private static Path findSiblingSbomFile(Path balaPath) {
-        Path sbomPath = balaPath.resolveSibling(ProjectConstants.BOM_JSON);
+    private static Path findSiblingSbomFile(Path balaPath, String name, String version) {
+        Path sbomPath = balaPath.resolveSibling(name + "-" + version + ".cdx.json");
         return Files.exists(sbomPath) ? sbomPath : null;
     }
 }

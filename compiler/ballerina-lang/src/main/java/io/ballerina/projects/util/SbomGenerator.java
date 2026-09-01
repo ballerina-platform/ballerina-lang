@@ -161,10 +161,13 @@ public final class SbomGenerator {
                 dependsOn.add(ballerinaPurl(directDependency.packageInstance().descriptor()));
             }
 
+            boolean isRootPackage = purl.equals(rootPurl);
+            String declaringPackageLabel = isRootPackage ? null
+                    : descriptor.org().value() + "/" + descriptor.name().value() + ":" + descriptor.version();
             collectPlatformDependencies(nodePackage, backend, componentsByRef, dependsOnByRef, dependsOn,
-                    jarsWithoutMavenCoordinates);
+                    jarsWithoutMavenCoordinates, declaringPackageLabel);
 
-            if (purl.equals(rootPurl)) {
+            if (isRootPackage) {
                 collectBundledJars(nodePackage, bundledJarsByRole, componentsByRef, dependsOnByRef, dependsOn,
                         jarsWithoutMavenCoordinates);
             }
@@ -182,13 +185,16 @@ public final class SbomGenerator {
      * @param dependsOnByRef  accumulating dependency map, so each library also gets its own leaf entry
      * @param dependsOn       dependsOn set of the declaring package
      * @param jarsWithoutMavenCoordinates populated with the file name of each coordinate-less JAR encountered
+     * @param declaringPackageLabel {@code org/name:version} of {@code pkg}, or {@code null} if it is the root
+     *                              package
      */
     private static void collectPlatformDependencies(Package pkg,
                                                     CompilerBackend backend,
                                                     Map<String, Map<String, Object>> componentsByRef,
                                                     Map<String, Set<String>> dependsOnByRef,
                                                     Set<String> dependsOn,
-                                                    List<String> jarsWithoutMavenCoordinates) {
+                                                    List<String> jarsWithoutMavenCoordinates,
+                                                    String declaringPackageLabel) {
         if (backend == null) {
             return;
         }
@@ -204,7 +210,7 @@ public final class SbomGenerator {
             String sha256 = sha256(jarLibrary.path());
             String ref = jarRef(jarLibrary, pkg, sha256);
             componentsByRef.computeIfAbsent(ref,
-                    key -> jarComponent(jarLibrary, ref, sha256, jarsWithoutMavenCoordinates));
+                    key -> jarComponent(jarLibrary, ref, sha256, jarsWithoutMavenCoordinates, declaringPackageLabel));
 
             Set<String> jarDependsOn = dependsOnByRef.computeIfAbsent(ref, key -> new TreeSet<>());
             dependsOn.add(ref);
@@ -425,10 +431,13 @@ public final class SbomGenerator {
      * @param ref        bom-ref of the library
      * @param sha256     hash of the library's JAR file, or {@code null} when it could not be computed
      * @param jarsWithoutMavenCoordinates appended with this JAR's file name when it carries no Maven coordinates
+     * @param declaringPackageLabel {@code org/name:version} of the declaring package, or {@code null} if it is
+     *                              the root package
      * @return CycloneDX component
      */
     private static Map<String, Object> jarComponent(JarLibrary jarLibrary, String ref, String sha256,
-                                                     List<String> jarsWithoutMavenCoordinates) {
+                                                     List<String> jarsWithoutMavenCoordinates,
+                                                     String declaringPackageLabel) {
         Map<String, Object> component = new LinkedHashMap<>();
         component.put("type", COMPONENT_TYPE_LIBRARY);
         component.put("bom-ref", ref);
@@ -442,8 +451,10 @@ public final class SbomGenerator {
             component.put("version", version.get());
             component.put("purl", mavenPurl(groupId.get(), artifactId.get(), version.get()));
         } else {
-            component.put("name", fileName(jarLibrary));
-            jarsWithoutMavenCoordinates.add(fileName(jarLibrary));
+            String fileName = fileName(jarLibrary);
+            component.put("name", fileName);
+            jarsWithoutMavenCoordinates.add(declaringPackageLabel == null ? fileName
+                    : declaringPackageLabel + " - " + fileName);
         }
 
         if (sha256 != null) {

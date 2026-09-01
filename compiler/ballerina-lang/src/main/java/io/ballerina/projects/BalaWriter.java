@@ -141,10 +141,8 @@ public abstract class BalaWriter {
      * bala, so it can be published as a separate artifact alongside the bala. Writing this file is best-effort:
      * a failure here should not fail the pack, since the BOM is already embedded inside the bala itself.
      *
-     * <p>Uses the fixed {@link #BOM_JSON} name rather than one derived from the bala (org/name/version/platform):
-     * {@code balaDir} is expected to hold a single bala at a time, so this file is always overwritten by the most
-     * recently packed bala. If a stale bala from an earlier pack is pushed later from the same directory, its
-     * published SBOM will reflect the most recently packed version instead, not the one being pushed.</p>
+     * <p>Named after the package and version so each package's standalone SBOM remains uniquely identifiable and
+     * separate from any other package's (or version's) SBOM written into the same {@code balaDir}.</p>
      *
      * @param balaDir directory the bala was written to
      */
@@ -152,10 +150,12 @@ public abstract class BalaWriter {
         if (this.bomJson == null) {
             return;
         }
+        String bomFileName = this.packageContext.packageName().value() + "-"
+                + this.packageContext.packageVersion().value().toString() + ".cdx.json";
         try {
-            Files.writeString(balaDir.resolve(BOM_JSON), this.bomJson, StandardCharsets.UTF_8);
+            Files.writeString(balaDir.resolve(bomFileName), this.bomJson, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            err.println("Failed to write '" + BOM_JSON + "' file: " + e.getMessage());
+            err.println("Failed to write '" + bomFileName + "' file: " + e.getMessage());
         }
     }
 
@@ -207,10 +207,12 @@ public abstract class BalaWriter {
             return;
         }
         if (!jarsWithoutMavenCoordinates.isEmpty()) {
-            err.println("WARNING: SBOM for package '" + this.packageContext.packageName() + "' includes "
-                    + jarsWithoutMavenCoordinates.size() + " JAR(s) with no Maven coordinates, identified only by "
-                    + "file name and content hash: " + String.join(", ", jarsWithoutMavenCoordinates)
-                    );
+            String bulletedJars = jarsWithoutMavenCoordinates.stream()
+                    .map(jarName -> "     - " + jarName + ", ")
+                    .collect(Collectors.joining(System.lineSeparator()));
+            err.println("WARNING: The package '" + this.packageContext.packageName() + "' includes "
+                    + jarsWithoutMavenCoordinates.size() + " platform libraries with no 'group-id', "
+                    + "'artifact-id', and 'version' fields: " + System.lineSeparator() + bulletedJars);
         }
         try {
             putZipEntry(balaOutputStream, Path.of(BOM_JSON),
