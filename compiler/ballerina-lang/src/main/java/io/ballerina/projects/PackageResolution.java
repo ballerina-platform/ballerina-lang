@@ -346,11 +346,16 @@ public class PackageResolution {
                         PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
             allModuleLoadRequests.add(observeModuleLoadReq);
 
-            String otelModuleName = Names.OTEL.getValue();
-            ModuleLoadRequest otelModuleLoadReq = new ModuleLoadRequest(
-                        PackageOrg.from(Names.BALLERINA_ORG.value), otelModuleName,
-                        PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
-            allModuleLoadRequests.add(otelModuleLoadReq);
+            // The ballerina/otel package is resolved from source so that improvements can be pulled
+            // from Ballerina Central. For BALA projects the dependency graph is already locked at
+            // build time, hence we must not inject the otel SOURCE dependency into that graph.
+            if (rootPackageContext.project().kind() != ProjectKind.BALA_PROJECT) {
+                String otelModuleName = Names.OTEL.getValue();
+                ModuleLoadRequest otelModuleLoadReq = new ModuleLoadRequest(
+                            PackageOrg.from(Names.BALLERINA_ORG.value), otelModuleName,
+                            PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
+                allModuleLoadRequests.add(otelModuleLoadReq);
+            }
         }
 
         // TODO Can we make this a builtin compiler plugin
