@@ -55,7 +55,7 @@ public class JvmModuleUtils {
         }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!packageID.version.value.isEmpty()) {
-                packageName = getMajorVersion(packageID.version.value) + separator;
+                packageName = Utils.encodeNonFunctionIdentifier(packageID.version.value) + separator;
             }
             packageName = moduleName + separator + packageName;
         }
