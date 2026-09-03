@@ -68,6 +68,7 @@ public class Names {
     public static final Name TRANSACTION = new Name("transaction");
     public static final Name NATURAL_PROGRAMMING = new Name("ai.np");
     public static final Name OBSERVE = new Name("observe");
+    public static final Name OTEL = new Name("otel");
     public static final Name CLOUD = new Name("cloud");
     public static final Name TABLE = new Name("table");
     public static final Name TEST = new Name("test");
