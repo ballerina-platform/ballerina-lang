@@ -390,18 +390,25 @@ public final class XmlFactory {
     }
 
     /**
-     * Create a comment type XMLValue.
+     * Create an XML text value.
      *
      * @param content Text content
      * @return XMLValue Text type XMLValue
      */
     @Deprecated
     public static XmlValue createXMLText(String content) {
-        return new XmlText(XMLTextUnescape.unescape(content));
+        if (content == null || content.isEmpty()) {
+            return new XmlSequence();
+        }
+        String unescaped = XMLTextUnescape.unescape(content);
+        if (unescaped.isEmpty()) {
+            return new XmlSequence();
+        }
+        return new XmlText(unescaped);
     }
 
     /**
-     * Create a comment type XMLValue.
+     * Create an XML text value.
      *
      * @param contentVal Text content
      * @return XMLValue Text type XMLValue
