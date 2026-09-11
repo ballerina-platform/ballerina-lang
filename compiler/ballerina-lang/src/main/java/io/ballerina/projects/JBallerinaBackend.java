@@ -610,6 +610,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        mainAttributes.putValue("Enable-Native-Access", "ALL-UNNAMED");
         return manifest;
     }
 
@@ -619,6 +620,8 @@ public class JBallerinaBackend extends CompilerBackend {
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        // See the comment in createManifest() above.
+        mainAttributes.putValue("Enable-Native-Access", "ALL-UNNAMED");
         return manifest;
     }
 
