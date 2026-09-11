@@ -62,6 +62,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
         this.backend = backend;
         this.packageContext = backend.packageContext();
+        this.compilerBackend = backend;
         this.compilerPluginToml = readCompilerPluginToml();
         this.balToolToml = readBalToolToml();
         this.target = getTargetPlatform(packageContext.getResolution()).code();

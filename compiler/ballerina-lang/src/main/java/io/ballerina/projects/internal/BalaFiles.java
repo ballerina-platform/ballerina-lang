@@ -394,6 +394,7 @@ public final class BalaFiles {
             if (!Objects.equals(PlatformLibraryScope.PROVIDED.getStringValue(), dependency.getScope())) {
                 Path libPath = balaPath.getParent().resolve(dependency.getPath());
                 if (!Files.exists(libPath)) {
+                    validateExtractionPath(balaPath.getParent(), libPath, dependency.getPath());
                     try {
                         Files.createDirectories(libPath.getParent());
                         Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
@@ -415,6 +416,7 @@ public final class BalaFiles {
         compilerPluginJson.dependencyPaths().forEach(dependencyPath -> {
             Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
+                validateExtractionPath(balaPath.getParent(), libPath, dependencyPath);
                 try {
                     Files.createDirectories(libPath.getParent());
                     // TODO: Need to refactor this fix
@@ -442,6 +444,7 @@ public final class BalaFiles {
         balToolJson.get().dependencyPaths().forEach(dependencyPath -> {
             Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
+                validateExtractionPath(balaPath.getParent(), libPath, dependencyPath);
                 try {
                     Files.createDirectories(libPath.getParent());
                     Path libPathInZip = Path.of(dependencyPath);
@@ -456,6 +459,28 @@ public final class BalaFiles {
             dependencyLibPaths.add(libPath.toString());
         });
         balToolJson.get().setDependencyPaths(dependencyLibPaths);
+    }
+
+    /**
+     * Validates that a platform/compiler-plugin/bal-tool dependency path read from a bala's metadata
+     * (package.json, compiler-plugin.json, bal-tool.json) resolves to a location within the intended
+     * extraction directory, before a new file is written to it. Rejects any path (relative with '..'
+     * segments, or absolute) that would otherwise cause a new file to be created outside {@code baseDir}.
+     * Only called when the resolved path does not already exist, since referencing an already-existing
+     * file (e.g. a platform library still sitting at its original build-time location) is not a write
+     * and carries no traversal risk.
+     *
+     * @param baseDir the intended extraction directory (the bala's parent directory)
+     * @param resolvedPath the destination path computed from the untrusted dependency path
+     * @param dependencyPath the original, untrusted dependency path (used only for the error message)
+     */
+    private static void validateExtractionPath(Path baseDir, Path resolvedPath, String dependencyPath) {
+        Path canonicalBase = baseDir.toAbsolutePath().normalize();
+        Path canonicalResolved = resolvedPath.toAbsolutePath().normalize();
+        if (!canonicalResolved.startsWith(canonicalBase)) {
+            throw new ProjectException(
+                    "invalid dependency path in bala: '" + dependencyPath + "' resolves outside the bala directory");
+        }
     }
 
     private static void setCompilerPluginDependencyPaths(CompilerPluginJson compilerPluginJson, Path balaPath) {

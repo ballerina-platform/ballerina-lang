@@ -2419,6 +2419,37 @@ public class BuildCommandTest extends BaseCommandTest {
                         .replace("\r", ""));
     }
 
+    @Test
+    public void testFreshProjectWithStickyInBallerinaToml() throws IOException {
+        Path projectPath = this.testResources.resolve("projects-for-locking-modes/testLockingModeStickyInToml");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        // Delete dependencies.toml from the project if exists
+        Path depsTomlActual = projectPath.resolve("Dependencies.toml");
+        if (Files.exists(depsTomlActual)) {
+            Files.delete(depsTomlActual);
+        }
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true).replace("\r", "");
+            Assert.fail("Build failed with error: \n" + buildLog);
+        }
+
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating executable"));
+
+        Path depsTomlExpected = projectPath.resolve("resources").resolve("Dependencies-hard.toml");
+        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset())
+                        .replace("**INSERT_DISTRIBUTION_VERSION_HERE**", RepoUtils.getBallerinaShortVersion())
+                        .replace("\r", ""),
+                Files.readString(depsTomlExpected, Charset.defaultCharset())
+                        .replace("**INSERT_DISTRIBUTION_VERSION_HERE**", RepoUtils.getBallerinaShortVersion())
+                        .replace("\r", ""));
+    }
+
     @Test(dataProvider = "differentUpdatePolicies")
     public void testDifferentUpdatePoliciesForExistingProject(String args, String fileName) throws IOException {
         Path projectPath = this.testResources.resolve("projects-for-locking-modes/testLockingMode");

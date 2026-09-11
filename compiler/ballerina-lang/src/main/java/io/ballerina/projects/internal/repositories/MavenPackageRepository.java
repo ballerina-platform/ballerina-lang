@@ -209,14 +209,15 @@ public class MavenPackageRepository implements PackageRepository {
         try {
             for (ImportModuleRequest importModuleRequest : requests) {
                 String orgName = importModuleRequest.packageOrg().value();
+                String moduleName = importModuleRequest.moduleName();
                 List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(
-                        importModuleRequest.packageOrg(), importModuleRequest.moduleName());
+                        importModuleRequest.packageOrg(), moduleName);
                 for (PackageName packageName : possiblePackageNames) {
                     List<String> packageVersions;
                     if (isProxyCentral) { // TODO : check central logic
                         packageVersions = this.client.getPackageVersionsInCentralProxy(
-                                orgName, packageName.toString(), RepoUtils.getBallerinaShortVersion(),
-                                Paths.get(repoLocation));
+                                orgName, packageName.toString(), moduleName,
+                                RepoUtils.getBallerinaShortVersion(), Paths.get(repoLocation));
                     } else {
                         packageVersions = this.client.getPackageVersions(
                                 orgName, packageName.toString(), Paths.get(repoLocation));

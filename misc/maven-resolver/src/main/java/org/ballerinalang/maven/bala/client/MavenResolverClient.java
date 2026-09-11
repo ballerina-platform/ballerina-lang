@@ -61,7 +61,12 @@ import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
+import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
+import org.eclipse.aether.spi.connector.transport.PutTask;
+import org.eclipse.aether.spi.connector.transport.Transporter;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
+import org.eclipse.aether.spi.connector.transport.TransporterProvider;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.SubArtifact;
@@ -75,6 +80,7 @@ import org.xml.sax.SAXException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,8 +112,12 @@ public class MavenResolverClient {
     private static final String METADATA_UPDATE_INTERVAL = "interval:10";
     private static final int CACHE_MAX_SIZE = 100;
 
+    private static final String SBOM_FILE_EXTENSION = ".cdx.json";
+
     private final RepositorySystem system;
     private final DefaultRepositorySystemSession session;
+    private final RepositoryLayoutProvider repositoryLayoutProvider;
+    private final TransporterProvider transporterProvider;
 
     // LRU caches bounded to CACHE_MAX_SIZE to prevent unbounded memory growth.
     private final Map<String, PackageMavenMetadata> pkgMetadataCache =
@@ -139,6 +149,8 @@ public class MavenResolverClient {
         locator.addService(TransporterFactory.class, FileTransporterFactory.class);
         locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
         system = locator.getService(RepositorySystem.class);
+        repositoryLayoutProvider = locator.getService(RepositoryLayoutProvider.class);
+        transporterProvider = locator.getService(TransporterProvider.class);
         session = MavenRepositorySystemUtils.newSession();
     }
 
@@ -180,6 +192,29 @@ public class MavenResolverClient {
      */
     public void pushPackage(Path balaPath, String orgName, String packageName, String version, Path localRepoPath)
             throws MavenResolverClientException {
+        pushPackage(balaPath, orgName, packageName, version, localRepoPath, null);
+    }
+
+    /**
+     * Deploys the provided artifact, together with its SBOM, into the repository.
+     *
+     * <p>The SBOM is uploaded separately as a raw file named {@code <packageName>-<version>.cdx.json}, next to
+     * the bala/pom, rather than as a classified Maven artifact via {@link SubArtifact}. A classified artifact
+     * would be renamed by Maven's repository layout to {@code <artifactId>-<version>-<classifier>.<extension>};
+     * uploading it directly through the repository's {@link Transporter} instead keeps this exact file name, at
+     * the cost of it no longer being resolvable via Maven GAV+classifier coordinates — a consumer needs to know
+     * this naming convention to fetch it back.</p>
+     *
+     * @param balaPath      path to the bala
+     * @param orgName       organization name
+     * @param packageName   package name
+     * @param version       version of the package
+     * @param localRepoPath path to the local Maven repository used during deployment
+     * @param sbomPath      path to the SBOM file to upload, or {@code null} to skip uploading one
+     * @throws MavenResolverClientException when deployment fails
+     */
+    public void pushPackage(Path balaPath, String orgName, String packageName, String version, Path localRepoPath,
+                             Path sbomPath) throws MavenResolverClientException {
         LocalRepository localRepo = new LocalRepository(localRepoPath.toAbsolutePath().toString());
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         DeployRequest deployRequest = new DeployRequest();
@@ -191,7 +226,38 @@ public class MavenResolverClient {
             File temporaryPom = generatePomFile(orgName, packageName, version);
             deployRequest.addArtifact(new SubArtifact(mainArtifact, "", POM, temporaryPom));
             system.deploy(session, deployRequest);
+            if (sbomPath != null && Files.isRegularFile(sbomPath)) {
+                uploadRawFile(remoteRepository, mainArtifact, sbomPath, packageName + "-" + version
+                        + SBOM_FILE_EXTENSION);
+            }
         } catch (DeploymentException | IOException e) {
+            throw new MavenResolverClientException(e.getMessage());
+        }
+    }
+
+    /**
+     * Uploads a file to the given remote repository at the location of {@code baseArtifact}, under {@code
+     * fileName}, bypassing Maven's coordinate-based artifact naming.
+     *
+     * @param remoteRepository repository to upload to
+     * @param baseArtifact     artifact whose directory the file is uploaded alongside
+     * @param sourceFile       file to upload
+     * @param fileName         name to give the file in the repository
+     * @throws MavenResolverClientException when the layout/transporter cannot be resolved or the upload fails
+     */
+    private void uploadRawFile(RemoteRepository remoteRepository, Artifact baseArtifact, Path sourceFile,
+                               String fileName) throws MavenResolverClientException {
+        try {
+            RepositoryLayout layout = repositoryLayoutProvider.newRepositoryLayout(session, remoteRepository);
+            URI artifactLocation = layout.getLocation(baseArtifact, true);
+            URI fileLocation = artifactLocation.resolve(fileName);
+            Transporter transporter = transporterProvider.newTransporter(session, remoteRepository);
+            try {
+                transporter.put(new PutTask(fileLocation).setDataFile(sourceFile.toFile()));
+            } finally {
+                transporter.close();
+            }
+        } catch (Exception e) {
             throw new MavenResolverClientException(e.getMessage());
         }
     }
@@ -251,6 +317,41 @@ public class MavenResolverClient {
             }
             return pkgMetadataCache.get(cacheKey).getVersions().stream()
                     .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
+                    .map(Version::getVersion)
+                    .collect(Collectors.toList());
+        } catch (MavenResolverClientException e) {
+            throw new MavenResolverClientException("Failed to get package metadata: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get versions of a package from the central proxy Maven repository that contain the specified module,
+     * using a cached metadata lookup.
+     *
+     * <p>When the metadata includes a module list, only versions that export {@code moduleName} are returned.
+     * If a version's module list is empty (older packages that predate module metadata), it is included
+     * unconditionally to preserve backward compatibility.
+     *
+     * @param groupId            group ID of the package
+     * @param artifactId         artifact ID of the package
+     * @param moduleName         fully-qualified module name to filter by (e.g. {@code "openai.chat"})
+     * @param ballerinaVersion   current Ballerina distribution version for compatibility filtering
+     * @param localRepoPath      path to the local Maven repository
+     * @return list of version strings
+     * @throws MavenResolverClientException when version resolution fails
+     */
+    public List<String> getPackageVersionsInCentralProxy(String groupId, String artifactId, String moduleName,
+                                                         String ballerinaVersion, Path localRepoPath) throws
+            MavenResolverClientException {
+        try {
+            String cacheKey = groupId + ":" + artifactId;
+            if (!pkgMetadataCache.containsKey(cacheKey)) {
+                pkgMetadataCache.put(cacheKey, fetchPackageMetadata(groupId, artifactId, localRepoPath,
+                        ballerinaVersion));
+            }
+            return pkgMetadataCache.get(cacheKey).getVersions().stream()
+                    .filter(v -> isPkgDistVersionCompatible(ballerinaVersion, v.getBallerinaVersion()))
+                    .filter(v -> v.getModules().isEmpty() || v.getModules().contains(moduleName))
                     .map(Version::getVersion)
                     .collect(Collectors.toList());
         } catch (MavenResolverClientException e) {
@@ -1024,6 +1125,22 @@ public class MavenResolverClient {
         version.setPlatform(getElementTextContent(element, "platform"));
         version.setIsDeprecated(Boolean.parseBoolean(getElementTextContent(element, "isDeprecated")));
         version.setBallerinaVersion(getElementTextContent(element, "ballerinaVersion"));
+
+        List<String> modules = new ArrayList<>();
+        Element modulesElement = (Element) element.getElementsByTagName("modules").item(0);
+        if (modulesElement != null) {
+            NodeList moduleNodes = modulesElement.getElementsByTagName("module");
+            for (int i = 0; i < moduleNodes.getLength(); i++) {
+                Node moduleNode = moduleNodes.item(i);
+                if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
+                    String moduleName = getElementTextContent((Element) moduleNode, "name");
+                    if (!moduleName.isEmpty()) {
+                        modules.add(moduleName);
+                    }
+                }
+            }
+        }
+        version.setModules(modules);
         return version;
     }
 

@@ -47,6 +47,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -315,7 +316,8 @@ public class MavenPackageRepositoryTests {
             groups = {"proxy"})
     public void testGetPackageNamesProxyCentralSuccess() throws MavenResolverClientException {
         MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
-        Mockito.when(mockClient.getPackageVersionsInCentralProxy(anyString(), anyString(), anyString(), any()))
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        anyString(), anyString(), anyString(), anyString(), any()))
                 .thenReturn(List.of("0.1.0"));
 
         MavenPackageRepository repo = proxyRepo(mockClient);
@@ -336,13 +338,15 @@ public class MavenPackageRepositoryTests {
 
         repo.getPackageNames(List.of(importRequest), ResolutionOptions.builder().setOffline(true).build());
 
-        verify(mockClient, never()).getPackageVersionsInCentralProxy(anyString(), anyString(), anyString(), any());
+        verify(mockClient, never()).getPackageVersionsInCentralProxy(
+                anyString(), anyString(), anyString(), anyString(), any());
     }
 
     @Test(description = "Proxy: getPackageNames falls back to FS when client throws", groups = {"proxy"})
     public void testGetPackageNamesProxyCentralClientThrows() throws MavenResolverClientException {
         MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
-        Mockito.when(mockClient.getPackageVersionsInCentralProxy(anyString(), anyString(), anyString(), any()))
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        anyString(), anyString(), anyString(), anyString(), any()))
                 .thenThrow(new MavenResolverClientException("network error"));
 
         MavenPackageRepository repo = proxyRepo(mockClient);
@@ -354,6 +358,34 @@ public class MavenPackageRepositoryTests {
                 List.of(importRequest), ResolutionOptions.builder().setOffline(false).build());
 
         Assert.assertNotNull(responses);
+    }
+
+    @Test(description = "Proxy: getPackageNames resolves hierarchical module name to correct package",
+            groups = {"proxy"})
+    public void testGetPackageNamesProxyCentralHierarchicalModule() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        // "openai" exists but does NOT contain module "openai.chat" — returns empty list for that module
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        eq("ballerinax"), eq("openai"), eq("openai.chat"), anyString(), any()))
+                .thenReturn(List.of());
+        // "openai.chat" contains module "openai.chat" — returns versions
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        eq("ballerinax"), eq("openai.chat"), eq("openai.chat"), anyString(), any()))
+                .thenReturn(List.of("1.0.0"));
+
+        MavenPackageRepository repo = proxyRepo(mockClient);
+        ImportModuleRequest importRequest = new ImportModuleRequest(
+                PackageOrg.from("ballerinax"), "openai.chat", List.of());
+
+        Collection<ImportModuleResponse> responses = repo.getPackageNames(
+                List.of(importRequest), ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertFalse(responses.isEmpty());
+        ImportModuleResponse response = responses.stream()
+                .filter(r -> r.packageDescriptor() != null)
+                .findFirst().orElse(null);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.packageDescriptor().name().value(), "openai.chat");
     }
 
     @Test(description = "Proxy: getPackageMetadata resolves package via central proxy", groups = {"proxy"})

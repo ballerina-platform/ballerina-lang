@@ -140,6 +140,9 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn configurations.dist
     from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
+    // CVE-2026-45292: opentelemetry-api's W3CBaggagePropagator/Parser parse the W3C "baggage"
+    // header without enforcing entry-count/size limits, allowing unbounded memory allocation.
+    exclude 'io/opentelemetry/api/baggage/propagation/**'
 }
 
 description = 'Ballerina - Runtime'
