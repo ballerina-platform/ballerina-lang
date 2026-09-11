@@ -392,8 +392,10 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
                 .convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
                 nativeConfigPath.resolve("reflect-config.json").toString())));
-        nativeArgs.add("-H:-UnlockExperimentalVMOptions");        
+        nativeArgs.add("-H:-UnlockExperimentalVMOptions");
         nativeArgs.add("--no-fallback");
+        nativeArgs.add("--enable-native-access=ALL-UNNAMED");
+        nativeArgs.add("-Dsun.misc.unsafe.memory.access=allow");
 
 
         // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and

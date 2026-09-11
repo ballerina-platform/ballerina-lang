@@ -800,19 +800,21 @@ public class JBallerinaBackend extends CompilerBackend {
         List<String> nativeArgs = new ArrayList<>();
         Path nativeConfigPath = packageContext.project().targetDir().resolve("cache");
 
+        String nativeAccessArg = "--enable-native-access=ALL-UNNAMED";
+        String unsafeMemoryAccessArg = "-Dsun.misc.unsafe.memory.access=allow";
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-o " + executableFilePath.getParent() + "/" + nativeImageName,
-                    "--no-fallback"));
+                    "--no-fallback", nativeAccessArg, unsafeMemoryAccessArg));
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-o " + executableFilePath.getParent() + "/" + nativeImageName,
-                    "--no-fallback"));
+                    "--no-fallback", nativeAccessArg, unsafeMemoryAccessArg));
         }
 
         if (!Files.exists(nativeConfigPath)) {
