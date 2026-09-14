@@ -221,6 +221,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testCreateTextWithEmptyString() {
+        BRunUtil.invoke(compileResult, "testCreateTextWithEmptyString");
+    }
+
+    @Test
     public void testForEach() {
         BRunUtil.invoke(compileResult, "testForEach");
     }
