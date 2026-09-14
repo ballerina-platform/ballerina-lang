@@ -801,7 +801,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Path nativeConfigPath = packageContext.project().targetDir().resolve("cache");
 
         String nativeAccessArg = "--enable-native-access=ALL-UNNAMED";
-        String unsafeMemoryAccessArg = "-Dsun.misc.unsafe.memory.access=allow";
+        String unsafeMemoryAccessArg = "-J--sun-misc-unsafe-memory-access=allow";
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));

@@ -121,15 +121,6 @@
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.cli.cmd.CommandUtil" />
-        <Method name="getPackageVersions" />
-        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
-    </Match>
-    <Match>
-        <Class name="io.ballerina.cli.cmd.ToolUseCommand" />
-        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
-    </Match>
-    <Match>
         <Class name="io.ballerina.cli.utils.NativeUtils" />
         <Method name="getURLList" />
         <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />

@@ -1144,7 +1144,7 @@ public final class CommandUtil {
             try (Stream<Path> collectVersions = Files.list(balaPackagePath)) {
                 versions.addAll(collectVersions.toList());
             } catch (IOException e) {
-                throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+                throw createLauncherException("error while accessing Distribution cache: " + e.getMessage());
             }
         }
         return pathToVersions(versions);

@@ -212,14 +212,4 @@
         <Class name="org.ballerinalang.langserver.apispec.TypeSchema$ObjectTypeSchema"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
-    <Match>
-        <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager$ProjectContext" />
-        <Field name="compilationCrashed" />
-        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager$ProjectContext" />
-        <Field name="projectCrashed" />
-        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
-    </Match>
 </FindBugsFilter>

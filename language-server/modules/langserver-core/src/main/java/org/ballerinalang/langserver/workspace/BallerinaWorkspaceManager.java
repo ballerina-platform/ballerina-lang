@@ -1578,11 +1578,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         private final Lock lock;
         private Project project;
 
-        private boolean compilationCrashed;
+        private volatile boolean compilationCrashed;
 
         private Process process;
 
-        private boolean projectCrashed;
+        private volatile boolean projectCrashed;
 
         private ProjectContext(Project project, Lock lock) {
             this.project = project;

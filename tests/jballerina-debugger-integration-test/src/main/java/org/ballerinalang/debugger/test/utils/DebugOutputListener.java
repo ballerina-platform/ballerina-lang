@@ -31,7 +31,7 @@ public class DebugOutputListener extends TimerTask {
 
     private final DAPClientConnector connector;
     private OutputEventArguments lastOutputContext;
-    private boolean debugOutputFound;
+    private volatile boolean debugOutputFound;
     private OutputEventArguments[] outputs;
     private String lastOutputLog;
 

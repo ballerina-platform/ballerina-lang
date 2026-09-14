@@ -26,7 +26,7 @@ import java.util.TimerTask;
 public class DebugTerminationListener extends TimerTask {
 
     DAPClientConnector connector;
-    private boolean terminationFound;
+    private volatile boolean terminationFound;
 
     public DebugTerminationListener(DAPClientConnector connector) {
         this.connector = connector;

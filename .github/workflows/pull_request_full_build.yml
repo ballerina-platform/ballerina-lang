@@ -120,14 +120,20 @@ jobs:
             else
               repo_name="${module_name}"
             fi
-            cd $repo_name && git fetch origin && git checkout -t origin/java-25-migration || : && cd ..
+            cd $repo_name && git fetch origin && git checkout -t origin/java-25-migration
+            cd ..
           done
         shell: bash
 
       - name: Update Lang Version in Module
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-          perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" ${module_name}/gradle.properties; \
+          if [[ $module_name == *-tool ]]; then \
+            repo_name="${module_name}s"; \
+          else \
+            repo_name="${module_name}"; \
+          fi; \
+          perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" ${repo_name}/gradle.properties; \
           done
 
       - name: Build Module
