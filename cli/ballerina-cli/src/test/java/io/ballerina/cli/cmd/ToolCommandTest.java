@@ -382,7 +382,7 @@ public class ToolCommandTest extends BaseCommandTest {
         toolLocationCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), Paths.get("build/user-home/" +
-                ".ballerina/repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java17").toAbsolutePath() + "\n");
+                ".ballerina/repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java25").toAbsolutePath() + "\n");
     }
 
     @Test(description = "Test tool search via Maven proxy - tool found")

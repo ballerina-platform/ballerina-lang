@@ -4,6 +4,8 @@ plugins {
     id 'ballerinaLangLibLoad'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 //apply plugin: 'jacoco'
 
 configurations {

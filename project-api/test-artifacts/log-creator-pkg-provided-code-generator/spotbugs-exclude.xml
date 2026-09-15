@@ -26,4 +26,9 @@
         <Method name="appendToOutputFile" />
         <Bug pattern="SWL_SLEEP_WITH_LOCK_HELD" />
     </Match>
+    <Match>
+        <Class name="io.luhee.plugins.pkg.generator.LogCodeGeneratorPkgPlugin" />
+        <Method name="appendToOutputFile" />
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
+    </Match>
 </FindBugsFilter>

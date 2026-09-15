@@ -725,7 +725,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                                                  PackageCompilation packageCompilation) {
         Lock lock = projectContext.lockAndGet();
         try {
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21, false);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_25, false);
             Package pkg = projectContext.project.currentPackage();
             for (Module module : pkg.modules()) {
                 for (DocumentId id : module.documentIds()) {
@@ -1578,11 +1578,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         private final Lock lock;
         private Project project;
 
-        private boolean compilationCrashed;
+        private volatile boolean compilationCrashed;
 
         private Process process;
 
-        private boolean projectCrashed;
+        private volatile boolean projectCrashed;
 
         private ProjectContext(Project project, Lock lock) {
             this.project = project;

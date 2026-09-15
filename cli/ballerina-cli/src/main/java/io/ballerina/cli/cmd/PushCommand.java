@@ -493,7 +493,7 @@ public class PushCommand implements BLauncherCmd {
             authenticate(settingsTomlFilePath, client);
 
             try {
-                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_21.code(),
+                client.pushPackage(balaPath, org, name, version, balaProject.platform(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();

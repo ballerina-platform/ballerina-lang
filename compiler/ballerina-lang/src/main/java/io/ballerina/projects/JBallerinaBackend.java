@@ -610,6 +610,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        mainAttributes.putValue("Enable-Native-Access", "ALL-UNNAMED");
         return manifest;
     }
 
@@ -619,6 +620,8 @@ public class JBallerinaBackend extends CompilerBackend {
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        // See the comment in createManifest() above.
+        mainAttributes.putValue("Enable-Native-Access", "ALL-UNNAMED");
         return manifest;
     }
 
@@ -797,19 +800,21 @@ public class JBallerinaBackend extends CompilerBackend {
         List<String> nativeArgs = new ArrayList<>();
         Path nativeConfigPath = packageContext.project().targetDir().resolve("cache");
 
+        String nativeAccessArg = "--enable-native-access=ALL-UNNAMED";
+        String unsafeMemoryAccessArg = "-J--sun-misc-unsafe-memory-access=allow";
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-o " + executableFilePath.getParent() + "/" + nativeImageName,
-                    "--no-fallback"));
+                    "--no-fallback", nativeAccessArg, unsafeMemoryAccessArg));
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-o " + executableFilePath.getParent() + "/" + nativeImageName,
-                    "--no-fallback"));
+                    "--no-fallback", nativeAccessArg, unsafeMemoryAccessArg));
         }
 
         if (!Files.exists(nativeConfigPath)) {
