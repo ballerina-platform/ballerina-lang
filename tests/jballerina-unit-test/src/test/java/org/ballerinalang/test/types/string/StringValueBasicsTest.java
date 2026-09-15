@@ -81,6 +81,11 @@ public class StringValueBasicsTest extends BStringTestCommons {
         testAndAssert("anydataToStringCast", 6);
     }
 
+    @Test
+    public void testConcurrentAnydataStringEquality() {
+        BRunUtil.invoke(result, "testConcurrentAnydataStringEquality");
+    }
+
     @Override
     @AfterClass
     public void tearDown() {
