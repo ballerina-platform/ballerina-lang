@@ -29,8 +29,6 @@ import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -137,31 +135,14 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     private static final class BStringTypeCache {
 
-        private static final Cache<String, BStringType> mediumCache = CacheFactory.createCache();
-        private static final Map<String, BStringType> smallCache = new WeakHashMap<>();
+        private static final int LARGE_STRING_LENGTH = 64;
+        private static final Cache<String, BStringType> cache = CacheFactory.createCache();
 
         public static BStringType get(String value) {
-            return switch (Kind.getKind(value)) {
-                case SMALL -> smallCache.computeIfAbsent(value, BStringType::createSingletonType);
-                case MEDIUM -> mediumCache.get(value, BStringType::createSingletonType);
-                case LARGE -> BStringType.createSingletonType(value);
-            };
-        }
-
-        enum Kind {
-            SMALL,
-            MEDIUM,
-            LARGE;
-
-            public static Kind getKind(String value) {
-                if (value.length() < 16) {
-                    return SMALL;
-                } else if (value.length() < 64) {
-                    return MEDIUM;
-                } else {
-                    return LARGE;
-                }
+            if (value.length() >= LARGE_STRING_LENGTH) {
+                return BStringType.createSingletonType(value);
             }
+            return cache.get(value, BStringType::createSingletonType);
         }
     }
 }
