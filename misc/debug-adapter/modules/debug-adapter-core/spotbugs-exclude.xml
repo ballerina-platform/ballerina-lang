@@ -88,7 +88,36 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,CT_CONSTRUCTOR_THROW"/>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
         <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION,THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.JDIEventProcessor"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.breakpoint.TemplateLogMessage"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.completion.util.CommonUtil"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.ExpressionAsProgramEvaluator"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.evaluation.validator.Validator"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.runner.BProgramRunner"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.variable.types.BTable"/>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.debugadapter.breakpoint.BalBreakpoint" />

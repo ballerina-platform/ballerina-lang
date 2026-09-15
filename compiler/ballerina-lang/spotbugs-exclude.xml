@@ -495,11 +495,134 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.repositories.FileSystemRepository" />
-        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE,THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
     </Match>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR,
-        CT_CONSTRUCTOR_THROW,PA_PUBLIC_PRIMITIVE_ATTRIBUTE,THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.api.impl.symbols.BallerinaSymbol"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.BalToolsToml"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW,THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.BuildToolResolution"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.JBallerinaBackend"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.JarResolver"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.ModuleContext"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.PackageResolution"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.SingleFileProject"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.BalToolsManifestBuilder"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.DependencyManifestBuilder"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.PackageDependencyGraphBuilder"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.SettingsBuilder"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.WorkspaceManifestBuilder"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.model.Target"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.repos.FileSystemCache"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.repos.TempDirCompilationCache"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.util.FileUtils"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.codegen.BallerinaAnnotationProcessor"/>
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.toml.model.Library"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.toml.model.Manifest"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.toml.model.Platform"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW,PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BTableType"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType"/>
+        <Bug pattern="PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType" />
