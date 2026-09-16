@@ -1144,7 +1144,7 @@ public final class CommandUtil {
             try (Stream<Path> collectVersions = Files.list(balaPackagePath)) {
                 versions.addAll(collectVersions.toList());
             } catch (IOException e) {
-                throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+                throw createLauncherException("error while accessing Distribution cache: " + e.getMessage());
             }
         }
         return pathToVersions(versions);
@@ -1304,7 +1304,7 @@ public final class CommandUtil {
             return true;
         }
         if (!hasProvidedPlatformDeps(balaProject.currentPackage())) {
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_25);
             Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
             if (!backendDiagnostics.isEmpty()) {
                 printDiagnostics(backendDiagnostics);

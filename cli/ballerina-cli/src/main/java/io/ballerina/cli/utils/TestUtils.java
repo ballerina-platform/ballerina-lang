@@ -336,6 +336,8 @@ public final class TestUtils {
             cmdArgs.add("-XX:HeapDumpPath=" + userDir);
         }
 
+        cmdArgs.add("--enable-native-access=ALL-UNNAMED");
+        cmdArgs.add("--sun-misc-unsafe-memory-access=allow");
         return cmdArgs;
     }
 

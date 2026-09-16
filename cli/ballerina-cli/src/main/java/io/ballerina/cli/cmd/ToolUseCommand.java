@@ -30,6 +30,7 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -202,7 +203,7 @@ public class ToolUseCommand implements BLauncherCmd {
 
     private void copyToolToCentralCache(BalToolsManifest.Tool tool) {
         Path relativeBalaPath = ProjectUtils.getRelativeBalaPath(
-                tool.org(), tool.name(), tool.version(), JvmTarget.JAVA_21.code());
+                tool.org(), tool.name(), tool.version(), JvmTarget.JAVA_25.code());
         Path distBalaPath = getRepoPath(tool.repository()).resolve(relativeBalaPath);
         Path centralCacheBalaPath = getCentralBalaDirPath().resolve(relativeBalaPath);
 
@@ -234,9 +235,11 @@ public class ToolUseCommand implements BLauncherCmd {
                         Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedIOException(e);
                 }
             });
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
         }
     }
 

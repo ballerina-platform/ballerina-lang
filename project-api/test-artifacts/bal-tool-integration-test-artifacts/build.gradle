@@ -2,6 +2,8 @@ plugins {
     id 'javaProject'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 description = 'Bal tool test artifacts'
 version = '1.0.0'
 

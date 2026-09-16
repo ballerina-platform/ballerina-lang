@@ -11,4 +11,14 @@
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,EI_EXPOSE_REP,EI_EXPOSE_REP2,
             DCN_NULLPOINTER_EXCEPTION,PA_PUBLIC_PRIMITIVE_ATTRIBUTE"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.diagramutil.connector.models.connector.Type" />
+        <Field name="defaultable" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.diagramutil.connector.models.connector.Type" />
+        <Field name="optional" />
+        <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE" />
+    </Match>
 </FindBugsFilter>

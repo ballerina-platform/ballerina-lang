@@ -159,7 +159,7 @@ public class RunNativeImageTestTask implements Task {
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_25);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> updatedSingleExecTests;
@@ -392,8 +392,10 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
                 .convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
                 nativeConfigPath.resolve("reflect-config.json").toString())));
-        nativeArgs.add("-H:-UnlockExperimentalVMOptions");        
+        nativeArgs.add("-H:-UnlockExperimentalVMOptions");
         nativeArgs.add("--no-fallback");
+        nativeArgs.add("--enable-native-access=ALL-UNNAMED");
+        nativeArgs.add("-J--sun-misc-unsafe-memory-access=allow");
 
 
         // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and
