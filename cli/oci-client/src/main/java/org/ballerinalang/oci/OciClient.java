@@ -19,6 +19,7 @@ package org.ballerinalang.oci;
 import com.google.cloud.tools.jib.api.CacheDirectoryCreationException;
 import com.google.cloud.tools.jib.api.Containerizer;
 import com.google.cloud.tools.jib.api.Credential;
+import com.google.cloud.tools.jib.api.DescriptorDigest;
 import com.google.cloud.tools.jib.api.ImageReference;
 import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
 import com.google.cloud.tools.jib.api.Jib;
@@ -37,6 +38,7 @@ import com.google.cloud.tools.jib.http.Response;
 import com.google.cloud.tools.jib.http.ResponseException;
 import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
 import com.google.cloud.tools.jib.image.json.OciManifestTemplate;
+import com.google.cloud.tools.jib.registry.ManifestAndDigest;
 import com.google.cloud.tools.jib.registry.RegistryClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -44,26 +46,30 @@ import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.CentralClientConstants;
+import org.ballerinalang.oci.model.ManifestDescriptor;
+import org.ballerinalang.oci.model.ReferrersResponse;
 import org.ballerinalang.oci.model.TagsListResponse;
 import org.ballerinalang.oci.model.TokenResponse;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.DigestException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -80,8 +86,9 @@ public class OciClient {
     private static final int MAX_PULL_RETRIES = 3;
     private static final long INITIAL_RETRY_DELAY_MS = 1000;
     private static final Pattern VERSION_TAG_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$");
-    private static final Pattern LINK_NEXT_PATTERN = Pattern.compile("<([^>]+)>;\\s*rel=\"next\"");
     private static final Pattern AUTH_CHALLENGE_PARAM_PATTERN = Pattern.compile("(\\w+)=\"([^\"]*)\"");
+    private static final String DEP_GRAPH_ARTIFACT_TYPE = "application/vnd.ballerina.dependency-graph.v1+json";
+    private static final String OCI_EMPTY_CONFIG_DIGEST = "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a";
 
     private String registryUrl;
     private String username;
@@ -92,9 +99,6 @@ public class OciClient {
     /**
      * Creates an OCI registry client.
      *
-     * <p>The URL scheme selects the transport: {@code http://} marks the registry as insecure, so plain HTTP and
-     * credentials over HTTP are permitted. Any other form, including a scheme-less URL, is treated as a secure
-     * registry reached over HTTPS.
      *
      * @param registryUrl registry host and base path (any URL scheme is stripped)
      * @param username    registry username
@@ -123,21 +127,15 @@ public class OciClient {
         if (host == null || host.isEmpty() || port == 0) {
             return;
         }
-        setPropertyIfAbsent("http.proxyHost", host);
-        setPropertyIfAbsent("http.proxyPort", String.valueOf(port));
-        setPropertyIfAbsent("https.proxyHost", host);
-        setPropertyIfAbsent("https.proxyPort", String.valueOf(port));
+        OciClientUtils.setPropertyIfAbsent("http.proxyHost", host);
+        OciClientUtils.setPropertyIfAbsent("http.proxyPort", String.valueOf(port));
+        OciClientUtils.setPropertyIfAbsent("https.proxyHost", host);
+        OciClientUtils.setPropertyIfAbsent("https.proxyPort", String.valueOf(port));
         if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
-            setPropertyIfAbsent("http.proxyUser", username);
-            setPropertyIfAbsent("http.proxyPassword", password);
-            setPropertyIfAbsent("https.proxyUser", username);
-            setPropertyIfAbsent("https.proxyPassword", password);
-        }
-    }
-
-    private static void setPropertyIfAbsent(String key, String value) {
-        if (System.getProperty(key) == null) {
-            System.setProperty(key, value);
+            OciClientUtils.setPropertyIfAbsent("http.proxyUser", username);
+            OciClientUtils.setPropertyIfAbsent("http.proxyPassword", password);
+            OciClientUtils.setPropertyIfAbsent("https.proxyUser", username);
+            OciClientUtils.setPropertyIfAbsent("https.proxyPassword", password);
         }
     }
 
@@ -214,6 +212,122 @@ public class OciClient {
     }
 
     /**
+     * Publishes the dependency graph for a just-pushed package version as an OCI referrer
+     * artifact (OCI Distribution Spec v1.1 reference types) — a manifest whose {@code subject}
+     * points at the version manifest, with the graph JSON as its one layer. Callers can then
+     * fetch the graph directly via the referrers API without ever downloading the bala.
+     *
+     *
+     * @param org                package organization
+     * @param pkg                package name
+     * @param version            package version, whose already-pushed manifest becomes the subject
+     * @param dependencyGraphJson the package's {@code dependency-graph.json} bytes, as published
+     *                            in its bala
+     */
+    public void pushDependencyGraphReferrer(String org, String pkg, String version, byte[] dependencyGraphJson) {
+        FailoverHttpClient httpClient = null;
+        try {
+            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
+            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, logEvent -> { });
+
+            RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
+                        imageRef.getRepository(), httpClient)
+                        .setCredential(Credential.from(username, password))
+                        .newRegistryClient();
+            registryClient.configureBasicAuth();
+
+            byte[] subjectManifestBytes = fetchManifestBytes(imageRef, httpClient, version);
+            String subjectDigest = "sha256:" + OciClientUtils.sha256Hex(subjectManifestBytes);
+
+            DescriptorDigest emptyConfigDigest = DescriptorDigest.fromDigest(OCI_EMPTY_CONFIG_DIGEST);
+            if (registryClient.checkBlob(emptyConfigDigest).isEmpty()) {
+                registryClient.pushBlob(emptyConfigDigest, Blobs.from("{}"), null, count -> { });
+            }
+            DescriptorDigest layerDigest = DescriptorDigest.fromHash(OciClientUtils.sha256Hex(dependencyGraphJson));
+            if (registryClient.checkBlob(layerDigest).isEmpty()) {
+                registryClient.pushBlob(layerDigest, Blobs.from(new ByteArrayInputStream(dependencyGraphJson)),
+                        null, count -> { });
+            }
+
+            String manifestText = OciClientUtils.buildManifestWithSubjectText(DEP_GRAPH_ARTIFACT_TYPE,
+                    OCI_EMPTY_CONFIG_DIGEST, subjectDigest, subjectManifestBytes.length,
+                    layerDigest.toString(), dependencyGraphJson.length);
+            pushDependencyGraphManifest(imageRef, httpClient, manifestText);
+        } catch (IOException | RegistryException | InvalidImageReferenceException | DigestException exception) {
+            throw new OciClientException("failed to publish dependency graph referrer to the registry", exception);
+        } finally {
+            if (httpClient != null) {
+                try {
+                    httpClient.shutDown();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    /**
+     * Fetches a manifest's raw bytes, exactly as stored on the registry — needed to compute its
+     * own digest and size for use as a referrer's {@code subject} descriptor.
+     *
+     * @param imageRef   parsed repository reference to query
+     * @param httpClient client to issue the request with
+     * @param reference  tag or digest identifying the manifest
+     * @return the manifest body bytes
+     * @throws IOException on registry or connection failures
+     */
+    private byte[] fetchManifestBytes(ImageReference imageRef, FailoverHttpClient httpClient, String reference)
+            throws IOException {
+        URL url = URI.create(registryScheme() + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
+                + "/manifests/" + reference).toURL();
+        Authorization authorization = Authorization.fromBasicCredentials(username, password);
+        Response response;
+        try {
+            response = httpClient.get(url, OciClientUtils.manifestRequest(authorization));
+        } catch (ResponseException responseException) {
+            if (responseException.getStatusCode() != 401) {
+                throw responseException;
+            }
+            authorization = resolveBearerAuthorization(
+                    responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"), httpClient);
+            response = httpClient.get(url, OciClientUtils.manifestRequest(authorization));
+        }
+        try (Response ignored = response) {
+            return OciClientUtils.readBody(response).getBytes(StandardCharsets.UTF_8);
+        }
+    }
+
+    /**
+     * Pushes a manifest by its own (self) digest — the standard, untagged form for a referrer
+     * artifact, so it doesn't clutter the repository's tag list.
+     *
+     * @param imageRef     parsed repository reference to push to
+     * @param httpClient   client to issue the request with
+     * @param manifestText the manifest JSON text to push
+     * @throws IOException on registry or connection failures
+     */
+    private void pushDependencyGraphManifest(ImageReference imageRef, FailoverHttpClient httpClient,
+            String manifestText) throws IOException {
+        byte[] body = manifestText.getBytes(StandardCharsets.UTF_8);
+        String manifestDigest = "sha256:" + OciClientUtils.sha256Hex(body);
+        URL url = URI.create(registryScheme() + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
+                + "/manifests/" + manifestDigest).toURL();
+        Authorization authorization = Authorization.fromBasicCredentials(username, password);
+
+        try (Response ignored = OciClientUtils.putManifest(httpClient, url, authorization, body)) {
+            return;
+        } catch (ResponseException responseException) {
+            if (responseException.getStatusCode() != 401) {
+                throw responseException;
+            }
+            authorization = resolveBearerAuthorization(
+                    responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"), httpClient);
+            try (Response ignored = OciClientUtils.putManifest(httpClient, url, authorization, body)) {
+                return;
+            }
+        }
+    }
+
+    /**
      * Builds the lowercased registry repository reference for a package.
      *
      * @param org package organization
@@ -245,63 +359,13 @@ public class OciClient {
         try {
             return listTags(org, pkg).contains(version);
         } catch (OciClientException exception) {
-            if (isNotFoundError(exception)) {
+            if (OciClientUtils.isNotFoundError(exception)) {
                 return false;
             }
 
             throw new OciClientException("failed to verify whether '" + org + "/" + pkg + ":" + version
-                    + "' already exists in the registry: " + describeFailure(exception), exception);
+                    + "' already exists in the registry: " + OciClientUtils.describeFailure(exception), exception);
         }
-    }
-
-    /**
-     * Checks whether a failure was caused by an HTTP 404 response.
-     *
-     * @param throwable the failure to inspect
-     * @return true if a 404 response is found in the cause chain
-     */
-    private static boolean isNotFoundError(Throwable throwable) {
-        ResponseException responseException = findResponseException(throwable);
-        return responseException != null && responseException.getStatusCode() == 404;
-    }
-
-    /**
-     * Describes the deepest useful cause of a failure: HTTP status and body if any, otherwise the exception itself.
-     *
-     * @param throwable the failure to describe
-     * @return a one-line description of the root cause
-     */
-    private static String describeFailure(Throwable throwable) {
-        ResponseException responseException = findResponseException(throwable);
-        if (responseException != null) {
-            String content = responseException.getContent();
-            if (content == null || content.isBlank()) {
-                return "HTTP " + responseException.getStatusCode();
-            }
-            String snippet = content.length() > 200 ? content.substring(0, 200) + "..." : content;
-            return "HTTP " + responseException.getStatusCode() + " - " + snippet;
-        }
-        Throwable last = throwable;
-        while (last.getCause() != null) {
-            last = last.getCause();
-        }
-        String message = last.getMessage();
-        return last.getClass().getSimpleName() + (message == null ? "" : ": " + message);
-    }
-
-    /**
-     * Finds the first {@link ResponseException} in a failure's cause chain.
-     *
-     * @param throwable the failure to inspect
-     * @return the response exception, or null if none is found in the chain
-     */
-    private static ResponseException findResponseException(Throwable throwable) {
-        for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
-            if (cause instanceof ResponseException responseException) {
-                return responseException;
-            }
-        }
-        return null;
     }
 
     /**
@@ -487,6 +551,118 @@ public class OciClient {
         }
     }
 
+
+    /**
+     * Fetches the dependency graph for a package version via the OCI referrers API (OCI
+     * Distribution Spec v1.1 reference types), if the registry publishes one.
+     *
+     *
+     * @param org     package organization
+     * @param pkg     package name
+     * @param version package version
+     * @return the raw {@code dependency-graph.json} content published as a referrer, or empty if
+     *         unavailable
+     */
+    public Optional<String> pullDependencyGraph(String org, String pkg, String version) {
+        FailoverHttpClient httpClient = null;
+        try {
+            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
+            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, logEvent -> { });
+
+            RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
+                        imageRef.getRepository(), httpClient)
+                        .setCredential(Credential.from(username, password))
+                        .newRegistryClient();
+            registryClient.configureBasicAuth();
+
+            ManifestAndDigest<OciManifestTemplate> subjectManifest = registryClient
+                    .pullManifest(version, OciManifestTemplate.class);
+            String subjectDigest = subjectManifest.getDigest().toString();
+
+            List<ManifestDescriptor> referrers = pullReferrers(imageRef, httpClient, subjectDigest,
+                    DEP_GRAPH_ARTIFACT_TYPE);
+            Optional<ManifestDescriptor> dependencyGraphReferrer = referrers.stream()
+                    .filter(referrer -> DEP_GRAPH_ARTIFACT_TYPE.equals(referrer.artifactType()))
+                    .findFirst();
+            if (dependencyGraphReferrer.isEmpty()) {
+                return Optional.empty();
+            }
+
+            OciManifestTemplate referrerManifest = registryClient
+                    .pullManifest(dependencyGraphReferrer.get().digest(), OciManifestTemplate.class).getManifest();
+            List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = referrerManifest.getLayers();
+            if (layers.isEmpty()) {
+                return Optional.empty();
+            }
+
+            Blob blob = registryClient.pullBlob(layers.get(0).getDigest(), size -> { }, count -> { });
+            return Optional.of(new String(Blobs.writeToByteArray(blob), StandardCharsets.UTF_8));
+        } catch (IOException | RegistryException | InvalidImageReferenceException exception) {
+            throw new OciClientException("failed to pull dependency graph from the registry", exception);
+        } finally {
+            if (httpClient != null) {
+                try {
+                    httpClient.shutDown();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    /**
+     * Queries the OCI referrers API ({@code GET /v2/{name}/referrers/{digest}}) for artifacts
+     * whose manifest {@code subject} field points at {@code subjectDigest}.
+     *
+     * @param imageRef      parsed repository reference to query
+     * @param httpClient    client to issue the request with
+     * @param subjectDigest digest of the manifest to find referrers for
+     * @param artifactType  filters the results to this artifact type
+     * @return the matching referrer descriptors, or empty if none are published
+     * @throws IOException on registry or connection failures other than a 404
+     */
+    private List<ManifestDescriptor> pullReferrers(ImageReference imageRef, FailoverHttpClient httpClient,
+            String subjectDigest, String artifactType) throws IOException {
+        List<ManifestDescriptor> referrers = new ArrayList<>();
+        String path = "/v2/" + imageRef.getRepository() + "/referrers/" + subjectDigest
+                + "?artifactType=" + URLEncoder.encode(artifactType, StandardCharsets.UTF_8);
+        URL url = URI.create(registryScheme() + imageRef.getRegistry() + path).toURL();
+        URL registryOrigin = url;
+        Authorization authorization = Authorization.fromBasicCredentials(username, password);
+
+        while (url != null) {
+            Response response;
+            try {
+                response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
+            } catch (ResponseException responseException) {
+                if (responseException.getStatusCode() == 404) {
+                    return Collections.emptyList();
+                }
+                if (responseException.getStatusCode() != 401) {
+                    throw responseException;
+                }
+                authorization = resolveBearerAuthorization(
+                        responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"), httpClient);
+                try {
+                    response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
+                } catch (ResponseException retryException) {
+                    if (retryException.getStatusCode() == 404) {
+                        return Collections.emptyList();
+                    }
+                    throw retryException;
+                }
+            }
+
+            try (Response ignored = response) {
+                String responseBody = OciClientUtils.readBody(response);
+                ReferrersResponse referrersResponse = OciClientUtils.parseJson(responseBody, ReferrersResponse.class,
+                        "referrers response for " + imageRef.getRepository());
+                referrers.addAll(referrersResponse.manifests());
+                url = OciClientUtils.nextPageUrl(response, url, registryOrigin);
+            }
+        }
+        return referrers;
+    }
+
     /**
      * Lists the version tags of a package repository, following pagination.
      *
@@ -529,7 +705,7 @@ public class OciClient {
                                 .filter(tag -> VERSION_TAG_PATTERN.matcher(tag).matches())
                                 .forEach(versions::add);
                     }
-                    url = nextPageUrl(response, url, registryOrigin);
+                    url = OciClientUtils.nextPageUrl(response, url, registryOrigin);
                 }
             }
             return versions;
@@ -605,61 +781,6 @@ public class OciClient {
             }
             return Authorization.fromBearerToken(bearerToken);
         }
-    }
-
-    /**
-     * Resolves the next page URL from a {@code Link} header.
-     *
-     * <p>The resolved URL is required to share the registry's scheme, host, and effective port:
-     * a registry could otherwise point pagination at an arbitrary host via the {@code Link}
-     * header, and the next request would carry the current Basic/Bearer authorization to it.
-     *
-     * @param response       the current tags list response
-     * @param currentUrl     the URL of the current page
-     * @param registryOrigin the registry URL the pull started from
-     * @return the next page URL, or null when there are no more pages
-     * @throws IOException if the pagination link is invalid, or points outside the registry's origin
-     */
-    private URL nextPageUrl(Response response, URL currentUrl, URL registryOrigin) throws IOException {
-        for (String linkHeader : response.getHeader("Link")) {
-            Matcher matcher = LINK_NEXT_PATTERN.matcher(linkHeader);
-            if (matcher.find()) {
-                URL nextUrl;
-                try {
-                    nextUrl = currentUrl.toURI().resolve(matcher.group(1)).toURL();
-                } catch (URISyntaxException e) {
-                    throw new IOException("invalid pagination link: " + matcher.group(1), e);
-                }
-                if (!isSameOrigin(registryOrigin, nextUrl)) {
-                    throw new IOException("refusing to follow pagination link to a different origin: " + nextUrl);
-                }
-                return nextUrl;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Checks whether two URLs share the same scheme, host, and effective port.
-     *
-     * @param a the first URL
-     * @param b the second URL
-     * @return true if {@code a} and {@code b} are the same origin
-     */
-    private static boolean isSameOrigin(URL a, URL b) {
-        return a.getProtocol().equalsIgnoreCase(b.getProtocol())
-                && a.getHost().equalsIgnoreCase(b.getHost())
-                && effectivePort(a) == effectivePort(b);
-    }
-
-    /**
-     * Returns a URL's port, substituting the protocol's default port when none is specified.
-     *
-     * @param url the URL to inspect
-     * @return the effective port
-     */
-    private static int effectivePort(URL url) {
-        return url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
     }
 
 }

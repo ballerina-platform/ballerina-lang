@@ -598,6 +598,7 @@ public class PushCommand implements BLauncherCmd {
             String version =  balaProject.currentPackage().manifest().version().toString();
             String platform = balaProject.platform();
             client.pushOCIArtifact(org, name, version, platform, balaPath);
+            publishDependencyGraphReferrer(balaPath, client, org, name, version);
             Path relativePathToBalaFile;
             if (this.balaPath != null) {
                 relativePathToBalaFile = balaPath;
@@ -610,6 +611,32 @@ public class PushCommand implements BLauncherCmd {
             throw new ProjectException("error while pushing bala file '" + balaPath + "' to '"
                     + repositoryName + "' repository: " + e.getMessage(), e);
         }
+    }
+
+    private void publishDependencyGraphReferrer(Path balaPath, OciClient client, String org, String name,
+                                                  String version) {
+        try {
+            byte[] dependencyGraphJson = readDependencyGraphJson(balaPath);
+            if (dependencyGraphJson == null) {
+                return;
+            }
+            client.pushDependencyGraphReferrer(org, name, version, dependencyGraphJson);
+        } catch (Exception e) {
+            outStream.println("warning: failed to publish dependency graph referrer for '" + org + "/" + name
+                    + ":" + version + "': " + e.getMessage());
+        }
+    }
+
+    private static byte[] readDependencyGraphJson(Path balaPath) throws IOException {
+        try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                if (entry.getName().equals(ProjectConstants.DEPENDENCY_GRAPH_JSON)) {
+                    return zip.readAllBytes();
+                }
+            }
+        }
+        return null;
     }
 
     /**

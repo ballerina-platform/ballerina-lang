@@ -268,7 +268,27 @@ public final class BalaFiles {
 
         // Load `dependency-graph.json`
         DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(dependencyGraphJsonPath);
+        return createPackageDependencyGraphResult(dependencyGraphJson);
+    }
 
+    public static DependencyGraphResult createPackageDependencyGraphFromJsonContent(
+            String dependencyGraphJsonContent) {
+        DependencyGraphJson dependencyGraphJson;
+        try {
+            dependencyGraphJson = gson.fromJson(dependencyGraphJsonContent, DependencyGraphJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format");
+        }
+        if (dependencyGraphJson == null) {
+            throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format");
+        }
+        return createPackageDependencyGraphResult(dependencyGraphJson);
+    }
+
+    private static DependencyGraphResult createPackageDependencyGraphResult(DependencyGraphJson dependencyGraphJson) {
+        if (dependencyGraphJson.getPackageDependencyGraph() == null) {
+            throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format: missing package dependencies");
+        }
         DependencyGraph<PackageDescriptor> packageDependencyGraph = createPackageDependencyGraph(
                 dependencyGraphJson.getPackageDependencyGraph());
         Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescriptorListMap = createModuleDescDependencies(

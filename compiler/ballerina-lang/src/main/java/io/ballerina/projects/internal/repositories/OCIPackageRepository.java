@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
@@ -32,6 +33,7 @@ import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
+import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.model.Proxy;
@@ -117,13 +119,8 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         }
 
         if (!resolutionOptions.offline() && resolutionRequest.version().isPresent()) {
-            try {
-                getFromOci(resolutionRequest.orgName(), resolutionRequest.packageName(),
-                        resolutionRequest.version().get());
-            } catch (RuntimeException e) {
-                printWarning("warning: failed to pull package '" + resolutionRequest.orgName() + "/"
-                        + resolutionRequest.packageName() + "' from OCI repository: " + e.getMessage());
-            }
+            getFromOci(resolutionRequest.orgName(), resolutionRequest.packageName(),
+                    resolutionRequest.version().get());
         }
 
         return this.fileSystemRepository.getPackage(resolutionRequest, resolutionOptions);
@@ -221,12 +218,41 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     @Override
     protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
                                                                       PackageVersion version) {
-        if (!isPackageExists(org, name, version)) {
-            if (version == null || this.ociClient == null || !getFromOci(org, name, version)) {
-                return DependencyGraph.emptyGraph();
-            }
+        if (isPackageExists(org, name, version)) {
+            return this.fileSystemRepository.getDependencyGraph(org, name, version);
+        }
+
+        if (version == null || this.ociClient == null) {
+            return DependencyGraph.emptyGraph();
+        }
+
+        DependencyGraph<PackageDescriptor> referrerGraph = getDependencyGraphFromReferrer(org, name, version);
+        if (referrerGraph != null) {
+            return referrerGraph;
+        }
+
+        if (!getFromOci(org, name, version)) {
+            return DependencyGraph.emptyGraph();
         }
         return this.fileSystemRepository.getDependencyGraph(org, name, version);
+    }
+
+    private DependencyGraph<PackageDescriptor> getDependencyGraphFromReferrer(PackageOrg org, PackageName name,
+                                                                                PackageVersion version) {
+        try {
+            Optional<String> dependencyGraphJson = this.ociClient.pullDependencyGraph(
+                    org.toString(), name.toString(), version.toString());
+
+            if (dependencyGraphJson.isEmpty()) {
+                return null;
+            }
+            return BalaFiles.createPackageDependencyGraphFromJsonContent(dependencyGraphJson.get())
+                    .packageDependencyGraph();
+        } catch (OciClientException | ProjectException e) {
+            printWarning("warning: failed to pull dependency graph via referrers for '" + org + "/" + name
+                    + ":" + version + "' from OCI repository: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
