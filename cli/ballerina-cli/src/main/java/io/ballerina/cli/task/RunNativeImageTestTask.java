@@ -395,7 +395,6 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.add("-H:-UnlockExperimentalVMOptions");
         nativeArgs.add("--no-fallback");
         nativeArgs.add("--enable-native-access=ALL-UNNAMED");
-        nativeArgs.add("-J--sun-misc-unsafe-memory-access=allow");
 
 
         // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and
