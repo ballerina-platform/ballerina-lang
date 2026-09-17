@@ -408,7 +408,8 @@ public class RunNativeImageTestTask implements Task {
             throw createLauncherException("error while generating the necessary graalvm argument file", e);
         }
 
-        ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true);
+        ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true)
+                .directory(currentPackage.project().sourceRoot().toFile());
         builder.command(cmdArgs.toArray(new String[0]));
         Process process = builder.start();
         StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);
