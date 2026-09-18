@@ -24,6 +24,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -93,6 +94,175 @@ public class TransactionResourceManagerTest {
         } finally {
             manager.cleanTransaction(transactionId, BLOCK_ID);
         }
+    }
+
+    @Test
+    public void testRegisterRacingWithCleanTransaction() throws Exception {
+        TransactionResourceManager manager = TransactionResourceManager.getInstance();
+        for (int i = 0; i < 50; i++) {
+            String transactionId = UUID.randomUUID().toString();
+            List<TestTransactionContext> contexts = Collections.synchronizedList(new ArrayList<>());
+            ExecutorService executor = Executors.newFixedThreadPool(WORKER_COUNT + 1);
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<?>> futures = new ArrayList<>();
+            try {
+                for (int worker = 0; worker < WORKER_COUNT; worker++) {
+                    futures.add(executor.submit(() -> {
+                        start.await();
+                        for (int iter = 0; iter < 50; iter++) {
+                            TestTransactionContext ctx = new TestTransactionContext();
+                            contexts.add(ctx);
+                            manager.register(transactionId, BLOCK_ID, ctx);
+                        }
+                        return null;
+                    }));
+                }
+                futures.add(executor.submit(() -> {
+                    start.await();
+                    Thread.yield();
+                    manager.cleanTransaction(transactionId, BLOCK_ID);
+                    return null;
+                }));
+                start.countDown();
+                for (Future<?> f : futures) {
+                    f.get(30, TimeUnit.SECONDS);
+                }
+            } finally {
+                executor.shutdownNow();
+                manager.cleanTransaction(transactionId, BLOCK_ID);
+            }
+            // All contexts must be closed exactly once (no detached unclosed contexts)
+            for (TestTransactionContext ctx : contexts) {
+                Assert.assertEquals(ctx.closes.get(), 1, "Context must be closed exactly once");
+            }
+        }
+    }
+
+    @Test
+    public void testRegisterRacingWithNotifyCommit() throws Exception {
+        TransactionResourceManager manager = TransactionResourceManager.getInstance();
+        for (int i = 0; i < 50; i++) {
+            String transactionId = UUID.randomUUID().toString();
+            List<RegistrationResult> results = Collections.synchronizedList(new ArrayList<>());
+            ExecutorService executor = Executors.newFixedThreadPool(WORKER_COUNT + 1);
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<?>> futures = new ArrayList<>();
+            try {
+                for (int worker = 0; worker < WORKER_COUNT; worker++) {
+                    futures.add(executor.submit(() -> {
+                        start.await();
+                        for (int iter = 0; iter < 50; iter++) {
+                            TestTransactionContext ctx = new TestTransactionContext();
+                            boolean accepted = manager.register(transactionId, BLOCK_ID, ctx);
+                            results.add(new RegistrationResult(ctx, accepted));
+                        }
+                        return null;
+                    }));
+                }
+                futures.add(executor.submit(() -> {
+                    start.await();
+                    Thread.yield();
+                    manager.notifyCommit(transactionId, BLOCK_ID);
+                    return null;
+                }));
+                start.countDown();
+                for (Future<?> f : futures) {
+                    f.get(30, TimeUnit.SECONDS);
+                }
+            } finally {
+                executor.shutdownNow();
+                manager.cleanTransaction(transactionId, BLOCK_ID);
+            }
+            for (RegistrationResult result : results) {
+                Assert.assertEquals(result.context.closes.get(), 1, "Context must be closed exactly once");
+                if (result.accepted) {
+                    Assert.assertEquals(result.context.commits.get(), 1, "Accepted context must be committed");
+                } else {
+                    Assert.assertEquals(result.context.commits.get(), 0, "Rejected context must not be committed");
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testRegisterRacingWithNotifyAbort() throws Exception {
+        TransactionResourceManager manager = TransactionResourceManager.getInstance();
+        for (int i = 0; i < 50; i++) {
+            String transactionId = UUID.randomUUID().toString();
+            List<RegistrationResult> results = Collections.synchronizedList(new ArrayList<>());
+            ExecutorService executor = Executors.newFixedThreadPool(WORKER_COUNT + 1);
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<?>> futures = new ArrayList<>();
+            try {
+                for (int worker = 0; worker < WORKER_COUNT; worker++) {
+                    futures.add(executor.submit(() -> {
+                        start.await();
+                        for (int iter = 0; iter < 50; iter++) {
+                            TestTransactionContext ctx = new TestTransactionContext();
+                            boolean accepted = manager.register(transactionId, BLOCK_ID, ctx);
+                            results.add(new RegistrationResult(ctx, accepted));
+                        }
+                        return null;
+                    }));
+                }
+                futures.add(executor.submit(() -> {
+                    start.await();
+                    Thread.yield();
+                    manager.notifyAbort(transactionId, BLOCK_ID);
+                    return null;
+                }));
+                start.countDown();
+                for (Future<?> f : futures) {
+                    f.get(30, TimeUnit.SECONDS);
+                }
+            } finally {
+                executor.shutdownNow();
+                manager.cleanTransaction(transactionId, BLOCK_ID);
+            }
+            for (RegistrationResult result : results) {
+                Assert.assertEquals(result.context.closes.get(), 1, "Context must be closed exactly once");
+                if (result.accepted) {
+                    Assert.assertEquals(result.context.rollbacks.get(), 1, "Accepted context must be rolled back");
+                } else {
+                    Assert.assertEquals(result.context.rollbacks.get(), 0, "Rejected context must not be rolled back");
+                }
+            }
+        }
+    }
+
+    private record RegistrationResult(TestTransactionContext context, boolean accepted) {
+    }
+
+    @Test
+    public void testRegistrationRejectedAfterCompletion() {
+        TransactionResourceManager manager = TransactionResourceManager.getInstance();
+        String tx1 = UUID.randomUUID().toString();
+        TestTransactionContext ctx1 = new TestTransactionContext();
+        manager.register(tx1, BLOCK_ID, ctx1);
+        manager.notifyCommit(tx1, BLOCK_ID);
+        TestTransactionContext lateCtx1 = new TestTransactionContext();
+        boolean accepted1 = manager.register(tx1, BLOCK_ID, lateCtx1);
+        Assert.assertFalse(accepted1, "Registration after notifyCommit must be rejected");
+        Assert.assertEquals(lateCtx1.closes.get(), 1, "Rejected context must be closed immediately");
+        manager.cleanTransaction(tx1, BLOCK_ID);
+
+        String tx2 = UUID.randomUUID().toString();
+        TestTransactionContext ctx2 = new TestTransactionContext();
+        manager.register(tx2, BLOCK_ID, ctx2);
+        manager.notifyAbort(tx2, BLOCK_ID);
+        TestTransactionContext lateCtx2 = new TestTransactionContext();
+        boolean accepted2 = manager.register(tx2, BLOCK_ID, lateCtx2);
+        Assert.assertFalse(accepted2, "Registration after notifyAbort must be rejected");
+        Assert.assertEquals(lateCtx2.closes.get(), 1, "Rejected context must be closed immediately");
+
+        String tx3 = UUID.randomUUID().toString();
+        TestTransactionContext ctx3 = new TestTransactionContext();
+        manager.register(tx3, BLOCK_ID, ctx3);
+        manager.cleanTransaction(tx3, BLOCK_ID);
+        TestTransactionContext lateCtx3 = new TestTransactionContext();
+        boolean accepted3 = manager.register(tx3, BLOCK_ID, lateCtx3);
+        Assert.assertFalse(accepted3, "Registration after cleanTransaction must be rejected");
+        Assert.assertEquals(lateCtx3.closes.get(), 1, "Rejected context must be closed immediately");
     }
 
     private static void completeTransaction(TransactionResourceManager manager, String transactionId, boolean commit) {
