@@ -337,7 +337,6 @@ public final class TestUtils {
         }
 
         cmdArgs.add("--enable-native-access=ALL-UNNAMED");
-        cmdArgs.add("--sun-misc-unsafe-memory-access=allow");
         return cmdArgs;
     }
 

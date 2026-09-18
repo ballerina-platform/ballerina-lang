@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.string;
 
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -79,6 +80,12 @@ public class StringValueBasicsTest extends BStringTestCommons {
     public void testCastToString() {
         testAndAssert("anyToStringCasting", 6);
         testAndAssert("anydataToStringCast", 6);
+    }
+
+    @Test(timeOut = 30_000)
+    public void testConcurrentAnydataStringEquality() {
+        Object returns = BRunUtil.invoke(result, "testConcurrentAnydataStringEquality");
+        Assert.assertFalse(returns instanceof BError);
     }
 
     @Override

@@ -219,7 +219,6 @@ CMD_LINE_ARGS="-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
                -Xms256m -Xmx2048m \
                -XX:+HeapDumpOnOutOfMemoryError \
                -XX:+ExitOnOutOfMemoryError \
-               --sun-misc-unsafe-memory-access=allow \
                --enable-native-access=ALL-UNNAMED \
                $JAVA_OPTS \
                -classpath "$BALLERINA_CLASSPATH" \
