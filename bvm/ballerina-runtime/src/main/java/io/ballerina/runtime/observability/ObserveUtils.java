@@ -47,6 +47,7 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_REMOTE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_RESOURCE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_MAIN_FUNCTION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_REMOTE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_RESOURCE;
@@ -377,11 +378,38 @@ public final class ObserveUtils {
      * @param isMainEntryPoint True if this was a main entry point invocation
      * @param isRemote         True if this was a remote function invocation
      * @param isWorker         True if this was a worker start
+     * @deprecated             use {@link #startCallableObservation(Environment, BString, BString, long, long,
+     *                         BObject, BString, boolean, boolean, boolean, boolean)} instead, which can also
+     *                         distinguish resource method invocations on client objects
      */
+    @Deprecated
     public static void startCallableObservation(Environment env, BString module, BString srcFileName,
                                                 long startLine, long startColumn, BObject typeDef,
                                                 BString functionName, boolean isMainEntryPoint, boolean isRemote,
                                                 boolean isWorker) {
+        startCallableObservation(env, module, srcFileName, startLine, startColumn, typeDef, functionName,
+                isMainEntryPoint, isRemote, isWorker, false);
+    }
+
+    /**
+     * Start observability for the synchronous function/action invocations.
+     *
+     * @param env              Ballerina environment
+     * @param module           The module the resource belongs to
+     * @param srcFileName      The source code file name the resource in defined in
+     * @param startLine        The source code start line the resource in defined in
+     * @param startColumn      The source code start column the resource in defined in
+     * @param typeDef          The type definition the function was attached to
+     * @param functionName     name of the function being invoked
+     * @param isMainEntryPoint True if this was a main entry point invocation
+     * @param isRemote         True if this was a remote function invocation
+     * @param isWorker         True if this was a worker start
+     * @param isResource       True if this was a resource method invocation on a client object
+     */
+    public static void startCallableObservation(Environment env, BString module, BString srcFileName,
+                                                long startLine, long startColumn, BObject typeDef,
+                                                BString functionName, boolean isMainEntryPoint, boolean isRemote,
+                                                boolean isWorker, boolean isResource) {
         if (!enabled) {
             return;
         }
@@ -409,6 +437,8 @@ public final class ObserveUtils {
             newObContext.addTag(TAG_KEY_IS_SRC_CLIENT_REMOTE, TAG_TRUE_VALUE);
         } else if (isWorker) {
             newObContext.addTag(TAG_KEY_IS_SRC_WORKER, TAG_TRUE_VALUE);
+        } else if (isResource) {
+            newObContext.addTag(TAG_KEY_IS_SRC_CLIENT_RESOURCE, TAG_TRUE_VALUE);
         }   // Else normal function
 
         if (typeDef != null) {
