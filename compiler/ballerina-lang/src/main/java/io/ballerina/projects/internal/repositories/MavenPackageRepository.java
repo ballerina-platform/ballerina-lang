@@ -188,7 +188,15 @@ public class MavenPackageRepository implements PackageRepository {
                 minSemVer, options.packageLockingMode());
         List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
                 minSemVer, semVers, compatibilityRange);
-        return compatibleVersions.stream().map(PackageVersion::from).collect(Collectors.toList());
+
+        // A custom Maven repository may contain the requested artifact without maven-metadata.xml. If metadata
+        // resolution did not produce a compatible version, try to resolve the version in the request directly.
+        boolean shouldResolveExactVersion = !isProxyCentral && !options.offline() && packageVersion != null
+                && compatibleVersions.isEmpty();
+        if (shouldResolveExactVersion && getPackage(request, options).isPresent()) {
+            return List.of(packageVersion);
+        }
+        return compatibleVersions.stream().map(PackageVersion::from).toList();
     }
 
     @Override
