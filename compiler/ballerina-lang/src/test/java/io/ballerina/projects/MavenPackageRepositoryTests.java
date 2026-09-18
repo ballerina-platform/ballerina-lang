@@ -25,6 +25,7 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.utils.FileUtil;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.ballerinalang.maven.bala.client.model.PackageResolutionResponse;
@@ -44,6 +45,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -261,28 +265,70 @@ public class MavenPackageRepositoryTests {
         }
     }
 
+    private static class FixtureBackedMavenPackageRepository extends MavenPackageRepository {
+
+        FixtureBackedMavenPackageRepository(MavenResolverClient client, Path cacheDirectory) {
+            super(PROXY_ENV, cacheDirectory, "1.2.3", client,
+                    cacheDirectory.resolve("bala").toAbsolutePath().toString(), false);
+        }
+    }
+
     private MavenPackageRepository proxyRepo(MavenResolverClient client) {
         return new MockProxyMavenPackageRepository(PROXY_ENV, TEST_REPO, "1.2.3", client, PROXY_REPO_LOCATION);
     }
 
     @Test(description = "Custom repo: fall back to the requested version when Maven metadata is unavailable")
-    public void testGetPackageVersionsFallsBackWhenMetadataIsUnavailable() throws MavenResolverClientException {
+    public void testGetPackageVersionsFallsBackWhenMetadataIsUnavailable()
+            throws MavenResolverClientException, IOException {
         MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
         Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
                 .thenThrow(new MavenResolverClientException("maven-metadata.xml not found"));
-        MockMetadataFallbackMavenPackageRepository repo =
-                new MockMetadataFallbackMavenPackageRepository(mockClient, true);
-        PackageVersion requestedVersion = PackageVersion.from("1.0.0");
+        Mockito.doAnswer(invocation -> {
+            Assert.assertEquals(invocation.getArgument(0), "testorg");
+            Assert.assertEquals(invocation.getArgument(1), "packA");
+            Assert.assertEquals(invocation.getArgument(2), "0.1.0");
+            Path targetDirectory = Path.of(invocation.getArgument(3, String.class));
+            Path balaPath = targetDirectory.resolve("testorg").resolve("packA").resolve("0.1.0")
+                    .resolve("packA-0.1.0.bala");
+            createBala(TEST_REPO.resolve("bala/testorg/packA/0.1.0/any"), balaPath);
+            return null;
+        }).when(mockClient).pullPackage(anyString(), anyString(), anyString(), anyString());
+
+        Path cacheDirectory = Files.createTempDirectory("metadata-fallback-test-");
+        FixtureBackedMavenPackageRepository repo =
+                new FixtureBackedMavenPackageRepository(mockClient, cacheDirectory);
+        PackageVersion requestedVersion = PackageVersion.from("0.1.0");
         ResolutionRequest request = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("metadatafree"),
+                PackageDescriptor.from(PackageOrg.from("testorg"), PackageName.from("packA"),
                         requestedVersion),
                 PackageDependencyScope.DEFAULT);
 
-        Collection<PackageVersion> versions = repo.getPackageVersions(request,
-                ResolutionOptions.builder().setOffline(false).build());
+        try {
+            Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                    ResolutionOptions.builder().setOffline(false).build());
 
-        Assert.assertEquals(versions, List.of(requestedVersion));
-        Assert.assertEquals(repo.exactPackageResolutionCount, 1);
+            Assert.assertEquals(versions, List.of(requestedVersion));
+            Optional<Package> cachedPackage = repo.getPackage(request,
+                    ResolutionOptions.builder().setOffline(true).build());
+            Assert.assertTrue(cachedPackage.isPresent());
+            Assert.assertEquals(cachedPackage.get().descriptor().toString(), "testorg/packA:0.1.0");
+            verify(mockClient).pullPackage(eq("testorg"), eq("packA"), eq("0.1.0"), anyString());
+        } finally {
+            FileUtil.deleteDirectory(cacheDirectory);
+        }
+    }
+
+    private static void createBala(Path sourceDirectory, Path balaPath) throws IOException {
+        Files.createDirectories(balaPath.getParent());
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(balaPath));
+             Stream<Path> paths = Files.walk(sourceDirectory)) {
+            for (Path path : paths.filter(Files::isRegularFile).toList()) {
+                String entryName = sourceDirectory.relativize(path).toString().replace('\\', '/');
+                zipOutputStream.putNextEntry(new ZipEntry(entryName));
+                Files.copy(path, zipOutputStream);
+                zipOutputStream.closeEntry();
+            }
+        }
     }
 
     @Test(description = "Custom repo: remain unresolved when metadata and the requested artifact are unavailable")
