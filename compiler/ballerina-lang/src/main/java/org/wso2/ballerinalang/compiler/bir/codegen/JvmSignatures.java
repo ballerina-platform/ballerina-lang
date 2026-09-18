@@ -484,7 +484,7 @@ public final class JvmSignatures {
     public static final String SET_TYPE_ID_SET = "(L" + TYPE_ID_SET + ";)V";
     public static final String SET_VALUE = "(L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String START_CALLABLE_OBSERVATION = "(L" + BAL_ENV + ";L" + B_STRING_VALUE + ";L" +
-            B_STRING_VALUE + ";JJL" + B_OBJECT + ";L" + B_STRING_VALUE + ";ZZZ)V";
+            B_STRING_VALUE + ";JJL" + B_OBJECT + ";L" + B_STRING_VALUE + ";ZZZZ)V";
     public static final String START_RESOURCE_OBSERVATION = "(L" + BAL_ENV + ";L" + B_STRING_VALUE + ";L" +
             B_STRING_VALUE + ";JJL" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";ZZ)V";
     public static final String STOP_OBSERVATION = "(L" + BAL_ENV + ";)V";

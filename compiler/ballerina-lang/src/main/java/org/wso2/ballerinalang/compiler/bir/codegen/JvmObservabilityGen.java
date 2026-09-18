@@ -473,7 +473,7 @@ class JvmObservabilityGen {
                         isResource, isRemote, pkg, func.pos);
             } else {
                 BIROperand objectTypeOperand = generateGlobalConstantOperand(pkg, symbolTable.nilType, null);
-                injectStartCallableObservationCall(func, startBB, null, false, isMainEntryPoint, isWorker,
+                injectStartCallableObservationCall(func, startBB, null, false, isMainEntryPoint, isWorker, false,
                         objectTypeOperand, functionName, pkg, func.pos);
             }
 
@@ -587,6 +587,7 @@ class JvmObservabilityGen {
 
                     BIRBasicBlock observeEndBB;
                     boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
+                    boolean isResource = callIns.calleeFlags.contains(Flag.RESOURCE);
                     Location originalInsPos = callIns.pos;
                     if (isErrorAssignable(callIns.lhsOp.variableDcl)) {
                         BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 3);
@@ -594,7 +595,7 @@ class JvmObservabilityGen {
                         observeEndBB = insertBasicBlock(func, i + 5);
 
                         injectStartCallableObservationCall(func, observeStartBB, desugaredInsPosition,
-                                isRemote, false, false, objectTypeOperand, action, pkg,
+                                isRemote, false, false, isResource, objectTypeOperand, action, pkg,
                                 originalInsPos);
                         injectCheckErrorCalls(func, errorCheckBB, errorReportBB, observeEndBB,
                                 desugaredInsPosition, callIns.lhsOp, INVOCATION_INSTRUMENTATION_TYPE);
@@ -612,7 +613,7 @@ class JvmObservabilityGen {
                         observeEndBB = insertBasicBlock(func, i + 3);
 
                         injectStartCallableObservationCall(func, observeStartBB, desugaredInsPosition,
-                                isRemote, false, false, objectTypeOperand, action, pkg,
+                                isRemote, false, false, isResource, objectTypeOperand, action, pkg,
                                 originalInsPos);
                         injectStopObservationCall(observeEndBB, desugaredInsPosition);
 
@@ -734,6 +735,7 @@ class JvmObservabilityGen {
      * @param isRemote True if a remote function will be observed by the observation
      * @param isMainEntryPoint True if the main function will be observed by the observation
      * @param isWorker True if a worker function will be observed by the observation
+     * @param isResource True if a resource method invocation on a client object will be observed by the observation
      * @param objectOperand The object the function was attached to
      * @param action The name of the action which will be observed
      * @param pkg The package the invocation belongs to
@@ -741,7 +743,7 @@ class JvmObservabilityGen {
      */
     private void injectStartCallableObservationCall(BIRFunction func, BIRBasicBlock observeStartBB,
                                                     Location desugaredInsLocation, boolean isRemote,
-                                                    boolean isMainEntryPoint, boolean isWorker,
+                                                    boolean isMainEntryPoint, boolean isWorker, boolean isResource,
                                                     BIROperand objectOperand, String action,
                                                     BIRPackage pkg, Location originalInsPosition) {
         BIROperand actionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, action);
@@ -749,6 +751,7 @@ class JvmObservabilityGen {
                 isMainEntryPoint);
         BIROperand isRemoteOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType, isRemote);
         BIROperand isWorkerOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType, isWorker);
+        BIROperand isResourceOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType, isResource);
 
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsLocation);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
@@ -757,7 +760,7 @@ class JvmObservabilityGen {
         observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
         List<BIROperand> positionOperands = generatePositionArgs(pkg, func, observeStartBB, originalInsPosition);
         List<BIROperand> otherOperands = Arrays.asList(objectOperand, actionOperand, isMainEntryPointOperand,
-                isRemoteOperand, isWorkerOperand);
+                isRemoteOperand, isWorkerOperand, isResourceOperand);
         positionOperands.addAll(otherOperands);
         observeStartCallTerminator.args = positionOperands;
         observeStartBB.terminator = observeStartCallTerminator;
