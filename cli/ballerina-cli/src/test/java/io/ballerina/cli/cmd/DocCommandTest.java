@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
  * Doc command tests.
@@ -106,5 +107,45 @@ public class DocCommandTest extends BaseCommandTest {
 
         Files.delete(this.testResources.resolve("doc_project_with_build_tool").resolve("target")
                 .resolve("apidocs").resolve("foo").resolve("winery").resolve("0.1.0").resolve("index.html"));
+    }
+
+    @Test (description = "Test doc command on a workspace project")
+    public void testSimpleWorkspaceProject() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-simple");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        DocCommand docCommand = new DocCommand(printStream, printStream, false);
+        docCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("hello-app/target/apidocs")
+                .resolve("asmaj/hello_app/0.1.0").resolve("index.html")), buildLog);
+        Files.delete(projectPath.resolve("hello-app/target/apidocs").resolve("asmaj/hello_app/0.1.0")
+                .resolve("index.html"));
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("pkgA/target/apidocs")
+                .resolve("asmaj/pkgA/0.1.0").resolve("index.html")), buildLog);
+        Files.delete(projectPath.resolve("pkgA/target/apidocs").resolve("asmaj/pkgA/0.1.0")
+                .resolve("index.html"));
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("pkgB/target/apidocs")
+                .resolve("asmaj/pkgB/0.1.0").resolve("index.html")), buildLog);
+        Files.delete(projectPath.resolve("pkgB/target/apidocs").resolve("asmaj/pkgB/0.1.0")
+                .resolve("index.html"));
+    }
+
+    @Test (description = "Test doc command on a single project within a workspace")
+    public void testGenerateForOneProjectInWorkspace() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-simple/pkgA");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        DocCommand docCommand = new DocCommand(printStream, printStream, false);
+        docCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("target/apidocs")
+                .resolve("asmaj/pkgA/0.1.0").resolve("index.html")), buildLog);
+        Files.delete(projectPath.resolve("target/apidocs").resolve("asmaj/pkgA/0.1.0")
+                .resolve("index.html"));
     }
 }

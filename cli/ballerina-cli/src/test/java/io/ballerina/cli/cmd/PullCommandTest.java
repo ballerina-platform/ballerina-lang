@@ -21,6 +21,9 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -183,6 +186,71 @@ public class PullCommandTest extends BaseCommandTest {
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains("ballerina: unsupported repository 'repo-push-pul' found. " +
                 "Only repositories mentioned in the Settings.toml are supported.\n"));
+    }
+
+    @Test(description = "Pull package from Maven proxy central - client throws exception")
+    public void testPullFromMvnProxyClientException() throws IOException {
+        Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");
+        Settings proxySettings = readMockSettings(settingsPath);
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
+
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parseArgs("myorg/mypkg");
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<MavenResolverClient> ignored = Mockito.mockConstruction(MavenResolverClient.class,
+                     (mock, ctx) -> Mockito.when(
+                             mock.getPackageVersionsInCentralProxy(
+                                     Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                             .thenThrow(new MavenResolverClientException("proxy error")))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(proxySettings);
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            pullCommand.execute();
+        }
+
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("proxy error"), "Expected output to contain 'proxy error'");
+    }
+
+    @Test(description = "Pull a specific version from Maven proxy central")
+    public void testPullFromMvnProxyWithVersion() {
+        Path repoPath = Path.of("src/test/resources/test-resources/maven-proxy/repositories/central-proxy");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/maven-proxy/SettingsFile.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
+
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parseArgs("luheerathan/pact1:0.1.0");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
+                    repoPath.toAbsolutePath().toUri().toString()));
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            pullCommand.execute();
+        }
+        Path pulledCacheDir = mockBallerinaHome.resolve("repositories").resolve("central.ballerina.io")
+                .resolve("bala").resolve("luheerathan").resolve("pact1").resolve("0.1.0");
+        Assert.assertTrue(Files.exists(pulledCacheDir.resolve("any")));
+    }
+
+    @Test(description = "Pull latest version from Maven proxy central (no version specified)")
+    public void testPullFromMvnProxyWithoutVersion() {
+        Path repoPath = Path.of("src/test/resources/test-resources/maven-proxy/repositories/central-proxy");
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/maven-proxy/SettingsFile.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
+
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parseArgs("luheerathan/pact1");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
+                    repoPath.toAbsolutePath().toUri().toString()));
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("2201.13.0");
+            pullCommand.execute();
+        }
+        Path pulledCacheDir = mockBallerinaHome.resolve("repositories").resolve("central.ballerina.io")
+                .resolve("bala").resolve("luheerathan").resolve("pact1").resolve("0.1.0");
+        Assert.assertTrue(Files.exists(pulledCacheDir.resolve("any")));
     }
 
     private static Settings readMockSettings(Path settingsFilePath, String repoPath) {

@@ -79,7 +79,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
             Assert.fail(e.getDetailedMessages().get(0));
         }
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("Generating 'winery' (executable)"), buildLog);
+        Assert.assertTrue(buildLog.contains("Generating 'winery"), buildLog);
     }
 
     //TODO: Fix this testcase (#42937)

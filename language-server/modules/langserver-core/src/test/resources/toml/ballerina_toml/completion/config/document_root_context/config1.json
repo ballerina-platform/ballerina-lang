@@ -6,25 +6,25 @@
   "source": "source/project1/Ballerina.toml",
   "items": [
     {
-      "label": "platform.java21",
+      "label": "platform.java25",
       "kind": "Snippet",
       "detail": "Table",
       "sortText": "C",
-      "insertText": "[platform.java21]"
+      "insertText": "[platform.java25]"
     },
     {
-      "label": "platform.java21.dependency",
+      "label": "platform.java25.dependency",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java21.dependency]]"
+      "insertText": "[[platform.java25.dependency]]"
     },
     {
-      "label": "platform.java21.repository",
+      "label": "platform.java25.repository",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java21.repository]]"
+      "insertText": "[[platform.java25.repository]]"
     },
     {
       "label": "package",

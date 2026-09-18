@@ -193,7 +193,7 @@ public class RunTestsTask implements Task {
         }
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_25);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
@@ -238,6 +238,18 @@ public class RunTestsTask implements Task {
                 cleanTempCache(project, cachesRoot);
                 this.testResult.set(testResult);
                 throw createLauncherException("there are test failures");
+            }
+
+            if (minCoverage != null && coverage) {
+                if (testReport == null || testReport.getPackages().isEmpty()) {
+                    throw createLauncherException("Test report is not available for coverage evaluation.");
+                }
+                float coveragePercentage = testReport.getPackages().getLast().getCoveragePercentage();
+                if (coveragePercentage < minCoverage) {
+                    cleanTempCache(project, cachesRoot);
+                    throw createLauncherException("code coverage is below the minimum threshold of " + minCoverage
+                            + "%, current coverage is " + coveragePercentage + "%");
+                }
             }
         } else {
             out.println("\tNo tests found");

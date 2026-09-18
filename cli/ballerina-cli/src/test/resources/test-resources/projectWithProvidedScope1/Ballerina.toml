@@ -1,0 +1,11 @@
+[package]
+org = "luheerathan"
+name = "test2"
+version = "0.1.0"
+distribution = "2201.13.1"
+
+[[platform.java17.dependency]]
+groupId = "commons-codec"
+artifactId = "commons-codec"
+version = "1.17.1"
+scope="provided"

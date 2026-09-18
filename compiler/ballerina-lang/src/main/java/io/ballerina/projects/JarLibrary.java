@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,11 +34,24 @@ public class JarLibrary extends PlatformLibrary {
     static final String KEY_GROUP_ID = "groupId";
     static final String KEY_VERSION = "version";
 
+    public static final String KEY_TRANSITIVE_DEPENDENCIES = "transitiveDependencies";
+    public static final String KEY_DEPENDS_ON = "dependsOn";
+
     private final String artifactId;
     private final String version;
     private final String groupId;
     private final Path path;
     private final String packageName;
+    private final List<MavenDependencyNode> transitiveDependencies;
+
+
+    public record MavenDependencyNode(String groupId, String artifactId, String version,
+                                      List<String> dependsOn) {
+
+        public String coordinate() {
+            return groupId + ":" + artifactId + ":" + version;
+        }
+    }
 
     public JarLibrary(Path path, PlatformLibraryScope scope) {
         super(scope);
@@ -46,16 +60,24 @@ public class JarLibrary extends PlatformLibrary {
         groupId = null;
         version = null;
         packageName = null;
+        transitiveDependencies = List.of();
     }
 
     public JarLibrary(Path path, PlatformLibraryScope scope, String artifactId, String groupId, String version,
             String packageName) {
+        this(path, scope, artifactId, groupId, version, packageName, List.of());
+    }
+
+    public JarLibrary(Path path, PlatformLibraryScope scope, String artifactId, String groupId, String version,
+            String packageName, List<MavenDependencyNode> transitiveDependencies) {
         super(scope);
         this.path = path;
         this.packageName = (packageName == null || packageName.isEmpty()) ? null : packageName;
         this.artifactId = (artifactId == null || artifactId.isEmpty()) ? null : artifactId;
         this.groupId = (groupId == null || groupId.isEmpty()) ? null : groupId;
         this.version = (version == null || version.isEmpty()) ? null : version;
+        this.transitiveDependencies = transitiveDependencies == null ? List.of()
+                : List.copyOf(transitiveDependencies);
     }
 
     public JarLibrary(Path path, PlatformLibraryScope scope, String packageName) {
@@ -65,6 +87,7 @@ public class JarLibrary extends PlatformLibrary {
         this.artifactId = null;
         this.groupId = null;
         this.version = null;
+        this.transitiveDependencies = List.of();
     }
 
     @Override
@@ -86,6 +109,10 @@ public class JarLibrary extends PlatformLibrary {
 
     public Optional<String> groupId() {
         return Optional.ofNullable(groupId);
+    }
+
+    public List<MavenDependencyNode> transitiveDependencies() {
+        return transitiveDependencies;
     }
 
     @Override

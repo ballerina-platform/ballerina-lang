@@ -45,6 +45,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
@@ -216,6 +218,55 @@ public class PushCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Push a bala with a path-traversal platformDependencies path is rejected")
+    public void testPushWithPathTraversalBalaRejected() throws IOException {
+        Path testRoot = Files.createTempDirectory("push-path-traversal-test");
+        try {
+            // balaDir is the intended extraction directory; the malicious path below tries to
+            // escape it and write two directories up, into testRoot.
+            Path balaDir = testRoot.resolve("nested").resolve("bala-dir");
+            Files.createDirectories(balaDir);
+            Path maliciousBala = balaDir.resolve("testorg-attackpkg-any-0.1.0.bala");
+            String packageJson = "{"
+                    + "\"organization\":\"testorg\","
+                    + "\"name\":\"attackpkg\","
+                    + "\"version\":\"0.1.0\","
+                    + "\"platform\":\"java17\","
+                    + "\"platformDependencies\":[{"
+                    + "\"path\":\"../../evil-marker.txt\","
+                    + "\"artifactId\":\"evil\",\"groupId\":\"evil\",\"version\":\"1.0.0\"}]"
+                    + "}";
+            try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(maliciousBala))) {
+                zipOut.putNextEntry(new ZipEntry("package.json"));
+                zipOut.write(packageJson.getBytes(StandardCharsets.UTF_8));
+                zipOut.closeEntry();
+            }
+
+            PushCommand pushCommand = new PushCommand(testRoot, printStream, printStream, false, maliciousBala);
+            String[] args = { "--repository=local" };
+            new CommandLine(pushCommand).parseArgs(args);
+
+            Path mockRepo = Path.of("build/ballerina-home");
+            try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+                repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+                repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
+                repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+                pushCommand.execute();
+            }
+
+            String buildLog = readOutput(true);
+            String actual = buildLog.replaceAll("\r", "");
+            Assert.assertFalse(actual.contains("Successfully pushed"),
+                    "malicious bala should not have been pushed successfully: " + actual);
+            Assert.assertTrue(actual.contains("resolves outside the bala directory"),
+                    "expected a path traversal rejection message but got: " + actual);
+            Assert.assertFalse(Files.exists(testRoot.resolve("evil-marker.txt")),
+                    "path traversal wrote a file outside the intended bala directory");
+        } finally {
+            ProjectUtils.deleteDirectory(testRoot);
+        }
+    }
+
     @Test(description = "Push a tool to local repository")
     public void testPushToolToLocal() throws IOException {
         Path validBalProject = Path.of("build/tool-gayals");
@@ -225,7 +276,7 @@ public class PushCommandTest extends BaseCommandTest {
         FileUtils.moveDirectory(
                 validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
         Path customTargetDirBalaPath =
-                validBalProject.resolve("custom/bala/gayaldassanayake-tool_gayal-java21-1.1.0.bala");
+                validBalProject.resolve("custom/bala/gayaldassanayake-tool_gayal-java25-1.1.0.bala");
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
                 customTargetDirBalaPath);
         String[] args = { "--repository=local" };
@@ -247,7 +298,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         try {
             ProjectFiles.validateBalaProjectPath(
-                    mockRepo.resolve("repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java21"));
+                    mockRepo.resolve("repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java25"));
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }

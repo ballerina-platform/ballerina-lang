@@ -65,7 +65,6 @@ import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
 import static org.jacoco.core.analysis.ICounter.EMPTY;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
@@ -351,9 +350,7 @@ public class CoverageReport {
                     // If file is a source bal file
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX) &&
                             !sourceFileCoverage.getName().contains("tests/")) {
-                        String exclusionClassFileName = sourceFileCoverage.getPackageName() + PATH_SEPARATOR +
-                                sourceFileCoverage.getName().replace(BLANG_SRC_FILE_SUFFIX, "");
-                        exclusionClassFileName = exclusionClassFileName.replace(PATH_SEPARATOR, DOT);
+                        String exclusionClassFileName = getExclusionClassFileName(sourceFileCoverage);
                         if (exclusionClassList.contains(exclusionClassFileName)) {
                             continue;
                         }
@@ -460,6 +457,16 @@ public class CoverageReport {
                 }
             }
         }
+    }
+
+    private static String getExclusionClassFileName(ISourceFileCoverage sourceFileCoverage) {
+        String packageName = sourceFileCoverage.getPackageName();
+        String[] parts = packageName.split("/");
+        String sourceOrg = parts[0];
+        String sourceModule = parts[1];
+        String sourceVersion = parts[2];
+        String sourceFile = sourceFileCoverage.getName().replace(BLANG_SRC_FILE_SUFFIX, "");
+        return sourceOrg + DOT + sourceModule + DOT + sourceVersion + DOT + sourceFile;
     }
 
     private void filterGeneratedCoverage(Map<String, ModuleCoverage> moduleCoverageMap, Module originalModule) {

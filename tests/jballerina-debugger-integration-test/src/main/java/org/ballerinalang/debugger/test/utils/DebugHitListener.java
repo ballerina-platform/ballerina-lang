@@ -43,7 +43,7 @@ public class DebugHitListener extends TimerTask {
     private final DAPClientConnector connector;
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
-    private boolean debugHitFound;
+    private volatile boolean debugHitFound;
 
     public DebugHitListener(DAPClientConnector connector) {
         this.connector = connector;

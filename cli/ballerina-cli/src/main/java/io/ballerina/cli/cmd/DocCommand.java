@@ -25,13 +25,15 @@ import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
-import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -40,9 +42,12 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
 
 /**
@@ -80,6 +85,14 @@ public class DocCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
+        this.offline = true;
+    }
+
+    DocCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
         this.offline = true;
     }
 
@@ -134,27 +147,15 @@ public class DocCommand implements BLauncherCmd {
             this.errStream.println(commandUsageInfo);
             return;
         }
-        if (argList == null) {
-            this.projectPath = Path.of(System.getProperty("user.dir"));
-        } else {
-            // Generate docs from a bala
-            if (argList.get(0).endsWith(".bala")) {
-                this.projectPath = Path.of(System.getProperty("user.dir"));
-                Path balaPath = this.projectPath.resolve(argList.get(0));
-                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
-                try {
-                    BallerinaDocGenerator.generateAPIDocs(balaProject, this.projectPath.toString(), false);
-                } catch (IOException e) {
-                    CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-                return;
+
+        if (argList != null) {
+            if (!Paths.get(argList.get(0)).isAbsolute()) {
+                this.projectPath = this.projectPath.resolve(Paths.get(argList.get(0))).toAbsolutePath();
+            } else {
+                this.projectPath = Paths.get(argList.get(0));
             }
-            this.projectPath = Path.of(argList.get(0));
         }
+
         // combine docs
         if (this.combine) {
             outStream.println("Combining Docs");
@@ -184,16 +185,54 @@ public class DocCommand implements BLauncherCmd {
         }
 
         // load project
-        Project project;
         BuildOptions buildOptions = constructBuildOptions();
-        try {
-            project = BuildProject.load(this.projectPath, buildOptions);
-        } catch (ProjectException e) {
-            CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
+        DiagnosticResult diagnosticResult = loadResult.diagnostics();
+        Project project = loadResult.project();
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
+            if (diagnosticResult.hasErrors()) {
+                if (this.exitWhenFinish) {
+                    Runtime.getRuntime().exit(1);
+                }
+                return;
+            }
+
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
+                    workspaceProject, this.outStream);
+            if (!project.sourceRoot().equals(this.projectPath)) {
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(this.projectPath)).findFirst();
+                executeTasks(buildProjectOptional.orElseThrow());
+
+            } else {
+                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
+                    executeTasks(buildProject);
+                }
+            }
+        } else {
+            if (project.kind() == ProjectKind.BALA_PROJECT) {
+                try {
+                    BallerinaDocGenerator.generateAPIDocs(project, this.projectPath.toString(), false);
+                } catch (IOException e) {
+                    CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+            } else {
+                executeTasks(project);
+            }
         }
 
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+    }
+
+    private void executeTasks(Project project) {
         // normalize paths
         this.projectPath = this.projectPath.normalize();
         this.outputPath = this.outputLoc != null ? Path.of(this.outputLoc).toAbsolutePath() : null;
@@ -209,8 +248,9 @@ public class DocCommand implements BLauncherCmd {
                 .build();
 
         taskExecutor.executeTasks(project);
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
+        if (this.combine) {
+            outStream.println("Combining Docs");
+            BallerinaDocGenerator.mergeApiDocs(this.projectPath);
         }
     }
 

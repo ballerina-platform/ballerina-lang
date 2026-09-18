@@ -167,6 +167,16 @@ function testConstAnnotationAccess() {
     assertTrue(config2.examples is readonly);
 }
 
+function testAnnotationWithIntSubtypeFields() {
+    foo:AnnotatedWithIntSubtype val = {name: "test"};
+    typedesc<any> td = typeof val;
+    foo:SequenceConfig? annot = td.@foo:SequenceAnnot;
+    assertTrue(annot is foo:SequenceConfig);
+    foo:SequenceConfig config = <foo:SequenceConfig>annot;
+    assertEquality(1, config.minOccurs);
+    assertEquality(10, config.maxOccurs);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

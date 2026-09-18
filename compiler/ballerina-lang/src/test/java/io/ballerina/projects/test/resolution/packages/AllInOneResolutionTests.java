@@ -46,6 +46,9 @@ public class AllInOneResolutionTests extends AbstractPackageResolutionTest {
                 {"suite-all_in_one", "case-0004", PackageLockingMode.HARD},
                 {"suite-all_in_one", "case-0004", PackageLockingMode.MEDIUM},
                 {"suite-all_in_one", "case-0004", PackageLockingMode.SOFT},
+                {"suite-all_in_one", "case-0005", PackageLockingMode.HARD},
+                {"suite-all_in_one", "case-0005", PackageLockingMode.MEDIUM},
+                {"suite-all_in_one", "case-0005", PackageLockingMode.SOFT},
         };
     }
 
@@ -64,6 +67,8 @@ public class AllInOneResolutionTests extends AbstractPackageResolutionTest {
                 {"suite-all_in_one", "case-0003", true},
                 {"suite-all_in_one", "case-0003", false},
                 {"suite-all_in_one", "case-0004", true},
+                {"suite-all_in_one", "case-0005", true},
+                {"suite-all_in_one", "case-0005", false},
         };
     }
 }

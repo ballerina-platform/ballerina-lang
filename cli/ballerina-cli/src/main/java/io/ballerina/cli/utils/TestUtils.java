@@ -162,6 +162,7 @@ public final class TestUtils {
             projectName = project.currentPackage().packageName().toString();
         }
         packageTestResult.setProjectName(projectName);
+        packageTestResult.finalizeTestResults(project.buildOptions().codeCoverage());
     }
 
     /**
@@ -335,6 +336,7 @@ public final class TestUtils {
             cmdArgs.add("-XX:HeapDumpPath=" + userDir);
         }
 
+        cmdArgs.add("--enable-native-access=ALL-UNNAMED");
         return cmdArgs;
     }
 

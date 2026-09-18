@@ -208,7 +208,7 @@ public class ConfigNegativeTest {
                                         ".intVar'"}},
                 // not supported both toml type and cli type
                 {new String[]{"-Corg.mod1.myVar=4"}, "MatchedTypeValues.toml", new HashMap<>(),
-                        new VariableKey[]{new VariableKey(MODULE, "myVar", PredefinedTypes.TYPE_ANY, null, true)}, 6
+                        new VariableKey[]{new VariableKey(MODULE, "myVar", PredefinedTypes.TYPE_ANY, null, true)}, 5
                         , 0, new String[]{"error: configurable variable 'myVar' with type 'any' is not supported",
                         "error: [org.mod1.myVar=4] unused command line argument"}},
                 // not supported cli union type

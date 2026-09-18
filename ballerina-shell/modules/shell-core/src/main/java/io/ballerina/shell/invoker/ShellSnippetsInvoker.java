@@ -338,7 +338,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected void executeProject(ClassLoadContext context, String templateName) throws InvokerException {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
         Package pkg = project.currentPackage();
         io.ballerina.runtime.api.Module module = new io.ballerina.runtime.api.Module(pkg
                 .packageOrg().value(), pkg.packageName().value(), pkg.packageVersion().toString());

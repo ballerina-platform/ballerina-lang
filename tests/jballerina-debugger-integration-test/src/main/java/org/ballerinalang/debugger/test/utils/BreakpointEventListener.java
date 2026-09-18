@@ -36,7 +36,7 @@ public class BreakpointEventListener extends TimerTask {
 
     private final DAPClientConnector connector;
     private final List<BallerinaTestDebugPoint> modifiedBreakpoints;
-    private boolean breakpointEventFound;
+    private volatile boolean breakpointEventFound;
 
     public BreakpointEventListener(DAPClientConnector connector) {
         this.connector = connector;

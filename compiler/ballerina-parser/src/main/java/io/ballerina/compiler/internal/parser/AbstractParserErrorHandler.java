@@ -404,6 +404,16 @@ public abstract class AbstractParserErrorHandler {
         // lowest number of removeFixes. If it again results in more than one match, then return
         // the based on the precedence (order of occurrence).
         List<Result> bestMatches = results[bestMatchIndex];
+
+        // Safety net: This mirrors the identical fail-safe in seekMatch()
+        if (bestMatches == null) {
+            Result fallback = new Result(new ArrayDeque<>(), currentMatches);
+            ParserRuleContext fallbackCtx = this.ctxStack.peek();
+            String fallbackText = fallbackCtx != null ? fallbackCtx.toString() : "";
+            fallback.solution = new Solution(Action.REMOVE, fallbackCtx, SyntaxKind.NONE, fallbackText);
+            return fallback;
+        }
+
         Result bestMatch = bestMatches.get(0);
         Result currentMatch;
         for (int i = 1; i < bestMatches.size(); i++) {

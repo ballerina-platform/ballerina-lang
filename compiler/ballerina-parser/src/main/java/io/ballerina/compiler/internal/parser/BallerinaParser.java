@@ -11167,6 +11167,18 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseInterpolation() {
         startContext(ParserRuleContext.INTERPOLATION);
         STNode interpolStart = parseInterpolationStart();
+
+        // Detect empty interpolation ${}
+        if (peek().kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+            STNode missingIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(
+                    SyntaxKind.IDENTIFIER_TOKEN,
+                    DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+            STNode missingExpr = STNodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+            STNode closeBrace = parseCloseBrace();
+            endContext();
+            return STNodeFactory.createInterpolationNode(interpolStart, missingExpr, closeBrace);
+        }
+
         STNode expr = parseExpression();
 
         // Remove additional token in interpolation
@@ -19115,19 +19127,28 @@ public class BallerinaParser extends AbstractParser {
                         STNode rhsTypeDesc = getTypeDescFromExpr(binaryExpr.rhsExpr);
                         return mergeTypes(lhsTypeDesc, binaryExpr.operator, rhsTypeDesc);
                     default:
-                        break;
+                        return createMissingTypeDesc(expression);
                 }
-                return expression;
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
                 return expression;
             default:
-                STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(
-                        SyntaxKind.IDENTIFIER_TOKEN, DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
-                simpleTypeDescIdentifier = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(simpleTypeDescIdentifier, 
-                        expression);
-                return STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
+                return createMissingTypeDesc(expression);
         }
+    }
+
+    /**
+     * Create a missing type descriptor node with the given expression as invalid node minutiae.
+     *
+     * @param expression Expression that is not a valid type descriptor
+     * @return Missing type descriptor node
+     * */
+    private STNode createMissingTypeDesc(STNode expression) {
+        STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(
+                SyntaxKind.IDENTIFIER_TOKEN, DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        simpleTypeDescIdentifier = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
+                simpleTypeDescIdentifier, expression);
+        return STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
     }
 
     private List<STNode> getBindingPatternsList(List<STNode> ambibuousList, boolean isListBP) {

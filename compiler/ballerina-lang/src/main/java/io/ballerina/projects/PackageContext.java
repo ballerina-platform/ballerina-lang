@@ -20,11 +20,14 @@ package io.ballerina.projects;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageResolution.DependencyResolution;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.projects.plugins.EndpointMetaInfo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,6 +71,7 @@ class PackageContext {
     private PackageResolution packageResolution;
     private BuildToolResolution buildToolResolution;
     private PackageCompilation packageCompilation;
+    private final List<EndpointMetaInfo> endpointMetadata;
 
     // TODO Try to reuse the unaffected compilations if possible
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
@@ -108,6 +112,7 @@ class PackageContext {
         this.testResourceContextMap = testResourceContextMap;
         this.resourceIds = Collections.unmodifiableCollection(resourceContextMap.keySet());
         this.testResourceIds = Collections.unmodifiableCollection(testResourceContextMap.keySet());
+        this.endpointMetadata = new ArrayList<>();
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -374,6 +379,18 @@ class PackageContext {
         } else {
             return this.testResourceContextMap.get(documentId);
         }
+    }
+
+    void addEndpointMetadata(EndpointMetaInfo endpointMetadata) {
+        this.endpointMetadata.add(endpointMetadata);
+    }
+
+    void clearEndpointMetadata() {
+        this.endpointMetadata.clear();
+    }
+
+    List<EndpointMetaInfo> endpointMetadata() {
+        return Collections.unmodifiableList(this.endpointMetadata);
     }
 
     PackageContext duplicate(Project project) {

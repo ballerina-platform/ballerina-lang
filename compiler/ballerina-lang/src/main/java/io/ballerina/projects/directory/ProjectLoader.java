@@ -65,6 +65,10 @@ public final class ProjectLoader {
         if (!Files.exists(path)) {
             throw new ProjectException("provided file path does not exist");
         }
+        if (path.toString().endsWith(ProjectConstants.BALA_EXTENSION)) {
+            projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            return BalaProject.load(path, projectEnvironmentBuilder, buildOptions);
+        }
         try {
             Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
             if (workspaceRoot.isPresent()) {

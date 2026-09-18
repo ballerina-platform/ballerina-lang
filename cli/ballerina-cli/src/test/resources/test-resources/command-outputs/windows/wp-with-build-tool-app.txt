@@ -1,0 +1,14 @@
+Executing Build Tools
+	testorg/lib_with_tool:0.1.0
+	    sample-build-tool(generate-delivery-client)
+
+Resolving workspace dependencies
+
+Compiling source
+	testorg/lib_with_tool:0.1.0
+
+Compiling source
+	testorg/app:0.1.0
+
+Generating executable
+	app\target\bin\app.jar

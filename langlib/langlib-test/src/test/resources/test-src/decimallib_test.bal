@@ -422,6 +422,18 @@ function testFromStringFunctionWithInvalidValues() {
         assertEquality("{ballerina}NumberOverflow", a1.message());
         assertEquality("decimal range overflow", <string> checkpanic a1.detail()["message"]);
     }
+
+    a1 = decimal:fromString("ENT 12 N 0000");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina}DecimalExponentError", a1.message());
+    }
+
+    a1 = decimal:fromString("E11 99 0 000");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina}DecimalExponentError", a1.message());
+    }
 }
 
 function testQuantize() {

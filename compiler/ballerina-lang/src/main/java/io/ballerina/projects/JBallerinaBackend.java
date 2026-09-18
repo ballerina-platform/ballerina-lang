@@ -23,6 +23,8 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.plugins.EndpointMetaInfo;
+import io.ballerina.projects.util.EndpointMetadataYamlUtil;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -89,6 +91,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FIL
 //    todo that, we would have to move PackageContext class into an internal package.
 public class JBallerinaBackend extends CompilerBackend {
 
+    private static final String ARTIFACT_DIR = "artifact";
+    private static final String ENDPOINTS_FILE = "endpoints.yaml";
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
@@ -232,7 +236,13 @@ public class JBallerinaBackend extends CompilerBackend {
             default -> throw new RuntimeException("Unexpected output type: " + outputType);
         };
 
-        return getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+        EmitResult emitResult = getEmitResult(filePath, generatedArtifact, BalCommand.BUILD, emitResultDiagnostics);
+        // TODO: Properly design additional artifact generation as a post-compilation phase in Project API.
+        if (!emitResult.diagnostics().hasErrors() && packageContext.project().buildOptions().exportEndpoints() &&
+                (outputType == OutputType.EXEC || outputType == OutputType.GRAAL_EXEC)) {
+            writeEndpointMetadata();
+        }
+        return emitResult;
     }
 
     public EmitResult emit(TestEmitArgs testEmitArgs) {
@@ -268,6 +278,22 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // TODO handle the EmitResult properly
         return new EmitResult(true, new DefaultDiagnosticResult(emitDiagnostics), generatedArtifact);
+    }
+
+    private void writeEndpointMetadata() {
+        List<EndpointMetaInfo> endpointMetadata = packageContext.endpointMetadata();
+        if (endpointMetadata.isEmpty()) {
+            return;
+        }
+
+        Path artifactDir = packageContext.project().targetDir().resolve(ARTIFACT_DIR);
+        try {
+            Files.createDirectories(artifactDir);
+            Files.writeString(artifactDir.resolve(ENDPOINTS_FILE), EndpointMetadataYamlUtil.toYaml(endpointMetadata),
+                    StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new ProjectException("unable to export endpoint metadata: " + e.getMessage(), e);
+        }
     }
 
     public List<Diagnostic> notifyCompilationCompletion(Path filePath, BalCommand balCommand) {
@@ -335,10 +361,45 @@ public class JBallerinaBackend extends CompilerBackend {
                     jarPath = pkg.project().sourceRoot().resolve(jarPath);
                 }
                 platformLibraries.add(new JarLibrary(jarPath, dependencyScope, artifactId, groupId, version,
-                        pkg.packageOrg().value() + "/" + pkg.packageName().value()));
+                        pkg.packageOrg().value() + "/" + pkg.packageName().value(),
+                        readTransitiveDependencies(dependency)));
             }
         }
         return platformLibraries;
+    }
+
+
+    private static List<JarLibrary.MavenDependencyNode> readTransitiveDependencies(Map<String, Object> dependency) {
+        if (!(dependency.get(JarLibrary.KEY_TRANSITIVE_DEPENDENCIES) instanceof List<?> entries)) {
+            return List.of();
+        }
+        List<JarLibrary.MavenDependencyNode> nodes = new ArrayList<>();
+        for (Object element : entries) {
+            if (!(element instanceof Map<?, ?> entry)) {
+                continue;
+            }
+            String groupId = asString(entry.get(JarLibrary.KEY_GROUP_ID));
+            String artifactId = asString(entry.get(JarLibrary.KEY_ARTIFACT_ID));
+            String version = asString(entry.get(JarLibrary.KEY_VERSION));
+            if (groupId == null || artifactId == null || version == null) {
+                continue;
+            }
+            List<String> dependsOn = new ArrayList<>();
+            if (entry.get(JarLibrary.KEY_DEPENDS_ON) instanceof List<?> edges) {
+                for (Object edge : edges) {
+                    String coordinate = asString(edge);
+                    if (coordinate != null) {
+                        dependsOn.add(coordinate);
+                    }
+                }
+            }
+            nodes.add(new JarLibrary.MavenDependencyNode(groupId, artifactId, version, dependsOn));
+        }
+        return nodes;
+    }
+
+    private static String asString(Object value) {
+        return value instanceof String string && !string.isEmpty() ? string : null;
     }
 
     @Override
@@ -549,6 +610,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        mainAttributes.putValue("Enable-Native-Access", "ALL-UNNAMED");
         return manifest;
     }
 
@@ -558,6 +620,8 @@ public class JBallerinaBackend extends CompilerBackend {
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        // See the comment in createManifest() above.
+        mainAttributes.putValue("Enable-Native-Access", "ALL-UNNAMED");
         return manifest;
     }
 
@@ -656,6 +720,34 @@ public class JBallerinaBackend extends CompilerBackend {
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createManifest();
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
+
+        // Remove platform dependencies with 'provided' scope of the current package from jarLibraries
+        HashSet<Path> providedJarPaths = new HashSet<>();
+        List<Map<String, Object>> providedMavenDeps = new ArrayList<>();
+        for (PackageManifest.Platform platform : this.packageContext().packageManifest().platforms().values()) {
+            if (platform == null || platform.dependencies().isEmpty()) {
+                continue;
+            }
+            for (Map<String, Object> dependency : platform.dependencies()) {
+                if (PlatformLibraryScope.PROVIDED == getPlatformLibraryScope(dependency)) {
+                    String depFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+                    if (depFilePath != null && !depFilePath.isEmpty()) {
+                        Path jarPath = Path.of(depFilePath);
+                        if (!jarPath.isAbsolute()) {
+                            jarPath = this.packageContext().project().sourceRoot().resolve(jarPath);
+                        }
+                        providedJarPaths.add(jarPath);
+                    } else {
+                        providedMavenDeps.add(dependency);
+                    }
+                }
+            }
+        }
+        jarLibraries = jarLibraries.stream()
+                .filter(jarLib -> !providedJarPaths.contains(jarLib.path()) &&
+                        !isProvidedMavenDep(jarLib, providedMavenDeps))
+                .toList();
+
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {
@@ -708,19 +800,20 @@ public class JBallerinaBackend extends CompilerBackend {
         List<String> nativeArgs = new ArrayList<>();
         Path nativeConfigPath = packageContext.project().targetDir().resolve("cache");
 
+        String nativeAccessArg = "--enable-native-access=ALL-UNNAMED";
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-o " + executableFilePath.getParent() + "/" + nativeImageName,
-                    "--no-fallback"));
+                    "--no-fallback", nativeAccessArg));
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-o " + executableFilePath.getParent() + "/" + nativeImageName,
-                    "--no-fallback"));
+                    "--no-fallback", nativeAccessArg));
         }
 
         if (!Files.exists(nativeConfigPath)) {
@@ -799,6 +892,33 @@ public class JBallerinaBackend extends CompilerBackend {
         } catch (MavenResolverException e) {
             throw new ProjectException("cannot resolve " + artifactId + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Checks whether the given JarLibrary matches any of the provided Maven dependencies
+     * by comparing groupId, artifactId, and version.
+     *
+     * @param jarLib            the jar library to check
+     * @param providedMavenDeps list of provided-scope dependency maps (without a path) from the package manifest
+     * @return true if the jar library matches a provided Maven dependency
+     */
+    private boolean isProvidedMavenDep(JarLibrary jarLib, List<Map<String, Object>> providedMavenDeps) {
+        if (jarLib.groupId().isEmpty() || jarLib.artifactId().isEmpty() || jarLib.version().isEmpty()) {
+            return false;
+        }
+        String jarGroupId = jarLib.groupId().get();
+        String jarArtifactId = jarLib.artifactId().get();
+        String jarVersion = jarLib.version().get();
+        for (Map<String, Object> dep : providedMavenDeps) {
+            String depGroupId = (String) dep.get(JarLibrary.KEY_GROUP_ID);
+            String depArtifactId = (String) dep.get(JarLibrary.KEY_ARTIFACT_ID);
+            String depVersion = (String) dep.get(JarLibrary.KEY_VERSION);
+            if (jarArtifactId.equals(depArtifactId) && jarGroupId.equals(depGroupId)
+                    && jarVersion.equals(depVersion)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -1,0 +1,16 @@
+Executing Build Tools
+	testorg/consolidator:0.1.0 (UP-TO-DATE)
+
+Resolving workspace dependencies
+
+Compiling source (UP-TO-DATE)
+	testorg/bar:0.1.0
+
+Compiling source (UP-TO-DATE)
+	testorg/foo:0.1.0
+
+Compiling source (UP-TO-DATE)
+	testorg/consolidator:0.1.0
+
+Running executable
+

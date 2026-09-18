@@ -62,7 +62,6 @@ import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
-import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_TOOLS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
@@ -491,10 +490,10 @@ public class PushCommand implements BLauncherCmd {
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
 
-            authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
+            authenticate(settingsTomlFilePath, client);
 
             try {
-                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_21.code(),
+                client.pushPackage(balaPath, org, name, version, balaProject.platform(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
@@ -527,9 +526,10 @@ public class PushCommand implements BLauncherCmd {
             String name = balaProject.currentPackage().manifest().name().toString();
             String version = balaProject.currentPackage().manifest().version().toString();
 
+            Path sbomPath = findSiblingSbomFile(balaPath, name, version);
             try {
                 Path customRepoPath = Files.createTempDirectory("ballerina-" + System.nanoTime());
-                client.pushPackage(balaPath, org, name, version, customRepoPath);
+                client.pushPackage(balaPath, org, name, version, customRepoPath, sbomPath);
             } catch (MavenResolverClientException | IOException e) {
                 throw new ProjectException(e.getMessage());
             }
@@ -578,12 +578,30 @@ public class PushCommand implements BLauncherCmd {
         File[] balaFiles = new File(balaOutputDir.toString()).listFiles();
         if (balaFiles != null && balaFiles.length > 0) {
             for (File balaFile : balaFiles) {
-                if (balaFile != null && balaFile.getName().startsWith(orgName + "-" + pkgName)) {
+                // The name check alone is not enough to disambiguate, so the extension must also be checked
+                // to avoid picking up the standalone SBOM file (`<packageName>-<version>.cdx.json`) written
+                // next to the bala (see BalaWriter#writeBomToTargetDir).
+                if (balaFile != null && balaFile.getName().startsWith(orgName + "-" + pkgName)
+                        && balaFile.getName().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)) {
                     balaFilePath = balaFile.toPath();
                     break;
                 }
             }
         }
         return balaFilePath;
+    }
+
+    /**
+     * Find the standalone SBOM file {@code bal pack} writes next to the bala, named after the package and
+     * version being pushed (see {@code BalaWriter#writeBomToTargetDir}).
+     *
+     * @param balaPath path to the bala file being pushed
+     * @param name     name of the package being pushed
+     * @param version  version of the package being pushed
+     * @return path to the sibling SBOM file, or {@code null} if none exists next to it
+     */
+    private static Path findSiblingSbomFile(Path balaPath, String name, String version) {
+        Path sbomPath = balaPath.resolveSibling(name + "-" + version + ".cdx.json");
+        return Files.exists(sbomPath) ? sbomPath : null;
     }
 }

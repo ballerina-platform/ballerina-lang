@@ -68,7 +68,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
@@ -174,13 +173,6 @@ public class JvmPackageGen {
         this.typeEnv = symbolTable.typeEnv();
         this.currentModule = currentModule;
 
-    }
-
-    private static String getBvmAlias(String orgName, String moduleName) {
-        if (Names.ANON_ORG.value.equals(orgName)) {
-            return moduleName;
-        }
-        return orgName + "/" + moduleName;
     }
 
     private static void addBuiltinImports(BIRPackage birPackage, Set<PackageID> dependentModuleArray) {
@@ -607,7 +599,7 @@ public class JvmPackageGen {
         } else {
             PackageID id = objectNewIns.externalPackageId;
             assert id != null;
-            BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
+            BPackageSymbol symbol = packageCache.getSymbol(id);
             if (symbol != null) {
                 Name lookupKey = new Name(Utils.decodeIdentifier(objectNewIns.objectName));
                 BSymbol typeSymbol = symbol.scope.lookup(lookupKey).symbol;
@@ -630,8 +622,7 @@ public class JvmPackageGen {
     CompiledJarFile generate() {
         boolean serviceEPAvailable = currentModule.isListenerAvailable;
         for (BIRNode.BIRImportModule importModule : currentModule.importModules) {
-            BPackageSymbol pkgSymbol = packageCache.getSymbol(
-                    getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(importModule.packageID);
             if (pkgSymbol.bir != null) {
                 String moduleInitClass = getModuleLevelClassName(pkgSymbol.bir.packageID, MODULE_INIT_CLASS_NAME);
                 generateClassNameLinking(pkgSymbol.bir, moduleInitClass, false);
@@ -656,8 +647,7 @@ public class JvmPackageGen {
         Set<PackageID> immediateImports = new LinkedHashSet<>();
         addBuiltinImports(currentModule, immediateImports);
         for (BIRNode.BIRImportModule immediateImport : currentModule.importModules) {
-            BPackageSymbol pkgSymbol = packageCache.getSymbol(
-                    getBvmAlias(immediateImport.packageID.orgName.value, immediateImport.packageID.name.value));
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(immediateImport.packageID);
             immediateImports.add(pkgSymbol.pkgID);
         }
 

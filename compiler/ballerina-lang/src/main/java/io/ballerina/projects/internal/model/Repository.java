@@ -33,26 +33,35 @@ public class Repository {
     private final String password;
     private final String type;
     private final Path path;
+    private final boolean proxyCentral;
 
-    private Repository(String id, String url, String username, String password, String remoteType, Path path) {
+    private Repository(String id, String url, String username, String password, String remoteType, Path path,
+                       boolean proxyCentral) {
         this.id = id;
         this.url = url;
         this.username = username;
         this.password = password;
         this.type = remoteType;
         this.path = path;
+        this.proxyCentral = proxyCentral;
     }
 
     public static Repository from(String id, String url, String username, String password) {
-        return new Repository(id, url, username, password, MAVEN, null);
+        return new Repository(id, url, username, password, MAVEN, null, false);
     }
 
     public static Repository from(String id, String url, String username, String password, String type, Path path) {
-        return new Repository(id, url, username, password, type, path);
+        return new Repository(id, url, username, password, type, path, false);
+    }
+
+    public static Repository from(String id, String url, String username, String password, String type, Path path,
+                                  boolean proxyCentral) {
+        return new Repository(id, url, username, password, type, path, proxyCentral);
     }
 
     public static Repository from() {
-        return new Repository("", "", "", "", MAVEN, null);
+        return new Repository("", "", "", "", MAVEN, null,
+                false);
     }
 
     public String id() {
@@ -77,5 +86,9 @@ public class Repository {
 
     public Optional<Path> path() {
         return Optional.ofNullable(path);
+    }
+
+    public boolean proxyCentral() {
+        return proxyCentral;
     }
 }

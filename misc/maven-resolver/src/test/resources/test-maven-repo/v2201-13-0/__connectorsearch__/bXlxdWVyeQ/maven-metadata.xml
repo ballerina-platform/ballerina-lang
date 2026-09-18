@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>v2201-13-0.__connectorsearch__</groupId>
+  <artifactId>myquery</artifactId>
+  <count>1</count>
+  <limit>5</limit>
+  <offset>0</offset>
+  <connectors>
+    <connector>
+      <id>conn-001</id>
+      <name>MyConnector</name>
+      <displayName>My Connector</displayName>
+      <moduleName>mymodule</moduleName>
+      <icon>connector-icon</icon>
+      <documentation>A test connector</documentation>
+      <package>
+        <id>pkg-001</id>
+        <organization>myorg</organization>
+        <name>mypkg</name>
+        <version>1.0.0</version>
+        <platform>java17</platform>
+        <languageSpecificationVersion>2023R1</languageSpecificationVersion>
+        <isDeprecated>false</isDeprecated>
+        <deprecateMessage></deprecateMessage>
+        <URL>https://example.com</URL>
+        <balaVersion>2.0.0</balaVersion>
+        <balaURL>https://example.com/bala</balaURL>
+        <digest>abc123</digest>
+        <summary>A test connector package</summary>
+        <template>false</template>
+        <sourceCodeLocation>https://github.com/example</sourceCodeLocation>
+        <ballerinaVersion>2201.13.0</ballerinaVersion>
+        <icon>pkg-icon</icon>
+        <ownerUUID>user-001</ownerUUID>
+        <createdDate>1700000000000</createdDate>
+        <pullCount>50</pullCount>
+        <visibility>public</visibility>
+        <balToolId></balToolId>
+        <graalvmCompatible>true</graalvmCompatible>
+        <licenses>
+          <license>Apache-2.0</license>
+        </licenses>
+        <authors>
+          <author>Alice</author>
+        </authors>
+        <keywords>
+          <keyword>connector</keyword>
+        </keywords>
+      </package>
+    </connector>
+  </connectors>
+</metadata>

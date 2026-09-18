@@ -78,18 +78,27 @@ public class PackageCache {
 
     public void remove(PackageID packageID) {
         packageMap.remove(getCacheID(packageID));
-        String[] packageElements = packageID.toString().split(Names.VERSION_SEPARATOR.value);
-        packageSymbolMap.remove(packageElements[0]);
+        String packageName = getPackageName(packageID);
+        String packageVersion = getPackageVersion(packageID);
+        Map<String, BPackageSymbol> versionMap = packageSymbolMap.get(packageName);
+        if (versionMap == null) {
+            return;
+        }
+        versionMap.remove(packageVersion);
+        if (versionMap.isEmpty()) {
+            packageSymbolMap.remove(packageName);
+        }
     }
 
     public void flush() {
         packageMap.clear();
-        for (String idStr : packageSymbolMap.keySet()) {
-            PackageID pkgID = getSymbol(idStr).pkgID;
-            if (PackageID.isLangLibPackageID(pkgID)) {
-                continue;
+        Iterator<Map.Entry<String, Map<String, BPackageSymbol>>> pkgIterator = packageSymbolMap.entrySet().iterator();
+        while (pkgIterator.hasNext()) {
+            Map<String, BPackageSymbol> versionMap = pkgIterator.next().getValue();
+            versionMap.entrySet().removeIf(entry -> !PackageID.isLangLibPackageID(entry.getValue().pkgID));
+            if (versionMap.isEmpty()) {
+                pkgIterator.remove();
             }
-            packageSymbolMap.remove(pkgID);
         }
     }
 
@@ -106,29 +115,62 @@ public class PackageCache {
     }
 
     public BPackageSymbol getSymbol(String bvmAlias) {
-        String[] packageElements = bvmAlias.split(Names.VERSION_SEPARATOR.value);
+        String[] packageElements = splitBvmAlias(bvmAlias);
         Map<String, BPackageSymbol> versionMap = packageSymbolMap.get(packageElements[0]);
         if (versionMap != null) {
             if (packageElements.length > 1) {
-                return versionMap.get(getMajorVersion(packageElements[1]));
-            } else {
-                Iterator<BPackageSymbol> itr = versionMap.values().iterator();
-                if (itr.hasNext()) {
-                    return itr.next();
+                BPackageSymbol exactMatch = versionMap.get(packageElements[1]);
+                if (exactMatch != null) {
+                    return exactMatch;
                 }
+
+                String lookupMajorVersion = getMajorVersion(packageElements[1]);
+                BPackageSymbol packageSymbol = null;
+                for (Map.Entry<String, BPackageSymbol> entry : versionMap.entrySet()) {
+                    if (lookupMajorVersion.equals(getMajorVersion(entry.getKey()))) {
+                        packageSymbol = entry.getValue();
+                    }
+                }
+                return packageSymbol;
+            } else {
+                BPackageSymbol packageSymbol = null;
+                for (BPackageSymbol symbol : versionMap.values()) {
+                    packageSymbol = symbol;
+                }
+                return packageSymbol;
             }
         }
         return null;
     }
 
     public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
-        String[] packageElements = packageID.toString().split(Names.VERSION_SEPARATOR.value);
+        String[] packageElements = splitBvmAlias(packageID.toString());
         Map<String, BPackageSymbol> versionMap =
                 packageSymbolMap.computeIfAbsent(packageElements[0], k -> new LinkedHashMap<>());
         if (packageElements.length > 1) {
-            versionMap.put(getMajorVersion(packageElements[1]), packageSymbol);
+            versionMap.put(packageElements[1], packageSymbol);
         } else {
             versionMap.put(Names.DEFAULT_VERSION.value, packageSymbol);
         }
+    }
+
+    private static String getPackageName(PackageID packageID) {
+        return splitBvmAlias(packageID.toString())[0];
+    }
+
+    private static String getPackageVersion(PackageID packageID) {
+        String[] packageElements = splitBvmAlias(packageID.toString());
+        return packageElements.length > 1 ? packageElements[1] : Names.DEFAULT_VERSION.value;
+    }
+
+    private static String[] splitBvmAlias(String bvmAlias) {
+        int versionSeparatorIndex = bvmAlias.indexOf(Names.VERSION_SEPARATOR.value);
+        if (versionSeparatorIndex == -1) {
+            return new String[]{bvmAlias};
+        }
+        return new String[]{
+                bvmAlias.substring(0, versionSeparatorIndex),
+                bvmAlias.substring(versionSeparatorIndex + Names.VERSION_SEPARATOR.value.length())
+        };
     }
 }

@@ -57,6 +57,7 @@ public class ResolutionEngine {
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final ResolutionOptions resolutionOptions;
+    private final PackageLockingMode userSpecifiedDepsLockingMode;
     private final PackageDependencyGraphBuilder graphBuilder;
     private final List<Diagnostic> diagnostics;
     private String dependencyGraphDump;
@@ -72,9 +73,23 @@ public class ResolutionEngine {
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
         this.moduleResolver = moduleResolver;
-        this.resolutionOptions = resolutionOptions;
+        this.userSpecifiedDepsLockingMode = resolutionOptions.packageLockingMode();
+        if (PackageLockingMode.HARD.equals(resolutionOptions.packageLockingMode())
+                && blendedManifest.lockedDependencies().isEmpty()) {
+            // For a fresh package (nothing locked in Dependencies.toml), HARD locking only pins
+            // the versions specified in the Ballerina.toml; all other dependencies get the
+            // latest compatible versions. See ballerina-spec#1247.
+            this.resolutionOptions = ResolutionOptions.builder()
+                    .setOffline(resolutionOptions.offline())
+                    .setDumpGraph(resolutionOptions.dumpGraph())
+                    .setDumpRawGraphs(resolutionOptions.dumpRawGraphs())
+                    .setPackageLockingMode(PackageLockingMode.SOFT)
+                    .build();
+        } else {
+            this.resolutionOptions = resolutionOptions;
+        }
 
-        this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
+        this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, this.resolutionOptions);
         this.diagnostics = new ArrayList<>();
         this.dependencyGraphDump = "";
     }
@@ -243,12 +258,17 @@ public class ResolutionEngine {
                     lockingMode = PackageLockingMode.SOFT;
                 }
             } else {
-                // If the user has specified the dependency from the local repo/custom repo,
-                // we must resolve the exact version provided for the dependency
                 dependency = blendedManifest.userSpecifiedDependency(pkgDesc.org(), pkgDesc.name());
-                if (dependency.isPresent() && (dependency.get().isFromLocalRepository() ||
-                        dependency.get().isFromCustomRepository())) {
-                    lockingMode = PackageLockingMode.HARD;
+                if (dependency.isPresent()) {
+                    if (dependency.get().isFromLocalRepository() || dependency.get().isFromCustomRepository()) {
+                        // If the user has specified the dependency from the local repo/custom repo,
+                        // we must resolve the exact version provided for the dependency
+                        lockingMode = PackageLockingMode.HARD;
+                    } else {
+                        // The versions specified in the Ballerina.toml are resolved using the
+                        // user-requested locking mode (exact versions under HARD locking)
+                        lockingMode = userSpecifiedDepsLockingMode;
+                    }
                 }
             }
             resolutionRequests.add(ResolutionRequest.from(pkgDesc, directDependency.scope(),
@@ -396,8 +416,16 @@ public class ResolutionEngine {
                 unresolvedNode.pkgDesc().version());
         if (versionCompResult == VersionCompatibilityResult.GREATER_THAN ||
                 versionCompResult == VersionCompatibilityResult.EQUAL) {
-            PackageLockingMode lockingMode = blendedDep.isFromLocalRepository() ?
-                    PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
+            PackageLockingMode lockingMode;
+            if (blendedDep.isFromLocalRepository()) {
+                lockingMode = PackageLockingMode.HARD;
+            } else if (blendedDep.origin() == BlendedManifest.DependencyOrigin.USER_SPECIFIED) {
+                // The versions specified in the Ballerina.toml are resolved using the
+                // user-requested locking mode (exact versions under HARD locking)
+                lockingMode = userSpecifiedDepsLockingMode;
+            } else {
+                lockingMode = resolutionOptions.packageLockingMode();
+            }
             PackageDescriptor blendedDepPkgDesc = PackageDescriptor.from(blendedDep.org(), blendedDep.name(),
                     blendedDep.version(), blendedDep.repository());
             return ResolutionRequest.from(blendedDepPkgDesc, unresolvedNode.scope(),

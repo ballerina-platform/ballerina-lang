@@ -37,4 +37,14 @@ public class NaturalExpressionTest extends AbstractExpressionsTest {
     public void testInvalidNaturalExpression() {
         testFile("natural-expr/natural_expr_source_02.bal", "natural-expr/natural_expr_assert_02.json");
     }
+
+    @Test
+    public void testNaturalExpressionWithEmptyInterpolation() {
+        testFile("natural-expr/natural_expr_source_03.bal", "natural-expr/natural_expr_assert_03.json");
+    }
+
+    @Test
+    public void testNaturalExpressionWithIncompleteInterpolation() {
+        testFile("natural-expr/natural_expr_source_04.bal", "natural-expr/natural_expr_assert_04.json");
+    }
 }

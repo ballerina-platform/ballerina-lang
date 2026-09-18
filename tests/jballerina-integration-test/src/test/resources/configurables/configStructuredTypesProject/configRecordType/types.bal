@@ -19,6 +19,14 @@ type Engineer record {|
     int id = 555;
 |};
 
+type Cricketer readonly & record {|
+    string name;
+    float strikeRate;
+    float battingAverage;
+    decimal bowlingAverage;
+    decimal bowlingEconomy;
+|};
+
 type Lecturer record {|
     string name;
     Department department1;

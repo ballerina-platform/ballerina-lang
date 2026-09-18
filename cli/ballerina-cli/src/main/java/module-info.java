@@ -19,7 +19,6 @@ module io.ballerina.cli {
     requires org.jacoco.core;
     requires io.ballerina.central.client;
     requires io.ballerina.docerina;
-    requires jdk.httpserver;
     requires org.slf4j;
     requires io.ballerina.shell.cli;
     requires io.ballerina.toml;
@@ -27,4 +26,6 @@ module io.ballerina.cli {
     requires org.objectweb.asm;
     requires org.apache.commons.io;
     requires maven.resolver;
+    requires java.net.http;
+    requires java.semver;
 }

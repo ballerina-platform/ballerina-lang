@@ -27,10 +27,14 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.util.BalToolsUtil;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -80,6 +84,12 @@ public class ToolUpdateCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
         this.outStream = System.out;
         this.errStream = System.err;
+    }
+
+    public ToolUpdateCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
     @Override
@@ -142,6 +152,9 @@ public class ToolUpdateCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
+        BalToolsManifest.Tool installedTool = tool.get();
+        String org = installedTool.org();
+        String name = installedTool.name();
         if (LOCAL_REPOSITORY_NAME.equals(tool.get().repository())) {
             CommandUtil.printError(errStream, "tools from local repository can not be updated. ",
                     null, false);
@@ -200,13 +213,13 @@ public class ToolUpdateCommand implements BLauncherCmd {
                 return;
             }
 
-            BalToolsManifest.Tool toolFromCentral = BalToolsUtil.pullToolPackageFromRemote(toolId, version);
-            addToBalToolsToml(balToolsToml, balToolsManifest, toolFromCentral, errStream);
+            BalToolsManifest.Tool pulledTool = pullToolPackage(toolId, org, name, version);
+            addToBalToolsToml(balToolsToml, balToolsManifest, pulledTool, errStream);
             outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
         } catch (PackageAlreadyExistsException e) {
             errStream.println(e.getMessage());
             CommandUtil.exitError(this.exitWhenFinish);
-        } catch (CentralClientException | ProjectException e) {
+        } catch (CentralClientException | MavenResolverClientException | ProjectException e) {
             CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
                     null, false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -214,11 +227,34 @@ public class ToolUpdateCommand implements BLauncherCmd {
     }
 
     private String getLatestVersionForUpdateCommand(String supportedPlatforms, BalToolsManifest.Tool tool)
-            throws CentralClientException {
-        Settings settings;
-        settings = RepoUtils.readSettings();
-        // Ignore Settings.toml diagnostics in the pull command
+            throws CentralClientException, MavenResolverClientException {
+        Settings settings = RepoUtils.readSettings();
 
+        // Check if proxyCentral repository is configured
+        if (BalToolsUtil.hasProxyCentralRepository(settings)) {
+            java.nio.file.Path localRepoPath = ProjectUtils.createAndGetHomeReposPath()
+                    .resolve(ProjectConstants.REPOSITORIES_DIR)
+                    .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                    .resolve(ProjectConstants.BALA_DIR_NAME);
+            List<String> versions = getToolVersionsFromMavenProxy(tool, localRepoPath);
+            return getLatestVersion(versions, tool.version());
+        } else {
+            return getToolVersionsFromCentral(supportedPlatforms, settings, tool);
+        }
+    }
+
+    private List<String> getToolVersionsFromMavenProxy(BalToolsManifest.Tool tool,
+                                                       java.nio.file.Path localRepoPath)
+            throws MavenResolverClientException {
+        Settings settings = RepoUtils.readSettings();
+        MavenResolverClient mavenClient = BalToolsUtil.initializeMavenClientWithProxyRepo(settings);
+
+        return mavenClient.getCompatibleToolVersions(
+                tool.id(), RepoUtils.getBallerinaVersion(), localRepoPath);
+    }
+
+    private String getToolVersionsFromCentral(String supportedPlatforms, Settings settings,
+                                              BalToolsManifest.Tool tool) throws CentralClientException {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
@@ -229,6 +265,47 @@ public class ToolUpdateCommand implements BLauncherCmd {
         List<String> versions = client.getPackageVersions(tool.org(), tool.name(), supportedPlatforms,
                 RepoUtils.getBallerinaVersion());
         return getLatestVersion(versions, tool.version());
+    }
+
+    /**
+     * Pull tool package from either Maven proxy or Ballerina Central based on configuration.
+     *
+     * @param toolId  the tool ID
+     * @param org     the tool organization
+     * @param name    the tool name
+     * @param version the tool version
+     * @return the tool manifest
+     * @throws MavenResolverClientException if Maven proxy pull fails
+     * @throws CentralClientException if Central API pull fails
+     */
+    private BalToolsManifest.Tool pullToolPackage(String toolId, String org, String name, String version)
+            throws MavenResolverClientException, CentralClientException {
+        Settings settings = RepoUtils.readSettings();
+
+        if (BalToolsUtil.hasProxyCentralRepository(settings)) {
+            return pullToolFromMavenProxy(toolId, org, name, version);
+        } else {
+            return BalToolsUtil.pullToolPackageFromRemote(toolId, version);
+        }
+    }
+
+    /**
+     * Pull tool package from Maven proxy repository.
+     *
+     * @param toolId  the tool ID
+     * @param org     the tool organization
+     * @param name    the tool name
+     * @param version the tool version
+     * @return the tool manifest
+     * @throws MavenResolverClientException if Maven proxy pull fails
+     * @throws CentralClientException if reading tool metadata fails
+     */
+    private BalToolsManifest.Tool pullToolFromMavenProxy(String toolId, String org, String name, String version)
+            throws MavenResolverClientException {
+        Settings settings = RepoUtils.readSettings();
+        MavenResolverClient mavenClient = BalToolsUtil.initializeMavenClientWithProxyRepo(settings);
+        BalToolsUtil.pullAndExtractToolFromMavenProxy(org, name, version, mavenClient);
+        return new BalToolsManifest.Tool(toolId, org, name, version, true, null);
     }
 
     private String getLatestVersion(List<String> versions, String currentVersionStr) {
@@ -247,7 +324,7 @@ public class ToolUpdateCommand implements BLauncherCmd {
     }
 
     private void addToBalToolsToml(BalToolsToml balToolsToml, BalToolsManifest balToolsManifest,
-                                            BalToolsManifest.Tool tool, PrintStream printStream) {
+                                   BalToolsManifest.Tool tool, PrintStream printStream) {
 
         boolean isCompatibleWithPlatform = isCompatibleWithPlatform(tool.org(), tool.name(), tool.version(),
                 tool.repository());

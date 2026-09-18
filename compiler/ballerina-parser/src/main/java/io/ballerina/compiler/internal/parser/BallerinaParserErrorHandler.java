@@ -4655,6 +4655,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.STATEMENT;
             case INTERPOLATION:
                 endContext();
+                if (getParentContext() == ParserRuleContext.NATURAL_EXPRESSION) {
+                    return ParserRuleContext.CLOSE_BRACE;
+                }
                 return ParserRuleContext.TEMPLATE_MEMBER;
             case OBJECT_CONSTRUCTOR:
             case MULTI_RECEIVE_WORKERS:

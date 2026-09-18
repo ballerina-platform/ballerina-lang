@@ -34,8 +34,8 @@ rem ----- if JAVA_HOME is not set we're not happy ------------------------------
 :checkJava
 
 set BALLERINA_HOME=%~sdp0..
-if exist %BALLERINA_HOME%\..\..\dependencies\jdk-21.0.5+11-jre (
-   set "JAVA_HOME=%BALLERINA_HOME%\..\..\dependencies\jdk-21.0.5+11-jre"
+if exist %BALLERINA_HOME%\..\..\dependencies\jdk-25.0.3+9-jre (
+   set "JAVA_HOME=%BALLERINA_HOME%\..\..\dependencies\jdk-25.0.3+9-jre"
 )
 
 if "%JAVA_HOME%" == "" goto noJavaHome
@@ -192,7 +192,7 @@ rem BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
 rem classpath locations, e.g. AWS Lambda function libraries.
 if not "%BALLERINA_CLASSPATH_EXT%" == "" set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_CLASSPATH_EXT%
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -Dcom.sun.management.jmxremote -classpath "%BALLERINA_CLASSPATH%" %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version}
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError --enable-native-access=ALL-UNNAMED -Dcom.sun.management.jmxremote -classpath "%BALLERINA_CLASSPATH%" %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version}
 
 set jar=%~2
 if "%1" == "run" if "%jar:~-4%" == ".jar" goto runJar
@@ -202,12 +202,12 @@ if "%1" == "run" if "%~2" == "--debug" if "%jar:~-4%" == ".jar" goto debugJar
 
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% io.ballerina.cli.launcher.Main %CMD%
-goto end
+exit /b %ERRORLEVEL%
 
 :runJar
 for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -jar %ARGS%
-goto end
+exit /b %ERRORLEVEL%
 
 :debugJar
 setlocal ENABLEDELAYEDEXPANSION
@@ -226,7 +226,7 @@ for /f "tokens=1,* " %%a in ("%t%") do (
 )
 if defined t goto :loop
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%3 -jar %ARGS%
-goto end
+exit /b %ERRORLEVEL%
 
 :end
 goto endlocal
