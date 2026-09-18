@@ -62,6 +62,7 @@ public final class ObservabilityConstants {
     public static final String TAG_KEY_IS_SRC_MAIN_FUNCTION = "src.main";
     public static final String TAG_KEY_IS_SRC_WORKER = "src.worker";
     public static final String TAG_KEY_IS_SRC_CLIENT_REMOTE = "src.client.remote";
+    public static final String TAG_KEY_IS_SRC_CLIENT_RESOURCE = "src.client.resource";
     public static final String TAG_KEY_IS_SRC_SERVICE_REMOTE = "src.service.remote";
     public static final String TAG_KEY_IS_SRC_SERVICE_RESOURCE = "src.service.resource";
 
