@@ -276,6 +276,7 @@ public class MavenPackageRepository implements PackageRepository {
             try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
                 JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
                 String platform = resultObj.get(PLATFORM).getAsString();
+                ProjectUtils.validatePlatformIdentifier(platform);
                 Path actualBalaPath = Path.of(this.repoLocation).resolve(org).resolve(name)
                         .resolve(version).resolve(platform);
                 FileUtils.copyDirectory(temporaryExtractionPath.toFile(),

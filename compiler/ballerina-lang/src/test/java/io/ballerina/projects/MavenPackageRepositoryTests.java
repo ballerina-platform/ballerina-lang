@@ -25,6 +25,7 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.ballerinalang.maven.bala.client.model.PackageResolutionResponse;
@@ -34,6 +35,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +46,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -511,5 +515,47 @@ public class MavenPackageRepositoryTests {
         Assert.assertTrue(graph.getNodes().contains(packC));
 
         verify(mockClient).resolveDependency(anyString(), anyString(), anyString(), anyString(), anyString());
+    }
+
+    @Test(description = "Proxy: getPackageFromRemoteRepo rejects a bala with a path-traversal platform value",
+            groups = {"proxy"})
+    public void testGetPackageFromRemoteRepoWithPathTraversalPlatformRejected()
+            throws IOException, MavenResolverClientException {
+        Path testRoot = Files.createTempDirectory("maven-package-repo-platform-traversal-test");
+        try {
+            // The malicious "platform" value points outside the intended repo location entirely.
+            Path outsideDir = testRoot.resolve("outside-repo-location").toAbsolutePath();
+            String maliciousPlatform = outsideDir.toString().replace("\\", "\\\\");
+            String packageJson = "{\"organization\":\"testorg\",\"name\":\"attackpkg\",\"version\":\"0.1.0\","
+                    + "\"platform\":\"" + maliciousPlatform + "\"}";
+
+            MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+            Mockito.doAnswer(invocation -> {
+                String targetLocation = invocation.getArgument(3);
+                Path balaPath = Path.of(targetLocation).resolve("testorg").resolve("attackpkg").resolve("0.1.0")
+                        .resolve("attackpkg-0.1.0.bala");
+                Files.createDirectories(balaPath.getParent());
+                try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(balaPath))) {
+                    zipOut.putNextEntry(new ZipEntry("package.json"));
+                    zipOut.write(packageJson.getBytes(StandardCharsets.UTF_8));
+                    zipOut.closeEntry();
+                }
+                return null;
+            }).when(mockClient).pullPackage(anyString(), anyString(), anyString(), anyString());
+
+            MavenPackageRepository repo = proxyRepo(mockClient);
+            try {
+                repo.getPackageFromRemoteRepo("testorg", "attackpkg", "0.1.0");
+                Assert.fail("expected a ProjectException due to the path traversal platform value");
+            } catch (ProjectException e) {
+                Assert.assertTrue(e.getMessage().contains("invalid platform identifier"),
+                        "unexpected exception message: " + e.getMessage());
+            }
+
+            Assert.assertFalse(Files.exists(outsideDir),
+                    "platform path traversal wrote outside the intended repo location");
+        } finally {
+            ProjectUtils.deleteDirectory(testRoot);
+        }
     }
 }
