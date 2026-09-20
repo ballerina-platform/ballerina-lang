@@ -582,7 +582,7 @@ public final class TypeChecker {
         }
         Context cx = context();
         if (belongToSingleBasicTypeOrString(cx, type)) {
-            return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
+            return new TypedescValueImpl(new BFiniteType("", null, Set.of(value), 0));
         }
         if (value instanceof BRefValue bRefValue) {
             return (TypedescValue) bRefValue.getTypedesc();
