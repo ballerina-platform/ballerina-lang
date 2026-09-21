@@ -177,6 +177,20 @@ public final class TestUtils {
     }
 
     /**
+     * Get the directory a test-running child process should use as its working directory. A single-file
+     * project's source root is the .bal file itself rather than a directory, so it cannot be used directly
+     * as a process working directory; its parent directory is used instead.
+     *
+     * @param currentPackage the package under test
+     * @return the directory to use as the child process's working directory
+     */
+    public static Path getTestProcessWorkingDirectory(Package currentPackage) {
+        Project project = currentPackage.project();
+        Path sourceRoot = project.sourceRoot();
+        return project.kind() == ProjectKind.SINGLE_FILE_PROJECT ? sourceRoot.getParent() : sourceRoot;
+    }
+
+    /**
      * Loads the ModuleStatus object by reading a given Json.
      *
      * @param statusJsonPath file path of json file
