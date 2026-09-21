@@ -476,7 +476,7 @@ public class RunTestsTask implements Task {
                 this.listGroups, this.cliArgs, false, isParallelExecution);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs)
-                .directory(currentPackage.project().sourceRoot().toFile())
+                .directory(TestUtils.getTestProcessWorkingDirectory(currentPackage).toFile())
                 .inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
@@ -503,7 +503,7 @@ public class RunTestsTask implements Task {
                 this.listGroups, this.cliArgs, false, isParallelExecution);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs)
-                .directory(currentPackage.project().sourceRoot().toFile())
+                .directory(TestUtils.getTestProcessWorkingDirectory(currentPackage).toFile())
                 .inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();

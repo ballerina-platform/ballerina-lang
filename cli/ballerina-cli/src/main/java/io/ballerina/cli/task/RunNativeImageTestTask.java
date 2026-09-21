@@ -409,7 +409,7 @@ public class RunNativeImageTestTask implements Task {
         }
 
         ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true)
-                .directory(currentPackage.project().sourceRoot().toFile());
+                .directory(TestUtils.getTestProcessWorkingDirectory(currentPackage).toFile());
         builder.command(cmdArgs.toArray(new String[0]));
         Process process = builder.start();
         StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);
