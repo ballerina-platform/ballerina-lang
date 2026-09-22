@@ -159,7 +159,7 @@ public class RunNativeImageTestTask implements Task {
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_25);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> updatedSingleExecTests;
@@ -392,8 +392,9 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + NativeUtils
                 .convertWinPathToUnixFormat(NativeUtils.addQuotationMarkToString(
                 nativeConfigPath.resolve("reflect-config.json").toString())));
-        nativeArgs.add("-H:-UnlockExperimentalVMOptions");        
+        nativeArgs.add("-H:-UnlockExperimentalVMOptions");
         nativeArgs.add("--no-fallback");
+        nativeArgs.add("--enable-native-access=ALL-UNNAMED");
 
 
         // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and
@@ -406,7 +407,8 @@ public class RunNativeImageTestTask implements Task {
             throw createLauncherException("error while generating the necessary graalvm argument file", e);
         }
 
-        ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true);
+        ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true)
+                .directory(TestUtils.getTestProcessWorkingDirectory(currentPackage).toFile());
         builder.command(cmdArgs.toArray(new String[0]));
         Process process = builder.start();
         StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);

@@ -109,6 +109,7 @@ public class RunExecutableTask implements Task {
             }
             commands.add("-XX:+HeapDumpOnOutOfMemoryError");
             commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+            commands.add("--enable-native-access=ALL-UNNAMED");
 
             Path executablePath = this.target.getExecutablePath(project.currentPackage())
                     .toAbsolutePath().normalize();

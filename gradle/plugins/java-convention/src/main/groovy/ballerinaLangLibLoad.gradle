@@ -18,6 +18,8 @@
 
 description = 'Lang Library Load Project'
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations {
     distributionBala {
         transitive false

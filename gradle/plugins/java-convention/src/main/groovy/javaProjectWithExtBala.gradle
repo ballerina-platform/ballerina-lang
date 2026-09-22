@@ -20,6 +20,8 @@ plugins {
     id 'javaProject'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations {
     balaCreat {
         transitive false
