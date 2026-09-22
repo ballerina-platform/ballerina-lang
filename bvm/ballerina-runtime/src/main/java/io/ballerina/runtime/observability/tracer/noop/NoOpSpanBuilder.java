@@ -115,8 +115,10 @@ final class NoOpSpanBuilder implements SpanBuilder {
         String traceId = parentSpanContext.isValid() ? parentSpanContext.getTraceId() : generateTraceId(random);
         String spanId = generateSpanId(random);
         TraceFlags traceFlags = parentSpanContext.isValid() ? parentSpanContext.getTraceFlags()
-                : TraceFlags.getSampled();
-        return Span.wrap(SpanContext.create(traceId, spanId, traceFlags, TraceState.getDefault()));
+                : TraceFlags.getDefault();
+        TraceState traceState = parentSpanContext.isValid() ? parentSpanContext.getTraceState()
+                : TraceState.getDefault();
+        return Span.wrap(SpanContext.create(traceId, spanId, traceFlags, traceState));
     }
 
     private static String generateTraceId(ThreadLocalRandom random) {
