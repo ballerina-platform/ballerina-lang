@@ -978,7 +978,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             if (isMemberAccessAllowed(env, entry.symbol)) {
                 return entry.symbol;
             } else {
-                dlog.error(pos, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, entry.symbol.name);
+                DiagnosticUtils.logNonAccessibleSymbolError(dlog, pos, entry.symbol);
                 return symTable.notFoundSymbol;
             }
         }
