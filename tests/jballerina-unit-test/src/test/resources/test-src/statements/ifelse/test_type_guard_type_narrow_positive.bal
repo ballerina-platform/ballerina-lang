@@ -385,6 +385,23 @@ function test20() returns int|string {
     return x;
 }
 
+function getJoinValue() returns int|boolean|float => 1.0;
+
+function testNarrowingAtIfJoin(boolean b) returns int|boolean {
+    int|boolean|float x = getJoinValue();
+    if x is float {
+        if b {
+            x = getJoinValue();
+            if x is float {
+                return true;
+            }
+        } else {
+            return 0;
+        }
+    }
+    return x;
+}
+
 function test21(int|error x) returns int {
     if x is error {
         return 0;
