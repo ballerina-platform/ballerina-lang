@@ -40,13 +40,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -72,7 +72,7 @@ import static javax.transaction.xa.XAResource.TMSUCCESS;
  */
 public class TransactionResourceManager {
 
-    private static TransactionResourceManager transactionResourceManager = null;
+    private static volatile TransactionResourceManager transactionResourceManager = null;
     private static UserTransactionManager userTransactionManager = null;
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
@@ -81,12 +81,12 @@ public class TransactionResourceManager {
     public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionResourceManager.class);
-    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry = new HashMap<>();
+    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry = new ConcurrentHashMap<>();
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private final Map<String, List<BFunctionPointer>> committedFuncRegistry = new HashMap<>();;
-    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry = new HashMap<>();;
+    private final Map<String, List<BFunctionPointer>> committedFuncRegistry = new ConcurrentHashMap<>();
+    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry = new ConcurrentHashMap<>();
 
     private final Set<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private final Set<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
@@ -100,11 +100,11 @@ public class TransactionResourceManager {
     private TransactionResourceManager() {
         transactionManagerEnabled = getTransactionManagerEnabled();
         if (transactionManagerEnabled) {
-            trxRegistry = new HashMap<>();
+            trxRegistry = new ConcurrentHashMap<>();
             setLogProperties();
             userTransactionManager = new UserTransactionManager();
         } else {
-            xidRegistry = new HashMap<>();
+            xidRegistry = new ConcurrentHashMap<>();
         }
     }
 
@@ -234,7 +234,7 @@ public class TransactionResourceManager {
      */
     public void register(String transactionId, String transactionBlockId, BallerinaTransactionContext txContext) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
-        resourceRegistry.computeIfAbsent(combinedId, resourceList -> new ArrayList<>()).add(txContext);
+        resourceRegistry.computeIfAbsent(combinedId, resourceList -> new CopyOnWriteArrayList<>()).add(txContext);
     }
 
     /**
@@ -245,7 +245,8 @@ public class TransactionResourceManager {
      */
     public void registerCommittedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
-            committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
+            committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new CopyOnWriteArrayList<>())
+                    .add(fpValue);
         }
     }
 
@@ -257,7 +258,7 @@ public class TransactionResourceManager {
      */
     public void registerAbortedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
-            abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
+            abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new CopyOnWriteArrayList<>()).add(fpValue);
         }
     }
 
@@ -531,6 +532,7 @@ public class TransactionResourceManager {
         List<BFunctionPointer> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (abortFunctions != null && !abortFunctions.isEmpty()) {
+            abortFunctions = new ArrayList<>(abortFunctions);
             Collections.reverse(abortFunctions);
             return ValueCreator.createArrayValue(abortFunctions.toArray(),
                     TypeCreator.createArrayType(abortFunctions.get(0).getType()));
@@ -547,6 +549,7 @@ public class TransactionResourceManager {
         List<BFunctionPointer> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (commitFunctions != null && !commitFunctions.isEmpty()) {
+            commitFunctions = new ArrayList<>(commitFunctions);
             Collections.reverse(commitFunctions);
             return ValueCreator.createArrayValue(commitFunctions.toArray(),
                     TypeCreator.createArrayType(commitFunctions.get(0).getType()));
