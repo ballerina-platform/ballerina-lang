@@ -404,3 +404,73 @@ function test22(int|error x, boolean b) returns int {
     }
     return x; // OK: inner if-else has a genuinely terminating (non-trivial) else, so it always terminates
 }
+
+function test23(int|string initialX, int|boolean y) returns int {
+    int|string x = initialX;
+    if x is int {
+        return 0;
+    }
+
+    if y is boolean {
+        return 0;
+    }
+
+    x = 1;
+    return y;
+}
+
+function test24(int|string initialX) returns int {
+    int|string x = initialX;
+    if x is int {
+        return x;
+    }
+
+    {
+        x = 1;
+    }
+
+    if x is string {
+        return 0;
+    }
+    return x;
+}
+
+function test25(int|string initialX) returns int {
+    int|string x = initialX;
+    if x is int {
+        return x;
+    }
+
+    [x] = [1];
+    if x is string {
+        return 0;
+    }
+    return x;
+}
+
+function test26(int|string initialX) returns int {
+    int|string x = initialX;
+    if x is int {
+        return x;
+    }
+
+    {value: x} = {value: 1};
+    if x is string {
+        return 0;
+    }
+    return x;
+}
+
+function test27(int|string initialX) returns int {
+    int|string x = initialX;
+    if x is int {
+        return x;
+    }
+
+    error<record {| int value; |}> err = error("reason", value = 1);
+    error(_, value = x) = err;
+    if x is string {
+        return 0;
+    }
+    return x;
+}

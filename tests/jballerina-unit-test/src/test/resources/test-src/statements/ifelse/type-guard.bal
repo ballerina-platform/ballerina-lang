@@ -1262,17 +1262,21 @@ function testTypeNarrowingForIntersectingUnionWithRecords() returns boolean {
         return false;
     }
 
+    // Separate variables: val9 stays narrowed to `record {| byte i; |}` after the if above, which would make
+    // the type tests below constant-true and their else branches unreachable.
     byte b = 10;
-    if val9 is record {} {
-        if val9["i"] != b {
+    int|ClosedRecordWithIntField val10 = <record {| byte i; |}> {i: 10};
+    if val10 is record {} {
+        if val10["i"] != b {
             return false;
         }
     } else {
         return false;
     }
 
-    if val9 is record {| int...; |} {
-        if val9["i"] != b {
+    int|ClosedRecordWithIntField val11 = <record {| byte i; |}> {i: 10};
+    if val11 is record {| int...; |} {
+        if val11["i"] != b {
             return false;
         }
     } else {
