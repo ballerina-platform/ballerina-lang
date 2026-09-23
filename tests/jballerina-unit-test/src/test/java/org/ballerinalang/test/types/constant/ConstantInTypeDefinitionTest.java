@@ -144,6 +144,20 @@ public class ConstantInTypeDefinitionTest {
         Assert.assertEquals(returns.toString(), "Ballerina rocks");
     }
 
+    @Test
+    public void testMapConstAlias() {
+        Object returns = BRunUtil.invoke(compileResult, "testMapConstAlias");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"foo\":\"bar\"}");
+    }
+
+    @Test
+    public void testArrConstAlias() {
+        Object returns = BRunUtil.invoke(compileResult, "testArrConstAlias");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "[\"a\",\"b\"]");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
