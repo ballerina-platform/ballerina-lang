@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+import org.testng.Assert;
 
 import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
 
@@ -110,13 +111,13 @@ public class BServerInstance implements BServer {
 
     @Override
     public void startServer(String balFile, boolean useBallerinaRunCommand) throws BallerinaTestException {
-        assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
+        Assert.assertTrue(requiredPorts.length < 20, "test try to open too many ports : " + requiredPorts.length);
         startServer(balFile, new String[] { "--experimental" }, null, null, requiredPorts, true);
     }
 
     @Override
     public void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException {
-        assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
+        Assert.assertTrue(requiredPorts.length < 20, "test try to open too many ports : " + requiredPorts.length);
         startServer(balFile, new String[] { "--experimental" }, null, requiredPorts);
     }
 

@@ -109,7 +109,7 @@ public class DependencyFilePathsTest extends BaseTest {
                 }
             }
         }
-        assert filepath != null;
+        Assert.assertNotNull(filepath);
         Path expectedPath = Path.of("build/repo/bala/samjs/package_b/0.1.0/any/modules/package_b.mod_b1")
                 .resolve("mod1.bal").toAbsolutePath();
         Assert.assertEquals(filepath.toString(), expectedPath.toString());
@@ -167,7 +167,7 @@ public class DependencyFilePathsTest extends BaseTest {
             }
         }
 
-        assert filepath != null;
+        Assert.assertNotNull(filepath);
         Path expectedPath = Path.of("build/repo/bala/ballerina/lang.float/0.0.0/any/modules/lang.float")
                 .resolve("float.bal").toAbsolutePath();
         Assert.assertEquals(filepath.toString(), expectedPath.toString());
