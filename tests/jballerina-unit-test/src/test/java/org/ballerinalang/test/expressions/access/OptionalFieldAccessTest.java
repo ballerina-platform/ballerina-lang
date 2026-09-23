@@ -75,6 +75,7 @@ public class OptionalFieldAccessTest {
                 "support optional field access", 141, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 144, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 145, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 150, 27);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -140,7 +141,8 @@ public class OptionalFieldAccessTest {
                 { "testOptionalFieldAccessNilReturnOnLaxUnion" },
                 { "testOptionalFieldAccessNilLiftingOnLaxUnion" },
                 { "testOptionalFieldAccessErrorReturnOnLaxUnion" },
-                { "testOptionalFieldAccessErrorLiftingOnLaxUnion" }
+                { "testOptionalFieldAccessErrorLiftingOnLaxUnion" },
+                { "testOptionalFieldAccessErrorReturnOnChainedLaxAccess" }
         };
     }
 
