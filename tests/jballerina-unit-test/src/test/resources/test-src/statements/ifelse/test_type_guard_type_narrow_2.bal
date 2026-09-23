@@ -127,7 +127,7 @@ function test10(3? x) {
         3 _ = x;
     }
 
-    3 _ = x; // type not narrowed. issue #34307
+    3 _ = x; // narrowed at the join
 }
 
 function test11("foo"|"bar"|"baz" x) {
@@ -167,7 +167,7 @@ function test13("a"|"b"|"c"? x) {
         return;
     }
 
-    "b"|"c"? _ = x; // type not narrowed. issue #34307
+    "b"|"c"? _ = x; // narrowed at the join
 }
 
 function test14(boolean? b) {
@@ -195,7 +195,7 @@ function test15(true|false? b) {
         () _ = b;
     }
 
-    () _ = b; // type not narrowed. issue #34307
+    () _ = b; // narrowed at the join
 }
 
 function test16(1|2.0|3.3? x) {

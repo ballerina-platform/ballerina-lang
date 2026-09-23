@@ -183,6 +183,31 @@ function testTypeNarrowingInWhileBody() returns string {
     return result;
 }
 
+function testNarrowedVariableReassignedInWhile() returns int {
+    int|string? value = getNarrowedWhileValue(0);
+
+    if value is int {
+        // Continue with the narrowed type.
+    } else {
+        return 0;
+    }
+
+    int i = 1;
+    while value is int {
+        value = getNarrowedWhileValue(i);
+        i += 1;
+    }
+
+    return i;
+}
+
+function getNarrowedWhileValue(int i) returns int|string? {
+    if i < 2 {
+        return i;
+    }
+    return ();
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -121,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -150,6 +151,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -597,7 +599,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         int stmtCount = -1;
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
-            if (analyzeBlockStatementsFollowingIf(body.stmts, stmtCount, funcBodyEnv, data)) {
+            if (analyzeBlockStmtFollowingIfWithoutElse(body.stmts, stmtCount, funcBodyEnv, data)) {
                 break;
             }
             data.env = funcBodyEnv;
@@ -607,33 +609,36 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         resetNotCompletedNormally(data);
     }
 
-    private boolean analyzeBlockStatementsFollowingIf(List<BLangStatement> stmts, int startIndex,
-                                                       SymbolEnv blockEnv, AnalyzerData data) {
+    private boolean analyzeBlockStmtFollowingIfWithoutElse(List<BLangStatement> stmts, int startIndex,
+                                                           SymbolEnv blockEnv, AnalyzerData data) {
         BLangStatement prevStatement = startIndex > 0 ? stmts.get(startIndex - 1) : null;
-        if (prevStatement == null || prevStatement.getKind() != NodeKind.IF ||
-                (!data.notCompletedNormally && !data.normalExitTypes.containsKey(prevStatement))) {
+        if (prevStatement == null || prevStatement.getKind() != NodeKind.IF) {
+            return false;
+        }
+
+        if (!data.notCompletedNormally && ((BLangIf) prevStatement).joinNarrowedTypes.isEmpty()) {
             return false;
         }
 
         data.prevEnvs.push(blockEnv);
         SymbolEnv env = blockEnv;
+        SymbolEnv lastStmtExitEnv = null;
+        Set<BVarSymbol> narrowedVars = new LinkedHashSet<>();
         BLangStatement prev = prevStatement;
 
         for (int i = startIndex; i < stmts.size(); i++) {
             BLangStatement currentStmt = stmts.get(i);
 
-            if (data.normalExitTypes.containsKey(prev)) {
-                env = applyNormalExitTypes(prev, currentStmt, env, data);
-                if (prev.getKind() == NodeKind.IF && data.notCompletedNormally &&
-                        hasTrivialOrNoElse((BLangIf) prev)) {
-                    data.notCompletedNormally = ConditionResolver.checkConstCondition(types, symTable,
-                            ((BLangIf) prev).expr) == symTable.trueType;
-                }
-            } else if (prev.getKind() == NodeKind.IF && data.notCompletedNormally) {
+            if (prev.getKind() == NodeKind.IF && !data.notCompletedNormally) {
+                Map<BVarSymbol, BType> joinNarrowedTypes = ((BLangIf) prev).joinNarrowedTypes;
+                narrowedVars.addAll(joinNarrowedTypes.keySet());
+                env = narrowedEnv(currentStmt, env, joinNarrowedTypes);
+            } else if (prev.getKind() == NodeKind.IF) {
                 BLangIf ifStmt = (BLangIf) prev;
                 if (hasTrivialOrNoElse(ifStmt)) {
                     data.notCompletedNormally =
                             ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+                    narrowedVars.addAll(ifStmt.expr.narrowedTypeInfo.keySet());
                     if (ifStmt.elseStmt == null) {
                         env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, env, false);
                     } else {
@@ -654,11 +659,32 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             data.env = env;
             analyzeStmt(currentStmt, data);
+            lastStmtExitEnv = publishedEnv(currentStmt, data);
+
+            // An assignment invalidates the narrowing accumulated here; carrying it into the next statement would
+            // analyze that statement against a stale, too-narrow type.
+            if (assignsTo(currentStmt, narrowedVars)) {
+                env = blockEnv;
+                narrowedVars.clear();
+                lastStmtExitEnv = null;
+            }
             prev = currentStmt;
         }
 
         data.prevEnvs.pop();
+        data.normalCompletionEnv = lastStmtExitEnv == null ? env : lastStmtExitEnv;
         return true;
+    }
+
+    private boolean assignsTo(BLangStatement stmt, Set<BVarSymbol> vars) {
+        BLangExpression varRef = switch (stmt.getKind()) {
+            case ASSIGNMENT -> ((BLangAssignment) stmt).varRef;
+            case COMPOUND_ASSIGNMENT -> ((BLangCompoundAssignment) stmt).varRef;
+            default -> null;
+        };
+
+        return varRef != null && varRef.getBType() != null && isSimpleVarRef(varRef) &&
+                vars.contains(typeNarrower.getOriginalVarSymbol((BVarSymbol) ((BLangSimpleVarRef) varRef).symbol));
     }
 
     // An if/else-if chain whose final else is absent or trivially empty never diverts control on its own:
@@ -2225,18 +2251,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv blockEnv = data.env;
 
         int stmtCount = -1;
-        Map<BVarSymbol, BType> blockExitTypes = null;
+        SymbolEnv lastStmtExitEnv = null;
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
-            if (analyzeBlockStatementsFollowingIf(blockNode.stmts, stmtCount, blockEnv, data)) {
+            if (analyzeBlockStmtFollowingIfWithoutElse(blockNode.stmts, stmtCount, blockEnv, data)) {
+                lastStmtExitEnv = data.normalCompletionEnv;
                 break;
             }
             analyzeStmt(stmt, data);
-            blockExitTypes = data.normalExitTypes.get(stmt);
-        }
-
-        if (blockExitTypes != null) {
-            data.normalExitTypes.put(blockNode, new LinkedHashMap<>(blockExitTypes));
+            lastStmtExitEnv = publishedEnv(stmt, data);
         }
 
         if (data.notCompletedNormally && !blockNode.stmts.isEmpty()) {
@@ -2248,6 +2271,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 }
             }
         }
+
+        // What holds where this block completes normally is what held after its last statement.
+        publishNormalCompletionEnv(blockNode, lastStmtExitEnv == null ? data.env : lastStmtExitEnv, data);
     }
 
     @Override
@@ -2868,8 +2894,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = data.narrowedTypeInfo;
-        Set<BVarSymbol> prevResetNarrowingSymbols = data.resetNarrowingSymbols;
-        data.resetNarrowingSymbols = new HashSet<>(prevResetNarrowingSymbols);
 
         // This map keeps the narrowed types of inner if statements and propagate the false types to the outer
         // block when the flow goes from out of the else block in compile time.
@@ -2884,10 +2908,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // true-branch terminates.
         resetNotCompletedNormally(data);
         analyzeStmt(ifNode.body, data);
-        boolean trueBranchTerminates = data.notCompletedNormally;
-        Map<BVarSymbol, BType> trueExitTypes =
-                data.normalExitTypes.getOrDefault(ifNode.body, Collections.emptyMap());
-        data.normalExitTypes.remove(ifNode.body);
+        boolean bodyCompletesNormally = !data.notCompletedNormally;
+        SymbolEnv bodyExitEnv = normalCompletionEnvOf(ifNode.body, data);
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = data.narrowedTypeInfo;
@@ -2910,8 +2932,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             prevNarrowedTypeInfo.putAll(data.narrowedTypeInfo);
         }
 
-        Map<BVarSymbol, BType> falseExitTypes = Collections.emptyMap();
-        boolean falseBranchTerminates = false;
+        List<SymbolEnv> exitEnvs = new ArrayList<>(2);
+        if (bodyCompletesNormally) {
+            exitEnvs.add(bodyExitEnv);
+        }
+
         if (ifNode.elseStmt != null) {
             boolean ifCompletionStatus = data.notCompletedNormally;
             resetNotCompletedNormally(data);
@@ -2919,121 +2944,138 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangStatement elseStmt = ifNode.elseStmt;
             data.env = elseEnv;
             analyzeStmt(elseStmt, data);
-            falseBranchTerminates = data.notCompletedNormally;
-            if (elseStmt.getKind() == NodeKind.IF && hasTrivialOrNoElse((BLangIf) elseStmt)) {
-                falseBranchTerminates = false;
-            }
-            falseExitTypes = data.normalExitTypes.getOrDefault(elseStmt, Collections.emptyMap());
-            data.normalExitTypes.remove(elseStmt);
-            if (!falseBranchTerminates && falseExitTypes.isEmpty() && isEmptyBlock(elseStmt)) {
-                falseExitTypes = getNarrowedTypesAtExit(elseEnv);
+            if (!data.notCompletedNormally) {
+                exitEnvs.add(normalCompletionEnvOf(elseStmt, data));
             }
 
             if (elseStmt.getKind() == NodeKind.IF) {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
             } else if (isEmptyBlock(elseStmt)) {
-                data.notCompletedNormally = false;
+                // A trivial (empty) else always completes normally on its own, so it carries no information about
+                // whether this if/else statement can fall through.
+                data.notCompletedNormally = ifCompletionStatus;
             } else {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
             }
-        } else if (ifNode.expr.narrowedTypeInfo != null && ifNode.expr.narrowedTypeInfo.keySet().stream()
-                .anyMatch(data.resetNarrowingSymbols::contains)) {
-            SymbolEnv falseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode, currentEnv, false);
-            falseExitTypes = getNarrowedTypesAtExit(falseEnv);
-            ifNode.expr.narrowedTypeInfo = null;
+        } else if (ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) != symTable.trueType) {
+            // Falling past an if-without-else means the condition was false.
+            exitEnvs.add(typeNarrower.evaluateFalsity(ifNode.expr, ifNode, currentEnv, false));
         }
-        mergeNormalExitTypes(ifNode, currentEnv, trueExitTypes, falseExitTypes, data.resetNarrowingSymbols,
-                trueBranchTerminates, falseBranchTerminates, data);
-        prevResetNarrowingSymbols.addAll(data.resetNarrowingSymbols);
-        data.resetNarrowingSymbols = prevResetNarrowingSymbols;
+
+        // Statements after this if-statement see the join of the branches that reach them, not whichever
+        // branch happened to be analyzed last.
+        ifNode.joinNarrowedTypes = joinNarrowedTypes(currentEnv, exitEnvs);
+        publishNormalCompletionEnv(ifNode, narrowedEnv(ifNode, currentEnv, ifNode.joinNarrowedTypes), data);
+
         data.narrowedTypeInfo = prevNarrowedTypeInfo;
         if (data.narrowedTypeInfo != null) {
             data.narrowedTypeInfo.putAll(falseTypesOfNarrowedTypes);
         }
     }
 
-    private Map<BVarSymbol, BType> getNarrowedTypesAtExit(SymbolEnv env) {
+    // The type of a variable after a branching statement is the union of its types on every branch that completes
+    // normally. A branch that leaves a variable alone contributes the type it already had in baseEnv; a branch that
+    // assigns to it contributes the declared type, which widens the union back.
+    private Map<BVarSymbol, BType> joinNarrowedTypes(SymbolEnv baseEnv, List<SymbolEnv> exitEnvs) {
+        Map<BVarSymbol, BType> joined = new LinkedHashMap<>();
+        if (exitEnvs.isEmpty()) {
+            // Nothing reaches the statement after this one; reachability analysis reports it.
+            return joined;
+        }
+
+        List<Map<BVarSymbol, BType>> branchTypes = new ArrayList<>(exitEnvs.size());
+        Set<BVarSymbol> changedVars = new LinkedHashSet<>();
+        for (SymbolEnv exitEnv : exitEnvs) {
+            Map<BVarSymbol, BType> narrowedTypes = narrowedTypesSince(exitEnv, baseEnv);
+            branchTypes.add(narrowedTypes);
+            changedVars.addAll(narrowedTypes.keySet());
+        }
+
+        for (BVarSymbol symbol : changedVars) {
+            BType baseType = typeInEnv(baseEnv, symbol);
+            if (baseType == null) {
+                // Declared inside a branch: it is out of scope where the branches join.
+                continue;
+            }
+
+            LinkedHashSet<BType> members = new LinkedHashSet<>();
+            for (Map<BVarSymbol, BType> narrowedTypes : branchTypes) {
+                addUnionMembers(narrowedTypes.getOrDefault(symbol, baseType), members);
+            }
+
+            BType joinedType = members.size() == 1 ? members.iterator().next() :
+                    BUnionType.create(typeEnv, null, members);
+            // Only record a type the branches actually changed; an equivalent one keeps baseEnv's, which reads
+            // better in diagnostics when it is a named type.
+            if (!types.isAssignable(joinedType, baseType) || !types.isAssignable(baseType, joinedType)) {
+                joined.put(symbol, joinedType);
+            }
+        }
+        return joined;
+    }
+
+    // Flattened, so that joining a union with one of its members does not nest unions in diagnostics.
+    private void addUnionMembers(BType type, LinkedHashSet<BType> members) {
+        BType implied = Types.getImpliedType(type);
+        if (implied.tag == TypeTags.UNION) {
+            members.addAll(((BUnionType) implied).getMemberTypes());
+        } else {
+            members.add(type);
+        }
+    }
+
+    // Type of the variable where the branches join, or null if it is not in scope there.
+    private BType typeInEnv(SymbolEnv env, BVarSymbol symbol) {
+        BSymbol resolved = symResolver.lookupSymbolInMainSpace(env, symbol.name);
+        if (resolved instanceof BVarSymbol varSymbol && typeNarrower.getOriginalVarSymbol(varSymbol) == symbol) {
+            return varSymbol.type;
+        }
+        return null;
+    }
+
+    private SymbolEnv narrowedEnv(BLangNode targetNode, SymbolEnv baseEnv, Map<BVarSymbol, BType> narrowedTypes) {
+        if (narrowedTypes.isEmpty()) {
+            return baseEnv;
+        }
+
+        SymbolEnv targetEnv = SymbolEnv.createTypeNarrowedEnv(targetNode, baseEnv);
+        for (Map.Entry<BVarSymbol, BType> entry : narrowedTypes.entrySet()) {
+            BVarSymbol symbol = entry.getKey();
+            symbolEnter.defineTypeNarrowedSymbol(targetNode.pos, targetEnv, symbol, entry.getValue(),
+                    symbol.origin == VIRTUAL);
+        }
+        return targetEnv;
+    }
+
+    // Narrowed types in effect at the end of a branch, keyed by the variable they narrow. An assignment within the
+    // branch redefines the original symbol, which carries no narrowing, so assigned variables are absent.
+    private Map<BVarSymbol, BType> narrowedTypesSince(SymbolEnv env, SymbolEnv baseEnv) {
         Map<BVarSymbol, BType> narrowedTypes = new LinkedHashMap<>();
-        Set<Name> visitedNames = new HashSet<>();
-        for (SymbolEnv current = env; current != null; current = current.enclEnv) {
-            for (Map.Entry<Name, Scope.ScopeEntry> entry : current.scope.entries.entrySet()) {
-                if (!visitedNames.add(entry.getKey())) {
-                    continue;
-                }
-                if (entry.getValue().symbol instanceof BVarSymbol symbol && symbol.originalSymbol != null) {
-                    narrowedTypes.put(typeNarrower.getOriginalVarSymbol(symbol), symbol.type);
+        for (SymbolEnv currentEnv = env; currentEnv != null && currentEnv != baseEnv;
+                currentEnv = currentEnv.enclEnv) {
+            for (Scope.ScopeEntry entry : currentEnv.scope.entries.values()) {
+                BSymbol symbol = entry.symbol;
+                if (symbol instanceof BVarSymbol varSymbol && varSymbol.originalSymbol != null) {
+                    // Innermost wins: the first binding found for a variable shadows the ones above it.
+                    narrowedTypes.putIfAbsent(typeNarrower.getOriginalVarSymbol(varSymbol), varSymbol.type);
                 }
             }
         }
         return narrowedTypes;
     }
 
-    private void mergeNormalExitTypes(BLangIf ifNode, SymbolEnv env, Map<BVarSymbol, BType> trueTypes,
-                                      Map<BVarSymbol, BType> falseTypes, Set<BVarSymbol> resetNarrowingSymbols,
-                                      boolean trueTerminates, boolean falseTerminates, AnalyzerData data) {
-        if (trueTerminates && falseTerminates) {
-            return;
-        }
-
-        Set<BVarSymbol> symbols = new LinkedHashSet<>(trueTypes.keySet());
-        symbols.addAll(falseTypes.keySet());
-        Map<BVarSymbol, BType> exitTypes = new LinkedHashMap<>();
-        for (BVarSymbol symbol : symbols) {
-            if (!trueTerminates && !falseTerminates && !resetNarrowingSymbols.contains(symbol)) {
-                continue;
-            }
-            if ((!trueTerminates && !trueTypes.containsKey(symbol)) ||
-                    (!falseTerminates && !falseTypes.containsKey(symbol))) {
-                continue;
-            }
-            BSymbol visibleSymbol = symResolver.lookupSymbolInMainSpace(env, symbol.name);
-            if (!(visibleSymbol instanceof BVarSymbol variable) ||
-                    typeNarrower.getOriginalVarSymbol(variable) != symbol) {
-                continue;
-            }
-
-            BType trueType = trueTypes.getOrDefault(symbol, visibleSymbol.type);
-            BType falseType = falseTypes.getOrDefault(symbol, visibleSymbol.type);
-            BType exitType;
-            if (trueTerminates) {
-                exitType = falseType;
-            } else if (falseTerminates || types.isAssignable(falseType, trueType)) {
-                exitType = trueType;
-            } else if (types.isAssignable(trueType, falseType)) {
-                exitType = falseType;
-            } else {
-                exitType = BUnionType.create(typeEnv, null, trueType, falseType);
-            }
-            if (!trueTerminates && !falseTerminates && types.isAssignable(visibleSymbol.type, exitType) &&
-                    types.isAssignable(exitType, visibleSymbol.type)) {
-                exitType = visibleSymbol.type;
-            }
-            exitTypes.put(symbol, exitType);
-        }
-        if (!exitTypes.isEmpty()) {
-            data.normalExitTypes.put(ifNode, exitTypes);
-        }
+    private void publishNormalCompletionEnv(BLangNode node, SymbolEnv env, AnalyzerData data) {
+        data.normalCompletionEnv = env;
+        data.normalCompletionNode = node;
     }
 
-    private SymbolEnv applyNormalExitTypes(BLangStatement statement, BLangNode target, SymbolEnv env,
-                                           AnalyzerData data) {
-        Map<BVarSymbol, BType> exitTypes = data.normalExitTypes.get(statement);
-        if (exitTypes == null || exitTypes.isEmpty()) {
-            return env;
-        }
+    private SymbolEnv publishedEnv(BLangNode node, AnalyzerData data) {
+        return data.normalCompletionNode == node ? data.normalCompletionEnv : null;
+    }
 
-        SymbolEnv targetEnv = SymbolEnv.createTypeNarrowedEnv(target, env);
-        for (Map.Entry<BVarSymbol, BType> entry : exitTypes.entrySet()) {
-            BVarSymbol symbol = entry.getKey();
-            BSymbol visibleSymbol = symResolver.lookupSymbolInMainSpace(env, symbol.name);
-            if (!(visibleSymbol instanceof BVarSymbol variable) ||
-                    typeNarrower.getOriginalVarSymbol(variable) != symbol) {
-                continue;
-            }
-            symbolEnter.defineTypeNarrowedSymbol(target.pos, targetEnv, symbol, entry.getValue(),
-                    symbol.origin == VIRTUAL);
-        }
-        return targetEnv;
+    private SymbolEnv normalCompletionEnvOf(BLangNode node, AnalyzerData data) {
+        SymbolEnv published = publishedEnv(node, data);
+        return published == null ? data.env : published;
     }
 
     private void resetNotCompletedNormally(AnalyzerData data) {
@@ -4131,13 +4173,55 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         boolean prevBreakFound = data.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, currentEnv);
+        Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = data.narrowedTypeInfo;
+        data.narrowedTypeInfo = new HashMap<>();
         data.env = whileEnv;
         analyzeStmt(whileNode.body, data);
+
+        Map<BVarSymbol, BType.NarrowedTypes> loopNarrowedTypeInfo = data.narrowedTypeInfo;
+        data.narrowedTypeInfo = prevNarrowedTypeInfo;
+        if (data.narrowedTypeInfo != null) {
+            data.narrowedTypeInfo.putAll(loopNarrowedTypeInfo);
+        }
+
+        // The condition was type-checked for the first iteration. An assignment in the body can widen a variable on
+        // the loop back edge, so later analyses must not treat that first-iteration narrowing as permanent.
+        resetAssignedVarTypesInCondition(whileNode.expr, loopNarrowedTypeInfo.keySet());
         data.notCompletedNormally =
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
         data.breakFound = prevBreakFound;
         analyzeOnFailClause(onFailExists, whileNode.body, whileNode.onFailClause, data);
+    }
+
+    private void resetAssignedVarTypesInCondition(BLangExpression expr, Set<BVarSymbol> assignedVars) {
+        switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+                if (varRef.symbol instanceof BVarSymbol varSymbol) {
+                    BVarSymbol originalSymbol = typeNarrower.getOriginalVarSymbol(varSymbol);
+                    if (assignedVars.contains(originalSymbol)) {
+                        expr.setBType(originalSymbol.type);
+                    }
+                }
+                break;
+            case GROUP_EXPR:
+                resetAssignedVarTypesInCondition(((BLangGroupExpr) expr).expression, assignedVars);
+                break;
+            case TYPE_TEST_EXPR:
+                resetAssignedVarTypesInCondition(((BLangTypeTestExpr) expr).expr, assignedVars);
+                break;
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
+                resetAssignedVarTypesInCondition(binaryExpr.lhsExpr, assignedVars);
+                resetAssignedVarTypesInCondition(binaryExpr.rhsExpr, assignedVars);
+                break;
+            case UNARY_EXPR:
+                resetAssignedVarTypesInCondition(((BLangUnaryExpr) expr).expr, assignedVars);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -5073,10 +5157,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (data.narrowedTypeInfo != null) {
             // Record the vars for which type narrowing was unset, to define relevant shadowed symbols in branches.
             BType currentType = ((BLangSimpleVarRef) lhsExpr).symbol.type;
-            BVarSymbol originalSymbol = typeNarrower.getOriginalVarSymbol(varSymbol);
-            data.narrowedTypeInfo.put(originalSymbol,
+            data.narrowedTypeInfo.put(typeNarrower.getOriginalVarSymbol(varSymbol),
                                       new BType.NarrowedTypes(currentType, currentType));
-            data.resetNarrowingSymbols.add(originalSymbol);
         }
 
         defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), data.env, data);
@@ -5278,8 +5360,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv env;
         BType expType;
         Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
-        Map<BLangStatement, Map<BVarSymbol, BType>> normalExitTypes = new HashMap<>();
-        Set<BVarSymbol> resetNarrowingSymbols = new HashSet<>();
+        // Env in effect where normalCompletionNode completes normally. analyzeNode restores env around every node,
+        // so a branching statement cannot otherwise see what its branches narrowed. Only blocks and if-statements
+        // publish one, so the node is recorded with it: anything else leaves a stale pair behind.
+        SymbolEnv normalCompletionEnv;
+        BLangNode normalCompletionNode;
         boolean notCompletedNormally;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();

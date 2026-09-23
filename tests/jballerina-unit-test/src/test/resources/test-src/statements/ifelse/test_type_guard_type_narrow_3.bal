@@ -49,7 +49,7 @@ function test3(int|string|float|boolean x) {
         }
     }
 
-    int|string|float _ = x; // Type not narrowed. issue #34307
+    int|string|float _ = x; // narrowed at the join
 }
 
 function test4(int|string|float x) {
@@ -346,7 +346,7 @@ function test28() {
         string _ = x; // OK
     }
 
-    string _ = x; // Type not narrowed. issue #34307
+    string _ = x; // narrowed at the join
 }
 
 function test29_1(int|string|float x) {
@@ -456,7 +456,9 @@ function test36(int|error x) returns int {
     } else if false {
         // no final else
     }
-    return x; // ERROR incompatible types: expected 'int', found '(int|error)'
+    // Reaching here means x is not an error: the `false` branch is dead and falling past it, like falling past
+    // the missing final else, implies the first condition was false.
+    return x;
 }
 
 function test37(int|error x, boolean b) returns int {
@@ -483,4 +485,33 @@ function test38(int|error a, int|error cond) returns int {
 
     int y = cond; // ERROR incompatible types: expected 'int', found '(int|error)'
     return y;
+}
+
+function test39(int|boolean|float x, boolean b) returns int|boolean {
+    if b {
+        if x is float {
+            return true;
+        }
+        // x is int|boolean here
+    } else {
+        return 0;
+    }
+    return x;
+}
+
+function getIntBooleanFloat() returns int|boolean|float => 1.0;
+
+function test40(boolean b) returns int|boolean {
+    int|boolean|float x = getIntBooleanFloat();
+    if x is float {
+        if b {
+            x = getIntBooleanFloat();
+            if x is float {
+                return true;
+            }
+        } else {
+            return 0;
+        }
+    }
+    return x;
 }
