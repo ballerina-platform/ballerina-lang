@@ -22,15 +22,10 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @since 0.94
@@ -41,10 +36,6 @@ public class BLangIf extends BLangStatement implements IfNode {
     public BLangExpression expr;
     public BLangBlockStmt body;
     public BLangStatement elseStmt;
-    // Narrowed types that hold once this statement completes normally: the join of the narrowed types on each
-    // branch that reaches the next statement. Empty when no variable is narrowed on every such branch.
-    public Map<BVarSymbol, BType> joinNarrowedTypes = new HashMap<>();
-
     public BLangIf() {
     }
 

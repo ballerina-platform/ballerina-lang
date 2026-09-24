@@ -616,29 +616,25 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return false;
         }
 
-        if (!data.notCompletedNormally && ((BLangIf) prevStatement).joinNarrowedTypes.isEmpty()) {
+        if (!data.notCompletedNormally && joinNarrowedTypesOf(prevStatement, data).isEmpty()) {
             return false;
         }
 
         data.prevEnvs.push(blockEnv);
         SymbolEnv env = blockEnv;
         SymbolEnv lastStmtExitEnv = null;
-        Set<BVarSymbol> narrowedVars = new LinkedHashSet<>();
         BLangStatement prev = prevStatement;
 
         for (int i = startIndex; i < stmts.size(); i++) {
             BLangStatement currentStmt = stmts.get(i);
 
             if (prev.getKind() == NodeKind.IF && !data.notCompletedNormally) {
-                Map<BVarSymbol, BType> joinNarrowedTypes = ((BLangIf) prev).joinNarrowedTypes;
-                narrowedVars.addAll(joinNarrowedTypes.keySet());
-                env = narrowedEnv(currentStmt, env, joinNarrowedTypes);
+                env = narrowedEnv(currentStmt, env, joinNarrowedTypesOf(prev, data));
             } else if (prev.getKind() == NodeKind.IF) {
                 BLangIf ifStmt = (BLangIf) prev;
                 if (hasTrivialOrNoElse(ifStmt)) {
                     data.notCompletedNormally =
                             ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
-                    narrowedVars.addAll(ifStmt.expr.narrowedTypeInfo.keySet());
                     if (ifStmt.elseStmt == null) {
                         env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, env, false);
                     } else {
@@ -660,13 +656,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.env = env;
             analyzeStmt(currentStmt, data);
             lastStmtExitEnv = publishedEnv(currentStmt, data);
-
-            // An assignment invalidates the narrowing accumulated here; carrying it into the next statement would
-            // analyze that statement against a stale, too-narrow type.
-            if (assignsTo(currentStmt, narrowedVars)) {
-                env = blockEnv;
-                narrowedVars.clear();
-                lastStmtExitEnv = null;
+            if (lastStmtExitEnv != null) {
+                env = carryNormalCompletionEnv(currentStmt, env, lastStmtExitEnv);
+                lastStmtExitEnv = env;
             }
             prev = currentStmt;
         }
@@ -674,17 +666,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.prevEnvs.pop();
         data.normalCompletionEnv = lastStmtExitEnv == null ? env : lastStmtExitEnv;
         return true;
-    }
-
-    private boolean assignsTo(BLangStatement stmt, Set<BVarSymbol> vars) {
-        BLangExpression varRef = switch (stmt.getKind()) {
-            case ASSIGNMENT -> ((BLangAssignment) stmt).varRef;
-            case COMPOUND_ASSIGNMENT -> ((BLangCompoundAssignment) stmt).varRef;
-            default -> null;
-        };
-
-        return varRef != null && varRef.getBType() != null && isSimpleVarRef(varRef) &&
-                vars.contains(typeNarrower.getOriginalVarSymbol((BVarSymbol) ((BLangSimpleVarRef) varRef).symbol));
     }
 
     // An if/else-if chain whose final else is absent or trivially empty never diverts control on its own:
@@ -2382,6 +2363,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         resetTypeNarrowing(compoundAssignment.varRef, data);
+        publishNormalCompletionEnv(compoundAssignment, data.env, data);
     }
 
     @Override
@@ -2417,6 +2399,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateWorkerAnnAttachments(assignNode.expr, data);
 
         resetTypeNarrowing(varRef, data);
+        publishNormalCompletionEnv(assignNode, data.env, data);
     }
 
     @Override
@@ -2441,6 +2424,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                                         tupleDeStmt.expr.getBType(), tupleDeStmt.expr.pos, data);
         }
+        publishNormalCompletionEnv(tupleDeStmt, data.env, data);
     }
 
     private void validateFunctionVarRef(BLangExpression expr, AnalyzerData data) {
@@ -2471,6 +2455,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 data.commonAnalyzerData);
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.getBType(),
                                      recordDeStmt.expr.pos, data);
+        publishNormalCompletionEnv(recordDeStmt, data.env, data);
     }
 
     @Override
@@ -2500,6 +2485,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         typeChecker.checkExpr(errorDeStmt.expr, data.env, symTable.noType, data.prevEnvs,
                 data.commonAnalyzerData);
         checkErrorVarRefEquivalency(varRef, errorDeStmt.expr.getBType(), errorDeStmt.expr.pos, data);
+        publishNormalCompletionEnv(errorDeStmt, data.env, data);
     }
 
     /**
@@ -2962,10 +2948,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             exitEnvs.add(typeNarrower.evaluateFalsity(ifNode.expr, ifNode, currentEnv, false));
         }
 
-        // Statements after this if-statement see the join of the branches that reach them, not whichever
-        // branch happened to be analyzed last.
-        ifNode.joinNarrowedTypes = joinNarrowedTypes(currentEnv, exitEnvs);
-        publishNormalCompletionEnv(ifNode, narrowedEnv(ifNode, currentEnv, ifNode.joinNarrowedTypes), data);
+        Map<BVarSymbol, BType> joinNarrowedTypes = joinNarrowedTypes(currentEnv, exitEnvs);
+        if (!joinNarrowedTypes.isEmpty()) {
+            data.joinNarrowedTypes.put(ifNode, joinNarrowedTypes);
+        }
+        publishNormalCompletionEnv(ifNode, narrowedEnv(ifNode, currentEnv, joinNarrowedTypes), data);
 
         data.narrowedTypeInfo = prevNarrowedTypeInfo;
         if (data.narrowedTypeInfo != null) {
@@ -2998,15 +2985,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 continue;
             }
 
-            LinkedHashSet<BType> members = new LinkedHashSet<>();
+            BType joinedType = null;
             for (Map<BVarSymbol, BType> narrowedTypes : branchTypes) {
-                addUnionMembers(narrowedTypes.getOrDefault(symbol, baseType), members);
+                joinedType = widen(joinedType, narrowedTypes.getOrDefault(symbol, baseType));
             }
 
-            BType joinedType = members.size() == 1 ? members.iterator().next() :
-                    BUnionType.create(typeEnv, null, members);
-            // Only record a type the branches actually changed; an equivalent one keeps baseEnv's, which reads
-            // better in diagnostics when it is a named type.
+            // An equivalent type keeps baseEnv's, which reads better in diagnostics when it is a named type.
             if (!types.isAssignable(joinedType, baseType) || !types.isAssignable(baseType, joinedType)) {
                 joined.put(symbol, joinedType);
             }
@@ -3014,7 +2998,23 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         return joined;
     }
 
-    // Flattened, so that joining a union with one of its members does not nest unions in diagnostics.
+    // Where one branch's type subsumes the other's, that type is the join: a union of the two would expand a
+    // named type into its members in every diagnostic that mentions it.
+    private BType widen(BType accumulated, BType branchType) {
+        if (accumulated == null || types.isAssignable(accumulated, branchType)) {
+            return branchType;
+        }
+
+        if (types.isAssignable(branchType, accumulated)) {
+            return accumulated;
+        }
+
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
+        addUnionMembers(accumulated, members);
+        addUnionMembers(branchType, members);
+        return BUnionType.create(typeEnv, null, members);
+    }
+
     private void addUnionMembers(BType type, LinkedHashSet<BType> members) {
         BType implied = Types.getImpliedType(type);
         if (implied.tag == TypeTags.UNION) {
@@ -3033,6 +3033,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         return null;
     }
 
+    private Map<BVarSymbol, BType> joinNarrowedTypesOf(BLangStatement stmt, AnalyzerData data) {
+        return data.joinNarrowedTypes.getOrDefault(stmt, Collections.emptyMap());
+    }
+
     private SymbolEnv narrowedEnv(BLangNode targetNode, SymbolEnv baseEnv, Map<BVarSymbol, BType> narrowedTypes) {
         if (narrowedTypes.isEmpty()) {
             return baseEnv;
@@ -3045,6 +3049,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     symbol.origin == VIRTUAL);
         }
         return targetEnv;
+    }
+
+    private SymbolEnv carryNormalCompletionEnv(BLangNode targetNode, SymbolEnv baseEnv, SymbolEnv exitEnv) {
+        Map<BVarSymbol, BType> carriedTypes = narrowedTypesSince(exitEnv, baseEnv);
+        carriedTypes.entrySet().removeIf(entry -> typeInEnv(baseEnv, entry.getKey()) == null);
+        return narrowedEnv(targetNode, baseEnv, carriedTypes);
     }
 
     // Narrowed types in effect at the end of a branch, keyed by the variable they narrow. An assignment within the
@@ -5365,6 +5375,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // publish one, so the node is recorded with it: anything else leaves a stale pair behind.
         SymbolEnv normalCompletionEnv;
         BLangNode normalCompletionNode;
+        Map<BLangStatement, Map<BVarSymbol, BType>> joinNarrowedTypes = new HashMap<>();
         boolean notCompletedNormally;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
