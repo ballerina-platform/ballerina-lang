@@ -111,11 +111,7 @@
                           "required": [
                             "tokenUrl",
                             "clientId",
-                            "clientSecret",
-                            "defaultTokenExpTime",
-                            "clockSkew",
-                            "credentialBearer",
-                            "clientConfig"
+                            "clientSecret"
                           ],
                           "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientCredentialsGrantConfig"
                         },
@@ -173,9 +169,7 @@
                               },
                               "additionalProperties": false,
                               "required": [
-                                "refreshUrl",
-                                "credentialBearer",
-                                "clientConfig"
+                                "refreshUrl"
                               ]
                             },
                             "defaultTokenExpTime": {
@@ -204,11 +198,7 @@
                           "required": [
                             "tokenUrl",
                             "username",
-                            "password",
-                            "defaultTokenExpTime",
-                            "clockSkew",
-                            "credentialBearer",
-                            "clientConfig"
+                            "password"
                           ],
                           "name": "dilhashanazeer/complexconfigs3:0.2.0:PasswordGrantConfig"
                         },
@@ -260,11 +250,7 @@
                             "refreshUrl",
                             "refreshToken",
                             "clientId",
-                            "clientSecret",
-                            "defaultTokenExpTime",
-                            "clockSkew",
-                            "credentialBearer",
-                            "clientConfig"
+                            "clientSecret"
                           ],
                           "name": "dilhashanazeer/complexconfigs3:0.2.0:RefreshTokenGrantConfig"
                         }
@@ -343,16 +329,10 @@
                         }
                       },
                       "additionalProperties": false,
-                      "required": [
-                        "disable"
-                      ],
                       "name": "dilhashanazeer/complexconfigs3:0.2.0:SecureSocket"
                     }
                   },
                   "additionalProperties": false,
-                  "required": [
-                    "httpVersion"
-                  ],
                   "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientConfiguration"
                 }
               },
@@ -481,11 +461,7 @@
                           "required": [
                             "tokenUrl",
                             "clientId",
-                            "clientSecret",
-                            "defaultTokenExpTime",
-                            "clockSkew",
-                            "credentialBearer",
-                            "clientConfig"
+                            "clientSecret"
                           ],
                           "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientCredentialsGrantConfig"
                         },
@@ -543,9 +519,7 @@
                               },
                               "additionalProperties": false,
                               "required": [
-                                "refreshUrl",
-                                "credentialBearer",
-                                "clientConfig"
+                                "refreshUrl"
                               ]
                             },
                             "defaultTokenExpTime": {
@@ -574,11 +548,7 @@
                           "required": [
                             "tokenUrl",
                             "username",
-                            "password",
-                            "defaultTokenExpTime",
-                            "clockSkew",
-                            "credentialBearer",
-                            "clientConfig"
+                            "password"
                           ],
                           "name": "dilhashanazeer/complexconfigs3:0.2.0:PasswordGrantConfig"
                         },
@@ -630,11 +600,7 @@
                             "refreshUrl",
                             "refreshToken",
                             "clientId",
-                            "clientSecret",
-                            "defaultTokenExpTime",
-                            "clockSkew",
-                            "credentialBearer",
-                            "clientConfig"
+                            "clientSecret"
                           ],
                           "name": "dilhashanazeer/complexconfigs3:0.2.0:RefreshTokenGrantConfig"
                         }
@@ -713,16 +679,10 @@
                         }
                       },
                       "additionalProperties": false,
-                      "required": [
-                        "disable"
-                      ],
                       "name": "dilhashanazeer/complexconfigs3:0.2.0:SecureSocket"
                     }
                   },
                   "additionalProperties": false,
-                  "required": [
-                    "httpVersion"
-                  ],
                   "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientConfiguration"
                 }
               },
