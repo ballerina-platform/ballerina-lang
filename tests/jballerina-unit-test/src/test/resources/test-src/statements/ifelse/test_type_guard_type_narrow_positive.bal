@@ -416,3 +416,20 @@ function test23(int|boolean|float x, boolean b) returns int|boolean {
     }
     return x; // OK: the only path reaching here fell through the inner if, narrowing x to int|boolean
 }
+
+function getIntBooleanOrFloat() returns int|boolean|float => 1.0;
+
+function test24(boolean b) returns int|boolean {
+    int|boolean|float x = getIntBooleanOrFloat();
+    if x is float {
+        if b {
+            x = getIntBooleanOrFloat();
+            if x is float {
+                return true;
+            }
+        } else {
+            return 0;
+        }
+    }
+    return x; // OK: every path reaching here has x narrowed to int|boolean
+}

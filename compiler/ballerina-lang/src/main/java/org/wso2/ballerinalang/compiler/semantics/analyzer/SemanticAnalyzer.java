@@ -2236,6 +2236,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             analyzeStmt(stmt, data);
         }
 
+        // analyzeStmt/analyzeNode doesn't touch trustedExitEnv (only env/expType), so this still holds whatever
+        // the last-processed statement's own visit set it to - e.g. an if/else that itself resolved a
+        // definitive join-point env via the Case A/B logic in visit(BLangIf).
+        SymbolEnv trustedExitEnvFromLastStmt = data.trustedExitEnv;
         data.trustedExitEnv = null;
         if (tookOverByFollowingIf) {
             data.trustedExitEnv = data.env;
@@ -2252,6 +2256,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     data.trustedExitEnv = data.env;
                 }
             }
+        } else if (!blockNode.stmts.isEmpty()
+                && blockNode.stmts.get(blockNode.stmts.size() - 1).getKind() == NodeKind.IF) {
+            // The last statement is an if (with a real else) whose own visit(BLangIf) may already have
+            // determined a definitive exit env for this exact join point - nothing else in this block could
+            // invalidate that, so keep it instead of discarding it.
+            data.trustedExitEnv = trustedExitEnvFromLastStmt;
         }
     }
 
@@ -2893,6 +2903,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // restored by analyzeNode and cannot be used here.
         SymbolEnv ifBodyExitEnv = data.trustedExitEnv;
         boolean ifBranchCompletionStatus = data.notCompletedNormally;
+        // Captured before the null/empty-check block below aliases ifNode.expr.narrowedTypeInfo to this scope's
+        // bookkeeping map when the condition isn't itself a type-test.
+        boolean conditionIsGenuineTypeTest =
+                ifNode.expr.narrowedTypeInfo != null && !ifNode.expr.narrowedTypeInfo.isEmpty();
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = data.narrowedTypeInfo;
@@ -2939,6 +2953,31 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if (!ifCompletionStatus && elseBranchCompletionStatus && ifBodyExitEnv != null) {
                 data.trustedExitEnv = ifBodyExitEnv;
             }
+        } else if (!ifBranchCompletionStatus && conditionIsGenuineTypeTest && ifBodyExitEnv != null) {
+            // No else: the join is reachable via (a) the if-branch's fall-through and (b) the condition
+            // being false from the start. Union them per variable the condition itself narrows.
+            SymbolEnv unionEnv = null;
+            for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry : ifNode.expr.narrowedTypeInfo.entrySet()) {
+                BVarSymbol originalSym = typeNarrower.getOriginalVarSymbol(entry.getKey());
+                BSymbol foundSym = symResolver.lookupSymbolInMainSpace(ifBodyExitEnv, originalSym.name);
+                if (foundSym == symTable.notFoundSymbol) {
+                    continue;
+                }
+                BType falsityType = entry.getValue().falseType;
+                // Avoid a redundant/degenerate X|X union: getTypeIntersection/getRemainingType routinely
+                // synthesize structurally-equal but distinct BType instances, which BUnionType.create's
+                // identity-based dedup will not collapse - use structural equality instead of reference
+                // equality.
+                BType unionType = types.isSameType(foundSym.type, falsityType)
+                        ? foundSym.type
+                        : BUnionType.create(typeEnv, null, foundSym.type, falsityType);
+                if (unionEnv == null) {
+                    unionEnv = SymbolEnv.createTypeNarrowedEnv(ifNode, currentEnv);
+                }
+                symbolEnter.defineTypeNarrowedSymbol(ifNode.pos, unionEnv, originalSym, unionType,
+                        originalSym.origin == VIRTUAL);
+            }
+            data.trustedExitEnv = unionEnv;
         }
         data.narrowedTypeInfo = prevNarrowedTypeInfo;
         if (data.narrowedTypeInfo != null) {
