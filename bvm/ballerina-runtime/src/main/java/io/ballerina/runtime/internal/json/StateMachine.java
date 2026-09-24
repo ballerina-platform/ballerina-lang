@@ -81,6 +81,8 @@ public abstract class StateMachine {
     protected final StringBuilder hexBuilder = new StringBuilder(4);
     protected char[] charBuff = new char[1024];
     protected int charBuffIndex;
+    private boolean hasPendingHighSurrogate;
+    private char pendingHighSurrogate;
 
     protected int index = 0;
     protected int line = 1;
@@ -144,7 +146,30 @@ public abstract class StateMachine {
         }
     }
 
-    public void append(char ch) {
+    public void append(char ch) throws ParserException {
+        if (this.hasPendingHighSurrogate) {
+            this.hasPendingHighSurrogate = false;
+            if (Character.isLowSurrogate(ch)) {
+                this.appendToCharBuff(this.pendingHighSurrogate);
+                this.appendToCharBuff(ch);
+                return;
+            }
+            throw new ParserException("invalid unicode escape: unpaired surrogate character U+"
+                    + String.format("%04X", (int) this.pendingHighSurrogate) + " in JSON string");
+        }
+        if (Character.isHighSurrogate(ch)) {
+            this.hasPendingHighSurrogate = true;
+            this.pendingHighSurrogate = ch;
+            return;
+        }
+        if (Character.isLowSurrogate(ch)) {
+            throw new ParserException("invalid unicode escape: unpaired surrogate character U+"
+                    + String.format("%04X", (int) ch) + " in JSON string");
+        }
+        this.appendToCharBuff(ch);
+    }
+
+    private void appendToCharBuff(char ch) {
         try {
             this.charBuff[this.charBuffIndex] = ch;
             this.charBuffIndex++;
@@ -383,13 +408,18 @@ public abstract class StateMachine {
         }
     }
 
-    String value() {
+    String value() throws ParserException {
+        if (this.hasPendingHighSurrogate) {
+            this.hasPendingHighSurrogate = false;
+            throw new ParserException("invalid unicode escape: unpaired surrogate character U+"
+                    + String.format("%04X", (int) this.pendingHighSurrogate) + " in JSON string");
+        }
         String result = new String(this.charBuff, 0, this.charBuffIndex);
         this.charBuffIndex = 0;
         return result;
     }
 
-    public void processFieldName() {
+    public void processFieldName() throws ParserException {
         this.fieldNames.push(this.value());
     }
 
