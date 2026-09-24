@@ -947,8 +947,6 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected '0', found 'Ints'", 270, 11);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string?', found '(int|string)?'",
                 283, 17); // issue #34307
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'string', found '(int|string|boolean)?'", 302, 16); // issue #34307
         BAssertUtil.validateError(result, index++, "incompatible types: expected '()', found '(int|boolean|string)?'",
                 336, 12); // issue #34307
         BAssertUtil.validateError(result, index++,

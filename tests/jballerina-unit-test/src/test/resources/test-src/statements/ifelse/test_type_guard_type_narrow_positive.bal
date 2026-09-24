@@ -404,3 +404,15 @@ function test22(int|error x, boolean b) returns int {
     }
     return x; // OK: inner if-else has a genuinely terminating (non-trivial) else, so it always terminates
 }
+
+function test23(int|boolean|float x, boolean b) returns int|boolean {
+    if b {
+        if x is float {
+            return true;
+        }
+        // x is int|boolean here
+    } else {
+        return 0;
+    }
+    return x; // OK: the only path reaching here fell through the inner if, narrowing x to int|boolean
+}
