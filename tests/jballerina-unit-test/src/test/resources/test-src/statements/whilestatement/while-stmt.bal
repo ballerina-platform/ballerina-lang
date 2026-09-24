@@ -221,6 +221,16 @@ function testNarrowedVariableReassignedInWhileBranch() returns int {
     return i;
 }
 
+function testConditionNarrowingWithReassignmentInWhile() returns int {
+    int|string value = 2;
+    int count = 0;
+    while value is int && value > 0 {
+        count += 1;
+        value = count == 1 ? 1 : "done";
+    }
+    return count;
+}
+
 function isSecondIteration(int i) returns boolean => i == 1;
 
 function getNarrowedWhileValue(int i) returns int|string? {

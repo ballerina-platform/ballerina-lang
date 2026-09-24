@@ -197,6 +197,12 @@ public class WhileStmtTest {
         Assert.assertEquals(returns, 2L);
     }
 
+    @Test(description = "Test condition narrowing when a variable is reassigned inside a while loop")
+    public void testConditionNarrowingWithReassignmentInWhile() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testConditionNarrowingWithReassignmentInWhile");
+        Assert.assertEquals(returns, 2L);
+    }
+
     @Test
     public void testWhileStmtWithOnFailWithoutVariable() {
         BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithOnFailWithoutVariable");

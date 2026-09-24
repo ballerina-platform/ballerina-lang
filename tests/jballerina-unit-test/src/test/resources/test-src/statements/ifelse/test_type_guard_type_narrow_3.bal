@@ -529,3 +529,38 @@ function test41(int|string x, int|string y, boolean b) {
         int z = value; // ERROR incompatible types: expected 'int', found '(int|string)'
     }
 }
+
+function test42(int|string value) {
+    int|string current = value;
+    if current is string {
+        return;
+    }
+    do {
+        current = "updated";
+    }
+    int result = current; // ERROR incompatible types: expected 'int', found '(int|string)'
+}
+
+function test43(int|string value) {
+    int|string current = value;
+    if current is string {
+        return;
+    }
+    match current {
+        var _ => {
+            current = "updated";
+        }
+    }
+    int result = current; // ERROR incompatible types: expected 'int', found '(int|string)'
+}
+
+function test44(int|string value) {
+    int|string current = value;
+    if current is string {
+        return;
+    }
+    lock {
+        current = "updated";
+    }
+    int result = current; // ERROR incompatible types: expected 'int', found '(int|string)'
+}

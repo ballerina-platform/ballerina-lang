@@ -656,10 +656,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.env = env;
             analyzeStmt(currentStmt, data);
             lastStmtExitEnv = publishedEnv(currentStmt, data);
-            if (lastStmtExitEnv != null) {
-                env = carryNormalCompletionEnv(currentStmt, env, lastStmtExitEnv);
-                lastStmtExitEnv = env;
-            }
+            SymbolEnv currentStmtExitEnv = lastStmtExitEnv == null ? data.env : lastStmtExitEnv;
+            env = carryNormalCompletionEnv(currentStmt, env, currentStmtExitEnv);
+            lastStmtExitEnv = env;
             prev = currentStmt;
         }
 
@@ -4196,7 +4195,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         // The condition was type-checked for the first iteration. An assignment in the body can widen a variable on
         // the loop back edge, so later analyses must not treat that first-iteration narrowing as permanent.
-        resetAssignedVarTypesInCondition(whileNode.expr, loopNarrowedTypeInfo.keySet());
+        resetAssignedVarTypesInCondition(whileNode.expr, loopNarrowedTypeInfo.keySet(), Collections.emptySet());
         data.notCompletedNormally =
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
@@ -4204,30 +4203,43 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeOnFailClause(onFailExists, whileNode.body, whileNode.onFailClause, data);
     }
 
-    private void resetAssignedVarTypesInCondition(BLangExpression expr, Set<BVarSymbol> assignedVars) {
+    private void resetAssignedVarTypesInCondition(BLangExpression expr, Set<BVarSymbol> assignedVars,
+                                                  Set<BVarSymbol> narrowedWithinCondition) {
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
                 if (varRef.symbol instanceof BVarSymbol varSymbol) {
                     BVarSymbol originalSymbol = typeNarrower.getOriginalVarSymbol(varSymbol);
-                    if (assignedVars.contains(originalSymbol)) {
+                    if (assignedVars.contains(originalSymbol) && !narrowedWithinCondition.contains(originalSymbol)) {
                         expr.setBType(originalSymbol.type);
                     }
                 }
                 break;
             case GROUP_EXPR:
-                resetAssignedVarTypesInCondition(((BLangGroupExpr) expr).expression, assignedVars);
+                resetAssignedVarTypesInCondition(((BLangGroupExpr) expr).expression, assignedVars,
+                        narrowedWithinCondition);
                 break;
             case TYPE_TEST_EXPR:
-                resetAssignedVarTypesInCondition(((BLangTypeTestExpr) expr).expr, assignedVars);
+                resetAssignedVarTypesInCondition(((BLangTypeTestExpr) expr).expr, assignedVars,
+                        narrowedWithinCondition);
                 break;
             case BINARY_EXPR:
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
-                resetAssignedVarTypesInCondition(binaryExpr.lhsExpr, assignedVars);
-                resetAssignedVarTypesInCondition(binaryExpr.rhsExpr, assignedVars);
+                resetAssignedVarTypesInCondition(binaryExpr.lhsExpr, assignedVars, narrowedWithinCondition);
+                Set<BVarSymbol> rhsNarrowedVars = narrowedWithinCondition;
+                // The RHS of a short-circuit expression was checked using the narrowing established by its LHS.
+                // Preserve those operand types so they remain consistent with the already-resolved operator.
+                if ((binaryExpr.opKind == OperatorKind.AND || binaryExpr.opKind == OperatorKind.OR) &&
+                        binaryExpr.lhsExpr.narrowedTypeInfo != null) {
+                    rhsNarrowedVars = new HashSet<>(narrowedWithinCondition);
+                    for (BVarSymbol symbol : binaryExpr.lhsExpr.narrowedTypeInfo.keySet()) {
+                        rhsNarrowedVars.add(typeNarrower.getOriginalVarSymbol(symbol));
+                    }
+                }
+                resetAssignedVarTypesInCondition(binaryExpr.rhsExpr, assignedVars, rhsNarrowedVars);
                 break;
             case UNARY_EXPR:
-                resetAssignedVarTypesInCondition(((BLangUnaryExpr) expr).expr, assignedVars);
+                resetAssignedVarTypesInCondition(((BLangUnaryExpr) expr).expr, assignedVars, narrowedWithinCondition);
                 break;
             default:
                 break;
