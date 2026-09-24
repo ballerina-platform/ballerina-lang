@@ -433,3 +433,33 @@ function test24(boolean b) returns int|boolean {
     }
     return x; // OK: every path reaching here has x narrowed to int|boolean
 }
+
+function test25(int|boolean|float x) returns int|boolean {
+    if x is float|boolean {
+        if x is float {
+            return true;
+        }
+        // x is boolean here
+    } else {
+    }
+    return x; // OK: an empty else is trivial, same as no else at all
+}
+
+function test26(boolean outerCond, boolean p, int|boolean|float q, boolean b) returns int|boolean {
+    if outerCond {
+        if p {
+            return 0;
+        }
+        if b {
+            if q is float {
+                return true;
+            }
+            // q is int|boolean here
+        } else {
+            return 1;
+        }
+    } else {
+        return 2;
+    }
+    return q; // OK: the second if's own narrowing must survive the chain-takeover of the first
+}

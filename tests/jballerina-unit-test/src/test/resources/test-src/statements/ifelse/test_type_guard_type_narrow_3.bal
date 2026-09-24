@@ -484,3 +484,16 @@ function test38(int|error a, int|error cond) returns int {
     int y = cond; // ERROR incompatible types: expected 'int', found '(int|error)'
     return y;
 }
+
+function test39(int|error x, int|error y) returns string {
+    if x is error {
+        // if-branch is empty - falls through without examining y
+    } else {
+        if y is error {
+            return "a";
+        }
+        // y is int here, but only reachable via the else-branch
+    }
+    string s = y; // ERROR: y is not narrowed on the if-branch's path
+    return s;
+}

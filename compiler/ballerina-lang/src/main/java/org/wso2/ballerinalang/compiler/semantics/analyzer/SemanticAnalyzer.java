@@ -595,10 +595,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
         SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
         int stmtCount = -1;
-        // Non-null only right after analyzing an if-statement whose trustedExitEnv is the definitive narrowed
-        // state for the join point that follows it - see visit(BLangIf). analyzeStmt/analyzeNode always
-        // restores data.env to whatever it was right before the call, so this must be re-applied explicitly
-        // before the next analyzeStmt call rather than assumed to survive on data.env itself.
+        // The narrowed exit env of the previous if, if any - re-applied manually since analyzeNode
+        // doesn't preserve data.env across calls. See visit(BLangIf).
         SymbolEnv trustedEnvFromPrevIf = null;
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
@@ -637,6 +635,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             data.env = env;
+            // Avoid leaking an earlier statement's trustedExitEnv forward (see visit(BLangBlockStmt)); skip
+            // for an empty block, a no-op the parser appends after a trailing no-else if.
+            if (!isEmptyBlock(currentStmt)) {
+                data.trustedExitEnv = null;
+            }
             analyzeStmt(currentStmt, data);
             prev = currentStmt;
         }
@@ -2233,16 +2236,22 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 tookOverByFollowingIf = true;
                 break;
             }
+            // Avoid leaking an earlier statement's trustedExitEnv forward; skip for an empty block, a no-op
+            // the parser appends after a trailing no-else if.
+            if (!isEmptyBlock(stmt)) {
+                data.trustedExitEnv = null;
+            }
             analyzeStmt(stmt, data);
         }
 
-        // analyzeStmt/analyzeNode doesn't touch trustedExitEnv (only env/expType), so this still holds whatever
-        // the last-processed statement's own visit set it to - e.g. an if/else that itself resolved a
-        // definitive join-point env via the Case A/B logic in visit(BLangIf).
+        // Whatever the last-processed statement's own visit set it to (null if it never touches it).
         SymbolEnv trustedExitEnvFromLastStmt = data.trustedExitEnv;
         data.trustedExitEnv = null;
         if (tookOverByFollowingIf) {
-            data.trustedExitEnv = data.env;
+            // Prefer the chain's own last statement's trustedExitEnv over data.env (which only reflects the
+            // earlier if's falsity-narrowing). Not gated on NodeKind - the statement here can be a
+            // parser-synthesized BLOCK wrapping the real one, so the kind isn't a reliable signal.
+            data.trustedExitEnv = trustedExitEnvFromLastStmt != null ? trustedExitEnvFromLastStmt : data.env;
         } else if (data.notCompletedNormally && !blockNode.stmts.isEmpty()) {
             BLangStatement lastStmt = blockNode.stmts.get(blockNode.stmts.size() - 1);
             if (lastStmt.getKind() == NodeKind.IF) {
@@ -2256,11 +2265,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     data.trustedExitEnv = data.env;
                 }
             }
-        } else if (!blockNode.stmts.isEmpty()
-                && blockNode.stmts.get(blockNode.stmts.size() - 1).getKind() == NodeKind.IF) {
-            // The last statement is an if (with a real else) whose own visit(BLangIf) may already have
-            // determined a definitive exit env for this exact join point - nothing else in this block could
-            // invalidate that, so keep it instead of discarding it.
+        } else if (trustedExitEnvFromLastStmt != null) {
             data.trustedExitEnv = trustedExitEnvFromLastStmt;
         }
     }
@@ -2937,11 +2942,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangStatement elseStmt = ifNode.elseStmt;
             data.env = elseEnv;
             analyzeStmt(elseStmt, data);
+            // Don't let a value the else block set internally (e.g. its own trailing no-else if) leak
+            // through as this if/else's join-point env unless a trust condition below actually applies.
+            data.trustedExitEnv = null;
 
             boolean elseBranchCompletionStatus = data.notCompletedNormally;
+            boolean elseIsTrivial = isEmptyBlock(elseStmt);
             if (elseStmt.getKind() == NodeKind.IF) {
                 data.notCompletedNormally = ifCompletionStatus && elseBranchCompletionStatus;
-            } else if (isEmptyBlock(elseStmt)) {
+            } else if (elseIsTrivial) {
                 // A trivial (empty) else always completes normally on its own, so it carries no information about
                 // whether this if/else statement can fall through.
                 data.notCompletedNormally = ifCompletionStatus;
@@ -2952,32 +2961,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             if (!ifCompletionStatus && elseBranchCompletionStatus && ifBodyExitEnv != null) {
                 data.trustedExitEnv = ifBodyExitEnv;
+            } else if (elseIsTrivial && !ifCompletionStatus && conditionIsGenuineTypeTest && ifBodyExitEnv != null) {
+                // An empty else behaves exactly like no else at all for narrowing purposes too - reuse the
+                // same union logic rather than only handling the literally-absent-else case.
+                data.trustedExitEnv = computeNoElseUnionExitEnv(ifNode, ifBodyExitEnv, currentEnv);
             }
         } else if (!ifBranchCompletionStatus && conditionIsGenuineTypeTest && ifBodyExitEnv != null) {
             // No else: the join is reachable via (a) the if-branch's fall-through and (b) the condition
             // being false from the start. Union them per variable the condition itself narrows.
-            SymbolEnv unionEnv = null;
-            for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry : ifNode.expr.narrowedTypeInfo.entrySet()) {
-                BVarSymbol originalSym = typeNarrower.getOriginalVarSymbol(entry.getKey());
-                BSymbol foundSym = symResolver.lookupSymbolInMainSpace(ifBodyExitEnv, originalSym.name);
-                if (foundSym == symTable.notFoundSymbol) {
-                    continue;
-                }
-                BType falsityType = entry.getValue().falseType;
-                // Avoid a redundant/degenerate X|X union: getTypeIntersection/getRemainingType routinely
-                // synthesize structurally-equal but distinct BType instances, which BUnionType.create's
-                // identity-based dedup will not collapse - use structural equality instead of reference
-                // equality.
-                BType unionType = types.isSameType(foundSym.type, falsityType)
-                        ? foundSym.type
-                        : BUnionType.create(typeEnv, null, foundSym.type, falsityType);
-                if (unionEnv == null) {
-                    unionEnv = SymbolEnv.createTypeNarrowedEnv(ifNode, currentEnv);
-                }
-                symbolEnter.defineTypeNarrowedSymbol(ifNode.pos, unionEnv, originalSym, unionType,
-                        originalSym.origin == VIRTUAL);
-            }
-            data.trustedExitEnv = unionEnv;
+            data.trustedExitEnv = computeNoElseUnionExitEnv(ifNode, ifBodyExitEnv, currentEnv);
         }
         data.narrowedTypeInfo = prevNarrowedTypeInfo;
         if (data.narrowedTypeInfo != null) {
@@ -2987,6 +2979,31 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private void resetNotCompletedNormally(AnalyzerData data) {
         data.notCompletedNormally = false;
+    }
+
+    // Unions ifBodyExitEnv's type for each narrowed variable with that condition's falsity type - the
+    // join point after an if with no (or a trivially empty) else, reachable via either path.
+    private SymbolEnv computeNoElseUnionExitEnv(BLangIf ifNode, SymbolEnv ifBodyExitEnv, SymbolEnv currentEnv) {
+        SymbolEnv unionEnv = null;
+        for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry : ifNode.expr.narrowedTypeInfo.entrySet()) {
+            BVarSymbol originalSym = typeNarrower.getOriginalVarSymbol(entry.getKey());
+            BSymbol foundSym = symResolver.lookupSymbolInMainSpace(ifBodyExitEnv, originalSym.name);
+            if (foundSym == symTable.notFoundSymbol) {
+                continue;
+            }
+            BType falsityType = entry.getValue().falseType;
+            // Structural equality, not reference: BUnionType.create's identity-based dedup won't collapse
+            // structurally-equal BType instances synthesized separately, causing a degenerate X|X union.
+            BType unionType = types.isSameType(foundSym.type, falsityType)
+                    ? foundSym.type
+                    : BUnionType.create(typeEnv, null, foundSym.type, falsityType);
+            if (unionEnv == null) {
+                unionEnv = SymbolEnv.createTypeNarrowedEnv(ifNode, currentEnv);
+            }
+            symbolEnter.defineTypeNarrowedSymbol(ifNode.pos, unionEnv, originalSym, unionType,
+                    originalSym.origin == VIRTUAL);
+        }
+        return unionEnv;
     }
 
     @Override
@@ -5225,11 +5242,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv env;
         BType expType;
         Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
-        // Set by visit(BLangBlockStmt)/visit(BLangIf) right before returning, to the definitive narrowed
-        // env for every path that can fall through that construct - null when no such definitive env could be
-        // determined. analyzeStmt/analyzeNode always restores `env` to its pre-call value once the visit
-        // returns, so a caller that wants to use this value for what follows must explicitly assign
-        // `env = trustedExitEnv` itself, immediately before its own next analyzeStmt call.
+        // Definitive narrowed exit env of the last-visited if/block (null if none), set by visit(BLangIf) and
+        // visit(BLangBlockStmt). Not restored by analyzeNode, so callers must re-apply it to `env` manually.
         SymbolEnv trustedExitEnv;
         boolean notCompletedNormally;
         boolean breakFound;

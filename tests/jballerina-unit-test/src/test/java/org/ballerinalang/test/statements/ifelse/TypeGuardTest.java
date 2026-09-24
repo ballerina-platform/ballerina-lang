@@ -1034,9 +1034,6 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(float|boolean)'", 42, 24);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '(int|string|float)', found '(int|string|float|boolean)'",
-                52, 26); // issue #34307
-        BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(string|float)'", 57, 20);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|string)'", 78, 17);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|string)'", 81, 13);
@@ -1122,6 +1119,8 @@ public class TypeGuardTest {
                 "incompatible types: expected 'int', found '(int|error)'", 470, 12);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'int', found '(int|error)'", 484, 13);
+        BAssertUtil.validateError(result, index++,
+                "incompatible types: expected 'string', found '(int|error)'", 497, 16);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 

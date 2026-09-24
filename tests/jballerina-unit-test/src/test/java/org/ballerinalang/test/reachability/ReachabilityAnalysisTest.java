@@ -450,7 +450,7 @@ public class ReachabilityAnalysisTest {
                 "test-src/reachability-analysis/narrowing_with_if_without_else_not_completed_normally_test.bal");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'int', found 'string'", 25, 17);
-        validateError(result, i++, "incompatible types: expected 'boolean', found '(int|string|boolean)'", 28, 17);
+        validateError(result, i++, "incompatible types: expected 'boolean', found '(string|boolean)'", 28, 17);
         validateError(result, i++, "incompatible types: expected '(int|string)', found 'boolean'", 52, 20);
         validateError(result, i++, "incompatible types: expected 'boolean', found '(int|string|boolean)'", 65, 21);
         validateError(result, i++, "incompatible types: expected 'int', found 'boolean'", 67, 13);
@@ -458,7 +458,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 89, 16);
         validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 110, 16);
         validateError(result, i++, "incompatible types: expected 'int', found 'string'", 123, 17);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|string|boolean)'", 125, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found '(string|boolean)'", 125, 16);
         validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 137, 21);
         validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 140, 16);
         validateError(result, i++, "incompatible types: expected 'string', found '(int|string)'", 156, 16);
