@@ -21,16 +21,18 @@ jar {
     from({ configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }) {
         exclude 'module-info.class'
         exclude 'META-INF/versions/*/module-info.class'
+        // Shaded dependencies (e.g. oras-java-sdk's signed bouncycastle) keep their original
+        // signature files, which no longer match once merged into this jar's own manifest.
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.EC'
     }
 }
 
 dependencies {
-    implementation project(':central-client')
-    implementation libs.squareup.okhttp
-    implementation libs.jib.core
+    implementation 'land.oras:oras-java-sdk:0.8.4'
     implementation libs.apache.commons.compress
-    implementation 'com.google.http-client:google-http-client:1.42.2'
-    implementation libs.tongfei.progressbar
     implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

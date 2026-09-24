@@ -22,6 +22,9 @@ plugins {
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
+    // oras-java-sdk (pulled in by oci-client) needs jackson-annotations 2.22+; several other
+    // configurations  pull in the older 2.18.6 transitively via jackson-databind.
+    resolutionStrategy.force "com.fasterxml.jackson.core:jackson-annotations:${libs.versions.jacksonAnnotationsVersion.get()}"
 }
 
 configurations {

@@ -17,7 +17,9 @@ package io.ballerina.projects.internal.repositories;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.AnyTarget;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
@@ -51,6 +53,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -71,10 +74,14 @@ public class OCIPackageRepository extends AbstractPackageRepository {
 
     private static final String PLATFORM = "platform";
     private static final String BALA_EXTENSION = ".bala";
+    private static final Set<String> SUPPORTED_PLATFORMS = Arrays.stream(JvmTarget.values())
+            .map(JvmTarget::code).collect(Collectors.toSet());
 
     private final FileSystemRepository fileSystemRepository;
     private final OciClient ociClient;
     private final String repoLocation;
+    private final String distributionVersion;
+
     private final boolean isProxyCentral;
 
     public OCIPackageRepository(Environment environment, Path repositoryPath, String distributionVersion,
@@ -88,6 +95,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         this.ociClient = ociClient;
         this.repoLocation = repositoryPath.toString();
         this.isProxyCentral = isProxyCentral;
+        this.distributionVersion = distributionVersion;
     }
 
     public static OCIPackageRepository from(Environment environment, Path repositoryPath, Repository repository) {
@@ -99,11 +107,11 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         return new OCIPackageRepository(environment, repositoryPath, ballerinaShortVersion, ociClient,
                 repository.proxyCentral());
     }
-
-    // A proxy of Ballerina Central is a pull-through cache whose tags only reflect what has been
-    // pulled so far; versions must come from the index artifact instead.
+    
     private List<String> lookupVersions(String org, String pkg) {
-        return this.isProxyCentral ? this.ociClient.pullMetadata(org, pkg) : this.ociClient.listTags(org, pkg);
+        List<String> versions = this.isProxyCentral
+                ? this.ociClient.pullMetadata(org, pkg) : this.ociClient.listTags(org, pkg);
+        return versions.stream().filter(version -> isPkgDistVersionCompatible(org, pkg, version)).toList();
     }
 
     private void printWarning(String message) {
@@ -284,8 +292,20 @@ public class OCIPackageRepository extends AbstractPackageRepository {
             PackageVersion latest = findLatest(new ArrayList<>(packageVersions));
             DependencyGraph<PackageDescriptor> dependencyGraph = getDependencyGraph(
                     request.orgName(), request.packageName(), latest);
+            boolean isDeprecated = false;
+            String deprecationMsg = "";
+            try {
+
+                Map<String, String> labels = this.ociClient.pullLabels(
+                        request.orgName().toString(), request.packageName().toString(), latest.toString());
+                isDeprecated = Boolean.parseBoolean(labels.get(OciClient.DEPRECATED_LABEL));
+                deprecationMsg = labels.getOrDefault(OciClient.DEPRECATION_MSG_LABEL, "");
+            } catch (OciClientException e) {
+                // Deprecated status is best-effort metadata; resolution should not fail over it.
+            }
             PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
-                    request.orgName(), request.packageName(), latest, request.repositoryName().orElse(null));
+                    request.orgName(), request.packageName(), latest, request.repositoryName().orElse(null),
+                    isDeprecated, deprecationMsg);
             descriptorSet.add(PackageMetadataResponse.from(request, resolvedDescriptor, dependencyGraph));
         }
         return descriptorSet;
@@ -305,22 +325,30 @@ public class OCIPackageRepository extends AbstractPackageRepository {
 
         // Requests locked to an exact version and already resolved locally need no registry round trip
         List<ResolutionRequest> updatedRequests = new ArrayList<>(requests);
+        List<PackageMetadataResponse> deprecatedPackages = new ArrayList<>();
         for (PackageMetadataResponse response : cachedPackages) {
             if (response.packageLoadRequest().version().isPresent()
                     && response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
                     && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
                 updatedRequests.remove(response.packageLoadRequest());
             }
+            if (response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+                Optional<Package> pkg = this.fileSystemRepository.getPackage(response.packageLoadRequest(), options);
+                if (pkg.isPresent() && Boolean.TRUE.equals(pkg.get().descriptor().getDeprecated())) {
+                    deprecatedPackages.add(response);
+                }
+            }
         }
         if (updatedRequests.isEmpty()) {
             return cachedPackages;
         }
-        return mergeResolution(resolvePackageMetadata(updatedRequests, options), cachedPackages);
+        return mergeResolution(resolvePackageMetadata(updatedRequests, options), cachedPackages, deprecatedPackages);
     }
 
     private Collection<PackageMetadataResponse> mergeResolution(
             Collection<PackageMetadataResponse> remoteResolution,
-            Collection<PackageMetadataResponse> filesystem) {
+            Collection<PackageMetadataResponse> filesystem,
+            List<PackageMetadataResponse> deprecatedPackages) {
         return new ArrayList<>(Stream.of(filesystem, remoteResolution)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(
@@ -333,9 +361,15 @@ public class OCIPackageRepository extends AbstractPackageRepository {
                                 return y;
                             }
                             if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor().version())) {
+
+                                if (y.resolvedDescriptor() != null && deprecatedPackages.contains(x)
+                                        ^ Boolean.TRUE.equals(y.resolvedDescriptor().getDeprecated())) {
+                                    this.fileSystemRepository.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
+                                }
                                 return x;
                             }
                             // The registry resolved a version the cache does not have; prefer the latest
+                            this.fileSystemRepository.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
                             return y;
                         })).values());
     }
@@ -378,6 +412,34 @@ public class OCIPackageRepository extends AbstractPackageRepository {
             }
         }
         return importModuleResponseList;
+    }
+
+    private boolean isPkgDistVersionCompatible(String org, String pkg, String version) {
+        Map<String, String> labels;
+        try {
+            labels = this.ociClient.pullLabels(org, pkg, version);
+        } catch (OciClientException e) {
+            printWarning("warning: failed to read compatibility labels for '" + org + "/" + pkg + ":" + version
+                    + "' from OCI repository: " + e.getMessage());
+            return false;
+        }
+
+        String platform = labels.get(OciClient.PLATFORM_LABEL);
+        String packageDistributionVersion = labels.get(OciClient.DISTRIBUTION_LABEL);
+        if (platform == null || packageDistributionVersion == null) {
+            return this.isProxyCentral;
+        }
+        if (!AnyTarget.ANY.code().equals(platform) && !SUPPORTED_PLATFORMS.contains(platform)) {
+            return false;
+        }
+
+        try {
+            SemanticVersion packageDistribution = SemanticVersion.from(packageDistributionVersion);
+            SemanticVersion currentDistribution = SemanticVersion.from(this.distributionVersion);
+            return packageDistribution.lessThanOrEqualTo(currentDistribution);
+        } catch (ProjectException e) {
+            return false;
+        }
     }
 
 

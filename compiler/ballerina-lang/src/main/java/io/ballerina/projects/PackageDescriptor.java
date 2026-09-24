@@ -83,6 +83,13 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
         return new PackageDescriptor(packageOrg, packageName, packageVersion, null, isDeprecated, deprecationMsg);
     }
 
+    public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
+                                         PackageVersion packageVersion, String repository,
+                                         Boolean isDeprecated, String deprecationMsg) {
+        return new PackageDescriptor(packageOrg, packageName, packageVersion, repository, isDeprecated,
+                deprecationMsg);
+    }
+
     public PackageName name() {
         return packageName;
     }

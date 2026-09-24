@@ -597,7 +597,8 @@ public class PushCommand implements BLauncherCmd {
             String name =  balaProject.currentPackage().manifest().name().toString();
             String version =  balaProject.currentPackage().manifest().version().toString();
             String platform = balaProject.platform();
-            client.pushOCIArtifact(org, name, version, platform, balaPath);
+            String distributionVersion = balaProject.currentPackage().manifest().ballerinaVersion();
+            client.pushOCIArtifact(org, name, version, platform, distributionVersion, balaPath);
             publishDependencyGraphReferrer(balaPath, client, org, name, version);
             Path relativePathToBalaFile;
             if (this.balaPath != null) {

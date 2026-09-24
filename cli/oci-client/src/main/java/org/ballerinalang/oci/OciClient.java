@@ -16,103 +16,106 @@
 
 package org.ballerinalang.oci;
 
-import com.google.cloud.tools.jib.api.CacheDirectoryCreationException;
-import com.google.cloud.tools.jib.api.Containerizer;
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
-import com.google.cloud.tools.jib.api.Jib;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.api.RegistryImage;
-import com.google.cloud.tools.jib.api.buildplan.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.buildplan.ImageFormat;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.http.Authorization;
-import com.google.cloud.tools.jib.http.FailoverHttpClient;
-import com.google.cloud.tools.jib.http.Request;
-import com.google.cloud.tools.jib.http.Response;
-import com.google.cloud.tools.jib.http.ResponseException;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.OciManifestTemplate;
-import com.google.cloud.tools.jib.registry.ManifestAndDigest;
-import com.google.cloud.tools.jib.registry.RegistryClient;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarStyle;
-import org.ballerinalang.central.client.CentralClientConstants;
-import org.ballerinalang.oci.model.ManifestDescriptor;
-import org.ballerinalang.oci.model.ReferrersResponse;
-import org.ballerinalang.oci.model.TagsListResponse;
-import org.ballerinalang.oci.model.TokenResponse;
+import land.oras.Annotations;
+import land.oras.ArtifactType;
+import land.oras.ContainerRef;
+import land.oras.Layer;
+import land.oras.LocalPath;
+import land.oras.Manifest;
+import land.oras.ManifestDescriptor;
+import land.oras.Referrers;
+import land.oras.Registry;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.DigestException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
- * Client for pushing and pulling Ballerina packages to and from an OCI registry.
- *
+ * Client for pushing and pulling Ballerina packages to and from an OCI registry, backed by the
+ * ORAS Java SDK.
  */
 public class OciClient {
 
     private static final String BALA_EXTENSION = ".bala";
-    private static final int MAX_PULL_RETRIES = 3;
-    private static final long INITIAL_RETRY_DELAY_MS = 1000;
     private static final Pattern VERSION_TAG_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$");
-    private static final Pattern AUTH_CHALLENGE_PARAM_PATTERN = Pattern.compile("(\\w+)=\"([^\"]*)\"");
+    private static final String BALA_ARTIFACT_TYPE = "application/vnd.ballerina.package.v1+json";
     private static final String DEP_GRAPH_ARTIFACT_TYPE = "application/vnd.ballerina.dependency-graph.v1+json";
-    private static final String OCI_EMPTY_CONFIG_DIGEST = "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a";
+    public static final String PLATFORM_LABEL = "io.ballerina.platform";
+    public static final String DISTRIBUTION_LABEL = "io.ballerina.distribution";
+    public static final String DEPRECATED_LABEL = "io.ballerina.deprecated";
+    public static final String DEPRECATION_MSG_LABEL = "io.ballerina.deprecation-message";
 
-    private String registryUrl;
-    private String username;
-    private String password;
-    private final boolean insecureRegistry;
+    static {
+        // ORAS logs registry-policy/blob-upload internals straight to the console via
+        // java.util.logging; failures are surfaced through OciClientException instead, so this
+        // keeps `bal push`/`bal pull` output as quiet as the previous Jib-based client's was.
+        Logger.getLogger("land.oras").setLevel(Level.OFF);
+    }
+
+    private final Registry registry;
+    private final String registryHost;
+    private final String repositoryPrefix;
     private final PrintStream outStream;
+    // A version's manifest is commonly fetched twice in one resolution — once to check
+    // compatibility labels (pullLabels), again to actually pull the bala (doPullBala) — so it's
+    // cached per client instance (i.e. per CLI invocation) instead of re-fetched each time.
+    private final Map<String, Manifest> manifestCache = new ConcurrentHashMap<>();
 
     /**
      * Creates an OCI registry client.
      *
+     * <p>The URL scheme selects the transport: {@code http://} marks the registry as insecure, so plain HTTP and
+     * credentials over HTTP are permitted. Any other form, including a scheme-less URL, is treated as a secure
+     * registry reached over HTTPS.
      *
-     * @param registryUrl registry host and base path (any URL scheme is stripped)
+     * @param registryUrl registry host, optional base path, and any URL scheme (stripped)
      * @param username    registry username
      * @param password    registry password or access token
      */
     public OciClient(String registryUrl, String username, String password) {
-        this.insecureRegistry = registryUrl != null
-                && registryUrl.toLowerCase(Locale.ROOT).startsWith("http://");
-        if (registryUrl != null) {
-            this.registryUrl = registryUrl.replaceFirst("^(?i)(http://|https://)", "");
-        }
-        this.username = username;
-        this.password = password;
+        boolean insecure = registryUrl != null && registryUrl.toLowerCase(Locale.ROOT).startsWith("http://");
+        String stripped = registryUrl == null ? "" : registryUrl.replaceFirst("^(?i)(http://|https://)", "");
+        int firstSlash = stripped.indexOf('/');
+        this.registryHost = (firstSlash == -1 ? stripped : stripped.substring(0, firstSlash)).toLowerCase(
+                Locale.ROOT);
+        this.repositoryPrefix = firstSlash == -1 ? "" : stripped.substring(firstSlash + 1).toLowerCase(Locale.ROOT);
+        Registry.Builder builder = insecure
+                ? Registry.builder().insecure(registryHost, username, password)
+                : Registry.builder().defaults(registryHost, username, password);
+        this.registry = builder.withExecutorService(newDaemonExecutor()).build();
         this.outStream = System.out;
+    }
+
+    /**
+     * Builds a fixed-size thread pool whose threads are marked daemon, so it never blocks JVM
+     * exit even if left running.
+     *
+     * @return the executor service
+     */
+    private static ExecutorService newDaemonExecutor() {
+        AtomicInteger threadCount = new AtomicInteger();
+        return Executors.newFixedThreadPool(1, runnable -> {
+            Thread thread = new Thread(runnable, "oci-client-worker-" + threadCount.incrementAndGet());
+            thread.setDaemon(true);
+            return thread;
+        });
     }
 
     /**
@@ -140,73 +143,32 @@ public class OciClient {
     }
 
     /**
-     * Runs an action with retries and exponential backoff.
+     * Pushes a bala file to the registry as a single-layer OCI artifact, with platform and
+     * distribution recorded as manifest annotations.
      *
-     * @param action        action to run
-     * @param operationName operation name used in retry messages
-     * @throws Exception the last failure once retries are exhausted
+     * @param org                 package organization
+     * @param pkg                 package name
+     * @param version             package version, used as the image tag
+     * @param platform            bala target platform
+     * @param distributionVersion Ballerina distribution version the bala was built with
+     * @param balaFilePath        path to the bala file
      */
-    private void withRetry(Callable<Void> action, String operationName) throws Exception {
-        int attempt = 0;
-        long delayMs = INITIAL_RETRY_DELAY_MS;
-        while (true) {
-            try {
-                action.call();
-                return;
-            } catch (Exception e) {
-                attempt++;
-                if (attempt >= MAX_PULL_RETRIES) {
-                    throw e;
-                }
-                outStream.println(operationName + " failed (attempt " + attempt + "/"
-                        + MAX_PULL_RETRIES + "), retrying in " + delayMs + "ms: " + e.getMessage());
-                try {
-                    Thread.sleep(delayMs);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw e;
-                }
-                delayMs = Math.min(delayMs * 2, 8000);
-            }
-        }
-    }
-
-    /**
-     * Pushes a bala file to the registry as a single-layer OCI artifact.
-     *
-     * @param org          package organization
-     * @param pkg          package name
-     * @param version      package version, used as the image tag
-     * @param platform     bala target platform
-     * @param balaFilePath path to the bala file
-     */
-    public void pushOCIArtifact(String org, String pkg, String version, String platform, Path balaFilePath) {
-        if (!balaFilePath.toFile().exists()) {
+    public void pushOCIArtifact(String org, String pkg, String version, String platform,
+            String distributionVersion, Path balaFilePath) {
+        if (!Files.exists(balaFilePath)) {
             throw new OciClientException("bala file does not exist: " + balaFilePath);
         }
-        if (versionExists(org, pkg, version)) {
+        ContainerRef ref = ContainerRef.parse(repositoryReference(org, pkg) + ":" + version);
+        if (versionExists(ref)) {
             throw new OciClientException("package '" + org + "/" + pkg + ":" + version
                     + "' already exists in the registry.");
         }
         try {
-            String repositoryReference = repositoryReference(org, pkg);
-            String imageReference = repositoryReference + ":" + version;
-            Jib.fromScratch()
-                    .setFormat(ImageFormat.OCI)
-                    .addLayer(Collections.singletonList(balaFilePath), AbsoluteUnixPath.get("/"))
-                    .containerize(
-                            Containerizer.to(RegistryImage.named(imageReference)
-                                            .addCredential(username, password))
-                                    .setAllowInsecureRegistries(insecureRegistry)
-                                    .setToolName("OciClient")
-
-                    );
-        } catch (InvalidImageReferenceException exception) {
-            throw new OciClientException("invalid registry reference for " + org + "/" + pkg, exception);
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new OciClientException("failed to push OCI artifact to the registry", exception);
-        } catch (RegistryException | IOException | CacheDirectoryCreationException | ExecutionException exception) {
+            Annotations annotations = Annotations.ofManifest(
+                    Map.of(PLATFORM_LABEL, platform, DISTRIBUTION_LABEL, distributionVersion));
+            registry.pushArtifact(ref, ArtifactType.from(BALA_ARTIFACT_TYPE), annotations,
+                    LocalPath.of(balaFilePath, "application/octet-stream"));
+        } catch (RuntimeException exception) {
             throw new OciClientException("failed to push OCI artifact to the registry", exception);
         }
     }
@@ -217,112 +179,28 @@ public class OciClient {
      * points at the version manifest, with the graph JSON as its one layer. Callers can then
      * fetch the graph directly via the referrers API without ever downloading the bala.
      *
-     *
-     * @param org                package organization
-     * @param pkg                package name
-     * @param version            package version, whose already-pushed manifest becomes the subject
-     * @param dependencyGraphJson the package's {@code dependency-graph.json} bytes, as published
-     *                            in its bala
+     * @param org                  package organization
+     * @param pkg                  package name
+     * @param version              package version, whose already-pushed manifest becomes the subject
+     * @param dependencyGraphJson  the package's {@code dependency-graph.json} bytes, as published
+     *                             in its bala
      */
     public void pushDependencyGraphReferrer(String org, String pkg, String version, byte[] dependencyGraphJson) {
-        FailoverHttpClient httpClient = null;
+        ContainerRef ref = ContainerRef.parse(repositoryReference(org, pkg) + ":" + version);
+        Path tempFile = null;
         try {
-            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
-            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, logEvent -> { });
-
-            RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
-                        imageRef.getRepository(), httpClient)
-                        .setCredential(Credential.from(username, password))
-                        .newRegistryClient();
-            registryClient.configureBasicAuth();
-
-            byte[] subjectManifestBytes = fetchManifestBytes(imageRef, httpClient, version);
-            String subjectDigest = "sha256:" + OciClientUtils.sha256Hex(subjectManifestBytes);
-
-            DescriptorDigest emptyConfigDigest = DescriptorDigest.fromDigest(OCI_EMPTY_CONFIG_DIGEST);
-            if (registryClient.checkBlob(emptyConfigDigest).isEmpty()) {
-                registryClient.pushBlob(emptyConfigDigest, Blobs.from("{}"), null, count -> { });
-            }
-            DescriptorDigest layerDigest = DescriptorDigest.fromHash(OciClientUtils.sha256Hex(dependencyGraphJson));
-            if (registryClient.checkBlob(layerDigest).isEmpty()) {
-                registryClient.pushBlob(layerDigest, Blobs.from(new ByteArrayInputStream(dependencyGraphJson)),
-                        null, count -> { });
-            }
-
-            String manifestText = OciClientUtils.buildManifestWithSubjectText(DEP_GRAPH_ARTIFACT_TYPE,
-                    OCI_EMPTY_CONFIG_DIGEST, subjectDigest, subjectManifestBytes.length,
-                    layerDigest.toString(), dependencyGraphJson.length);
-            pushDependencyGraphManifest(imageRef, httpClient, manifestText);
-        } catch (IOException | RegistryException | InvalidImageReferenceException | DigestException exception) {
+            tempFile = Files.createTempFile("ballerina-dep-graph-", ".json");
+            Files.write(tempFile, dependencyGraphJson);
+            registry.attachArtifact(ref, ArtifactType.from(DEP_GRAPH_ARTIFACT_TYPE),
+                    LocalPath.of(tempFile, DEP_GRAPH_ARTIFACT_TYPE));
+        } catch (RuntimeException | IOException exception) {
             throw new OciClientException("failed to publish dependency graph referrer to the registry", exception);
         } finally {
-            if (httpClient != null) {
+            if (tempFile != null) {
                 try {
-                    httpClient.shutDown();
+                    Files.deleteIfExists(tempFile);
                 } catch (IOException ignored) {
                 }
-            }
-        }
-    }
-
-    /**
-     * Fetches a manifest's raw bytes, exactly as stored on the registry — needed to compute its
-     * own digest and size for use as a referrer's {@code subject} descriptor.
-     *
-     * @param imageRef   parsed repository reference to query
-     * @param httpClient client to issue the request with
-     * @param reference  tag or digest identifying the manifest
-     * @return the manifest body bytes
-     * @throws IOException on registry or connection failures
-     */
-    private byte[] fetchManifestBytes(ImageReference imageRef, FailoverHttpClient httpClient, String reference)
-            throws IOException {
-        URL url = URI.create(registryScheme() + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
-                + "/manifests/" + reference).toURL();
-        Authorization authorization = Authorization.fromBasicCredentials(username, password);
-        Response response;
-        try {
-            response = httpClient.get(url, OciClientUtils.manifestRequest(authorization));
-        } catch (ResponseException responseException) {
-            if (responseException.getStatusCode() != 401) {
-                throw responseException;
-            }
-            authorization = resolveBearerAuthorization(
-                    responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"), httpClient);
-            response = httpClient.get(url, OciClientUtils.manifestRequest(authorization));
-        }
-        try (Response ignored = response) {
-            return OciClientUtils.readBody(response).getBytes(StandardCharsets.UTF_8);
-        }
-    }
-
-    /**
-     * Pushes a manifest by its own (self) digest — the standard, untagged form for a referrer
-     * artifact, so it doesn't clutter the repository's tag list.
-     *
-     * @param imageRef     parsed repository reference to push to
-     * @param httpClient   client to issue the request with
-     * @param manifestText the manifest JSON text to push
-     * @throws IOException on registry or connection failures
-     */
-    private void pushDependencyGraphManifest(ImageReference imageRef, FailoverHttpClient httpClient,
-            String manifestText) throws IOException {
-        byte[] body = manifestText.getBytes(StandardCharsets.UTF_8);
-        String manifestDigest = "sha256:" + OciClientUtils.sha256Hex(body);
-        URL url = URI.create(registryScheme() + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
-                + "/manifests/" + manifestDigest).toURL();
-        Authorization authorization = Authorization.fromBasicCredentials(username, password);
-
-        try (Response ignored = OciClientUtils.putManifest(httpClient, url, authorization, body)) {
-            return;
-        } catch (ResponseException responseException) {
-            if (responseException.getStatusCode() != 401) {
-                throw responseException;
-            }
-            authorization = resolveBearerAuthorization(
-                    responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"), httpClient);
-            try (Response ignored = OciClientUtils.putManifest(httpClient, url, authorization, body)) {
-                return;
             }
         }
     }
@@ -332,39 +210,38 @@ public class OciClient {
      *
      * @param org package organization
      * @param pkg package name
-     * @return {@code <registry>/<org>/<pkg>} in lowercase
+     * @return {@code <registry>[/<prefix>]/<org>/<pkg>} in lowercase
      */
     private String repositoryReference(String org, String pkg) {
-        return (registryUrl + "/" + org + "/" + pkg).toLowerCase(Locale.ROOT);
+        String path = (repositoryPrefix.isEmpty() ? "" : repositoryPrefix + "/") + org + "/" + pkg;
+        return (registryHost + "/" + path).toLowerCase(Locale.ROOT);
     }
 
     /**
-     * Returns the URL scheme to contact the registry with.
+     * Fetches a version's manifest, reusing an already-fetched copy from earlier in this
+     * client's lifetime (e.g. a prior compatibility check) instead of hitting the registry again.
      *
-     * @return {@code http://} for an insecure registry, {@code https://} otherwise
+     * @param org     package organization
+     * @param pkg     package name
+     * @param version package version
+     * @return the manifest
      */
-    private String registryScheme() {
-        return insecureRegistry ? "http://" : "https://";
+    private Manifest fetchManifest(String org, String pkg, String version) {
+        return manifestCache.computeIfAbsent(repositoryReference(org, pkg) + ":" + version,
+                reference -> registry.getManifest(ContainerRef.parse(reference)));
     }
 
     /**
      * Checks whether a version tag already exists in the registry.
      *
-     * @param org     package organization
-     * @param pkg     package name
-     * @param version version tag to check
+     * @param ref reference to the version tag to check
      * @return true if the tag already exists
      */
-    private boolean versionExists(String org, String pkg, String version) {
+    private boolean versionExists(ContainerRef ref) {
         try {
-            return listTags(org, pkg).contains(version);
-        } catch (OciClientException exception) {
-            if (OciClientUtils.isNotFoundError(exception)) {
-                return false;
-            }
-
-            throw new OciClientException("failed to verify whether '" + org + "/" + pkg + ":" + version
-                    + "' already exists in the registry: " + OciClientUtils.describeFailure(exception), exception);
+            return registry.getTags(ref).tags().contains(ref.getTag());
+        } catch (RuntimeException exception) {
+            return false;
         }
     }
 
@@ -381,121 +258,62 @@ public class OciClient {
     }
 
     /**
-     * Pulls a bala from the registry into the given location, retrying on failure.
+     * Pulls a bala from the registry into the given location.
      *
      * @param org             package organization
      * @param name            package name
      * @param version         package version
      * @param repoLocation    directory to save the bala under
-     * @param displayLocation path shown in the progress bar
+     * @param displayLocation path shown in progress output (unused; retained for API compatibility)
      */
     public void pullMetadata(String org, String name, String version, String repoLocation, String displayLocation) {
         try {
-            withRetry(() -> {
-                doPullBala(org, name, version, repoLocation, displayLocation);
-                return null;
-            }, "pull bala [" + org + "/" + name + ":" + version + "]");
-        } catch (Exception exception) {
+            doPullBala(org, name, version, repoLocation);
+        } catch (RuntimeException | IOException exception) {
             throw new OciClientException("failed to pull bala from the repo", exception);
         }
     }
 
-
     /**
      * Downloads the bala layer of a package version and writes it to disk.
      *
-     * @param org             package organization
-     * @param name            package name
-     * @param version         package version
-     * @param repoLocation    directory to save the bala under
-     * @param displayLocation path shown in the progress bar
-     * @throws Exception on registry or file system failures
+     * @param org          package organization
+     * @param name         package name
+     * @param version      package version
+     * @param repoLocation directory to save the bala under
+     * @throws IOException on file system failures
      */
-    private void doPullBala(String org, String name, String version, String repoLocation, String displayLocation)
-            throws Exception {
-        ImageReference imageRef = ImageReference.parse(repositoryReference(org, name));
-        Consumer<LogEvent> jibLogger = logEvent -> { };
+    private void doPullBala(String org, String name, String version, String repoLocation) throws IOException {
+        ContainerRef ref = ContainerRef.parse(repositoryReference(org, name) + ":" + version);
+        Manifest manifest = fetchManifest(org, name, version);
+        List<Layer> layers = manifest.getLayers();
+        if (layers.isEmpty()) {
+            throw new OciClientException("no layers found in the OCI manifest for " + org + "/" + name + ":"
+                    + version);
+        }
 
-        FailoverHttpClient httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, jibLogger);
+        Path balaFilePath = Paths.get(repoLocation).resolve(org).resolve(name).resolve(version)
+                .resolve(name + "-" + version + BALA_EXTENSION);
+        Path balaFileDir = balaFilePath.getParent();
+        if (balaFileDir != null) {
+            Files.createDirectories(balaFileDir);
+        }
+        Path blobTempFile = Files.createTempFile("ballerina-oci-blob-", ".tmp");
         try {
-            RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
-                        imageRef.getRepository(), httpClient)
-                        .setCredential(Credential.from(username, password))
-                        .newRegistryClient();
-
-            registryClient.configureBasicAuth();
-
-            OciManifestTemplate manifestTemplate = registryClient
-                    .pullManifest(version, OciManifestTemplate.class).getManifest();
-            List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = manifestTemplate.getLayers();
-            if (layers.isEmpty()) {
-                throw new OciClientException("no layers found in the OCI manifest for "
+            boolean balaExtracted = false;
+            for (Layer layer : layers) {
+                registry.fetchBlob(ref.withDigest(layer.getDigest()), blobTempFile);
+                if (OciClientUtils.extractBalaFromLayer(blobTempFile, balaFilePath)) {
+                    balaExtracted = true;
+                    break;
+                }
+            }
+            if (!balaExtracted) {
+                throw new OciClientException("no bala layer found in the OCI manifest for "
                         + org + "/" + name + ":" + version);
             }
-
-            boolean enableOutputStream = Boolean.parseBoolean(
-                    System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
-            Path balaFilePath = Paths.get(repoLocation).resolve(org).resolve(name).resolve(version)
-                    .resolve(name + "-" + version + BALA_EXTENSION);
-            Path balaFileDir = balaFilePath.getParent();
-            if (balaFileDir != null) {
-                Files.createDirectories(balaFileDir);
-            }
-            Path blobTempFile = Files.createTempFile("ballerina-oci-blob-", ".tmp");
-            try {
-                boolean balaExtracted = false;
-                for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
-                    final ProgressBar[] progressBar = {null};
-                    Blob blob = registryClient.pullBlob(
-                            layer.getDigest(),
-                            size -> {
-                                if (enableOutputStream) {
-
-                                    long totalSizeInKB = size > 0 ? (size + 1023) / 1024 : -1;
-                                    progressBar[0] = new ProgressBar(
-                                            org + "/" + name + ":" + version + " [OCI Registry -> "
-                                                    + displayLocation + "]",
-                                            totalSizeInKB,
-                                            1000,
-                                            outStream,
-                                            ProgressBarStyle.ASCII,
-                                            " KB",
-                                            1
-                                    );
-                                }
-                            },
-                            count -> {
-                                if (enableOutputStream && progressBar[0] != null && count > 0) {
-                                    long deltaKB = (count + 1023) / 1024;
-                                    progressBar[0].stepBy(deltaKB);
-                                }
-                            }
-                    );
-                    try (OutputStream blobOutputStream = Files.newOutputStream(blobTempFile)) {
-                        // Streamed straight to disk so an oversized blob can't exhaust the heap.
-                        blob.writeTo(blobOutputStream);
-                    } finally {
-                        if (progressBar[0] != null) {
-                            progressBar[0].close();
-                        }
-                    }
-                    if (OciClientUtils.extractBalaFromLayer(blobTempFile, balaFilePath)) {
-                        balaExtracted = true;
-                        break;
-                    }
-                }
-                if (!balaExtracted) {
-                    throw new OciClientException("no bala layer found in the OCI manifest for "
-                            + org + "/" + name + ":" + version);
-                }
-            } finally {
-                Files.deleteIfExists(blobTempFile);
-            }
         } finally {
-            try {
-                httpClient.shutDown();
-            } catch (IOException ignored) {
-            }
+            Files.deleteIfExists(blobTempFile);
         }
     }
 
@@ -507,55 +325,25 @@ public class OciClient {
      * @return the list of available versions
      */
     public List<String> pullMetadata(String org, String pkg) {
-        FailoverHttpClient httpClient = null;
         try {
-            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
-            Consumer<LogEvent> jibLogger = logEvent -> { };
-
-            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, jibLogger);
-
-            RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
-                        imageRef.getRepository(), httpClient)
-                        .setCredential(Credential.from(username, password))
-                        .newRegistryClient();
-
-            registryClient.configureBasicAuth();
-
-            OciManifestTemplate manifestTemplate = registryClient
-                    .pullManifest("latest", OciManifestTemplate.class).getManifest();
-            List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = manifestTemplate.getLayers();
-            for (BuildableManifestTemplate.ContentDescriptorTemplate layer : layers) {
-                Blob blob = registryClient.pullBlob(
-                        layer.getDigest(),
-                        size -> { },
-                        count -> { }
-                );
-
-                byte[] blobBytes = Blobs.writeToByteArray(blob);
-                String text = new String(blobBytes, StandardCharsets.UTF_8);
-                List<String> parsedVersions = new Gson().fromJson(text, new TypeToken<List<String>>() { }.getType());
-                return parsedVersions != null ? parsedVersions : Collections.emptyList();
+            ContainerRef ref = ContainerRef.parse(repositoryReference(org, pkg) + ":latest");
+            Manifest manifest = registry.getManifest(ref);
+            List<Layer> layers = manifest.getLayers();
+            if (layers.isEmpty()) {
+                return Collections.emptyList();
             }
-            return Collections.emptyList();
-        } catch (IOException | RegistryException | InvalidImageReferenceException
-                | JsonSyntaxException exception) {
+            byte[] blobBytes = registry.getBlob(ref.withDigest(layers.get(0).getDigest()));
+            String text = new String(blobBytes, StandardCharsets.UTF_8);
+            List<String> parsedVersions = new Gson().fromJson(text, new TypeToken<List<String>>() { }.getType());
+            return parsedVersions != null ? parsedVersions : Collections.emptyList();
+        } catch (RuntimeException exception) {
             throw new OciClientException("failed to pull metadata from the registry", exception);
-        } finally {
-            if (httpClient != null) {
-                try {
-                    httpClient.shutDown();
-                } catch (IOException ignored) {
-                    // best effort — the connection pool is reclaimed on GC anyway
-                }
-            }
         }
     }
-
 
     /**
      * Fetches the dependency graph for a package version via the OCI referrers API (OCI
      * Distribution Spec v1.1 reference types), if the registry publishes one.
-     *
      *
      * @param org     package organization
      * @param pkg     package name
@@ -564,222 +352,67 @@ public class OciClient {
      *         unavailable
      */
     public Optional<String> pullDependencyGraph(String org, String pkg, String version) {
-        FailoverHttpClient httpClient = null;
         try {
-            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
-            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, logEvent -> { });
+            ContainerRef ref = ContainerRef.parse(repositoryReference(org, pkg) + ":" + version);
+            Manifest subjectManifest = fetchManifest(org, pkg, version);
+            String subjectDigest = subjectManifest.getDescriptor().getDigest();
 
-            RegistryClient registryClient = RegistryClient.factory(EventHandlers.NONE, imageRef.getRegistry(),
-                        imageRef.getRepository(), httpClient)
-                        .setCredential(Credential.from(username, password))
-                        .newRegistryClient();
-            registryClient.configureBasicAuth();
-
-            ManifestAndDigest<OciManifestTemplate> subjectManifest = registryClient
-                    .pullManifest(version, OciManifestTemplate.class);
-            String subjectDigest = subjectManifest.getDigest().toString();
-
-            List<ManifestDescriptor> referrers = pullReferrers(imageRef, httpClient, subjectDigest,
-                    DEP_GRAPH_ARTIFACT_TYPE);
-            Optional<ManifestDescriptor> dependencyGraphReferrer = referrers.stream()
-                    .filter(referrer -> DEP_GRAPH_ARTIFACT_TYPE.equals(referrer.artifactType()))
+            Referrers referrers = registry.getReferrers(ref.withDigest(subjectDigest),
+                    ArtifactType.from(DEP_GRAPH_ARTIFACT_TYPE));
+            Optional<ManifestDescriptor> dependencyGraphReferrer = referrers.getManifests().stream()
+                    .filter(referrer -> DEP_GRAPH_ARTIFACT_TYPE.equals(referrer.getArtifactType()))
                     .findFirst();
             if (dependencyGraphReferrer.isEmpty()) {
                 return Optional.empty();
             }
 
-            OciManifestTemplate referrerManifest = registryClient
-                    .pullManifest(dependencyGraphReferrer.get().digest(), OciManifestTemplate.class).getManifest();
-            List<BuildableManifestTemplate.ContentDescriptorTemplate> layers = referrerManifest.getLayers();
+            Manifest referrerManifest = registry.getManifest(ref.withDigest(dependencyGraphReferrer.get()
+                    .getDigest()));
+            List<Layer> layers = referrerManifest.getLayers();
             if (layers.isEmpty()) {
                 return Optional.empty();
             }
-
-            Blob blob = registryClient.pullBlob(layers.get(0).getDigest(), size -> { }, count -> { });
-            return Optional.of(new String(Blobs.writeToByteArray(blob), StandardCharsets.UTF_8));
-        } catch (IOException | RegistryException | InvalidImageReferenceException exception) {
+            byte[] blobBytes = registry.getBlob(ref.withDigest(layers.get(0).getDigest()));
+            return Optional.of(new String(blobBytes, StandardCharsets.UTF_8));
+        } catch (RuntimeException exception) {
             throw new OciClientException("failed to pull dependency graph from the registry", exception);
-        } finally {
-            if (httpClient != null) {
-                try {
-                    httpClient.shutDown();
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 
     /**
-     * Queries the OCI referrers API ({@code GET /v2/{name}/referrers/{digest}}) for artifacts
-     * whose manifest {@code subject} field points at {@code subjectDigest}.
+     * Reads a version's {@code io.ballerina.platform}/{@code io.ballerina.distribution}
+     * annotations from its manifest, without downloading the bala or any extra blob — used to
+     * filter candidate versions before pulling one.
      *
-     * @param imageRef      parsed repository reference to query
-     * @param httpClient    client to issue the request with
-     * @param subjectDigest digest of the manifest to find referrers for
-     * @param artifactType  filters the results to this artifact type
-     * @return the matching referrer descriptors, or empty if none are published
-     * @throws IOException on registry or connection failures other than a 404
+     * @param org     package organization
+     * @param pkg     package name
+     * @param version package version whose manifest to inspect
+     * @return the version's annotations, or an empty map if the manifest carries none (e.g. it
+     *         isn't a Ballerina package at all, or predates this labeling)
      */
-    private List<ManifestDescriptor> pullReferrers(ImageReference imageRef, FailoverHttpClient httpClient,
-            String subjectDigest, String artifactType) throws IOException {
-        List<ManifestDescriptor> referrers = new ArrayList<>();
-        String path = "/v2/" + imageRef.getRepository() + "/referrers/" + subjectDigest
-                + "?artifactType=" + URLEncoder.encode(artifactType, StandardCharsets.UTF_8);
-        URL url = URI.create(registryScheme() + imageRef.getRegistry() + path).toURL();
-        URL registryOrigin = url;
-        Authorization authorization = Authorization.fromBasicCredentials(username, password);
-
-        while (url != null) {
-            Response response;
-            try {
-                response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
-            } catch (ResponseException responseException) {
-                if (responseException.getStatusCode() == 404) {
-                    return Collections.emptyList();
-                }
-                if (responseException.getStatusCode() != 401) {
-                    throw responseException;
-                }
-                authorization = resolveBearerAuthorization(
-                        responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"), httpClient);
-                try {
-                    response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
-                } catch (ResponseException retryException) {
-                    if (retryException.getStatusCode() == 404) {
-                        return Collections.emptyList();
-                    }
-                    throw retryException;
-                }
-            }
-
-            try (Response ignored = response) {
-                String responseBody = OciClientUtils.readBody(response);
-                ReferrersResponse referrersResponse = OciClientUtils.parseJson(responseBody, ReferrersResponse.class,
-                        "referrers response for " + imageRef.getRepository());
-                referrers.addAll(referrersResponse.manifests());
-                url = OciClientUtils.nextPageUrl(response, url, registryOrigin);
-            }
+    public Map<String, String> pullLabels(String org, String pkg, String version) {
+        try {
+            Map<String, String> annotations = fetchManifest(org, pkg, version).getAnnotations();
+            return annotations == null ? Collections.emptyMap() : annotations;
+        } catch (RuntimeException exception) {
+            throw new OciClientException("failed to read labels from the registry", exception);
         }
-        return referrers;
     }
 
     /**
-     * Lists the version tags of a package repository, following pagination.
+     * Lists the version tags of a package repository.
      *
      * @param org package organization
      * @param pkg package name
-     * @return the SemVer tags across all result pages
+     * @return the SemVer tags
      */
     public List<String> listTags(String org, String pkg) {
-        List<String> versions = new ArrayList<>();
-        FailoverHttpClient httpClient = null;
         try {
-            ImageReference imageRef = ImageReference.parse(repositoryReference(org, pkg));
-            httpClient = new FailoverHttpClient(insecureRegistry, insecureRegistry, logEvent -> { });
-            URL url = URI.create(
-                    registryScheme() + imageRef.getRegistry() + "/v2/" + imageRef.getRepository()
-                            + "/tags/list").toURL();
-            URL registryOrigin = url;
-            Authorization authorization = Authorization.fromBasicCredentials(username, password);
-
-            while (url != null) {
-                Response response;
-                try {
-                    response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
-                } catch (ResponseException responseException) {
-                    if (responseException.getStatusCode() != 401) {
-                        throw responseException;
-                    }
-                    authorization = resolveBearerAuthorization(
-                            responseException.getHeaders().getFirstHeaderStringValue("WWW-Authenticate"),
-                            httpClient);
-                    response = httpClient.get(url, Request.builder().setAuthorization(authorization).build());
-                }
-
-                try (Response ignored = response) {
-                    String responseBody = OciClientUtils.readBody(response);
-                    TagsListResponse tagsList = OciClientUtils.parseJson(responseBody, TagsListResponse.class,
-                            "tags list response for " + org + "/" + pkg);
-                    if (tagsList.tags() != null) {
-                        tagsList.tags().stream()
-                                .filter(tag -> VERSION_TAG_PATTERN.matcher(tag).matches())
-                                .forEach(versions::add);
-                    }
-                    url = OciClientUtils.nextPageUrl(response, url, registryOrigin);
-                }
-            }
-            return versions;
-        } catch (OciClientException exception) {
-            throw exception;
-        } catch (IOException | InvalidImageReferenceException exception) {
+            ContainerRef ref = ContainerRef.parse(repositoryReference(org, pkg));
+            List<String> tags = registry.getTags(ref).tags();
+            return tags.stream().filter(tag -> VERSION_TAG_PATTERN.matcher(tag).matches()).toList();
+        } catch (RuntimeException exception) {
             throw new OciClientException("failed to list tags from the registry", exception);
-        } finally {
-            if (httpClient != null) {
-                try {
-                    httpClient.shutDown();
-                } catch (IOException ignored) {
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Exchanges a bearer challenge for a token authorization.
-     *
-     * @param wwwAuthenticate the {@code WWW-Authenticate} challenge header
-     * @param httpClient      client used to call the token endpoint
-     * @return bearer authorization for retrying the request
-     * @throws IOException if the token endpoint cannot be reached
-     */
-    private Authorization resolveBearerAuthorization(String wwwAuthenticate, FailoverHttpClient httpClient)
-            throws IOException {
-        if (wwwAuthenticate == null || !wwwAuthenticate.regionMatches(true, 0, "Bearer", 0, "Bearer".length())) {
-            throw new OciClientException("unsupported or missing authentication challenge: " + wwwAuthenticate);
-        }
-        Map<String, String> challengeParams = new HashMap<>();
-        Matcher matcher = AUTH_CHALLENGE_PARAM_PATTERN.matcher(wwwAuthenticate);
-        while (matcher.find()) {
-            challengeParams.put(matcher.group(1), matcher.group(2));
-        }
-        String realm = challengeParams.get("realm");
-        if (realm == null) {
-            throw new OciClientException("bearer challenge is missing 'realm': " + wwwAuthenticate);
-        }
-        URI realmUri;
-        try {
-            realmUri = URI.create(realm);
-        } catch (IllegalArgumentException e) {
-            throw new OciClientException("invalid token realm in bearer challenge: " + realm, e);
-        }
-        // Credentials may only leave over plain HTTP when the registry was explicitly configured as insecure.
-        if (!"https".equalsIgnoreCase(realmUri.getScheme()) && !insecureRegistry) {
-            throw new OciClientException("refusing to send credentials to a non-HTTPS token realm: " + realm);
-        }
-
-        StringBuilder tokenUrl = new StringBuilder(realm).append(realm.contains("?") ? '&' : '?');
-        if (challengeParams.containsKey("service")) {
-            tokenUrl.append("service=")
-                    .append(URLEncoder.encode(challengeParams.get("service"), StandardCharsets.UTF_8))
-                    .append('&');
-        }
-        if (challengeParams.containsKey("scope")) {
-            tokenUrl.append("scope=")
-                    .append(URLEncoder.encode(challengeParams.get("scope"), StandardCharsets.UTF_8));
-        }
-
-        Request tokenRequest = Request.builder()
-                .setAuthorization(Authorization.fromBasicCredentials(username, password))
-                .build();
-        try (Response tokenResponse = httpClient.get(URI.create(tokenUrl.toString()).toURL(), tokenRequest)) {
-            TokenResponse token = OciClientUtils.parseJson(
-                    OciClientUtils.readBody(tokenResponse), TokenResponse.class,
-                    "token response from " + realm);
-            String bearerToken = token.token() != null ? token.token() : token.accessToken();
-            if (bearerToken == null) {
-                throw new OciClientException("token endpoint returned no token: " + realm);
-            }
-            return Authorization.fromBearerToken(bearerToken);
         }
     }
 
