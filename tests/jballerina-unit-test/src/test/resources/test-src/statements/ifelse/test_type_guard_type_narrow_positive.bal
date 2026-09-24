@@ -474,3 +474,25 @@ function test27(int|string initialX) returns int {
     }
     return x;
 }
+
+function test28(string? kind, boolean requiresApproval) returns string {
+    if kind is () {
+        return "unknown";
+    }
+
+    map<anydata> args = {};
+    if requiresApproval && (kind == "activity" || kind == "aitool" || kind.startsWith("peeragent:")) {
+    }
+
+    if kind == "sleep" {
+        anydata seconds = args["seconds"];
+        if seconds is int {
+            return seconds.toString();
+        }
+    }
+
+    if kind.startsWith("event:") {
+        return kind.substring(6);
+    }
+    return kind;
+}

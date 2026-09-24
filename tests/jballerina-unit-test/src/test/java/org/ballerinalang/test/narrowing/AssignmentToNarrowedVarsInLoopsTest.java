@@ -38,7 +38,7 @@ public class AssignmentToNarrowedVarsInLoopsTest {
     public void testAssignmentToNarrowedVarsInLoops() {
         CompileResult result = BCompileUtil.compile("test-src/narrowing/assignment_to_narrowed_vars_in_loops.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        Assert.assertEquals(result.getHintCount(), 2);
+        Assert.assertEquals(result.getHintCount(), 0);
 
         Assert.assertEquals(result.getWarnCount(), 69);
         for (Diagnostic diagnostic : result.getDiagnostics()) {
