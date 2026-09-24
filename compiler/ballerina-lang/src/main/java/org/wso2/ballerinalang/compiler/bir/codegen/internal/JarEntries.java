@@ -62,20 +62,21 @@ public class JarEntries {
             entries.write(value);
             entries.closeEntry();
         } catch (IOException e) {
-            throw new ProjectException("Failed to put the jar entry", e);
+            throw new ProjectException("Failed to put the jar entry: " + e.getMessage() + ", for key: " + key, e);
         }
     }
 
     public void putResourceEntries(Map<String, byte[]> resources) {
-        try {
-            for (Map.Entry<String, byte[]> entry : resources.entrySet()) {
+        for (Map.Entry<String, byte[]> entry : resources.entrySet()) {
+            try {
                 JarArchiveEntry e = new JarArchiveEntry(entry.getKey());
                 entries.putNextEntry(e);
                 entries.write(entry.getValue());
                 entries.closeEntry();
+            } catch (IOException e) {
+                throw new ProjectException("Failed to put the resource entry: " + e.getMessage() +
+                        ", for key: " + entry.getKey(), e);
             }
-        } catch (IOException e) {
-            throw new ProjectException("Failed to put the resource entries", e);
         }
     }
 
