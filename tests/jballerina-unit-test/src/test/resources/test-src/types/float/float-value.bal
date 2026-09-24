@@ -107,3 +107,9 @@ function assertEqual(any expected, any actual) {
     string actualValAsString = actual.toString();
     panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
 }
+
+function testEqualityOnBoxedFloats() {
+    anydata x = 0.0;
+    anydata y = -0.0;
+    assertEqual(x, y);
+}
