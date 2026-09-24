@@ -185,6 +185,18 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test a narrowed variable reassigned inside a while loop")
+    public void testNarrowedVariableReassignedInWhile() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testNarrowedVariableReassignedInWhile");
+        Assert.assertEquals(returns, 3L);
+    }
+
+    @Test(description = "Test a narrowed variable reassigned in an if branch inside a while loop")
+    public void testNarrowedVariableReassignedInWhileBranch() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testNarrowedVariableReassignedInWhileBranch");
+        Assert.assertEquals(returns, 2L);
+    }
+
     @Test
     public void testWhileStmtWithOnFailWithoutVariable() {
         BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithOnFailWithoutVariable");

@@ -121,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -150,6 +151,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -618,8 +620,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return false;
         }
 
-        data.prevEnvs.push(blockEnv);
-        SymbolEnv env = blockEnv;
+        SymbolEnv env = data.env;
+        data.prevEnvs.push(env);
         SymbolEnv lastStmtExitEnv = null;
         BLangStatement prev = prevStatement;
 
@@ -2944,6 +2946,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             exitEnvs.add(typeNarrower.evaluateFalsity(ifNode.expr, ifNode, currentEnv, false));
         }
 
+        if (ifNode.elseStmt != null && prevNarrowedTypeInfo != null) {
+            prevNarrowedTypeInfo.putAll(data.narrowedTypeInfo);
+        }
+
         Map<BVarSymbol, BType> joinNarrowedTypes = joinNarrowedTypes(currentEnv, exitEnvs);
         if (!joinNarrowedTypes.isEmpty()) {
             data.joinNarrowedTypes.put(ifNode, joinNarrowedTypes);
@@ -4177,13 +4183,55 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         boolean prevBreakFound = data.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, currentEnv);
+        Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = data.narrowedTypeInfo;
+        data.narrowedTypeInfo = new HashMap<>();
         data.env = whileEnv;
         analyzeStmt(whileNode.body, data);
+
+        Map<BVarSymbol, BType.NarrowedTypes> loopNarrowedTypeInfo = data.narrowedTypeInfo;
+        data.narrowedTypeInfo = prevNarrowedTypeInfo;
+        if (data.narrowedTypeInfo != null) {
+            data.narrowedTypeInfo.putAll(loopNarrowedTypeInfo);
+        }
+
+        // The condition was type-checked for the first iteration. An assignment in the body can widen a variable on
+        // the loop back edge, so later analyses must not treat that first-iteration narrowing as permanent.
+        resetAssignedVarTypesInCondition(whileNode.expr, loopNarrowedTypeInfo.keySet());
         data.notCompletedNormally =
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
         data.breakFound = prevBreakFound;
         analyzeOnFailClause(onFailExists, whileNode.body, whileNode.onFailClause, data);
+    }
+
+    private void resetAssignedVarTypesInCondition(BLangExpression expr, Set<BVarSymbol> assignedVars) {
+        switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+                if (varRef.symbol instanceof BVarSymbol varSymbol) {
+                    BVarSymbol originalSymbol = typeNarrower.getOriginalVarSymbol(varSymbol);
+                    if (assignedVars.contains(originalSymbol)) {
+                        expr.setBType(originalSymbol.type);
+                    }
+                }
+                break;
+            case GROUP_EXPR:
+                resetAssignedVarTypesInCondition(((BLangGroupExpr) expr).expression, assignedVars);
+                break;
+            case TYPE_TEST_EXPR:
+                resetAssignedVarTypesInCondition(((BLangTypeTestExpr) expr).expr, assignedVars);
+                break;
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
+                resetAssignedVarTypesInCondition(binaryExpr.lhsExpr, assignedVars);
+                resetAssignedVarTypesInCondition(binaryExpr.rhsExpr, assignedVars);
+                break;
+            case UNARY_EXPR:
+                resetAssignedVarTypesInCondition(((BLangUnaryExpr) expr).expr, assignedVars);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

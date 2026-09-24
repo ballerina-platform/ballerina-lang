@@ -514,3 +514,18 @@ function test40(boolean b) returns int|boolean {
     }
     return x;
 }
+
+function test41(int|string x, int|string y, boolean b) {
+    int|string value = x;
+    if value is int {
+        value = "s";
+        if b {
+            if y is string {
+                return;
+            }
+        } else {
+            return;
+        }
+        int z = value; // ERROR incompatible types: expected 'int', found '(int|string)'
+    }
+}
