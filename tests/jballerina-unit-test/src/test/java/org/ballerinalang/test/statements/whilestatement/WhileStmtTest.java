@@ -185,6 +185,36 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test a narrowed variable reassigned inside a while loop")
+    public void testNarrowedVariableReassignedInWhile() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testNarrowedVariableReassignedInWhile");
+        Assert.assertEquals(returns, 3L);
+    }
+
+    @Test(description = "Test a narrowed variable reassigned in an if branch inside a while loop")
+    public void testNarrowedVariableReassignedInWhileBranch() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testNarrowedVariableReassignedInWhileBranch");
+        Assert.assertEquals(returns, 2L);
+    }
+
+    @Test(description = "Test condition narrowing when a variable is reassigned inside a while loop")
+    public void testConditionNarrowingWithReassignmentInWhile() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testConditionNarrowingWithReassignmentInWhile");
+        Assert.assertEquals(returns, 2L);
+    }
+
+    @Test(description = "Test an assignment on a terminating path inside a while loop")
+    public void testAssignmentOnTerminatingWhilePath() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testAssignmentOnTerminatingWhilePath");
+        Assert.assertEquals(returns, 1L);
+    }
+
+    @Test(description = "Test an assignment on a continue path inside a while loop")
+    public void testAssignmentOnContinuePath() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testAssignmentOnContinuePath");
+        Assert.assertEquals(returns, 1L);
+    }
+
     @Test
     public void testWhileStmtWithOnFailWithoutVariable() {
         BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithOnFailWithoutVariable");

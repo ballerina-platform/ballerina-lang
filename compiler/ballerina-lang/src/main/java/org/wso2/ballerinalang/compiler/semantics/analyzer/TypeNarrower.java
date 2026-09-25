@@ -74,6 +74,7 @@ public class TypeNarrower extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final Types types;
     private final SymbolEnter symbolEnter;
+    private final SymbolResolver symResolver;
     private final TypeChecker typeChecker;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
@@ -83,6 +84,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
     }
 
     public static TypeNarrower getInstance(CompilerContext context) {
@@ -364,8 +366,9 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private BType getValidTypeInScope(BVarSymbol symbol) {
         // Type may have been narrowed for the current scope.
-        if (env.scope.entries.containsKey(symbol.name)) {
-            BVarSymbol symbolInScope = (BVarSymbol) env.scope.entries.get(symbol.name).symbol;
+        BSymbol resolvedSymbol = symResolver.lookupSymbolInMainSpace(env, symbol.name);
+        if (resolvedSymbol instanceof BVarSymbol symbolInScope &&
+                getOriginalVarSymbol(symbolInScope) == getOriginalVarSymbol(symbol)) {
             BType typeInScope = symbolInScope.type;
             if (!types.isAssignable(symbol.type, typeInScope)) {
                 return Types.getImpliedType(typeInScope);
