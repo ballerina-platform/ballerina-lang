@@ -51,7 +51,6 @@ public final class OciClientUtils {
     static boolean extractBalaFromLayer(Path blobFile, Path balaOutputFile) throws IOException {
         byte[] magic = peekMagic(blobFile);
         if (isZip(magic)) {
-            // already a raw bala (zip)
             Files.copy(blobFile, balaOutputFile, StandardCopyOption.REPLACE_EXISTING);
             return true;
         }

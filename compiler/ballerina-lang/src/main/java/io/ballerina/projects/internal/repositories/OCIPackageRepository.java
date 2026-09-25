@@ -15,8 +15,6 @@
  */
 package io.ballerina.projects.internal.repositories;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.ballerina.projects.AnyTarget;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
@@ -30,27 +28,21 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
-import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.projects.internal.repositories.CustomPkgRepositoryUtils.RemotePackageInfo;
 import org.ballerinalang.oci.OciClient;
 import org.ballerinalang.oci.OciClientException;
-import org.ballerinalang.oci.OciClientUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,9 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This class represents an OCI backed package repository.
@@ -72,8 +62,6 @@ import java.util.stream.Stream;
  */
 public class OCIPackageRepository extends AbstractPackageRepository {
 
-    private static final String PLATFORM = "platform";
-    private static final String BALA_EXTENSION = ".bala";
     private static final Set<String> SUPPORTED_PLATFORMS = Arrays.stream(JvmTarget.values())
             .map(JvmTarget::code).collect(Collectors.toSet());
 
@@ -107,7 +95,7 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         return new OCIPackageRepository(environment, repositoryPath, ballerinaShortVersion, ociClient,
                 repository.proxyCentral());
     }
-    
+
     private List<String> lookupVersions(String org, String pkg) {
         List<String> versions = this.isProxyCentral
                 ? this.ociClient.pullMetadata(org, pkg) : this.ociClient.listTags(org, pkg);
@@ -138,84 +126,47 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         String orgName = org.toString();
         String packageName = name.toString();
         String version = pkgVersion.toString();
-        Path tmpDownloadDirectory = null;
-        boolean success;
+        Path versionDir = Path.of(this.repoLocation).resolve("bala").resolve(orgName)
+                .resolve(packageName).resolve(version);
         try {
-            tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
-            String displayLocation = Path.of(this.repoLocation).resolve("bala").resolve(orgName)
-                    .resolve(packageName).resolve(version).toString();
-            ociClient.pullMetadata(orgName, packageName, version, tmpDownloadDirectory.toString(), displayLocation);
-            Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
-                    .resolve(packageName + "-" + version + BALA_EXTENSION);
-            Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
-                    .resolve(version).resolve(PLATFORM);
-            ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
-            Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
-            try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
-                JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
-                String platform = resultObj.get(PLATFORM).getAsString();
-                Path versionDir = Path.of(this.repoLocation).resolve("bala").resolve(orgName)
-                        .resolve(packageName).resolve(version);
-                OciClientUtils.extractBalaToBalaCache(balaDownloadPath, versionDir, platform);
-            }
+            CustomPkgRepositoryUtils.pullIntoCache(orgName, packageName, version, versionDir,
+                    downloadDirectory -> ociClient.pullMetadata(orgName, packageName, version,
+                            downloadDirectory.toString(), versionDir.toString()));
             return true;
         } catch (IOException | RuntimeException e) {
             printWarning("warning: failed to pull package '" + orgName + "/" + packageName + ":" + version
                     + "' from OCI repository: " + e.getMessage());
-            success = false;
-        } finally {
-            if (tmpDownloadDirectory != null) {
-                ProjectUtils.deleteDirectory(tmpDownloadDirectory);
-            }
+            return false;
         }
-        return success;
     }
 
     @Override
     public Collection<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest,
                                                            ResolutionOptions resolutionOptions) {
-        PackageOrg org = resolutionRequest.orgName();
-        PackageName name = resolutionRequest.packageName();
-        Set<PackageVersion> packageVersions = new HashSet<>(this.fileSystemRepository.getPackageVersions(
-                org, name, resolutionRequest.version().orElse(null)));
-        if (!resolutionOptions.offline() && this.ociClient != null) {
-            try {
-                List<String> versions = lookupVersions(org.toString(), name.toString());
-                versions.stream().map(PackageVersion::from).forEach(packageVersions::add);
-            } catch (OciClientException e) {
-                // fall through and use whatever is in the file system cache
-                printWarning("warning: failed to look up versions for '" + org + "/" + name
-                        + "' from OCI repository: " + e.getMessage());
-            }
-        }
-
-        PackageVersion requestedVersion = resolutionRequest.version().orElse(null);
-        SemanticVersion minSemVer = requestedVersion == null
-                ? null : SemanticVersion.from(requestedVersion.toString());
-        List<SemanticVersion> semVers = packageVersions.stream()
-                .map(version -> SemanticVersion.from(version.toString())).toList();
-        ProjectUtils.CompatibleRange compatibleRange = ProjectUtils.getCompatibleRange(
-                minSemVer, resolutionOptions.packageLockingMode());
-        List<SemanticVersion> compatibleVersions = ProjectUtils.getVersionsInCompatibleRange(
-                minSemVer, semVers, compatibleRange);
-        return compatibleVersions.stream().map(PackageVersion::from).collect(Collectors.toList());
+        return CustomPkgRepositoryUtils.getPackageVersions(resolutionRequest, resolutionOptions,
+                this.fileSystemRepository, () -> listRemoteVersions(resolutionRequest.orgName().toString(),
+                        resolutionRequest.packageName().toString()));
     }
 
     @Override
     protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
         Set<PackageVersion> packageVersions = new HashSet<>(
                 this.fileSystemRepository.getPackageVersions(org, name, version));
-        if (this.ociClient != null) {
-            try {
-                List<String> versions = lookupVersions(org.toString(), name.toString());
-                versions.stream().map(PackageVersion::from).forEach(packageVersions::add);
-            } catch (OciClientException e) {
-                // fall through and use whatever is in the file system cache
-                printWarning("warning: failed to look up versions for '" + org + "/" + name
-                        + "' from OCI repository: " + e.getMessage());
-            }
-        }
+        listRemoteVersions(org.toString(), name.toString()).stream()
+                .map(PackageVersion::from).forEach(packageVersions::add);
         return new ArrayList<>(packageVersions);
+    }
+
+    private List<String> listRemoteVersions(String org, String pkg) {
+        if (this.ociClient == null) {
+            return Collections.emptyList();
+        }
+        try {
+            return lookupVersions(org, pkg);
+        } catch (OciClientException e) {
+            // ignore and use whatever is in the file system cache
+            return Collections.emptyList();
+        }
     }
 
     @Override
@@ -275,143 +226,43 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
                                                                     ResolutionOptions options) {
         if (isProxyCentral) {
-            return getPackageMetadataProxyCentral(requests, options);
+            return CustomPkgRepositoryUtils.resolveWithCache(requests, options, this.fileSystemRepository,
+                    remainingRequests -> resolvePackageMetadata(remainingRequests, options));
         }
         return resolvePackageMetadata(requests, options);
     }
 
     private Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
                                                                        ResolutionOptions options) {
-        List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
-        for (ResolutionRequest request : requests) {
-            Collection<PackageVersion> packageVersions = getPackageVersions(request, options);
-            if (packageVersions.isEmpty()) {
-                descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(request));
-                continue;
-            }
-            PackageVersion latest = findLatest(new ArrayList<>(packageVersions));
-            DependencyGraph<PackageDescriptor> dependencyGraph = getDependencyGraph(
-                    request.orgName(), request.packageName(), latest);
-            boolean isDeprecated = false;
-            String deprecationMsg = "";
-            try {
-
-                Map<String, String> labels = this.ociClient.pullLabels(
-                        request.orgName().toString(), request.packageName().toString(), latest.toString());
-                isDeprecated = Boolean.parseBoolean(labels.get(OciClient.DEPRECATED_LABEL));
-                deprecationMsg = labels.getOrDefault(OciClient.DEPRECATION_MSG_LABEL, "");
-            } catch (OciClientException e) {
-                // Deprecated status is best-effort metadata; resolution should not fail over it.
-            }
-            PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
-                    request.orgName(), request.packageName(), latest, request.repositoryName().orElse(null),
-                    isDeprecated, deprecationMsg);
-            descriptorSet.add(PackageMetadataResponse.from(request, resolvedDescriptor, dependencyGraph));
-        }
-        return descriptorSet;
+        return CustomPkgRepositoryUtils.resolveLatestVersions(requests,
+                request -> getPackageVersions(request, options),
+                (request, latest) -> CustomPkgRepositoryUtils.createMetadataResponse(
+                        request, latest, this::fetchPackageInfo));
     }
 
-    private Collection<PackageMetadataResponse> getPackageMetadataProxyCentral(Collection<ResolutionRequest> requests,
-                                                                               ResolutionOptions options) {
-        if (requests.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Collection<PackageMetadataResponse> cachedPackages =
-                this.fileSystemRepository.getPackageMetadata(requests, options);
-        if (options.offline()) {
-            return cachedPackages;
-        }
-
-        // Requests locked to an exact version and already resolved locally need no registry round trip
-        List<ResolutionRequest> updatedRequests = new ArrayList<>(requests);
-        List<PackageMetadataResponse> deprecatedPackages = new ArrayList<>();
-        for (PackageMetadataResponse response : cachedPackages) {
-            if (response.packageLoadRequest().version().isPresent()
-                    && response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
-                    && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                updatedRequests.remove(response.packageLoadRequest());
+    private RemotePackageInfo fetchPackageInfo(ResolutionRequest request, PackageVersion version) {
+        DependencyGraph<PackageDescriptor> dependencyGraph = getDependencyGraph(
+                request.orgName(), request.packageName(), version);
+        try {
+            Map<String, String> labels = this.ociClient.pullLabels(
+                    request.orgName().toString(), request.packageName().toString(), version.toString());
+            String deprecated = labels.get(OciClient.DEPRECATED_LABEL);
+            if (deprecated == null) {
+                return RemotePackageInfo.withUnknownDeprecation(dependencyGraph);
             }
-            if (response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                Optional<Package> pkg = this.fileSystemRepository.getPackage(response.packageLoadRequest(), options);
-                if (pkg.isPresent() && Boolean.TRUE.equals(pkg.get().descriptor().getDeprecated())) {
-                    deprecatedPackages.add(response);
-                }
-            }
+            return new RemotePackageInfo(dependencyGraph, Optional.of(Boolean.parseBoolean(deprecated)),
+                    labels.getOrDefault(OciClient.DEPRECATION_MSG_LABEL, ""));
+        } catch (OciClientException e) {
+            // Deprecated status is best-effort metadata; resolution should not fail over it.
+            return RemotePackageInfo.withUnknownDeprecation(dependencyGraph);
         }
-        if (updatedRequests.isEmpty()) {
-            return cachedPackages;
-        }
-        return mergeResolution(resolvePackageMetadata(updatedRequests, options), cachedPackages, deprecatedPackages);
-    }
-
-    private Collection<PackageMetadataResponse> mergeResolution(
-            Collection<PackageMetadataResponse> remoteResolution,
-            Collection<PackageMetadataResponse> filesystem,
-            List<PackageMetadataResponse> deprecatedPackages) {
-        return new ArrayList<>(Stream.of(filesystem, remoteResolution)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(
-                        PackageMetadataResponse::packageLoadRequest, Function.identity(),
-                        (x, y) -> {
-                            if (ResolutionResponse.ResolutionStatus.UNRESOLVED.equals(y.resolutionStatus())) {
-                                return x;
-                            }
-                            if (ResolutionResponse.ResolutionStatus.UNRESOLVED.equals(x.resolutionStatus())) {
-                                return y;
-                            }
-                            if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor().version())) {
-
-                                if (y.resolvedDescriptor() != null && deprecatedPackages.contains(x)
-                                        ^ Boolean.TRUE.equals(y.resolvedDescriptor().getDeprecated())) {
-                                    this.fileSystemRepository.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
-                                }
-                                return x;
-                            }
-                            // The registry resolved a version the cache does not have; prefer the latest
-                            this.fileSystemRepository.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
-                            return y;
-                        })).values());
     }
 
     @Override
     public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
                                                               ResolutionOptions options) {
-        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>(
-                this.fileSystemRepository.getPackageNames(requests, options));
-
-        if (options.offline() || this.ociClient == null) {
-            return importModuleResponseList;
-        }
-        for (ImportModuleRequest importModuleRequest : requests) {
-            boolean alreadyResolved = importModuleResponseList.stream()
-                    .anyMatch(response -> response.importModuleRequest().equals(importModuleRequest)
-                            && response.resolutionStatus() == ResolutionResponse.ResolutionStatus.RESOLVED);
-            if (alreadyResolved) {
-                continue;
-            }
-            PackageOrg org = importModuleRequest.packageOrg();
-            List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(
-                    org, importModuleRequest.moduleName());
-            for (PackageName packageName : possiblePackageNames) {
-                try {
-                    List<String> versions = lookupVersions(org.toString(), packageName.toString());
-                    if (versions.isEmpty()) {
-                        continue;
-                    }
-                    PackageVersion latest = findLatest(
-                            versions.stream().map(PackageVersion::from).collect(Collectors.toList()));
-                    PackageDescriptor resolvedDescriptor = PackageDescriptor.from(org, packageName, latest);
-                    importModuleResponseList.removeIf(
-                            response -> response.importModuleRequest().equals(importModuleRequest));
-                    importModuleResponseList.add(new ImportModuleResponse(resolvedDescriptor, importModuleRequest));
-                    break;
-                } catch (OciClientException ignored) {
-                    // fall through and try the next possible package name
-                }
-            }
-        }
-        return importModuleResponseList;
+        return CustomPkgRepositoryUtils.getPackageNames(requests, options, this.fileSystemRepository,
+                this::listRemoteVersions);
     }
 
     private boolean isPkgDistVersionCompatible(String org, String pkg, String version) {
