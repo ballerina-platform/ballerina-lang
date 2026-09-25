@@ -29,7 +29,6 @@ import land.oras.Referrers;
 import land.oras.Registry;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,20 +61,19 @@ public class OciClient {
     public static final String DEPRECATED_LABEL = "io.ballerina.deprecated";
     public static final String DEPRECATION_MSG_LABEL = "io.ballerina.deprecation-message";
 
+
+    private static final Logger ORAS_LOGGER = Logger.getLogger("land.oras");
+
     static {
         // ORAS logs registry-policy/blob-upload internals straight to the console via
         // java.util.logging; failures are surfaced through OciClientException instead, so this
         // keeps `bal push`/`bal pull` output as quiet as the previous Jib-based client's was.
-        Logger.getLogger("land.oras").setLevel(Level.OFF);
+        ORAS_LOGGER.setLevel(Level.OFF);
     }
 
     private final Registry registry;
     private final String registryHost;
     private final String repositoryPrefix;
-    private final PrintStream outStream;
-    // A version's manifest is commonly fetched twice in one resolution — once to check
-    // compatibility labels (pullLabels), again to actually pull the bala (doPullBala) — so it's
-    // cached per client instance (i.e. per CLI invocation) instead of re-fetched each time.
     private final Map<String, Manifest> manifestCache = new ConcurrentHashMap<>();
 
     /**
@@ -100,7 +98,6 @@ public class OciClient {
                 ? Registry.builder().insecure(registryHost, username, password)
                 : Registry.builder().defaults(registryHost, username, password);
         this.registry = builder.withExecutorService(newDaemonExecutor()).build();
-        this.outStream = System.out;
     }
 
     /**

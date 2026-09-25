@@ -617,27 +617,27 @@ public class PushCommand implements BLauncherCmd {
     private void publishDependencyGraphReferrer(Path balaPath, OciClient client, String org, String name,
                                                   String version) {
         try {
-            byte[] dependencyGraphJson = readDependencyGraphJson(balaPath);
-            if (dependencyGraphJson == null) {
+            Optional<byte[]> dependencyGraphJson = readDependencyGraphJson(balaPath);
+            if (dependencyGraphJson.isEmpty()) {
                 return;
             }
-            client.pushDependencyGraphReferrer(org, name, version, dependencyGraphJson);
+            client.pushDependencyGraphReferrer(org, name, version, dependencyGraphJson.get());
         } catch (Exception e) {
             outStream.println("warning: failed to publish dependency graph referrer for '" + org + "/" + name
                     + ":" + version + "': " + e.getMessage());
         }
     }
 
-    private static byte[] readDependencyGraphJson(Path balaPath) throws IOException {
+    private static Optional<byte[]> readDependencyGraphJson(Path balaPath) throws IOException {
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.getName().equals(ProjectConstants.DEPENDENCY_GRAPH_JSON)) {
-                    return zip.readAllBytes();
+                    return Optional.of(zip.readAllBytes());
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
