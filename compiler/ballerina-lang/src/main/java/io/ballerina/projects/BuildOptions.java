@@ -36,11 +36,12 @@ public class BuildOptions {
     private final Boolean nativeImage;
     private final Boolean exportComponentModel;
     private final String graalVMBuildOptions;
+    private final Boolean skipSbom;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath,
                  Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
-                 Boolean showDependencyDiagnostics) {
+                 Boolean showDependencyDiagnostics, Boolean skipSbom) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -51,6 +52,7 @@ public class BuildOptions {
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
         this.showDependencyDiagnostics = showDependencyDiagnostics;
+        this.skipSbom = skipSbom;
     }
 
     public boolean testReport() {
@@ -162,6 +164,10 @@ public class BuildOptions {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
     }
 
+    public boolean skipSbom() {
+        return toBooleanDefaultIfNull(this.skipSbom);
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -214,6 +220,11 @@ public class BuildOptions {
             buildOptionsBuilder.setShowDependencyDiagnostics(theirOptions.showDependencyDiagnostics);
         } else {
             buildOptionsBuilder.setShowDependencyDiagnostics(this.showDependencyDiagnostics);
+        }
+        if (theirOptions.skipSbom != null) {
+            buildOptionsBuilder.setSkipSbom(theirOptions.skipSbom);
+        } else {
+            buildOptionsBuilder.setSkipSbom(this.skipSbom);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
@@ -282,7 +293,8 @@ public class BuildOptions {
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
         OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
         REMOTE_MANAGEMENT("remoteManagement"),
-        CLOUD("cloud");
+        CLOUD("cloud"),
+        SKIP_SBOM("skipSbom");
 
         private final String name;
 
@@ -313,6 +325,7 @@ public class BuildOptions {
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
         private Boolean showDependencyDiagnostics;
+        private Boolean skipSbom;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -446,6 +459,17 @@ public class BuildOptions {
         }
 
         /**
+         * Skip SBOM generation when packing a bala.
+         *
+         * @param value {@code true} to skip SBOM generation
+         * @return Build options builder
+         */
+        public BuildOptionsBuilder setSkipSbom(Boolean value) {
+            skipSbom = value;
+            return this;
+        }
+
+        /**
          * (Experimental) option to specify that the memory usage must be optimized.
          *
          * @param value true or false (default)
@@ -465,7 +489,7 @@ public class BuildOptions {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
                     targetPath, nativeImage, exportComponentModel, graalVMBuildOptions,
-                    showDependencyDiagnostics);
+                    showDependencyDiagnostics, skipSbom);
         }
     }
 }

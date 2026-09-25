@@ -142,15 +142,33 @@ public class MavenPackageRepository implements PackageRepository {
 
     @Override
     public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
-        return CustomPkgRepositoryUtils.getPackageVersions(request, options, fileSystemRepo,
-                () -> listRemoteVersions(request.orgName().value(), request.packageName().value()));
+        List<PackageVersion> compatibleVersions = CustomPkgRepositoryUtils.getPackageVersions(request, options,
+                fileSystemRepo, () -> listRemoteVersions(request.orgName().value(), request.packageName().value()));
+
+        // A custom Maven repository may contain the requested artifact without maven-metadata.xml. If metadata
+        // resolution did not produce a compatible version, try to resolve the version in the request directly.
+        PackageVersion packageVersion = request.version().orElse(null);
+        boolean shouldResolveExactVersion = !isProxyCentral && !options.offline() && packageVersion != null
+                && compatibleVersions.isEmpty();
+        if (shouldResolveExactVersion && getPackage(request, options).isPresent()) {
+            return List.of(packageVersion);
+        }
+        return compatibleVersions;
     }
 
     private List<String> listRemoteVersions(String orgName, String packageName) {
+        return listRemoteVersions(orgName, packageName, null);
+    }
+
+    // When moduleName is given, a Ballerina Central proxy only returns versions that contain that module.
+    private List<String> listRemoteVersions(String orgName, String packageName, String moduleName) {
         try {
             if (isProxyCentral) {
-                return this.client.getPackageVersionsInCentralProxy(orgName, packageName,
-                        RepoUtils.getBallerinaShortVersion(), Paths.get(repoLocation));
+                return moduleName == null
+                        ? this.client.getPackageVersionsInCentralProxy(orgName, packageName,
+                                RepoUtils.getBallerinaShortVersion(), Paths.get(repoLocation))
+                        : this.client.getPackageVersionsInCentralProxy(orgName, packageName, moduleName,
+                                RepoUtils.getBallerinaShortVersion(), Paths.get(repoLocation));
             }
             return this.client.getPackageVersions(orgName, packageName, Paths.get(repoLocation));
         } catch (MavenResolverClientException e) {
@@ -169,7 +187,8 @@ public class MavenPackageRepository implements PackageRepository {
     public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
                                                             ResolutionOptions options) {
         return CustomPkgRepositoryUtils.getPackageNames(requests, options, fileSystemRepo,
-                this::listRemoteVersions);
+                (importModuleRequest, packageName) -> listRemoteVersions(importModuleRequest.packageOrg().value(),
+                        packageName.value(), importModuleRequest.moduleName()));
     }
 
 

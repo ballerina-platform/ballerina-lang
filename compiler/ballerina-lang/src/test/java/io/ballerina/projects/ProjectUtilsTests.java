@@ -76,7 +76,7 @@ public class ProjectUtilsTests {
 
     @Test()
     public void testReadBuildJsonForInvalidBuildFile() {
-        Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-file");
+        Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-file").resolve(ProjectConstants.BUILD_FILE);
         Assert.assertThrows(JsonSyntaxException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
     }
 

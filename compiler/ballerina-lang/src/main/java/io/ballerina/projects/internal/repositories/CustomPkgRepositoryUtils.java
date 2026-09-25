@@ -97,14 +97,14 @@ final class CustomPkgRepositoryUtils {
      * @param requests       import module requests
      * @param options        resolution options; the remote registry is skipped when offline
      * @param fileSystemRepo local cache of the repository
-     * @param remoteLookup   lists the versions of an {@code (org, package)} in the remote registry; a failed
+     * @param remoteLookup   lists the remote versions of a possible package for an import; the import is passed
+     *                       so a registry can narrow the versions down to those containing the module. A failed
      *                       lookup yields an empty list so the next possible package name is tried
      * @return one response per request
      */
-    static List<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
-                                                      ResolutionOptions options,
-                                                      FileSystemRepository fileSystemRepo,
-                                                      BiFunction<String, String, List<String>> remoteLookup) {
+    static List<ImportModuleResponse> getPackageNames(
+            Collection<ImportModuleRequest> requests, ResolutionOptions options, FileSystemRepository fileSystemRepo,
+            BiFunction<ImportModuleRequest, PackageName, List<String>> remoteLookup) {
         List<ImportModuleResponse> importModuleResponseList = new ArrayList<>(
                 fileSystemRepo.getPackageNames(requests, options));
         if (options.offline()) {
@@ -122,7 +122,7 @@ final class CustomPkgRepositoryUtils {
             List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(
                     org, importModuleRequest.moduleName());
             for (PackageName packageName : possiblePackageNames) {
-                List<String> versions = remoteLookup.apply(org.value(), packageName.value());
+                List<String> versions = remoteLookup.apply(importModuleRequest, packageName);
                 if (versions.isEmpty()) {
                     continue;
                 }

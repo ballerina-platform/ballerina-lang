@@ -22,7 +22,7 @@ module io.ballerina.lang {
     requires org.ballerinalang.oci;
     requires maven.resolver;
     requires com.google.cloud.tools.jib;
-
+    requires toml4j;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;

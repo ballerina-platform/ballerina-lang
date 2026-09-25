@@ -9,10 +9,12 @@ Same scenario as case-0011 but without Dependencies.toml (fresh project).
 ## Expected behavior
 
 ### HARD
-Resolve latest: P:1.0.0 -> Q:1.1.0 -> R:0.1.0 (EXACT prevents upgrades)
+Same as SOFT: since this is a fresh project (no Dependencies.toml), nothing is
+locked, so all dependencies resolve to the latest compatible versions
+(see ballerina-spec#1247): P:1.0.0 -> Q:1.2.0 -> R:0.2.0
 
 ### MEDIUM
-Same as HARD (LOCK_MINOR prevents Q minor upgrade)
+P:1.0.0 -> Q:1.1.0 -> R:0.1.0 (LOCK_MINOR prevents Q minor upgrade)
 
 ### SOFT
 Upgrade Q to 1.2.0 (LOCK_MAJOR allows minor upgrade). R:0.2.0 replaces R:0.1.0.

@@ -19,6 +19,7 @@ package io.ballerina.runtime.observability.tracer.noop;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 
 /**
@@ -36,7 +37,7 @@ public class NoOpTracerProvider implements TracerProvider {
 
     @Override
     public void init() {
-        instance = io.opentelemetry.api.trace.TracerProvider.noop().get("");
+        instance = new NoOpTracer();
     }
 
     @Override
@@ -46,6 +47,9 @@ public class NoOpTracerProvider implements TracerProvider {
 
     @Override
     public ContextPropagators getPropagators() {
-        return ContextPropagators.noop();
+        // Use the same W3C Trace Context propagator as the Jaeger/NewRelic providers so that a trace id
+        // started by this service (or received from an upstream caller) is carried across service calls,
+        // even though nothing is recorded, sampled or exported here.
+        return ContextPropagators.create(W3CTraceContextPropagator.getInstance());
     }
 }

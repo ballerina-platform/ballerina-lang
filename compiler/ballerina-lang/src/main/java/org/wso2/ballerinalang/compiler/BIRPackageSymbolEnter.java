@@ -2194,6 +2194,13 @@ public class BIRPackageSymbolEnter {
         String pkgName = ((StringCPEntry) env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
         String moduleName = ((StringCPEntry) env.constantPool[pkgCpEntry.moduleNameCPIndex]).value;
         String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
+        for (BPackageSymbol importSymbol : this.env.pkgSymbol.imports) {
+            if (importSymbol.pkgID.orgName.equals(Names.fromString(orgName)) &&
+                    importSymbol.pkgID.pkgName.equals(Names.fromString(pkgName))) {
+                version = importSymbol.pkgID.version.value;
+                break;
+            }
+        }
         return new PackageID(Names.fromString(orgName), Names.fromString(pkgName),
                 Names.fromString(moduleName), Names.fromString(version), null);
     }

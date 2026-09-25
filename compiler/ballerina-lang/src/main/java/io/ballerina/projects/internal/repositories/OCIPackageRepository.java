@@ -262,7 +262,8 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
                                                               ResolutionOptions options) {
         return CustomPkgRepositoryUtils.getPackageNames(requests, options, this.fileSystemRepository,
-                this::listRemoteVersions);
+                (importModuleRequest, packageName) -> listRemoteVersions(importModuleRequest.packageOrg().value(),
+                        packageName.value()));
     }
 
     private boolean isPkgDistVersionCompatible(String org, String pkg, String version) {

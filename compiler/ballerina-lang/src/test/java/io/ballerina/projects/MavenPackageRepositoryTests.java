@@ -25,6 +25,7 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.utils.FileUtil;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.ballerinalang.maven.bala.client.model.PackageResolutionResponse;
@@ -44,9 +45,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -244,8 +249,225 @@ public class MavenPackageRepositoryTests {
         }
     }
 
+    private static class MockMetadataFallbackMavenPackageRepository extends MavenPackageRepository {
+        private final boolean exactPackageAvailable;
+        private int exactPackageResolutionCount;
+
+        MockMetadataFallbackMavenPackageRepository(MavenResolverClient client, boolean exactPackageAvailable) {
+            super(PROXY_ENV, TEST_REPO, "1.2.3", client, PROXY_REPO_LOCATION, false);
+            this.exactPackageAvailable = exactPackageAvailable;
+        }
+
+        @Override
+        public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
+            exactPackageResolutionCount++;
+            return exactPackageAvailable ? Optional.of(Mockito.mock(Package.class)) : Optional.empty();
+        }
+    }
+
+    private static class FixtureBackedMavenPackageRepository extends MavenPackageRepository {
+
+        FixtureBackedMavenPackageRepository(MavenResolverClient client, Path cacheDirectory) {
+            super(PROXY_ENV, cacheDirectory, "1.2.3", client,
+                    cacheDirectory.resolve("bala").toAbsolutePath().toString(), false);
+        }
+    }
+
     private MavenPackageRepository proxyRepo(MavenResolverClient client) {
         return new MockProxyMavenPackageRepository(PROXY_ENV, TEST_REPO, "1.2.3", client, PROXY_REPO_LOCATION);
+    }
+
+    @Test(description = "Custom repo: fall back to the requested version when Maven metadata is unavailable")
+    public void testGetPackageVersionsFallsBackWhenMetadataIsUnavailable()
+            throws MavenResolverClientException, IOException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
+                .thenThrow(new MavenResolverClientException("maven-metadata.xml not found"));
+        Mockito.doAnswer(invocation -> {
+            Assert.assertEquals(invocation.getArgument(0), "testorg");
+            Assert.assertEquals(invocation.getArgument(1), "packA");
+            Assert.assertEquals(invocation.getArgument(2), "0.1.0");
+            Path targetDirectory = Path.of(invocation.getArgument(3, String.class));
+            Path balaPath = targetDirectory.resolve("testorg").resolve("packA").resolve("0.1.0")
+                    .resolve("packA-0.1.0.bala");
+            createBala(TEST_REPO.resolve("bala/testorg/packA/0.1.0/any"), balaPath);
+            return null;
+        }).when(mockClient).pullPackage(anyString(), anyString(), anyString(), anyString());
+
+        Path cacheDirectory = Files.createTempDirectory("metadata-fallback-test-");
+        FixtureBackedMavenPackageRepository repo =
+                new FixtureBackedMavenPackageRepository(mockClient, cacheDirectory);
+        PackageVersion requestedVersion = PackageVersion.from("0.1.0");
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("testorg"), PackageName.from("packA"),
+                        requestedVersion),
+                PackageDependencyScope.DEFAULT);
+
+        try {
+            Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                    ResolutionOptions.builder().setOffline(false).build());
+
+            Assert.assertEquals(versions, List.of(requestedVersion));
+            Optional<Package> cachedPackage = repo.getPackage(request,
+                    ResolutionOptions.builder().setOffline(true).build());
+            Assert.assertTrue(cachedPackage.isPresent());
+            Assert.assertEquals(cachedPackage.get().descriptor().toString(), "testorg/packA:0.1.0");
+            verify(mockClient).pullPackage(eq("testorg"), eq("packA"), eq("0.1.0"), anyString());
+        } finally {
+            FileUtil.deleteDirectory(cacheDirectory);
+        }
+    }
+
+    private static void createBala(Path sourceDirectory, Path balaPath) throws IOException {
+        Files.createDirectories(balaPath.getParent());
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(balaPath));
+             Stream<Path> paths = Files.walk(sourceDirectory)) {
+            for (Path path : paths.filter(Files::isRegularFile).toList()) {
+                String entryName = sourceDirectory.relativize(path).toString().replace('\\', '/');
+                zipOutputStream.putNextEntry(new ZipEntry(entryName));
+                Files.copy(path, zipOutputStream);
+                zipOutputStream.closeEntry();
+            }
+        }
+    }
+
+    @Test(description = "Custom repo: remain unresolved when metadata and the requested artifact are unavailable")
+    public void testGetPackageVersionsUnresolvedWhenMetadataAndArtifactAreUnavailable()
+            throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
+                .thenThrow(new MavenResolverClientException("maven-metadata.xml not found"));
+        MockMetadataFallbackMavenPackageRepository repo =
+                new MockMetadataFallbackMavenPackageRepository(mockClient, false);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("missingartifact"),
+                        PackageVersion.from("1.0.0")),
+                PackageDependencyScope.DEFAULT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(versions.isEmpty());
+        Assert.assertEquals(repo.exactPackageResolutionCount, 1);
+    }
+
+    @Test(description = "Custom repo: do not attempt metadata or exact artifact resolution when offline")
+    public void testGetPackageVersionsDoesNotFallBackWhenOffline() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        MockMetadataFallbackMavenPackageRepository repo =
+                new MockMetadataFallbackMavenPackageRepository(mockClient, true);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("offline"),
+                        PackageVersion.from("1.0.0")),
+                PackageDependencyScope.DEFAULT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(true).build());
+
+        Assert.assertTrue(versions.isEmpty());
+        Assert.assertEquals(repo.exactPackageResolutionCount, 0);
+        verify(mockClient, never()).getPackageVersions(anyString(), anyString(), any());
+    }
+
+    @Test(description = "Custom repo: do not attempt exact artifact resolution without a requested version")
+    public void testGetPackageVersionsDoesNotFallBackWithoutRequestedVersion() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
+                .thenThrow(new MavenResolverClientException("maven-metadata.xml not found"));
+        MockMetadataFallbackMavenPackageRepository repo =
+                new MockMetadataFallbackMavenPackageRepository(mockClient, true);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("versionless")),
+                PackageDependencyScope.DEFAULT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(versions.isEmpty());
+        Assert.assertEquals(repo.exactPackageResolutionCount, 0);
+    }
+
+    @Test(description = "Custom repo: fall back when Maven metadata omits the requested compatible version")
+    public void testGetPackageVersionsFallsBackWhenMetadataHasNoCompatibleVersion()
+            throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
+                .thenReturn(List.of("2.0.0"));
+        MockMetadataFallbackMavenPackageRepository repo =
+                new MockMetadataFallbackMavenPackageRepository(mockClient, true);
+        PackageVersion requestedVersion = PackageVersion.from("1.0.0");
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("stalemetadata"),
+                        requestedVersion),
+                PackageDependencyScope.DEFAULT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertEquals(versions, List.of(requestedVersion));
+        Assert.assertEquals(repo.exactPackageResolutionCount, 1);
+    }
+
+    @Test(description = "Custom repo: retain metadata-based automatic version resolution")
+    public void testGetPackageVersionsDoesNotFallBackWhenMetadataHasCompatibleVersions()
+            throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
+                .thenReturn(List.of("1.0.0", "1.0.1"));
+        MockMetadataFallbackMavenPackageRepository repo =
+                new MockMetadataFallbackMavenPackageRepository(mockClient, true);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("withmetadata"),
+                        PackageVersion.from("1.0.0")),
+                PackageDependencyScope.DEFAULT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(versions.contains(PackageVersion.from("1.0.0")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("1.0.1")));
+        Assert.assertEquals(repo.exactPackageResolutionCount, 0);
+    }
+
+    @Test(description = "Custom repo: fall back to the exact version for hard locking")
+    public void testGetPackageVersionsFallsBackWithHardLocking() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
+                .thenReturn(List.of("1.0.1"));
+        MockMetadataFallbackMavenPackageRepository repo =
+                new MockMetadataFallbackMavenPackageRepository(mockClient, true);
+        PackageVersion requestedVersion = PackageVersion.from("1.0.0");
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("hardlocked"),
+                        requestedVersion),
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, PackageLockingMode.HARD);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(false)
+                        .setPackageLockingMode(PackageLockingMode.HARD).build());
+
+        Assert.assertEquals(versions, List.of(requestedVersion));
+        Assert.assertEquals(repo.exactPackageResolutionCount, 1);
+    }
+
+    @Test(description = "Custom repo: retain compatible metadata versions with soft locking")
+    public void testGetPackageVersionsRetainsCompatibleVersionWithSoftLocking() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        Mockito.when(mockClient.getPackageVersions(anyString(), anyString(), any()))
+                .thenReturn(List.of("1.1.0"));
+        MockMetadataFallbackMavenPackageRepository repo =
+                new MockMetadataFallbackMavenPackageRepository(mockClient, true);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("metadataorg"), PackageName.from("softlocked"),
+                        PackageVersion.from("1.0.0")),
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, PackageLockingMode.SOFT);
+
+        Collection<PackageVersion> versions = repo.getPackageVersions(request,
+                ResolutionOptions.builder().setOffline(false)
+                        .setPackageLockingMode(PackageLockingMode.SOFT).build());
+
+        Assert.assertEquals(versions, List.of(PackageVersion.from("1.1.0")));
+        Assert.assertEquals(repo.exactPackageResolutionCount, 0);
     }
 
     private PackageResolutionResponse buildResolutionResponse(String org, String name, String version) {
@@ -315,7 +537,8 @@ public class MavenPackageRepositoryTests {
             groups = {"proxy"})
     public void testGetPackageNamesProxyCentralSuccess() throws MavenResolverClientException {
         MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
-        Mockito.when(mockClient.getPackageVersionsInCentralProxy(anyString(), anyString(), anyString(), any()))
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        anyString(), anyString(), anyString(), anyString(), any()))
                 .thenReturn(List.of("0.1.0"));
 
         MavenPackageRepository repo = proxyRepo(mockClient);
@@ -336,13 +559,15 @@ public class MavenPackageRepositoryTests {
 
         repo.getPackageNames(List.of(importRequest), ResolutionOptions.builder().setOffline(true).build());
 
-        verify(mockClient, never()).getPackageVersionsInCentralProxy(anyString(), anyString(), anyString(), any());
+        verify(mockClient, never()).getPackageVersionsInCentralProxy(
+                anyString(), anyString(), anyString(), anyString(), any());
     }
 
     @Test(description = "Proxy: getPackageNames falls back to FS when client throws", groups = {"proxy"})
     public void testGetPackageNamesProxyCentralClientThrows() throws MavenResolverClientException {
         MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
-        Mockito.when(mockClient.getPackageVersionsInCentralProxy(anyString(), anyString(), anyString(), any()))
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        anyString(), anyString(), anyString(), anyString(), any()))
                 .thenThrow(new MavenResolverClientException("network error"));
 
         MavenPackageRepository repo = proxyRepo(mockClient);
@@ -354,6 +579,34 @@ public class MavenPackageRepositoryTests {
                 List.of(importRequest), ResolutionOptions.builder().setOffline(false).build());
 
         Assert.assertNotNull(responses);
+    }
+
+    @Test(description = "Proxy: getPackageNames resolves hierarchical module name to correct package",
+            groups = {"proxy"})
+    public void testGetPackageNamesProxyCentralHierarchicalModule() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        // "openai" exists but does NOT contain module "openai.chat" — returns empty list for that module
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        eq("ballerinax"), eq("openai"), eq("openai.chat"), anyString(), any()))
+                .thenReturn(List.of());
+        // "openai.chat" contains module "openai.chat" — returns versions
+        Mockito.when(mockClient.getPackageVersionsInCentralProxy(
+                        eq("ballerinax"), eq("openai.chat"), eq("openai.chat"), anyString(), any()))
+                .thenReturn(List.of("1.0.0"));
+
+        MavenPackageRepository repo = proxyRepo(mockClient);
+        ImportModuleRequest importRequest = new ImportModuleRequest(
+                PackageOrg.from("ballerinax"), "openai.chat", List.of());
+
+        Collection<ImportModuleResponse> responses = repo.getPackageNames(
+                List.of(importRequest), ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertFalse(responses.isEmpty());
+        ImportModuleResponse response = responses.stream()
+                .filter(r -> r.packageDescriptor() != null)
+                .findFirst().orElse(null);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.packageDescriptor().name().value(), "openai.chat");
     }
 
     @Test(description = "Proxy: getPackageMetadata resolves package via central proxy", groups = {"proxy"})

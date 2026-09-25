@@ -20,6 +20,8 @@ plugins {
     id 'ballerinaLangLibLoad'
 }
 
+def buildDir = layout.buildDirectory.get().asFile
+
 configurations {
     testLibs {
         transitive false
@@ -81,7 +83,7 @@ dependencies {
 
 tasks.register('createBre', Copy) {
     from configurations.balRuntime
-    into '$buildDir/bre/lib'
+    into "${buildDir}/bre/lib"
 }
 
 test {

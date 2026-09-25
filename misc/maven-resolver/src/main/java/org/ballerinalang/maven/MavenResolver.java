@@ -49,7 +49,9 @@ import org.eclipse.aether.util.graph.visitor.TreeDependencyVisitor;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
 
 import java.io.File;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -151,29 +153,23 @@ public class MavenResolver {
                 DependencyNode node = collectResult.getRoot();
 
                 node.accept(new TreeDependencyVisitor(new DependencyVisitor() {
-                    int level = 0;
+                    private final Deque<org.ballerinalang.maven.Dependency> ancestors = new ArrayDeque<>();
 
                     @Override
                     public boolean visitEnter(DependencyNode dependencyNode) {
                         org.ballerinalang.maven.Dependency currentNode = convertDependency(dependencyNode);
-                        if (level == 0) {
+                        if (ancestors.isEmpty()) {
                             rootNode = currentNode;
                         } else {
-                            org.ballerinalang.maven.Dependency parent = rootNode;
-                            for (int i = 0; i < level; i++) {
-                                if (level > 1) {
-                                    parent = rootNode.getDepedencies().get(rootNode.getDepedencies().size() - 1);
-                                }
-                            }
-                            parent.addDependency(currentNode);
+                            ancestors.peek().addDependency(currentNode);
                         }
-                        level += 1;
+                        ancestors.push(currentNode);
                         return true;
                     }
 
                     @Override
                     public boolean visitLeave(DependencyNode dependencyNode) {
-                        level -= 1;
+                        ancestors.pop();
                         return true;
                     }
                 }));
@@ -197,4 +193,52 @@ public class MavenResolver {
         }
         return rootNode;
     }
+
+    /**
+     * Resolves the provided artifact and collects the dependency tree it declares, without downloading the
+     * artifacts in that tree.
+     *
+     * @param groupId    group ID of the dependency
+     * @param artifactId artifact ID of the dependency
+     * @param version    version of the dependency
+     * @return the resolved artifact, carrying its dependency tree when that could be collected
+     * @throws MavenResolverException when the artifact itself cannot be resolved
+     */
+    public org.ballerinalang.maven.Dependency resolveWithDependencyTree(String groupId, String artifactId,
+                                                                        String version)
+            throws MavenResolverException {
+        org.ballerinalang.maven.Dependency resolved = resolve(groupId, artifactId, version, false);
+        Artifact artifact = new DefaultArtifact(groupId + ":" + artifactId + ":" + version);
+        CollectRequest collectRequest = new CollectRequest();
+        collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
+        collectRequest.setRepositories(repositories);
+        try {
+            CollectResult collectResult = system.collectDependencies(session, collectRequest);
+            collectResult.getRoot().accept(new TreeDependencyVisitor(new DependencyVisitor() {
+                private final Deque<org.ballerinalang.maven.Dependency> ancestors = new ArrayDeque<>();
+
+                @Override
+                public boolean visitEnter(DependencyNode dependencyNode) {
+                    org.ballerinalang.maven.Dependency currentNode = convertDependency(dependencyNode);
+                    if (ancestors.isEmpty()) {
+                        rootNode = currentNode;
+                    } else {
+                        ancestors.peek().addDependency(currentNode);
+                    }
+                    ancestors.push(currentNode);
+                    return true;
+                }
+
+                @Override
+                public boolean visitLeave(DependencyNode dependencyNode) {
+                    ancestors.pop();
+                    return true;
+                }
+            }));
+        } catch (DependencyCollectionException e) {
+            return resolved;
+        }
+        return rootNode;
+    }
+
 }
