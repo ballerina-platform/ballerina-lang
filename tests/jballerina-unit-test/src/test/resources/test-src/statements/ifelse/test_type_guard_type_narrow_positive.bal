@@ -404,3 +404,76 @@ function test22(int|error x, boolean b) returns int {
     }
     return x; // OK: inner if-else has a genuinely terminating (non-trivial) else, so it always terminates
 }
+
+function test23(int|boolean|float x, boolean b) returns int|boolean {
+    if b {
+        if x is float {
+            return true;
+        }
+        // x is int|boolean here
+    } else {
+        return 0;
+    }
+    return x; // OK: the only path reaching here fell through the inner if, narrowing x to int|boolean
+}
+
+function getIntBooleanOrFloat() returns int|boolean|float => 1.0;
+
+function test24(boolean b) returns int|boolean {
+    int|boolean|float x = getIntBooleanOrFloat();
+    if x is float {
+        if b {
+            x = getIntBooleanOrFloat();
+            if x is float {
+                return true;
+            }
+        } else {
+            return 0;
+        }
+    }
+    return x; // OK: every path reaching here has x narrowed to int|boolean
+}
+
+function test25(int|boolean|float x) returns int|boolean {
+    if x is float|boolean {
+        if x is float {
+            return true;
+        }
+        // x is boolean here
+    } else {
+    }
+    return x; // OK: an empty else is trivial, same as no else at all
+}
+
+function test26(boolean outerCond, boolean p, int|boolean|float q, boolean b) returns int|boolean {
+    if outerCond {
+        if p {
+            return 0;
+        }
+        if b {
+            if q is float {
+                return true;
+            }
+            // q is int|boolean here
+        } else {
+            return 1;
+        }
+    } else {
+        return 2;
+    }
+    return q; // OK: the second if's own narrowing must survive the chain-takeover of the first
+}
+
+function test27(int|boolean|float x, boolean b) returns int {
+    if b {
+        if x is float {
+            return 1;
+        }
+    } else {
+        return 0;
+    }
+    int y = 10;
+    int z = y + 1; // OK: a running trusted env must stay the running env for later statements too,
+                   // not just the one immediately after the join point - y must still be visible here
+    return z;
+}

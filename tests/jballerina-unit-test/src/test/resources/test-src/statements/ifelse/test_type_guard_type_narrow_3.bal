@@ -484,3 +484,28 @@ function test38(int|error a, int|error cond) returns int {
     int y = cond; // ERROR incompatible types: expected 'int', found '(int|error)'
     return y;
 }
+
+function test39(int|error x, int|error y) returns string {
+    if x is error {
+        // if-branch is empty - falls through without examining y
+    } else {
+        if y is error {
+            return "a";
+        }
+        // y is int here, but only reachable via the else-branch
+    }
+    string s = y; // ERROR: y is not narrowed on the if-branch's path
+    return s;
+}
+
+function test40(int|boolean|float x, boolean b) returns int {
+    if b {
+        int localOnlyInBody = 42;
+        if x is float {
+            return 1;
+        }
+    } else {
+        return 0;
+    }
+    return localOnlyInBody; // ERROR: undefined symbol - declared inside the if-body block only
+}
