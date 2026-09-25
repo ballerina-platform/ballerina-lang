@@ -555,3 +555,15 @@ function test34() {
 
     string _ = y; // Type not narrowed. issue #34307
 }
+
+function testBodyAssignmentDoesNotNarrowFalsePath(int|string initialValue, boolean condition) returns int {
+    int|string value = initialValue;
+    if condition {
+        if value is int {
+            value = 1;
+        }
+        return 0;
+    }
+
+    return value;
+}

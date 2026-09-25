@@ -2895,6 +2895,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         boolean bodyCompletesNormally = !data.notCompletedNormally;
         SymbolEnv bodyExitEnv = normalCompletionEnvOf(ifNode.body, data);
 
+        Map<BVarSymbol, BType.NarrowedTypes> conditionNarrowedTypeInfo = ifNode.expr.narrowedTypeInfo;
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = data.narrowedTypeInfo;
         } else {
@@ -2942,7 +2943,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
             }
         } else if (ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) != symTable.trueType) {
+            Map<BVarSymbol, BType.NarrowedTypes> currentNarrowedTypeInfo = ifNode.expr.narrowedTypeInfo;
+            ifNode.expr.narrowedTypeInfo = conditionNarrowedTypeInfo;
             exitEnvs.add(typeNarrower.evaluateFalsity(ifNode.expr, ifNode, currentEnv, false));
+            ifNode.expr.narrowedTypeInfo = currentNarrowedTypeInfo;
         }
 
         if (ifNode.elseStmt != null && prevNarrowedTypeInfo != null) {
