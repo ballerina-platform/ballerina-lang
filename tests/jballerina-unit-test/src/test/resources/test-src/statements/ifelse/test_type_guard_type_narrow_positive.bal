@@ -463,3 +463,17 @@ function test26(boolean outerCond, boolean p, int|boolean|float q, boolean b) re
     }
     return q; // OK: the second if's own narrowing must survive the chain-takeover of the first
 }
+
+function test27(int|boolean|float x, boolean b) returns int {
+    if b {
+        if x is float {
+            return 1;
+        }
+    } else {
+        return 0;
+    }
+    int y = 10;
+    int z = y + 1; // OK: a running trusted env must stay the running env for later statements too,
+                   // not just the one immediately after the join point - y must still be visible here
+    return z;
+}

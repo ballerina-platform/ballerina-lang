@@ -595,17 +595,22 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
         SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
         int stmtCount = -1;
-        // The narrowed exit env of the previous if, if any - re-applied manually since analyzeNode
-        // doesn't preserve data.env across calls. See visit(BLangIf).
-        SymbolEnv trustedEnvFromPrevIf = null;
+        // Running env for the next statement; stays a trusted exit env (see visit(BLangIf)) across all
+        // later statements until narrowed further, since analyzeNode doesn't preserve data.env across calls.
+        SymbolEnv runningEnv = funcBodyEnv;
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
-            if (analyzeBlockStmtFollowingIfWithoutElse(body.stmts, stmtCount, funcBodyEnv, data)) {
+            if (analyzeBlockStmtFollowingIfWithoutElse(body.stmts, stmtCount, runningEnv, data)) {
                 break;
             }
-            data.env = trustedEnvFromPrevIf != null ? trustedEnvFromPrevIf : funcBodyEnv;
+            data.env = runningEnv;
+            if (!isEmptyBlock(stmt)) {
+                data.trustedExitEnv = null;
+            }
             analyzeStmt(stmt, data);
-            trustedEnvFromPrevIf = stmt.getKind() == NodeKind.IF ? data.trustedExitEnv : null;
+            if (data.trustedExitEnv != null) {
+                runningEnv = data.trustedExitEnv;
+            }
         }
         data.prevEnvs.remove(funcBodyEnv);
         resetNotCompletedNormally(data);
@@ -2261,7 +2266,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     // The env left by analyzing lastIf's true-branch only reflects that branch; falling out of
                     // this block also happens when lastIf's condition was false to begin with, so the env at
                     // this block's exit must be re-derived the same way a following statement's would be.
-                    data.env = applyFalsityChain(lastIf, blockNode, data.env);
+                    // Target lastIf, not blockNode: getTargetEnv overwrites a BLOCK target's .scope in
+                    // place, which would corrupt this already-finalized block's own scope.
+                    data.env = applyFalsityChain(lastIf, lastIf, data.env);
                     data.trustedExitEnv = data.env;
                 }
             }
@@ -2960,7 +2967,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             if (!ifCompletionStatus && elseBranchCompletionStatus && ifBodyExitEnv != null) {
-                data.trustedExitEnv = ifBodyExitEnv;
+                // Rebase, don't reuse as-is: ifBodyExitEnv's scope chain includes the if-body's own
+                // local declarations, which must not leak past the if statement.
+                data.trustedExitEnv = rebaseNarrowedSymbols(ifNode, ifBodyExitEnv, currentEnv);
             } else if (elseIsTrivial && !ifCompletionStatus && conditionIsGenuineTypeTest && ifBodyExitEnv != null) {
                 // An empty else behaves exactly like no else at all for narrowing purposes too - reuse the
                 // same union logic rather than only handling the literally-absent-else case.
@@ -3004,6 +3013,30 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     originalSym.origin == VIRTUAL);
         }
         return unionEnv;
+    }
+
+    // Rebases only the narrowed shadow symbols (originalSymbol set) along exitEnv's chain up to currentEnv
+    // onto a fresh env, dropping any real local declarations the chain also carries.
+    private SymbolEnv rebaseNarrowedSymbols(BLangNode owner, SymbolEnv exitEnv, SymbolEnv currentEnv) {
+        SymbolEnv rebasedEnv = null;
+        for (SymbolEnv env = exitEnv; env != null && env != currentEnv; env = env.enclEnv) {
+            for (Scope.ScopeEntry entry : env.scope.entries.values()) {
+                if (!(entry.symbol instanceof BVarSymbol varSymbol) || varSymbol.originalSymbol == null) {
+                    continue;
+                }
+                BVarSymbol originalSym = typeNarrower.getOriginalVarSymbol(varSymbol);
+                if (rebasedEnv != null && rebasedEnv.scope.entries.containsKey(originalSym.name)) {
+                    // A deeper (more specific) narrowing of the same variable was already captured.
+                    continue;
+                }
+                if (rebasedEnv == null) {
+                    rebasedEnv = SymbolEnv.createTypeNarrowedEnv(owner, currentEnv);
+                }
+                symbolEnter.defineTypeNarrowedSymbol(owner.pos, rebasedEnv, originalSym, varSymbol.type,
+                        originalSym.origin == VIRTUAL);
+            }
+        }
+        return rebasedEnv != null ? rebasedEnv : currentEnv;
     }
 
     @Override
@@ -3996,6 +4029,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         analyzeOnFailClause(onFailExists, foreach.body, foreach.onFailClause, data);
         data.notCompletedNormally = false;
+        // A loop can run zero times, so the body's own exit narrowing can't be trusted here either.
+        data.trustedExitEnv = null;
         data.breakFound = prevBreakFound;
     }
 
@@ -4102,6 +4137,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.notCompletedNormally =
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
+        // A loop can run zero times, so the body's own exit narrowing can't be trusted here either.
+        data.trustedExitEnv = null;
         data.breakFound = prevBreakFound;
         analyzeOnFailClause(onFailExists, whileNode.body, whileNode.onFailClause, data);
     }

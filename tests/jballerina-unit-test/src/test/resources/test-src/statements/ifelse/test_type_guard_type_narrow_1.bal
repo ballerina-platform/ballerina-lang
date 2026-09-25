@@ -541,7 +541,7 @@ function test34() {
         string _ = x; // OK
     }
 
-    string _ = x; // Type not narrowed. issue #34307
+    string _ = x; // OK
 
     int|string y = "y";
 
@@ -553,5 +553,5 @@ function test34() {
         string _ = y; // OK
     }
 
-    string _ = y; // Type not narrowed. issue #34307
+    string _ = y; // OK
 }

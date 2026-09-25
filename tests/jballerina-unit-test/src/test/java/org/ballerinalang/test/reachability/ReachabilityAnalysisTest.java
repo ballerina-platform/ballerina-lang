@@ -445,6 +445,18 @@ public class ReachabilityAnalysisTest {
     }
 
     @Test
+    public void testNarrowedExitEnvNotLeakedFromLoopBody() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/reachability-analysis/loop_narrowing_leak_test.bal");
+        int i = 0;
+        validateError(result, i++,
+                "incompatible types: expected '(string|boolean)', found '(int|string|boolean)'", 26, 24);
+        validateError(result, i++,
+                "incompatible types: expected '(string|boolean)', found '(int|string|boolean)'", 39, 24);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
     public void testSemanticsInNarrowingWithSingleIfNotCompletedNoramlly() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/reachability-analysis/narrowing_with_if_without_else_not_completed_normally_test.bal");

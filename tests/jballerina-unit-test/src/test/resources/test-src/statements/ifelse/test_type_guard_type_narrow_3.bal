@@ -497,3 +497,15 @@ function test39(int|error x, int|error y) returns string {
     string s = y; // ERROR: y is not narrowed on the if-branch's path
     return s;
 }
+
+function test40(int|boolean|float x, boolean b) returns int {
+    if b {
+        int localOnlyInBody = 42;
+        if x is float {
+            return 1;
+        }
+    } else {
+        return 0;
+    }
+    return localOnlyInBody; // ERROR: undefined symbol - declared inside the if-body block only
+}

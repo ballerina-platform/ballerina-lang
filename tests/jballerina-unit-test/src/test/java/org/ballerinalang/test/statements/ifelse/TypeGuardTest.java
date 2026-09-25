@@ -958,10 +958,6 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'L', found '(L|N)'", 462, 11);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'N', found '(L|N)'", 470, 11);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'N', found '(M|N)'", 480, 11);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found '(int|string)'",
-                544, 16);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found '(int|string)'",
-                556, 16);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
@@ -1121,6 +1117,7 @@ public class TypeGuardTest {
                 "incompatible types: expected 'int', found '(int|error)'", 484, 13);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(int|error)'", 497, 16);
+        BAssertUtil.validateError(result, index++, "undefined symbol 'localOnlyInBody'", 510, 12);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
