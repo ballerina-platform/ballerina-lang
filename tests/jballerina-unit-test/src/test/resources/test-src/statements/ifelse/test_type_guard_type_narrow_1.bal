@@ -98,7 +98,7 @@ function test8(boolean? b) {
         boolean _ = b;
     }
 
-    boolean _ = b; // type not narrowed. issue #34307
+    boolean _ = b;
 }
 
 function test9(boolean? b) {
@@ -126,7 +126,7 @@ function test10(true|false? b) {
         () _ = b;
     }
 
-    () _ = b; // type not narrowed. issue #34307
+    () _ = b;
 }
 
 function test11(int|boolean|string? b) {
@@ -182,7 +182,7 @@ function test13(int|boolean|string? b) {
         }
     }
 
-    int|string? _ = b; // type not narrowed. issue #34307
+    int|string? _ = b;
 }
 
 type Zero 0;
@@ -251,7 +251,7 @@ function test16(Ints x) {
                 return;
             }
 
-            -1 _ = x; // type not narrowed. issue #34307
+            -1 _ = x;
         } else {
             -3|-4 _ = x;
 
@@ -280,7 +280,7 @@ function test17(int|string|() x) {
         string _ = x;
     }
 
-    string? _ = x; // type not narrowed. issue #34307
+    string? _ = x;
 }
 
 function test18(int|string|boolean|() x) {
@@ -299,7 +299,7 @@ function test18(int|string|boolean|() x) {
         return;
     }
 
-    string _ = x; // type not narrowed. issue #34307
+    string _ = x;
 }
 
 function test19(int|boolean|string? x) {
@@ -554,4 +554,16 @@ function test34() {
     }
 
     string _ = y; // Type not narrowed. issue #34307
+}
+
+function testBodyAssignmentDoesNotNarrowFalsePath(int|string initialValue, boolean condition) returns int {
+    int|string value = initialValue;
+    if condition {
+        if value is int {
+            value = 1;
+        }
+        return 0;
+    }
+
+    return value;
 }

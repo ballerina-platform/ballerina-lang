@@ -183,6 +183,90 @@ function testTypeNarrowingInWhileBody() returns string {
     return result;
 }
 
+function testNarrowedVariableReassignedInWhile() returns int {
+    int|string? value = getNarrowedWhileValue(0);
+
+    if value is int {
+        // Continue with the narrowed type.
+    } else {
+        return 0;
+    }
+
+    int i = 1;
+    while value is int {
+        value = getNarrowedWhileValue(i);
+        i += 1;
+    }
+
+    return i;
+}
+
+function testNarrowedVariableReassignedInWhileBranch() returns int {
+    int|string? value = 0;
+    if value is int {
+        // Continue with the narrowed type.
+    } else {
+        return 0;
+    }
+
+    int i = 0;
+    while value is int {
+        if !isSecondIteration(i) {
+            // Continue with the current value.
+        } else {
+            value = ();
+        }
+        i += 1;
+    }
+    return i;
+}
+
+function testConditionNarrowingWithReassignmentInWhile() returns int {
+    int|string value = 2;
+    int count = 0;
+    while value is int && value > 0 {
+        count += 1;
+        value = count == 1 ? 1 : "done";
+    }
+    return count;
+}
+
+function testAssignmentOnTerminatingWhilePath() returns int {
+    int|string value = 10;
+    if value is string {
+        return 0;
+    }
+
+    while value is int {
+        value = "done";
+        return 1;
+    }
+}
+
+function testAssignmentOnContinuePath() returns int {
+    int|string value = 10;
+    if value is string {
+        return 0;
+    }
+
+    int count = 0;
+    while value is int {
+        value = "done";
+        count += 1;
+        continue;
+    }
+    return count;
+}
+
+function isSecondIteration(int i) returns boolean => i == 1;
+
+function getNarrowedWhileValue(int i) returns int|string? {
+    if i < 2 {
+        return i;
+    }
+    return ();
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
