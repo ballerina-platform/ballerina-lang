@@ -231,6 +231,33 @@ function testConditionNarrowingWithReassignmentInWhile() returns int {
     return count;
 }
 
+function testAssignmentOnTerminatingWhilePath() returns int {
+    int|string value = 10;
+    if value is string {
+        return 0;
+    }
+
+    while value is int {
+        value = "done";
+        return 1;
+    }
+}
+
+function testAssignmentOnContinuePath() returns int {
+    int|string value = 10;
+    if value is string {
+        return 0;
+    }
+
+    int count = 0;
+    while value is int {
+        value = "done";
+        count += 1;
+        continue;
+    }
+    return count;
+}
+
 function isSecondIteration(int i) returns boolean => i == 1;
 
 function getNarrowedWhileValue(int i) returns int|string? {

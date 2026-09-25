@@ -203,6 +203,18 @@ public class WhileStmtTest {
         Assert.assertEquals(returns, 2L);
     }
 
+    @Test(description = "Test an assignment on a terminating path inside a while loop")
+    public void testAssignmentOnTerminatingWhilePath() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testAssignmentOnTerminatingWhilePath");
+        Assert.assertEquals(returns, 1L);
+    }
+
+    @Test(description = "Test an assignment on a continue path inside a while loop")
+    public void testAssignmentOnContinuePath() {
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testAssignmentOnContinuePath");
+        Assert.assertEquals(returns, 1L);
+    }
+
     @Test
     public void testWhileStmtWithOnFailWithoutVariable() {
         BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithOnFailWithoutVariable");

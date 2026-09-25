@@ -4077,7 +4077,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         // Analyze foreach node's statements.
         data.env = blockEnv;
+        data.loopContinueEnvs.push(new ArrayList<>());
         analyzeStmt(foreach.body, data);
+        data.loopContinueEnvs.pop();
 
         analyzeOnFailClause(onFailExists, foreach.body, foreach.onFailClause, data);
         data.notCompletedNormally = false;
@@ -4185,9 +4187,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = data.narrowedTypeInfo;
         data.narrowedTypeInfo = new HashMap<>();
         data.env = whileEnv;
+        data.loopContinueEnvs.push(new ArrayList<>());
         analyzeStmt(whileNode.body, data);
+        List<SymbolEnv> continueEnvs = data.loopContinueEnvs.pop();
 
         Map<BVarSymbol, BType.NarrowedTypes> loopNarrowedTypeInfo = data.narrowedTypeInfo;
+        Set<BVarSymbol> assignedVarsReachingBackEdge = assignedVarsReachingBackEdge(
+                whileEnv, normalCompletionEnvOf(whileNode.body, data), continueEnvs,
+                loopNarrowedTypeInfo.keySet(), !data.notCompletedNormally);
         data.narrowedTypeInfo = prevNarrowedTypeInfo;
         if (data.narrowedTypeInfo != null) {
             data.narrowedTypeInfo.putAll(loopNarrowedTypeInfo);
@@ -4195,12 +4202,39 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         // The condition was type-checked for the first iteration. An assignment in the body can widen a variable on
         // the loop back edge, so later analyses must not treat that first-iteration narrowing as permanent.
-        resetAssignedVarTypesInCondition(whileNode.expr, loopNarrowedTypeInfo.keySet(), Collections.emptySet());
+        resetAssignedVarTypesInCondition(whileNode.expr, assignedVarsReachingBackEdge, Collections.emptySet());
         data.notCompletedNormally =
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
         data.breakFound = prevBreakFound;
         analyzeOnFailClause(onFailExists, whileNode.body, whileNode.onFailClause, data);
+    }
+
+    private Set<BVarSymbol> assignedVarsReachingBackEdge(SymbolEnv loopEntryEnv, SymbolEnv bodyExitEnv,
+                                                          List<SymbolEnv> continueEnvs,
+                                                          Set<BVarSymbol> assignedVars,
+                                                          boolean bodyCompletesNormally) {
+        List<SymbolEnv> backEdgeEnvs = new ArrayList<>(continueEnvs);
+        if (bodyCompletesNormally) {
+            backEdgeEnvs.add(bodyExitEnv);
+        }
+        if (backEdgeEnvs.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        Set<BVarSymbol> result = new LinkedHashSet<>();
+        for (BVarSymbol symbol : assignedVars) {
+            BType entryType = typeInEnv(loopEntryEnv, symbol);
+            for (SymbolEnv backEdgeEnv : backEdgeEnvs) {
+                BType exitType = typeInEnv(backEdgeEnv, symbol);
+                if (entryType != null && exitType != null &&
+                        (!types.isAssignable(entryType, exitType) || !types.isAssignable(exitType, entryType))) {
+                    result.add(symbol);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     private void resetAssignedVarTypesInCondition(BLangExpression expr, Set<BVarSymbol> assignedVars,
@@ -4620,6 +4654,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangContinue continueNode, AnalyzerData data) {
+        if (!data.loopContinueEnvs.isEmpty()) {
+            data.loopContinueEnvs.peek().add(data.env);
+        }
         data.notCompletedNormally = true;
     }
 
@@ -5388,6 +5425,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv normalCompletionEnv;
         BLangNode normalCompletionNode;
         Map<BLangStatement, Map<BVarSymbol, BType>> joinNarrowedTypes = new HashMap<>();
+        Deque<List<SymbolEnv>> loopContinueEnvs = new ArrayDeque<>();
         boolean notCompletedNormally;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
