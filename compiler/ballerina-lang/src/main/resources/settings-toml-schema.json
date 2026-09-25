@@ -71,6 +71,27 @@
               }
             }
           }
+        },
+        "oci": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "accesstoken": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }

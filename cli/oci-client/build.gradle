@@ -1,0 +1,62 @@
+plugins {
+    id 'javaProject'
+}
+
+group = 'org.ballerinalang'
+version = '2201.14.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    dependsOn configurations.runtimeClasspath
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Implementation-Title': 'OCI Client',
+                'Implementation-Version': version
+        )
+    }
+    from({ configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }) {
+        exclude 'module-info.class'
+        exclude 'META-INF/versions/*/module-info.class'
+        // Shaded dependencies (e.g. oras-java-sdk's signed bouncycastle) keep their original
+        // signature files, which no longer match once merged into this jar's own manifest.
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.EC'
+    }
+}
+
+dependencies {
+    implementation 'land.oras:oras-java-sdk:0.8.4'
+    implementation libs.apache.commons.compress
+    implementation 'com.google.code.gson:gson:2.10.1'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+ext.moduleName = 'org.ballerinalang.oci'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
+        classpath = files()
+    }
+}
+

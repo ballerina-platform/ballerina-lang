@@ -42,6 +42,7 @@ configurations {
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
+    implementation project(':oci-client')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation libs.picocli
@@ -50,6 +51,7 @@ dependencies {
         exclude group: 'org.apache.commons', module: 'commons-lang3'
     }
     implementation libs.gson
+    implementation libs.jib.core
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')

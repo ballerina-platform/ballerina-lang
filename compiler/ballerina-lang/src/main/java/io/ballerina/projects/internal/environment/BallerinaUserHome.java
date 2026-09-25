@@ -4,12 +4,14 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
+import io.ballerina.projects.internal.repositories.OCIPackageRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
+import static io.ballerina.projects.internal.SettingsBuilder.OCI;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.USER_HOME;
 
 /**
@@ -36,9 +39,11 @@ public final class BallerinaUserHome {
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
     private final MavenPackageRepository centralProxyMavenRepository;
+    private final OCIPackageRepository centralProxyOciRepository;
     private final LocalPackageRepository localPackageRepository;
     private Map<String, MavenPackageRepository> mavenCustomRepositories;
     private Map<String, FileSystemRepository> customFSRepositories;
+    private Map<String, OCIPackageRepository> ociCustomRepositories;
 
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
         this.ballerinaUserHomeDirPath = ballerinaUserHomeDirPath;
@@ -58,21 +63,39 @@ public final class BallerinaUserHome {
         Repository[] repositories = readSettings().getRepositories();
         this.localPackageRepository = createLocalRepository(environment);
         createCustomRepositories(environment, settings);
+        Repository centralProxyRepository = null;
         for (Repository repository : repositories) {
-            if (MAVEN.equals(repository.type()) && repository.proxyCentral()) {
-                centralProxyMavenRepository = MavenPackageRepository.from(environment, remotePackageRepositoryPath,
-                        repository);
-                remotePackageRepository = null;
-                return;
+            if (!repository.proxyCentral()
+                    || (!MAVEN.equals(repository.type()) && !OCI.equals(repository.type()))) {
+                continue;
             }
+            if (centralProxyRepository != null) {
+                throw new ProjectException("Multiple repositories cannot be configured to proxy Ballerina central.");
+            }
+            centralProxyRepository = repository;
+        }
+        if (centralProxyRepository != null) {
+            if (MAVEN.equals(centralProxyRepository.type())) {
+                this.centralProxyMavenRepository = MavenPackageRepository.from(environment,
+                        remotePackageRepositoryPath, centralProxyRepository);
+                this.centralProxyOciRepository = null;
+            } else {
+                this.centralProxyOciRepository = OCIPackageRepository.from(environment,
+                        remotePackageRepositoryPath, centralProxyRepository);
+                this.centralProxyMavenRepository = null;
+            }
+            this.remotePackageRepository = null;
+            return;
         }
         this.remotePackageRepository = RemotePackageRepository.from(environment, remotePackageRepositoryPath, settings);
         this.centralProxyMavenRepository = null;
+        this.centralProxyOciRepository = null;
     }
 
     private void createCustomRepositories(Environment environment, Settings settings) {
         mavenCustomRepositories = new HashMap<>();
         customFSRepositories = new HashMap<>();
+        ociCustomRepositories = new HashMap<>();
         Repository[] repositories = settings.getRepositories();
         for (Repository repository : repositories) {
             if (MAVEN.equals(repository.type())) {
@@ -91,6 +114,26 @@ public final class BallerinaUserHome {
 
                 if (!mavenCustomRepositories.containsKey(repository.id())) {
                     mavenCustomRepositories.put(repository.id(), MavenPackageRepository.from(
+                            environment, repositoryPath, repository));
+                }
+                continue;
+            }
+            if (OCI.equals(repository.type())) {
+                Path repositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(repository.id());
+                try {
+                    Files.createDirectories(repositoryPath);
+                } catch (IOException exception) {
+                    throw new ProjectException("unable to create repository: " +
+                            repository.id());
+                }
+
+                if (repository.proxyCentral()) {
+                    continue;
+                }
+
+                if (!ociCustomRepositories.containsKey(repository.id())) {
+                    ociCustomRepositories.put(repository.id(), OCIPackageRepository.from(
                             environment, repositoryPath, repository));
                 }
                 continue;
@@ -143,12 +186,18 @@ public final class BallerinaUserHome {
         return this.mavenCustomRepositories;
     }
 
+    public Map<String, OCIPackageRepository> ociCustomRepositories() {
+        return this.ociCustomRepositories;
+    }
+
     public Map<String, FileSystemRepository> customFSRepositories() {
         return this.customFSRepositories;
     }
 
     public CustomPkgRepositoryContainer customPkgRepositoryContainer() {
-        return new CustomPkgRepositoryContainer(mavenCustomRepositories);
+        Map<String, PackageRepository> customRepositories = new HashMap<>(mavenCustomRepositories);
+        customRepositories.putAll(ociCustomRepositories);
+        return new CustomPkgRepositoryContainer(customRepositories);
     }
 
     public LocalPackageRepository localPackageRepository() {
@@ -157,6 +206,10 @@ public final class BallerinaUserHome {
 
     public MavenPackageRepository centralProxyMavenRepository() {
         return centralProxyMavenRepository;
+    }
+
+    public OCIPackageRepository centralProxyOciRepository() {
+        return centralProxyOciRepository;
     }
 
     /**

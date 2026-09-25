@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.cmd;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JvmTarget;
@@ -36,24 +38,33 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.oci.OciClient;
+import org.ballerinalang.oci.OciClientException;
+import org.ballerinalang.oci.OciClientUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
+import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
+import static io.ballerina.projects.util.ProjectConstants.OCI_REPOSITORY_NAME;
+import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
@@ -195,10 +206,22 @@ public class PullCommand implements BLauncherCmd {
 
         Settings settings;
         settings = RepoUtils.readSettings();
+        Repository targetRepository = findTargetRepository(settings);
+        boolean isOciRepository = repositoryName != null &&
+            (OCI_REPOSITORY_NAME.equals(repositoryName)
+                || (targetRepository != null && OCI_REPOSITORY_NAME.equals(targetRepository.type())));
 
         if (repositoryName == null) {
             repositoryName = ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
             version = pullFromCentral(settings, orgName, packageName, version);
+        } else if (isOciRepository) {
+            Optional<String> pulledVersion = pullFromOCIRepo(settings, targetRepository, orgName, packageName,
+                    version);
+            if (pulledVersion.isEmpty()) {
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            version = pulledVersion.get();
         } else if (!LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
             pullFromMavenRepo(settings, orgName, packageName, version);
         }
@@ -212,6 +235,18 @@ public class PullCommand implements BLauncherCmd {
             Runtime.getRuntime().exit(0);
         }
 
+    }
+
+    private Repository findTargetRepository(Settings settings) {
+        if (repositoryName == null) {
+            return null;
+        }
+        for (Repository repository : settings.getRepositories()) {
+            if (repositoryName.equals(repository.id())) {
+                return repository;
+            }
+        }
+        return null;
     }
 
     private String pullFromCentral(Settings settings, String orgName, String packageName, String version) {
@@ -377,6 +412,95 @@ public class PullCommand implements BLauncherCmd {
             }
             PrintStream out = System.out;
             out.println("Successfully pulled the package from the custom repository.");
+        }
+    }
+
+    private Optional<String> pullFromOCIRepo(Settings settings, Repository targetRepository, String orgName,
+                                             String packageName, String version) {
+        if (targetRepository == null) {
+            String errMsg = "unsupported repository '" + repositoryName + "' found. Only " +
+                    "repositories mentioned in the Settings.toml are supported.";
+            CommandUtil.printError(this.errStream, errMsg, null, false);
+            return Optional.empty();
+        }
+
+        OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
+                targetRepository.password());
+        Proxy proxy = settings.getProxy();
+        ociClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
+
+        if (version.equals(Names.EMPTY.getValue())) {
+            try {
+                List<String> versions = targetRepository.proxyCentral()
+                        ? ociClient.pullMetadata(orgName, packageName)
+                        : ociClient.listTags(orgName, packageName);
+                if (versions.isEmpty()) {
+                    errStream.println("package not found: " + orgName + "/" + packageName);
+                    return Optional.empty();
+                }
+                version = CommandUtil.getLatestVersion(versions);
+            } catch (OciClientException e) {
+                errStream.println("unexpected error occurred while resolving the latest version of '"
+                        + orgName + "/" + packageName + "': " + e.getMessage());
+                return Optional.empty();
+            }
+        }
+
+        Path ociBalaCachePath = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(targetRepository.id())
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(orgName).resolve(packageName).resolve(version);
+
+        Path tmpDownloadDirectory = null;
+        boolean success = true;
+        try {
+            ensureWritable(ociBalaCachePath);
+            Files.createDirectories(ociBalaCachePath);
+            tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
+
+            ociClient.pullMetadata(orgName, packageName, version, String.valueOf(tmpDownloadDirectory),
+                    String.valueOf(ociBalaCachePath));
+
+            Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
+                    .resolve(packageName + "-" + version + BALA_EXTENSION);
+            Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
+                    .resolve(version).resolve(PLATFORM);
+            ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
+            Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
+            try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
+                JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
+                String platform = resultObj.get(PLATFORM).getAsString();
+                OciClientUtils.extractBalaToBalaCache(balaDownloadPath, ociBalaCachePath, platform);
+            }
+            outStream.println("Successfully pulled the package from the OCI repository.");
+        } catch (OciClientException e) {
+            errStream.println("unexpected error occurred while pulling package: " + e.getMessage());
+            success = false;
+        } catch (IOException e) {
+            errStream.println("failed to create package repository in bala cache at '" + ociBalaCachePath
+                    + "': " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            success = false;
+        } catch (Exception e) {
+            errStream.println("unexpected error occurred while creating package repository in bala cache: "
+                    + e.getMessage());
+            success = false;
+        } finally {
+            if (tmpDownloadDirectory != null) {
+                ProjectUtils.deleteDirectory(tmpDownloadDirectory);
+            }
+        }
+        return success ? Optional.of(version) : Optional.empty();
+    }
+
+
+    private void ensureWritable(Path targetPath) throws IOException {
+        Path existingAncestor = targetPath;
+        while (existingAncestor != null && !Files.exists(existingAncestor)) {
+            existingAncestor = existingAncestor.getParent();
+        }
+        if (existingAncestor != null && !Files.isWritable(existingAncestor)) {
+            throw new IOException("no write access to directory '" + existingAncestor + "'");
         }
     }
 
