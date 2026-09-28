@@ -66,7 +66,7 @@ function test5(int|string|boolean b) {
         return;
     }
 
-    int _ = b; // type not narrowed. issue #34307
+    int _ = b;
 }
 
 function test6(int|string|boolean? b) {
@@ -78,7 +78,7 @@ function test6(int|string|boolean? b) {
         return;
     }
 
-    int _ = b; // type not narrowed. issue #34307
+    int _ = b;
 }
 
 function test7(boolean? b) {
@@ -333,7 +333,7 @@ function test20(int|boolean|string? x) {
         return;
     }
 
-    () _ = x; // type not narrowed. issue #34307
+    () _ = x;
 }
 
 function test21(readonly & int[]|string[]? a) {
