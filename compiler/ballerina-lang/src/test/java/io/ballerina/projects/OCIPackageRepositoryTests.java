@@ -24,25 +24,27 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.repositories.OCIPackageRepository;
 import org.ballerinalang.oci.OciClient;
+import org.ballerinalang.oci.OciClientException;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -60,38 +62,12 @@ public class OCIPackageRepositoryTests {
 
         @Override
         public boolean getFromOci(PackageOrg org, PackageName name, PackageVersion version) {
-            Path sourceFolderPath =
-                    RESOURCE_DIRECTORY.resolve("custom-repo-resources/remote-custom-repo").resolve(name.toString());
-            Path destinationFolderPath =
-                    RESOURCE_DIRECTORY.resolve("custom-repo-resources/local-oci-repo/bala").resolve(org.toString())
-                            .resolve(name.toString());
-
-            try {
-                Files.walkFileTree(sourceFolderPath, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                        Path targetDir = destinationFolderPath.resolve(sourceFolderPath.relativize(dir));
-                        Files.createDirectories(targetDir);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.copy(file, destinationFolderPath.resolve(sourceFolderPath.relativize(file)),
-                                StandardCopyOption.REPLACE_EXISTING);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-
-            } catch (IOException e) {
-                return false;
-            }
-            return true;
+            return false;
         }
     }
 
     private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
-    private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("custom-repo-resources/local-oci-repo");
+    private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("custom-repo-resources/local-custom-repo");
     private OCIPackageRepository ociPackageRepository;
 
     @BeforeClass
@@ -107,7 +83,7 @@ public class OCIPackageRepositoryTests {
     @Test(description = "Test package existence in OCI repository")
     public void testIsPackageExist() {
         boolean isPackageExists = ociPackageRepository.isPackageExists(
-                PackageOrg.from("ballina_test"), PackageName.from("oci1"),
+                PackageOrg.from("testorg"), PackageName.from("packA"),
                 PackageVersion.from("0.1.0"));
         Assert.assertTrue(isPackageExists);
     }
@@ -115,16 +91,16 @@ public class OCIPackageRepositoryTests {
     @Test(description = "Test non-existing package in OCI repository - online")
     public void testNonExistingPkg() {
         boolean isPackageExists = ociPackageRepository.isPackageExists(
-                PackageOrg.from("ballina_test"),
-                PackageName.from("oci3"), PackageVersion.from("0.1.0"));
+                PackageOrg.from("testorg"),
+                PackageName.from("packC"), PackageVersion.from("0.1.0"));
         Assert.assertFalse(isPackageExists);
     }
 
     @Test(description = "Test package version existence in OCI repository")
     public void testGetPackageVersions() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("ballina_test"),
-                        PackageName.from("oci1"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packA"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = ociPackageRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
@@ -135,8 +111,8 @@ public class OCIPackageRepositoryTests {
     @Test(description = "Test getPackage (non existing package) in OCI repository - offline")
     public void testGetPackageNonExistingOffline() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("ballina_test"),
-                        PackageName.from("oci3"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packC"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
         Optional<Package> repositoryPackage = ociPackageRepository.getPackage(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
@@ -146,8 +122,8 @@ public class OCIPackageRepositoryTests {
     @Test(description = "Test getPackage (non existing package) in OCI repository - online")
     public void testGetPackageNonExistingOnline() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("ballina_test"),
-                        PackageName.from("oci3"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packC"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
         Optional<Package> repositoryPackage = ociPackageRepository.getPackage(resolutionRequest,
                 ResolutionOptions.builder().setOffline(false).build());
@@ -157,8 +133,8 @@ public class OCIPackageRepositoryTests {
     @Test(description = "Test getPackage (existing package) in OCI repository - online")
     public void testGetPackageExistingOnline() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("ballina_test"),
-                        PackageName.from("oci1"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packA"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
         Optional<Package> repositoryPackage = ociPackageRepository.getPackage(resolutionRequest,
                 ResolutionOptions.builder().setOffline(false).build());
@@ -168,28 +144,28 @@ public class OCIPackageRepositoryTests {
     @Test(description = "Test getPackage (existing package) in OCI repository - offline")
     public void testGetPackageExistingOffline() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("ballina_test"),
-                        PackageName.from("oci1"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packA"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
         Optional<Package> repositoryPackage = ociPackageRepository.getPackage(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
         Assert.assertTrue(repositoryPackage.isPresent());
-        Assert.assertEquals(repositoryPackage.get().descriptor().toString(), "ballina_test/oci1:0.1.0");
+        Assert.assertEquals(repositoryPackage.get().descriptor().toString(), "testorg/packA:0.1.0");
     }
 
     @Test(description = "Test getPackages")
     public void testGetPackages() {
         Map<String, List<String>> repositoryPackages = ociPackageRepository.getPackages();
         Assert.assertEquals(repositoryPackages.keySet().size(), 1);
-        Assert.assertTrue(repositoryPackages.containsKey("ballina_test"));
-        Assert.assertEquals(repositoryPackages.get("ballina_test").size(), 2);
+        Assert.assertTrue(repositoryPackages.containsKey("testorg"));
+        Assert.assertEquals(repositoryPackages.get("testorg").size(), 2);
     }
 
     @Test(description = "Test non-existing package version in OCI repository")
     public void testGetNonExistingPackageVersions1() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("ballina_test"),
-                        PackageName.from("oci1"), PackageVersion.from("0.2.0")),
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packA"), PackageVersion.from("0.2.0")),
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = ociPackageRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
@@ -200,16 +176,16 @@ public class OCIPackageRepositoryTests {
     @Test(description = "Test non-existing package modules in OCI repository")
     public void testNonExistingPkgModules() {
         Collection<ModuleDescriptor> modules = ociPackageRepository.getModules(
-                PackageOrg.from("ballina_test"),
-                PackageName.from("oci3"), PackageVersion.from("0.1.0"));
+                PackageOrg.from("testorg"),
+                PackageName.from("packC"), PackageVersion.from("0.1.0"));
         Assert.assertTrue(modules.isEmpty());
     }
 
     @Test(description = "Test non-existing package version of a non-existing package in OCI repository")
     public void testGetNonExistingPackageVersions2() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("ballina_test"),
-                        PackageName.from("oci4"), PackageVersion.from("0.2.0")),
+                PackageDescriptor.from(PackageOrg.from("testorg"),
+                        PackageName.from("packE"), PackageVersion.from("0.2.0")),
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = ociPackageRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
@@ -231,11 +207,12 @@ public class OCIPackageRepositoryTests {
         return new OCIPackageRepository(PROXY_ENV, PROXY_TEST_REPO, "1.2.3", client, true);
     }
 
-    @Test(description = "Proxy: version discovery reads the central index instead of listing tags",
+    @Test(description = "Proxy: version discovery reads the distribution-scoped index instead of listing tags",
             groups = {"proxy"})
     public void testGetPackageVersionsProxyCentralUsesIndex() {
         OciClient mockClient = Mockito.mock(OciClient.class);
-        Mockito.when(mockClient.pullMetadata(anyString(), anyString())).thenReturn(List.of("0.1.0", "0.2.0"));
+        Mockito.when(mockClient.pullMetadata(anyString(), anyString(), anyString()))
+                .thenReturn(List.of("0.1.0", "0.2.0"));
 
         OCIPackageRepository repo = proxyRepo(mockClient);
         ResolutionRequest request = ResolutionRequest.from(
@@ -246,7 +223,129 @@ public class OCIPackageRepositoryTests {
                 ResolutionOptions.builder().setOffline(false).build());
 
         Assert.assertTrue(versions.contains(PackageVersion.from("0.2.0")));
+        verify(mockClient).pullMetadata("testorg", "packA", "1.2.3");
         verify(mockClient, never()).listTags(anyString(), anyString());
+        // The index is already filtered for the distribution, so no per-version label lookups
+        verify(mockClient, never()).pullLabels(anyString(), anyString(), anyString());
+    }
+
+    @Test(description = "Hosted: versions are filtered by the Maven proxy's distribution rule, patch ignored")
+    public void testGetPackageVersionsHostedFiltersByDistribution() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.when(mockClient.listTags("testorg", "remotepkg")).thenReturn(List.of("1.0.0", "1.1.0", "1.2.0"));
+        mockLabels(mockClient, "1.0.0", "2201.12.0");  // older update
+        mockLabels(mockClient, "1.1.0", "2201.13.6");  // same update, newer patch
+        mockLabels(mockClient, "1.2.0", "2201.14.0");  // newer update
+
+        Collection<PackageVersion> versions = hostedRepo(mockClient, "2201.13.0").getPackageVersions(
+                remotePkgRequest(), ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(versions.contains(PackageVersion.from("1.0.0")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("1.1.0")));
+        Assert.assertFalse(versions.contains(PackageVersion.from("1.2.0")));
+    }
+
+    @Test(description = "Hosted: a SNAPSHOT distribution accepts packages built with its release")
+    public void testGetPackageVersionsHostedSnapshotDistribution() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.when(mockClient.listTags("testorg", "remotepkg")).thenReturn(List.of("1.0.0"));
+        mockLabels(mockClient, "1.0.0", "2201.14.0");
+
+        Collection<PackageVersion> versions = hostedRepo(mockClient, "2201.14.0-SNAPSHOT").getPackageVersions(
+                remotePkgRequest(), ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(versions.contains(PackageVersion.from("1.0.0")));
+    }
+
+    @Test(description = "Hosted: versions without compatibility labels are not filtered out, as in a Maven repository")
+    public void testGetPackageVersionsHostedUnlabelledVersion() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.when(mockClient.listTags("testorg", "remotepkg")).thenReturn(List.of("1.0.0", "1.1.0"));
+        Mockito.when(mockClient.pullLabels("testorg", "remotepkg", "1.0.0")).thenReturn(Map.of());
+        Mockito.when(mockClient.pullLabels("testorg", "remotepkg", "1.1.0")).thenReturn(Map.of(
+                OciClient.PLATFORM_LABEL, "unknownplatform", OciClient.DISTRIBUTION_LABEL, "2201.13.0"));
+
+        Collection<PackageVersion> versions = hostedRepo(mockClient, "2201.13.0").getPackageVersions(
+                remotePkgRequest(), ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(versions.contains(PackageVersion.from("1.0.0")));
+        // A label that is present is still enforced
+        Assert.assertFalse(versions.contains(PackageVersion.from("1.1.0")));
+    }
+
+    @Test(description = "A pull the registry fails at first is retried, and succeeds once the registry serves it")
+    public void testGetFromOciRetriesRegistryFailures() throws IOException {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.doThrow(new OciClientException("upstream not ready"))
+                .doAnswer(invocation -> {
+                    writePackABala(Path.of(invocation.getArgument(3, String.class)));
+                    return null;
+                })
+                .when(mockClient).pullMetadata(eq("testorg"), eq("packA"), eq("0.1.0"), anyString(), anyString());
+        Path cache = Files.createTempDirectory("oci-retry-cache");
+        OCIPackageRepository repo = retryingRepo(cache, mockClient);
+
+        boolean pulled = repo.getFromOci(PackageOrg.from("testorg"), PackageName.from("packA"),
+                PackageVersion.from("0.1.0"));
+
+        Assert.assertTrue(pulled);
+        verify(mockClient, times(2)).pullMetadata(eq("testorg"), eq("packA"), eq("0.1.0"), anyString(), anyString());
+        Assert.assertTrue(repo.isPackageExists(PackageOrg.from("testorg"), PackageName.from("packA"),
+                PackageVersion.from("0.1.0")));
+    }
+
+    @Test(description = "A pull the registry keeps failing gives up after the last attempt")
+    public void testGetFromOciGivesUpAfterLastAttempt() throws IOException {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.doThrow(new OciClientException("upstream down"))
+                .when(mockClient).pullMetadata(anyString(), anyString(), anyString(), anyString(), anyString());
+        OCIPackageRepository repo = retryingRepo(Files.createTempDirectory("oci-retry-cache"), mockClient);
+
+        boolean pulled = repo.getFromOci(PackageOrg.from("testorg"), PackageName.from("packA"),
+                PackageVersion.from("0.1.0"));
+
+        Assert.assertFalse(pulled);
+        verify(mockClient, times(3)).pullMetadata(anyString(), anyString(), anyString(), anyString(), anyString());
+    }
+
+    // Retries without waiting, so the tests don't sleep
+    private static OCIPackageRepository retryingRepo(Path cache, OciClient client) {
+        return new OCIPackageRepository(PROXY_ENV, cache, "2201.13.0", client) {
+            @Override
+            protected boolean waitBeforeRetry(int attempt) {
+                return true;
+            }
+        };
+    }
+
+    // Stands in for the registry download: zips the packA fixture where the client would write its bala
+    private static void writePackABala(Path downloadDirectory) throws IOException {
+        Path source = TEST_REPO.resolve("bala/testorg/packA/0.1.0/any");
+        Path bala = downloadDirectory.resolve("testorg/packA/0.1.0/packA-0.1.0.bala");
+        Files.createDirectories(bala.getParent());
+        try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(bala));
+             Stream<Path> files = Files.walk(source)) {
+            for (Path file : files.filter(Files::isRegularFile).toList()) {
+                zip.putNextEntry(new ZipEntry(source.relativize(file).toString().replace('\\', '/')));
+                Files.copy(file, zip);
+                zip.closeEntry();
+            }
+        }
+    }
+
+    private OCIPackageRepository hostedRepo(OciClient client, String distributionVersion) {
+        return new OCIPackageRepository(PROXY_ENV, PROXY_TEST_REPO, distributionVersion, client);
+    }
+
+    private static ResolutionRequest remotePkgRequest() {
+        return ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("testorg"), PackageName.from("remotepkg")),
+                PackageDependencyScope.DEFAULT);
+    }
+
+    private static void mockLabels(OciClient client, String version, String distributionVersion) {
+        Mockito.when(client.pullLabels("testorg", "remotepkg", version)).thenReturn(Map.of(
+                OciClient.PLATFORM_LABEL, "java21", OciClient.DISTRIBUTION_LABEL, distributionVersion));
     }
 
     @Test(description = "Proxy: offline resolution never calls the registry", groups = {"proxy"})
@@ -261,7 +360,7 @@ public class OCIPackageRepositoryTests {
         Collection<PackageVersion> versions = repo.getPackageVersions(request,
                 ResolutionOptions.builder().setOffline(true).build());
 
-        verify(mockClient, never()).pullMetadata(anyString(), anyString());
+        verify(mockClient, never()).pullMetadata(anyString(), anyString(), anyString());
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.0")));
     }
 
@@ -280,7 +379,7 @@ public class OCIPackageRepositoryTests {
         Collection<PackageMetadataResponse> responses = repo.getPackageMetadata(
                 List.of(request), ResolutionOptions.builder().setOffline(false).build());
 
-        verify(mockClient, never()).pullMetadata(anyString(), anyString());
+        verify(mockClient, never()).pullMetadata(anyString(), anyString(), anyString());
         Assert.assertFalse(responses.isEmpty());
         Assert.assertEquals(responses.iterator().next().resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);

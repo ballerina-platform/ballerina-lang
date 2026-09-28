@@ -25,7 +25,6 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageMetadataResponse;
@@ -64,6 +63,8 @@ public class OCIPackageRepository extends AbstractPackageRepository {
 
     private static final Set<String> SUPPORTED_PLATFORMS = Arrays.stream(JvmTarget.values())
             .map(JvmTarget::code).collect(Collectors.toSet());
+    private static final int PULL_ATTEMPTS = 3;
+    private static final long PULL_RETRY_DELAY_MILLIS = 2000;
 
     private final FileSystemRepository fileSystemRepository;
     private final OciClient ociClient;
@@ -97,9 +98,11 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     }
 
     private List<String> lookupVersions(String org, String pkg) {
-        List<String> versions = this.isProxyCentral
-                ? this.ociClient.pullMetadata(org, pkg) : this.ociClient.listTags(org, pkg);
-        return versions.stream().filter(version -> isPkgDistVersionCompatible(org, pkg, version)).toList();
+        if (this.isProxyCentral) {
+            return this.ociClient.pullMetadata(org, pkg, this.distributionVersion);
+        }
+        return this.ociClient.listTags(org, pkg).stream()
+                .filter(version -> isPkgDistVersionCompatible(org, pkg, version)).toList();
     }
 
     private void printWarning(String message) {
@@ -128,16 +131,46 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         String version = pkgVersion.toString();
         Path versionDir = Path.of(this.repoLocation).resolve("bala").resolve(orgName)
                 .resolve(packageName).resolve(version);
+        for (int attempt = 1; ; attempt++) {
+            try {
+                CustomPkgRepositoryUtils.pullIntoCache(orgName, packageName, version, versionDir,
+                        downloadDirectory -> ociClient.pullMetadata(orgName, packageName, version,
+                                downloadDirectory.toString(), versionDir.toString()));
+                return true;
+            } catch (OciClientException e) {
+                // A registry in front of a slow upstream (e.g. a pull-through cache still fetching the bala)
+                // can fail a download that succeeds moments later, so registry failures are retried.
+                if (attempt < PULL_ATTEMPTS && waitBeforeRetry(attempt)) {
+                    continue;
+                }
+                printPullWarning(orgName, packageName, version, e);
+                return false;
+            } catch (IOException | RuntimeException e) {
+                printPullWarning(orgName, packageName, version, e);
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Waits before retrying a failed pull, a little longer after each attempt.
+     *
+     * @param attempt the attempt that just failed, starting at 1
+     * @return false if interrupted while waiting, in which case the pull is not retried
+     */
+    protected boolean waitBeforeRetry(int attempt) {
         try {
-            CustomPkgRepositoryUtils.pullIntoCache(orgName, packageName, version, versionDir,
-                    downloadDirectory -> ociClient.pullMetadata(orgName, packageName, version,
-                            downloadDirectory.toString(), versionDir.toString()));
+            Thread.sleep(PULL_RETRY_DELAY_MILLIS * attempt);
             return true;
-        } catch (IOException | RuntimeException e) {
-            printWarning("warning: failed to pull package '" + orgName + "/" + packageName + ":" + version
-                    + "' from OCI repository: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return false;
         }
+    }
+
+    private void printPullWarning(String orgName, String packageName, String version, Exception e) {
+        printWarning("warning: failed to pull package '" + orgName + "/" + packageName + ":" + version
+                + "' from OCI repository: " + e.getMessage());
     }
 
     @Override
@@ -277,21 +310,13 @@ public class OCIPackageRepository extends AbstractPackageRepository {
         }
 
         String platform = labels.get(OciClient.PLATFORM_LABEL);
+        if (platform != null && !AnyTarget.ANY.code().equals(platform) && !SUPPORTED_PLATFORMS.contains(platform)) {
+            return false;
+        }
         String packageDistributionVersion = labels.get(OciClient.DISTRIBUTION_LABEL);
-        if (platform == null || packageDistributionVersion == null) {
-            return this.isProxyCentral;
-        }
-        if (!AnyTarget.ANY.code().equals(platform) && !SUPPORTED_PLATFORMS.contains(platform)) {
-            return false;
-        }
-
-        try {
-            SemanticVersion packageDistribution = SemanticVersion.from(packageDistributionVersion);
-            SemanticVersion currentDistribution = SemanticVersion.from(this.distributionVersion);
-            return packageDistribution.lessThanOrEqualTo(currentDistribution);
-        } catch (ProjectException e) {
-            return false;
-        }
+        return packageDistributionVersion == null
+                || CustomPkgRepositoryUtils.isPkgDistVersionCompatible(this.distributionVersion,
+                        packageDistributionVersion);
     }
 
 

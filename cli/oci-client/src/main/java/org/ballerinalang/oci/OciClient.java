@@ -27,6 +27,7 @@ import land.oras.Manifest;
 import land.oras.ManifestDescriptor;
 import land.oras.Referrers;
 import land.oras.Registry;
+import land.oras.exception.OrasException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -78,10 +79,6 @@ public class OciClient {
 
     /**
      * Creates an OCI registry client.
-     *
-     * <p>The URL scheme selects the transport: {@code http://} marks the registry as insecure, so plain HTTP and
-     * credentials over HTTP are permitted. Any other form, including a scheme-less URL, is treated as a secure
-     * registry reached over HTTPS.
      *
      * @param registryUrl registry host, optional base path, and any URL scheme (stripped)
      * @param username    registry username
@@ -225,7 +222,17 @@ public class OciClient {
      */
     private Manifest fetchManifest(String org, String pkg, String version) {
         return manifestCache.computeIfAbsent(repositoryReference(org, pkg) + ":" + version,
-                reference -> registry.getManifest(ContainerRef.parse(reference)));
+                reference -> getManifestByDigest(ContainerRef.parse(reference)));
+    }
+
+    /**
+     * Fetches the manifest a tag points to by its digest, resolving the tag with a HEAD request first.
+     *
+     * @param tagRef reference to the tag
+     * @return the manifest
+     */
+    private Manifest getManifestByDigest(ContainerRef tagRef) {
+        return registry.getManifest(tagRef.withDigest(registry.probeDescriptor(tagRef).getDigest()));
     }
 
     /**
@@ -233,12 +240,21 @@ public class OciClient {
      *
      * @param ref reference to the version tag to check
      * @return true if the tag already exists
+     * @throws OciClientException if the registry's tags cannot be listed
      */
     private boolean versionExists(ContainerRef ref) {
         try {
-            return registry.getTags(ref).tags().contains(ref.getTag());
+            List<String> tags = registry.getTags(ref).tags();
+            return tags != null && tags.contains(ref.getTag());
+        } catch (OrasException exception) {
+            if (Integer.valueOf(404).equals(exception.getStatusCode())) {
+                return false;
+            }
+            throw new OciClientException("failed to check whether version '" + ref.getTag()
+                    + "' already exists in the registry", exception);
         } catch (RuntimeException exception) {
-            return false;
+            throw new OciClientException("failed to check whether version '" + ref.getTag()
+                    + "' already exists in the registry", exception);
         }
     }
 
@@ -322,9 +338,41 @@ public class OciClient {
      * @return the list of available versions
      */
     public List<String> pullMetadata(String org, String pkg) {
+        return pullVersionIndex(org, pkg, "latest");
+    }
+
+    /**
+     * Reads the version index scoped to a Ballerina distribution, published under the tag of the
+     * distribution's update (see {@link #distributionIndexTag(String)}).
+     *
+     * @param org                 package organization
+     * @param pkg                 package name
+     * @param distributionVersion Ballerina distribution version of the caller, e.g. {@code 2201.13.2}
+     * @return the list of versions compatible with the distribution
+     */
+    public List<String> pullMetadata(String org, String pkg, String distributionVersion) {
+        return pullVersionIndex(org, pkg, distributionIndexTag(distributionVersion));
+    }
+
+    /**
+     * Maps a distribution version to the tag of its version index, keyed by update the same way the
+     * Maven Central proxy prefixes its metadata groupIds.
+     *
+     * @param distributionVersion Ballerina distribution version
+     * @return the version index tag
+     */
+    static String distributionIndexTag(String distributionVersion) {
+        String[] parts = distributionVersion.split("\\.");
+        if (parts.length < 2) {
+            throw new OciClientException("unsupported distribution version: " + distributionVersion);
+        }
+        return "v" + parts[0] + "-" + parts[1] + "-0";
+    }
+
+    private List<String> pullVersionIndex(String org, String pkg, String tag) {
         try {
-            ContainerRef ref = ContainerRef.parse(repositoryReference(org, pkg) + ":latest");
-            Manifest manifest = registry.getManifest(ref);
+            ContainerRef ref = ContainerRef.parse(repositoryReference(org, pkg) + ":" + tag);
+            Manifest manifest = getManifestByDigest(ref);
             List<Layer> layers = manifest.getLayers();
             if (layers.isEmpty()) {
                 return Collections.emptyList();

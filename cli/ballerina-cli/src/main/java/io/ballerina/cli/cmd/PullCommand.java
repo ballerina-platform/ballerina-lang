@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
+import static io.ballerina.projects.internal.SettingsBuilder.OCI;
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.OCI_REPOSITORY_NAME;
@@ -250,11 +251,10 @@ public class PullCommand implements BLauncherCmd {
     }
 
     private String pullFromCentral(Settings settings, String orgName, String packageName, String version) {
-        Repository[] mvnRepositories = settings.getRepositories();
-        Repository centralProxyMavenRepository = null;
-        for (Repository repository : mvnRepositories) {
-            if (MAVEN.equals(repository.type()) && repository.proxyCentral()) {
-                centralProxyMavenRepository = repository;
+        Repository centralProxyRepository = null;
+        for (Repository repository : settings.getRepositories()) {
+            if (repository.proxyCentral() && (MAVEN.equals(repository.type()) || OCI.equals(repository.type()))) {
+                centralProxyRepository = repository;
                 break;
             }
         }
@@ -279,8 +279,17 @@ public class PullCommand implements BLauncherCmd {
 
         CommandUtil.setPrintStream(errStream);
         try {
-            if (centralProxyMavenRepository != null) {
-                return pullFromMvnProxy(settings, centralProxyMavenRepository, orgName, packageName, version);
+            if (centralProxyRepository != null && OCI.equals(centralProxyRepository.type())) {
+                Optional<String> pulledVersion = pullFromOciProxy(settings, centralProxyRepository, orgName,
+                        packageName, version);
+                if (pulledVersion.isEmpty()) {
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return version;
+                }
+                return pulledVersion.get();
+            }
+            if (centralProxyRepository != null) {
+                return pullFromMvnProxy(settings, centralProxyRepository, orgName, packageName, version);
             }
             return pullFromBCentral(settings, orgName, packageName, version, packagePathInBalaCache);
         } catch (PackageAlreadyExistsException e) {
@@ -451,7 +460,51 @@ public class PullCommand implements BLauncherCmd {
                 .resolve(targetRepository.id())
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(orgName).resolve(packageName).resolve(version);
+        return pullOciBala(ociClient, orgName, packageName, version, ociBalaCachePath)
+                ? Optional.of(version) : Optional.empty();
+    }
 
+    private Optional<String> pullFromOciProxy(Settings settings, Repository centralProxyOciRepository,
+                                              String orgName, String packageName, String version) {
+        OciClient ociClient = new OciClient(centralProxyOciRepository.url(), centralProxyOciRepository.username(),
+                centralProxyOciRepository.password());
+        Proxy proxy = settings.getProxy();
+        ociClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
+
+        if (version.equals(Names.EMPTY.getValue())) {
+            try {
+                // The proxy's version index is scoped to this distribution, as the Maven proxy's metadata is,
+                // so its latest version is the latest compatible one.
+                List<String> versions = ociClient.pullMetadata(orgName, packageName,
+                        RepoUtils.getBallerinaShortVersion());
+                if (versions.isEmpty()) {
+                    errStream.println("package not found: " + orgName + "/" + packageName);
+                    return Optional.empty();
+                }
+                version = CommandUtil.getLatestVersion(versions);
+            } catch (OciClientException e) {
+                errStream.println("unexpected error occurred while resolving the latest version of '"
+                        + orgName + "/" + packageName + "': " + e.getMessage());
+                return Optional.empty();
+            }
+        }
+
+        // A Central proxy fills the Central bala cache, which is where builds resolve Central packages from
+        Path ociBalaCachePath = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(orgName).resolve(packageName).resolve(version);
+        if (packageExistsWithPlatform(ociBalaCachePath)) {
+            outStream.println("Package already exists.\n");
+            return Optional.of(version);
+        }
+        return pullOciBala(ociClient, orgName, packageName, version, ociBalaCachePath)
+                ? Optional.of(version) : Optional.empty();
+    }
+
+    private boolean pullOciBala(OciClient ociClient, String orgName, String packageName, String version,
+                                Path ociBalaCachePath) {
         Path tmpDownloadDirectory = null;
         boolean success = true;
         try {
@@ -490,7 +543,7 @@ public class PullCommand implements BLauncherCmd {
                 ProjectUtils.deleteDirectory(tmpDownloadDirectory);
             }
         }
-        return success ? Optional.of(version) : Optional.empty();
+        return success;
     }
 
 

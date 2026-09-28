@@ -162,6 +162,33 @@ final class CustomPkgRepositoryUtils {
     }
 
     /**
+     * Returns whether a package built with the given distribution can be used with the current one.
+     *
+     * @param currentDistVersion distribution version in use, e.g. {@code 2201.13.0}
+     * @param pkgDistVersion     distribution version the package was built with, e.g. {@code 2201.13.6}
+     * @return true if the package is compatible with the current distribution
+     */
+    static boolean isPkgDistVersionCompatible(String currentDistVersion, String pkgDistVersion) {
+        try {
+            String[] currentParts = currentDistVersion.split("\\.");
+            String[] pkgParts = pkgDistVersion.split("\\.");
+
+            if (currentParts.length < 2 || pkgParts.length < 2) {
+                return currentDistVersion.equals(pkgDistVersion);
+            }
+
+            int currentMajor = Integer.parseInt(currentParts[0]);
+            int currentMinor = Integer.parseInt(currentParts[1]);
+            int pkgMajor = Integer.parseInt(pkgParts[0]);
+            int pkgMinor = Integer.parseInt(pkgParts[1]);
+
+            return currentMajor == pkgMajor && currentMinor >= pkgMinor;
+        } catch (NumberFormatException e) {
+            return currentDistVersion.equals(pkgDistVersion);
+        }
+    }
+
+    /**
      * Returns the latest of the given versions.
      *
      * @param packageVersions package versions
