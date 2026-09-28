@@ -523,3 +523,21 @@ function test30(string? value) returns string {
     }
     return value ?: "default";
 }
+
+type JoinData map<anydata>;
+
+function test31(anydata|anydata[] value, boolean update) returns JoinData? {
+    anydata|anydata[] fieldValue = value;
+    if fieldValue == () {
+        return ();
+    } else if fieldValue is anydata[] {
+        return ();
+    } else if fieldValue is JoinData {
+        if update {
+            fieldValue = [1];
+            return {};
+        }
+        return fieldValue;
+    }
+    return ();
+}

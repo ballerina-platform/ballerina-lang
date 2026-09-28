@@ -617,6 +617,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         if (!data.notCompletedNormally && joinNarrowedTypesOf(prevStatement, data).isEmpty()) {
+            SymbolEnv normalCompletionEnv = publishedEnv(prevStatement, data);
+            if (normalCompletionEnv != null) {
+                data.env = normalCompletionEnv;
+            }
             return false;
         }
 
