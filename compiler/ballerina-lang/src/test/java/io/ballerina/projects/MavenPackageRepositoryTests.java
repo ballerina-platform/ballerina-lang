@@ -774,8 +774,7 @@ public class MavenPackageRepositoryTests {
             Assert.assertFalse(Files.exists(outsideDir),
                     "platform path traversal wrote outside the intended repo location");
         } finally {
-            
-          .deleteDirectory(testRoot);
+            ProjectUtils.deleteDirectory(testRoot);
         }
     }
 }
