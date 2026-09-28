@@ -17,18 +17,13 @@
  */
 package io.ballerina.cli.utils;
 
-import io.ballerina.cli.launcher.LauncherUtils;
-import io.ballerina.projects.Settings;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_CENTRAL_ACCESS_TOKEN;
+import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
 
@@ -47,73 +42,17 @@ public final class CentralUtils {
     }
 
     /**
-     * Checks if the access token is available in Settings.toml or not.
-     */
-    public static void authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl,
-                                    Path settingsTomlFilePath, CentralAPIClient client) {
-        String accessToken = client.accessToken();
-
-        if (accessToken.isEmpty()) {
-            try {
-                errStream.println(
-                        "Opening the web browser to " + ballerinaCentralCliTokenUrl + " for auto token update ...");
-
-                BrowserLauncher.startInDefaultBrowser(ballerinaCentralCliTokenUrl);
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException(
-                        "Access token is missing in " + settingsTomlFilePath.toString()
-                                + "\nAuto update failed. Please visit https://central.ballerina.io");
-            }
-            long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(settingsTomlFilePath);
-            TokenUpdater.execute(settingsTomlFilePath.toString());
-
-            boolean waitForToken = true;
-            while (waitForToken) {
-                pause();
-                long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(settingsTomlFilePath);
-                if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
-                    // read updated Settings.toml file to get the token
-                    Settings settings = RepoUtils.readSettings();
-                    accessToken = getAccessTokenOfCLI(settings);
-                    if (accessToken.isEmpty()) {
-                        throw createLauncherException(
-                                "Access token is missing in " + settingsTomlFilePath.toString() + "\nPlease "
-                                        + "visit https://central.ballerina.io");
-                    } else {
-                        waitForToken = false;
-                    }
-                    // set newly retrieved access token
-                    client.setAccessToken(accessToken);
-                }
-            }
-        }
-    }
-
-    /**
-     * Pause for 3s to check if the access token is received.
-     */
-    private static void pause() {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException ex) {
-            throw createLauncherException("Error occurred while retrieving the access token");
-        }
-    }
-
-    /**
-     * Get last modified time of file.
+     * Checks if the Ballerina Central access token is available and fails with an actionable error if it is not.
      *
-     * @param path file path
-     * @return last modified time in milliseconds
+     * @param settingsTomlFilePath `Settings.toml` file path
+     * @param client               central API client
      */
-    private static long getLastModifiedTimeOfFile(Path path) {
-        if (!Files.isRegularFile(path)) {
-            return -1;
-        }
-        try {
-            return Files.getLastModifiedTime(path).toMillis();
-        } catch (IOException ex) {
-            throw createLauncherException("Error occurred when reading file for token " + path.toString());
+    public static void authenticate(Path settingsTomlFilePath, CentralAPIClient client) {
+        if (client.accessToken().isEmpty()) {
+            throw createLauncherException("Ballerina Central access token is missing in " + settingsTomlFilePath
+                    + "\nVisit " + getBallerinaCentralCliTokenUrl() + " to get an access token and add it to the '"
+                    + SETTINGS_FILE_NAME + "' file as follows,\n\n\t[central]\n\taccesstoken=\"<access-token>\"\n\n"
+                    + "Alternatively, set the '" + BALLERINA_CENTRAL_ACCESS_TOKEN + "' environment variable.");
         }
     }
 

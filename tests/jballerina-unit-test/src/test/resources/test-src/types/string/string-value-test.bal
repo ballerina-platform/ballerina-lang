@@ -96,3 +96,26 @@ function assert(anydata actual, anydata expected) {
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
     panic error(reason);
 }
+
+function testConcurrentAnydataStringEquality() returns error? {
+    future<error?>[] workers = [];
+    foreach int id in 0 ..< 4 {
+        future<error?> w = @strand {thread: "any"} start churnStringCache(id);
+        workers.push(w);
+    }
+    foreach future<error?> w in workers {
+        check wait w;
+    }
+}
+
+isolated function churnStringCache(int id) returns error? {
+    int i = 0;
+    while i < 5000 {
+        anydata a = string `k-${id}-${i}`;
+        anydata b = string `k-${id}-${i}`;
+        if a != b {
+            return error(string `anydata string equality failed for k-${id}-${i}`);
+        }
+        i += 1;
+    }
+}

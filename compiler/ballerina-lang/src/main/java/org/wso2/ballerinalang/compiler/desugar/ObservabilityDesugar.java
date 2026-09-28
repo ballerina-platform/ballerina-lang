@@ -20,6 +20,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -64,6 +65,28 @@ public class ObservabilityDesugar {
             importDcl.symbol = packageCache.getSymbol(PackageID.OBSERVE_INTERNAL);
             pkgNode.imports.add(0, importDcl);
             pkgNode.symbol.imports.add(importDcl.symbol);
+        }
+    }
+
+    void addOtelModuleImport(BLangPackage pkgNode) {
+        if (pkgNode.moduleContextDataHolder != null && pkgNode.moduleContextDataHolder.isObservabiltyIncluded()
+                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT)) {
+            final BPackageSymbol otelSymbol = packageCache.getSymbol(Names.BALLERINA_ORG.value
+                    + Names.ORG_NAME_SEPARATOR.value + Names.OTEL.value);
+            if (otelSymbol == null) {
+                return;
+            }
+            BLangImportPackage otelImportDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+            List<BLangIdentifier> otelPkgNameComps = new ArrayList<>();
+            otelPkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OTEL.value));
+            otelImportDcl.pkgNameComps = otelPkgNameComps;
+            otelImportDcl.pos = pkgNode.symbol.pos;
+            otelImportDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
+            otelImportDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
+            otelImportDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
+            otelImportDcl.symbol = packageCache.getSymbol(otelSymbol.pkgID);
+            pkgNode.imports.add(1, otelImportDcl);
+            pkgNode.symbol.imports.add(otelImportDcl.symbol);
         }
     }
 }
