@@ -139,7 +139,7 @@ function test11("foo"|"bar"|"baz" x) {
         return;
     }
 
-    "baz" _ = x; // type not narrowed. issue #34307
+    "baz" _ = x;
 }
 
 function test12("foo"|"bar"|"baz"? x) {
@@ -152,7 +152,7 @@ function test12("foo"|"bar"|"baz"? x) {
     }
 
     "foo" _ = x; // error incompatible types
-    "foo"? _ = x; // type not narrowed. issue #34307
+    "foo"? _ = x;
 }
 
 function test13("a"|"b"|"c"? x) {

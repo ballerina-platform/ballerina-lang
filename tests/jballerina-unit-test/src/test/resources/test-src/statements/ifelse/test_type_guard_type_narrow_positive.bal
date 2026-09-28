@@ -32,6 +32,16 @@ function testTypeGuardTypeNarrow() returns boolean {
     test15("s", true);
     test16(2);
 
+    if test29(()) != "default" || test29("short") != "short" ||
+            test29("a string longer than ten characters") != "long" {
+        return false;
+    }
+
+    if test30(()) != "default" || test30("short") != "short" ||
+            test30("a string longer than ten characters") != "long" {
+        return false;
+    }
+
     return true;
 }
 
@@ -495,4 +505,21 @@ function test28(string? kind, boolean requiresApproval) returns string {
         return kind.substring(6);
     }
     return kind;
+}
+
+function test29(string? value) returns string {
+    if value is () {
+    } else if value.length() > 10 {
+        return "long";
+    }
+    return value ?: "default";
+}
+
+function test30(string? value) returns string {
+    if value is () {
+    } else if value.length() > 10 {
+        return "long";
+    } else {
+    }
+    return value ?: "default";
 }
