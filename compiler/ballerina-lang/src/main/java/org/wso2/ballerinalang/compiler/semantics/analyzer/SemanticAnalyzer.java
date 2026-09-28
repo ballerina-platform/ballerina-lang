@@ -617,6 +617,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         if (!data.notCompletedNormally && joinNarrowedTypesOf(prevStatement, data).isEmpty()) {
+            SymbolEnv normalCompletionEnv = publishedEnv(prevStatement, data);
+            if (normalCompletionEnv != null) {
+                data.env = normalCompletionEnv;
+            }
             return false;
         }
 
@@ -2933,20 +2937,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 exitEnvs.add(normalCompletionEnvOf(elseStmt, data));
             }
 
-            if (elseStmt.getKind() == NodeKind.IF) {
-                data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
-            } else if (isEmptyBlock(elseStmt)) {
-                // A trivial (empty) else always completes normally on its own, so it carries no information about
-                // whether this if/else statement can fall through.
-                data.notCompletedNormally = ifCompletionStatus;
-            } else {
-                data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
-            }
+            data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
         } else if (ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) != symTable.trueType) {
             Map<BVarSymbol, BType.NarrowedTypes> currentNarrowedTypeInfo = ifNode.expr.narrowedTypeInfo;
             ifNode.expr.narrowedTypeInfo = conditionNarrowedTypeInfo;
             exitEnvs.add(typeNarrower.evaluateFalsity(ifNode.expr, ifNode, currentEnv, false));
             ifNode.expr.narrowedTypeInfo = currentNarrowedTypeInfo;
+            // The false path reaches the statement following the if, regardless of whether the body completes.
+            resetNotCompletedNormally(data);
         }
 
         if (ifNode.elseStmt != null && prevNarrowedTypeInfo != null) {
