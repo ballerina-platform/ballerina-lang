@@ -22,6 +22,8 @@ import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.repositories.OCIPackageRepository;
 import org.ballerinalang.oci.OciClient;
 import org.ballerinalang.oci.OciClientException;
@@ -36,6 +38,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -346,6 +349,49 @@ public class OCIPackageRepositoryTests {
     private static void mockLabels(OciClient client, String version, String distributionVersion) {
         Mockito.when(client.pullLabels("testorg", "remotepkg", version)).thenReturn(Map.of(
                 OciClient.PLATFORM_LABEL, "java21", OciClient.DISTRIBUTION_LABEL, distributionVersion));
+    }
+
+    @Test(description = "Proxy: a hierarchical module resolves to the package whose modules include it",
+            groups = {"proxy"})
+    public void testGetPackageNamesProxyCentralHierarchicalModule() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.when(mockClient.pullMetadata(eq("ballerinax"), eq("mysql"), anyString())).thenReturn(List.of("1.19.1"));
+        Mockito.when(mockClient.pullLabels("ballerinax", "mysql", "1.19.1"))
+                .thenReturn(Map.of(OciClient.MODULES_LABEL, "mysql"));
+        Mockito.when(mockClient.pullMetadata(eq("ballerinax"), eq("mysql.driver"), anyString()))
+                .thenReturn(List.of("1.7.0"));
+        Mockito.when(mockClient.pullLabels("ballerinax", "mysql.driver", "1.7.0"))
+                .thenReturn(Map.of(OciClient.MODULES_LABEL, "mysql.driver"));
+
+        Assert.assertEquals(resolvedPackageName(proxyRepo(mockClient), "mysql.driver"), "mysql.driver");
+    }
+
+    @Test(description = "Proxy: a package whose manifest lists no modules is not passed over", groups = {"proxy"})
+    public void testGetPackageNamesProxyCentralWithoutModuleLabel() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.when(mockClient.pullMetadata(eq("ballerinax"), eq("mysql"), anyString())).thenReturn(List.of("1.19.1"));
+        Mockito.when(mockClient.pullLabels("ballerinax", "mysql", "1.19.1")).thenReturn(Map.of());
+
+        Assert.assertEquals(resolvedPackageName(proxyRepo(mockClient), "mysql.driver"), "mysql");
+    }
+
+    @Test(description = "Hosted: module lists are not checked, as in a hosted Maven repository")
+    public void testGetPackageNamesHostedIgnoresModuleLabel() {
+        OciClient mockClient = Mockito.mock(OciClient.class);
+        Mockito.when(mockClient.listTags("ballerinax", "mysql")).thenReturn(List.of("1.19.1"));
+        Mockito.when(mockClient.pullLabels("ballerinax", "mysql", "1.19.1")).thenReturn(Map.of(
+                OciClient.PLATFORM_LABEL, "java21", OciClient.DISTRIBUTION_LABEL, "2201.13.0",
+                OciClient.MODULES_LABEL, "mysql"));
+
+        Assert.assertEquals(resolvedPackageName(hostedRepo(mockClient, "2201.13.0"), "mysql.driver"), "mysql");
+    }
+
+    private static String resolvedPackageName(OCIPackageRepository repo, String moduleName) {
+        ImportModuleRequest importRequest = new ImportModuleRequest(PackageOrg.from("ballerinax"), moduleName,
+                List.of());
+        return repo.getPackageNames(List.of(importRequest), ResolutionOptions.builder().setOffline(false).build())
+                .stream().map(ImportModuleResponse::packageDescriptor).filter(Objects::nonNull)
+                .map(descriptor -> descriptor.name().value()).findFirst().orElse(null);
     }
 
     @Test(description = "Proxy: offline resolution never calls the registry", groups = {"proxy"})

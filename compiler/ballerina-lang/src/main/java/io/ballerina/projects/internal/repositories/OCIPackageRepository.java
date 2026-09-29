@@ -295,8 +295,31 @@ public class OCIPackageRepository extends AbstractPackageRepository {
     public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
                                                               ResolutionOptions options) {
         return CustomPkgRepositoryUtils.getPackageNames(requests, options, this.fileSystemRepository,
-                (importModuleRequest, packageName) -> listRemoteVersions(importModuleRequest.packageOrg().value(),
-                        packageName.value()));
+                (importModuleRequest, packageName) -> listRemoteVersionsProviding(
+                        importModuleRequest.packageOrg().value(), packageName.value(),
+                        importModuleRequest.moduleName()));
+    }
+
+    // A hierarchical module name such as `mysql.driver` could belong to package `mysql` or `mysql.driver.
+    private List<String> listRemoteVersionsProviding(String org, String pkg, String moduleName) {
+        List<String> versions = listRemoteVersions(org, pkg);
+        if (!this.isProxyCentral || versions.isEmpty()) {
+            return versions;
+        }
+        PackageVersion latest = CustomPkgRepositoryUtils.findLatest(
+                versions.stream().map(PackageVersion::from).toList());
+        return containsModule(org, pkg, latest.toString(), moduleName) ? versions : Collections.emptyList();
+    }
+
+    private boolean containsModule(String org, String pkg, String version, String moduleName) {
+        Map<String, String> labels;
+        try {
+            labels = this.ociClient.pullLabels(org, pkg, version);
+        } catch (OciClientException e) {
+            return true;
+        }
+        String modules = labels.get(OciClient.MODULES_LABEL);
+        return modules == null || modules.isEmpty() || Arrays.asList(modules.split(",")).contains(moduleName);
     }
 
     private boolean isPkgDistVersionCompatible(String org, String pkg, String version) {

@@ -61,6 +61,7 @@ public class OciClient {
     public static final String DISTRIBUTION_LABEL = "io.ballerina.distribution";
     public static final String DEPRECATED_LABEL = "io.ballerina.deprecated";
     public static final String DEPRECATION_MSG_LABEL = "io.ballerina.deprecation-message";
+    public static final String MODULES_LABEL = "io.ballerina.modules";
 
 
     private static final Logger ORAS_LOGGER = Logger.getLogger("land.oras");
