@@ -81,8 +81,7 @@ public abstract class StateMachine {
     protected final StringBuilder hexBuilder = new StringBuilder(4);
     protected char[] charBuff = new char[1024];
     protected int charBuffIndex;
-    private boolean hasPendingHighSurrogate;
-    private char pendingHighSurrogate;
+    private boolean hasSurrogateEscape;
 
     protected int index = 0;
     protected int line = 1;
@@ -146,30 +145,7 @@ public abstract class StateMachine {
         }
     }
 
-    public void append(char ch) throws ParserException {
-        if (this.hasPendingHighSurrogate) {
-            this.hasPendingHighSurrogate = false;
-            if (Character.isLowSurrogate(ch)) {
-                this.appendToCharBuff(this.pendingHighSurrogate);
-                this.appendToCharBuff(ch);
-                return;
-            }
-            throw new ParserException("invalid unicode escape: unpaired surrogate character U+"
-                    + String.format("%04X", (int) this.pendingHighSurrogate) + " in JSON string");
-        }
-        if (Character.isHighSurrogate(ch)) {
-            this.hasPendingHighSurrogate = true;
-            this.pendingHighSurrogate = ch;
-            return;
-        }
-        if (Character.isLowSurrogate(ch)) {
-            throw new ParserException("invalid unicode escape: unpaired surrogate character U+"
-                    + String.format("%04X", (int) ch) + " in JSON string");
-        }
-        this.appendToCharBuff(ch);
-    }
-
-    private void appendToCharBuff(char ch) {
+    public void append(char ch) {
         try {
             this.charBuff[this.charBuffIndex] = ch;
             this.charBuffIndex++;
@@ -409,14 +385,29 @@ public abstract class StateMachine {
     }
 
     String value() throws ParserException {
-        if (this.hasPendingHighSurrogate) {
-            this.hasPendingHighSurrogate = false;
-            throw new ParserException("invalid unicode escape: unpaired surrogate character U+"
-                    + String.format("%04X", (int) this.pendingHighSurrogate) + " in JSON string");
+        if (this.hasSurrogateEscape) {
+            this.hasSurrogateEscape = false;
+            validateSurrogatePairs();
         }
         String result = new String(this.charBuff, 0, this.charBuffIndex);
         this.charBuffIndex = 0;
         return result;
+    }
+
+    private void validateSurrogatePairs() throws ParserException {
+        for (int i = 0; i < this.charBuffIndex; i++) {
+            char c = this.charBuff[i];
+            if (!Character.isSurrogate(c)) {
+                continue;
+            }
+            if (Character.isHighSurrogate(c) && i + 1 < this.charBuffIndex
+                    && Character.isLowSurrogate(this.charBuff[i + 1])) {
+                i++;
+                continue;
+            }
+            this.charBuffIndex = 0;
+            throw new ParserException("unpaired surrogate character U+" + String.format("%04X", (int) c));
+        }
     }
 
     public void processFieldName() throws ParserException {
@@ -717,7 +708,11 @@ public abstract class StateMachine {
                 if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')) {
                     sm.hexBuilder.append(ch);
                     if (sm.hexBuilder.length() >= 4) {
-                        sm.append(this.extractUnicodeChar(sm));
+                        char c = this.extractUnicodeChar(sm);
+                        if (Character.isSurrogate(c)) {
+                            sm.hasSurrogateEscape = true;
+                        }
+                        sm.append(c);
                         this.reset(sm);
                         state = this.getSourceState(sm);
                         break;
