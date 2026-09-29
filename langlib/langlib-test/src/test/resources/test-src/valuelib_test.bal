@@ -184,6 +184,52 @@ function testFromJsonStringNegative() {
     assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
 }
 
+function testFromJsonStringSurrogatePairs() {
+    string s3 = "\"abcd\\uD800\"";
+    json|error j3 = s3.fromJsonString();
+    error err = <error>j3;
+    assert(<string>checkpanic err.detail()["message"], "unpaired surrogate character U+D800 at line: 1 column: 12");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    string s4 = "\"abcd\\uDC00\"";
+    json|error j4 = s4.fromJsonString();
+    err = <error>j4;
+    assert(<string>checkpanic err.detail()["message"], "unpaired surrogate character U+DC00 at line: 1 column: 12");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    string s5 = "\"abcd\\uD800e\"";
+    json|error j5 = s5.fromJsonString();
+    err = <error>j5;
+    assert(<string>checkpanic err.detail()["message"], "unpaired surrogate character U+D800 at line: 1 column: 13");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    string s6 = "{\"ab\\uD800cd\": 1}";
+    json|error j6 = s6.fromJsonString();
+    err = <error>j6;
+    assert(<string>checkpanic err.detail()["message"], "unpaired surrogate character U+D800 at line: 1 column: 13");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    string s7 = "[\"abcd\\uD800\"]";
+    json|error j7 = s7.fromJsonString();
+    err = <error>j7;
+    assert(<string>checkpanic err.detail()["message"], "unpaired surrogate character U+D800 at line: 1 column: 13");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    string s8 = "{\"a\": \"abcd\\uD800\"}";
+    json|error j8 = s8.fromJsonString();
+    err = <error>j8;
+    assert(<string>checkpanic err.detail()["message"], "unpaired surrogate character U+D800 at line: 1 column: 18");
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    string s9 = "\"abcd\\uD83D\\uDE00\"";
+    json|error j9 = s9.fromJsonString();
+    assert(<string>checkpanic j9, "abcd\u{1F600}");
+
+    string s10 = "\"abcd\\\\uD800\"";
+    json|error j10 = s10.fromJsonString();
+    assert(<string>checkpanic j10, "abcd\\uD800");
+}
+
 function testFromJsonFloatString() returns map<json|error> {
     string aNil = "()";
     string aNull = "null";
