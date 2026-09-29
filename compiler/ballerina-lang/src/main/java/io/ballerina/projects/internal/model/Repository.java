@@ -27,6 +27,7 @@ import static io.ballerina.projects.internal.SettingsBuilder.MAVEN;
  * @since 2201.8.0
  */
 public class Repository {
+
     private final String id;
     private final String url;
     private final String username;
@@ -60,8 +61,7 @@ public class Repository {
     }
 
     public static Repository from() {
-        return new Repository("", "", "", "", MAVEN, null,
-                false);
+        return new Repository("", "", "", "", MAVEN, null, false);
     }
 
     public String id() {

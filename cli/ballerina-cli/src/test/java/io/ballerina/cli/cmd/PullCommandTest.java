@@ -188,6 +188,24 @@ public class PullCommandTest extends BaseCommandTest {
                 "Only repositories mentioned in the Settings.toml are supported.\n"));
     }
 
+    @Test(description = "Pull a package from the 'oci' repository when it is not configured in the Settings.toml")
+    public void testPullFromUnconfiguredOciRepo() throws IOException {
+        Path settingsTomlPath = Path.of("src/test/resources/test-resources/custom-repo/Settings.toml");
+        Path mockBallerinaHome = Path.of("build/ballerina-home");
+
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parseArgs("ballina_test/oci1:0.1.0", "--repository=oci");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath, ""));
+            pullCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertEquals(actual, "ballerina: unsupported repository 'oci' found. Only repositories " +
+                "mentioned in the Settings.toml are supported.\n");
+    }
+
     @Test(description = "Pull package from Maven proxy central - client throws exception")
     public void testPullFromMvnProxyClientException() throws IOException {
         Path settingsPath = Path.of("src/test/resources/test-resources/maven-proxy/Settings.toml");

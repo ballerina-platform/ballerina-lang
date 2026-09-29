@@ -42,6 +42,7 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.oci.OciClient;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -171,8 +172,11 @@ public class PushCommand implements BLauncherCmd {
                         break;
                     }
                 }
+                boolean isOciRepository = repositoryName.equals(ProjectConstants.OCI_REPOSITORY_NAME)
+                        || (isCustomRepository && ProjectConstants.OCI_REPOSITORY_NAME.equals(targetRepository.type()));
 
-                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME) && !isCustomRepository) {
+                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)
+                        && !repositoryName.equals(ProjectConstants.OCI_REPOSITORY_NAME) && !isCustomRepository) {
                     String errMsg = "unsupported repository '" + repositoryName + "' found. Only '"
                             + ProjectConstants.LOCAL_REPOSITORY_NAME +
                             "' repository and repositories mentioned in the Settings.toml are supported.";
@@ -193,6 +197,40 @@ public class PushCommand implements BLauncherCmd {
                     }
                     validateReadmeAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath);
+                    return;
+                } else if (isOciRepository) {
+                    if (targetRepository == null) {
+                        String errMsg = "repository '" + ProjectConstants.OCI_REPOSITORY_NAME + "' is not configured "
+                                + "in the Settings.toml. Please add the repository with its url, username, and "
+                                + "password before pushing.";
+                        CommandUtil.printError(this.errStream, errMsg, null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        return;
+                    }
+                    if (targetRepository.proxyCentral()) {
+                        String errMsg = "cannot push to repository '" + repositoryName + "': it is configured to "
+                                + "proxy Ballerina Central in the Settings.toml, which is read-only.";
+                        CommandUtil.printError(this.errStream, errMsg, null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        return;
+                    }
+                    OciClient ociClient = new OciClient(targetRepository.url(), targetRepository.username(),
+                            targetRepository.password());
+                    Proxy ociProxy = settings.getProxy();
+                    ociClient.setProxy(ociProxy.host(), ociProxy.port(), ociProxy.username(), ociProxy.password());
+                    if (balaPath == null) {
+                        pushPackage(project, ociClient);
+                    } else {
+                        if (!balaPath.toFile().exists()) {
+                            throw new ProjectException("path provided for the bala file does not exist: "
+                                    + balaPath + ".");
+                        }
+                        if (!FileUtils.getExtension(balaPath).equals("bala")) {
+                            throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
+                        }
+                        validateReadmeAndBalToml(balaPath);
+                        pushBalaToOCIRepo(balaPath, ociClient);
+                    }
                     return;
                 }
 
@@ -284,6 +322,11 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project, MavenResolverClient client) {
         Path balaFilePath = validateBalaFile(project, this.balaPath);
         pushBalaToCustomRepo(balaFilePath, client);
+    }
+
+    private void pushPackage(BuildProject project, OciClient client) {
+        Path balaFilePath = validateBalaFile(project, this.balaPath);
+        pushBalaToOCIRepo(balaFilePath, client);
     }
 
     private void pushPackage(BuildProject project, CentralAPIClient client)
@@ -543,6 +586,58 @@ public class PushCommand implements BLauncherCmd {
             outStream.println("Successfully pushed " + relativePathToBalaFile
                     + " to '" + repositoryName + "' repository.");
         }
+    }
+
+    private void pushBalaToOCIRepo(Path balaPath, OciClient client) {
+        try {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+            String org =  balaProject.currentPackage().manifest().org().toString();
+            String name =  balaProject.currentPackage().manifest().name().toString();
+            String version =  balaProject.currentPackage().manifest().version().toString();
+            String platform = balaProject.platform();
+            String distributionVersion = balaProject.currentPackage().manifest().ballerinaVersion();
+            client.pushOCIArtifact(org, name, version, platform, distributionVersion, balaPath);
+            publishDependencyGraphReferrer(balaPath, client, org, name, version);
+            Path relativePathToBalaFile;
+            if (this.balaPath != null) {
+                relativePathToBalaFile = balaPath;
+            } else {
+                relativePathToBalaFile = userDir.relativize(balaPath);
+            }
+            outStream.println("Successfully pushed " + relativePathToBalaFile
+                    + " to '" + repositoryName + "' repository.");
+        } catch (Exception e) {
+            throw new ProjectException("error while pushing bala file '" + balaPath + "' to '"
+                    + repositoryName + "' repository: " + e.getMessage(), e);
+        }
+    }
+
+    private void publishDependencyGraphReferrer(Path balaPath, OciClient client, String org, String name,
+                                                  String version) {
+        try {
+            Optional<byte[]> dependencyGraphJson = readDependencyGraphJson(balaPath);
+            if (dependencyGraphJson.isEmpty()) {
+                return;
+            }
+            client.pushDependencyGraphReferrer(org, name, version, dependencyGraphJson.get());
+        } catch (Exception e) {
+            outStream.println("warning: failed to publish dependency graph referrer for '" + org + "/" + name
+                    + ":" + version + "': " + e.getMessage());
+        }
+    }
+
+    private static Optional<byte[]> readDependencyGraphJson(Path balaPath) throws IOException {
+        try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                if (entry.getName().equals(ProjectConstants.DEPENDENCY_GRAPH_JSON)) {
+                    return Optional.of(zip.readAllBytes());
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     /**

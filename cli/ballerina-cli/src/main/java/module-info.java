@@ -26,6 +26,8 @@ module io.ballerina.cli {
     requires org.objectweb.asm;
     requires org.apache.commons.io;
     requires maven.resolver;
+    requires org.ballerinalang.oci;
+    requires com.google.cloud.tools.jib;
     requires java.net.http;
     requires java.semver;
 }

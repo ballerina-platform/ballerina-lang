@@ -93,12 +93,17 @@ public class EnvironmentBuilder {
         if (ballerinaCentralRepo == null) {
             ballerinaCentralRepo = ballerinaUserHome.centralProxyMavenRepository();
         }
+        if (ballerinaCentralRepo == null) {
+            ballerinaCentralRepo = ballerinaUserHome.centralProxyOciRepository();
+        }
         environment.addService(LocalPackageRepository.class, ballerinaUserHome.localPackageRepository());
         environment.addService(CustomPkgRepositoryContainer.class, ballerinaUserHome.customPkgRepositoryContainer());
 
         Map<String, PackageRepository> customRepositories = ballerinaUserHome.customRepositories().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         customRepositories.putAll(ballerinaUserHome.customFSRepositories().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        customRepositories.putAll(ballerinaUserHome.ociCustomRepositories().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
         WorkspaceRepository workspaceRepository = null;
