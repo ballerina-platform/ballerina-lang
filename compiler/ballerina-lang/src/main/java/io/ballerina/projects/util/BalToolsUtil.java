@@ -283,6 +283,7 @@ public class BalToolsUtil {
             try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
                 JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
                 String platform = resultObj.get(ProjectConstants.PLATFORM).getAsString();
+                ProjectUtils.validatePlatformIdentifier(platform);
 
                 // Determine the final repository path
                 Path toolRepositoryPath = RepoUtils.createAndGetHomeReposPath()
