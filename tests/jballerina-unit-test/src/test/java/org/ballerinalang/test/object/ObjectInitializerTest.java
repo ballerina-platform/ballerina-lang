@@ -74,7 +74,7 @@ public class ObjectInitializerTest {
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_init_negative_project");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "attempt to refer to non-accessible symbol 'student.init'", 5, 21);
+        validateError(result, 0, "attempt to initialize object 'student' with a non-accessible initialization method", 5, 21);
 
     }
 
