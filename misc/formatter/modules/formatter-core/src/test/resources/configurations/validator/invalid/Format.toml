@@ -13,7 +13,7 @@ functionBraceStyle = "NEWLINE"
 
 [functionDefinition]
 parametersWrap = "CHOPDOWN"
-paramterExtend = true
+parameterExtend = true
 
 [functionCall]
 argumentsWrap = "WRAP"
