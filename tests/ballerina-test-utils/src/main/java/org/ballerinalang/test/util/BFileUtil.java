@@ -60,8 +60,8 @@ public final class BFileUtil {
             Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                    return FileVisitResult.CONTINUE;
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    throw exc;
                 }
 
                 @Override
@@ -99,8 +99,8 @@ public final class BFileUtil {
             Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                    return FileVisitResult.CONTINUE;
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    throw exc;
                 }
 
                 @Override
@@ -113,11 +113,10 @@ public final class BFileUtil {
 
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (Files.exists(dir)) {
-                        try (Stream<Path> paths = Files.list(dir)) {
-                            paths.forEach(BFileUtil::delete);
-                        }
+                    if (exc != null) {
+                        throw exc;
                     }
+                    Files.deleteIfExists(dir);
                     return FileVisitResult.CONTINUE;
                 }
             });
