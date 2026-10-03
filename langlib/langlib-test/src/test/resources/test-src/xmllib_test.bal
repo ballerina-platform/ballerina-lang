@@ -227,6 +227,26 @@ function testCreateText() {
     assertEquals(text3.toString(), "T");
     assertEquals(text4.toString(), "Thisisxmltext");
     assertEquals(text5.toString(), "XML\ntext");
+
+    assertEquals(text2.length(), 0);
+    assertEquals(text2, xml ``);
+    assertEquals(text1.length(), 1);
+    assertEquals(text3.length(), 1);
+
+    int count = 0;
+    foreach 'xml:Text item in text2 {
+        count += 1;
+    }
+    assertEquals(count, 0);
+    assertEquals(text2[0], xml ``);
+}
+
+function testCreateTextWithEmptyString() {
+    xml x1 = xml ``;
+    xml x2 = 'xml:createText("");
+    assertEquals(x1.length(), 0);
+    assertEquals(x2.length(), 0);
+    assertEquals(x1, x2);
 }
 
 function testForEach() {
@@ -1290,7 +1310,7 @@ function testLangLibCallsWithUnions() {
     error? fnRes = trap fn();
     test:assertTrue(fnRes is error);
     error err = <error> fnRes;
-    test:assertValueEqual(err.message(), "xml sequence index out of range. Length: '1' requested: '1'");
+    test:assertValueEqual(err.message(), "xml sequence index out of range. Length: '0' requested: '1'");
 
     xml:Element|xml:Element v2 = xml `<books><book>Hamlet</book><book>Macbeth</book></books>`;
     xml children = v2.getChildren();
