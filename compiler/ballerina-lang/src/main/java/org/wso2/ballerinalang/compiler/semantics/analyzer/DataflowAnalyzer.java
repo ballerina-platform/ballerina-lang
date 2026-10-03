@@ -1267,7 +1267,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return equality(attributeA.name, attributeB.name) && equality(attributeA.value, attributeB.value);
             case XML_QNAME:
                 BLangXMLQName xmlqNameA = (BLangXMLQName) nodeA;
-                BLangXMLQName xmlqNameB = (BLangXMLQName) nodeA;
+                BLangXMLQName xmlqNameB = (BLangXMLQName) nodeB;
                 return equality(xmlqNameA.localname, xmlqNameB.localname)
                         && equality(xmlqNameA.prefix, xmlqNameB.prefix);
             case XML_ELEMENT_LITERAL:
@@ -1390,7 +1390,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         && equality(ternaryExprA.elseExpr, ternaryExprB.elseExpr);
             case GROUP_EXPR:
                 BLangGroupExpr groupExprA = (BLangGroupExpr) nodeA;
-                BLangGroupExpr groupExprB = (BLangGroupExpr) nodeA;
+                BLangGroupExpr groupExprB = (BLangGroupExpr) nodeB;
                 return equality(groupExprA.expression, groupExprB.expression);
             default:
                 return false;
