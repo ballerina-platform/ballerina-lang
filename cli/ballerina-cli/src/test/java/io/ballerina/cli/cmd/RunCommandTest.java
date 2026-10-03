@@ -752,6 +752,26 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
+    @Test(description = "Run a valid ballerina project with --silent flag")
+    public void testRunValidBalProjectWithSilent() throws IOException {
+        Path projectPath = this.testResources.resolve("validRunProject");
+        Path tempFile = projectPath.resolve("temp.txt");
+
+        System.setProperty("user.dir", this.testResources.resolve("validRunProject").toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
+                .parseArgs("--silent", "--", tempFile.toString());
+
+        Assert.assertFalse(tempFile.toFile().exists());
+        runCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertFalse(buildLog.contains("Compiling source"));
+        Assert.assertFalse(buildLog.contains("Running executable"));
+        Assert.assertTrue(tempFile.toFile().exists());
+
+        Files.delete(tempFile);
+    }
+
     @Test
     public void testRunPackageInWorkspace() {
         Path projectPath = this.testResources.resolve("workspaces/wp-simple");
