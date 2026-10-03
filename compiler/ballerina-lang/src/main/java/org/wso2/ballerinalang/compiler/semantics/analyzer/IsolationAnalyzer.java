@@ -1309,7 +1309,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if ((Symbols.isFlagOn(flags, Flags.FINAL) || Symbols.isFlagOn(flags, Flags.FUNCTION_FINAL)) &&
-                types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType)) {
+                (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType) ||
+                 types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(symbol.type))) {
             return;
         }
 
