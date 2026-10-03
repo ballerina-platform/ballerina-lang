@@ -193,7 +193,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         if (actualCommand.get("command").getAsString().equals("ADD_DOC")) {
                             JsonObject actualNodeRange = getNodeRange(actualArgs);
                             JsonObject expNodeRange = getNodeRange(expArgs);
-                            assert actualNodeRange != null;
+                            Assert.assertNotNull(actualNodeRange);
                             if (!actualNodeRange.equals(expNodeRange)) {
                                 misMatched = true;
                                 JsonArray newArgs = getNodeRangeArgument(actualArgs);

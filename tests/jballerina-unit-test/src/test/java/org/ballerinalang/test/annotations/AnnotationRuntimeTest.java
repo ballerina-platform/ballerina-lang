@@ -241,7 +241,7 @@ public class AnnotationRuntimeTest {
     public static Object getMethodAnnotations(BTypedesc bTypedesc, BString method, BString annotName) {
         Type describingType = TypeUtils.getImpliedType(bTypedesc.getDescribingType());
         int tag = describingType.getTag();
-        assert tag == TypeTags.OBJECT_TYPE_TAG || tag == TypeTags.SERVICE_TAG;
+        Assert.assertTrue(tag == TypeTags.OBJECT_TYPE_TAG || tag == TypeTags.SERVICE_TAG);
 
         ObjectType objectType = (ObjectType) describingType;
         String methodName = method.getValue();
