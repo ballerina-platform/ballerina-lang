@@ -14,7 +14,7 @@ public final class DebugUtils {
 
     private static final String DEBUG_ARGS_JAVA = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y";
     private static final String JAVA_VERSION_PROP = "java.version";
-    private static final String COMPATIBLE_JRE_VERSION = "21";
+    private static final String COMPATIBLE_JRE_VERSION = "25";
 
     private DebugUtils() {
     }
@@ -29,7 +29,6 @@ public final class DebugUtils {
                 !System.getProperty(SYSTEM_PROP_BAL_DEBUG).isEmpty();
     }
 
-    // Todo - Evaluate adding support for later JRE versions.
     /**
      * Returns current runtime aware debug arguments for the ballerina program to be executed.
      *

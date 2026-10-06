@@ -79,6 +79,10 @@ public class DebugOutputTest extends BaseTestCase {
         Assert.assertTrue(runningExecOutput.isPresent(), "Expected 'Running executable' output not found");
         Assert.assertEquals(runningExecOutput.get().getRight().getCategory(), OutputEventArgumentsCategory.CONSOLE);
 
+        // Validates that the debugger does not report the current JRE as incompatible.
+        Assert.assertTrue(outputs.stream().noneMatch(o -> o.getLeft().contains("Incompatible JRE version")),
+                "Unexpected incompatible JRE version warning found in debug outputs");
+
         // Resumes the program and waits for the program termination.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         boolean terminated = debugTestRunner.waitForDebugTermination(10000);
