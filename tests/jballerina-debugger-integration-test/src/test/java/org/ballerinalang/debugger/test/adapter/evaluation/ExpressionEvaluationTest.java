@@ -261,6 +261,10 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         // json
         debugTestRunner.assertExpression(context, JSON_VAR + "[\"color\"]", "\"red\"", "string");
         debugTestRunner.assertExpression(context, JSON_VAR + "[\"undefined\"]", "()", "nil");
+        // records
+        debugTestRunner.assertExpression(context, ANON_RECORD_VAR + "[\"city\"]", "\"London\"", "string");
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"course\"]", "\"ballerina\"", "string");
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"undefined\"]", "()", "nil");
         // XML
         debugTestRunner.assertExpression(context, XML_VAR + "[0]", "XMLElement", "xml");
         debugTestRunner.assertExpression(context, XML_VAR + "[0][0]", "Praveen", "xml");
