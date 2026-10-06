@@ -733,7 +733,7 @@ public class InteropMethodGen {
      *
      * @since 1.2.0
      */
-    static class JMethodFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+    static class JMethodFunctionWrapper extends JvmPackageGen.BIRFunctionWrapper implements ExternalFunctionWrapper {
 
         JMethod jMethod;
 
@@ -751,7 +751,7 @@ public class InteropMethodGen {
      *
      * @since 1.2.0
      */
-    static class JFieldFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+    static class JFieldFunctionWrapper extends JvmPackageGen.BIRFunctionWrapper implements ExternalFunctionWrapper {
 
         JavaField jField;
 
