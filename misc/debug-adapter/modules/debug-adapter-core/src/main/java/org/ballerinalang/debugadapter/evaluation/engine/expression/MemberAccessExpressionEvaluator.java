@@ -51,6 +51,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_XML_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_STRING_AT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getChildVarByName;
 
 /**
  * Evaluator implementation for member access expressions.
@@ -81,7 +82,8 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
             // Validates container expression result type.
             if (containerVar.getBType() != BVariableType.STRING && containerVar.getBType() != BVariableType.XML
                     && containerVar.getBType() != BVariableType.ARRAY && containerVar.getBType() != BVariableType.MAP
-                    && containerVar.getBType() != BVariableType.JSON) {
+                    && containerVar.getBType() != BVariableType.JSON
+                    && containerVar.getBType() != BVariableType.RECORD) {
                 throw createEvaluationException(CUSTOM_ERROR, "Type `" + containerVar.getBType().getString() +
                         "' does not support member access.");
             }
@@ -132,11 +134,12 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                     Value child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
                 }
-                // Index access of mappings (map, json)
+                // Index access of mappings (map, json, record)
                 // If it is mapping, then if the mapping is () or c does not contain a member with key k, then the
                 // result is (); otherwise, the result is the member of the mapping with key k.
                 case MAP:
-                case JSON: {
+                case JSON:
+                case RECORD: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.STRING && keyVar.getBType() != BVariableType.NIL) {
                         throw createEvaluationException(INVALID_KEY_TYPE_ERROR, BVariableType.STRING.getString(),
@@ -148,7 +151,7 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
                         keyString = VariableUtils.removeRedundantQuotes(keyString);
-                        Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
+                        Value child = getChildVarByName(containerVar, keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
                         return new BExpressionValue(context, null);
