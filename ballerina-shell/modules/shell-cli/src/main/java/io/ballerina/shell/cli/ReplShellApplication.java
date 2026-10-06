@@ -54,9 +54,11 @@ public final class ReplShellApplication {
         Terminal terminal;
 
         if (configuration.isDumb()) {
+            // The exec provider creates an external terminal that honors the configured streams and propagates EOF.
             terminal = TerminalBuilder.builder()
                     .streams(configuration.getInputStream(), configuration.getOutputStream())
-                    .jna(false).jansi(false).dumb(true).build();
+                    .provider(TerminalBuilder.PROP_PROVIDER_EXEC)
+                    .dumb(true).build();
         } else {
             terminal = TerminalBuilder.terminal();
             configuration.setDumb(terminal.getType().equals(Terminal.TYPE_DUMB));
