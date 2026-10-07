@@ -388,23 +388,24 @@ public class BreakpointProcessor {
         // will resume the EventSet. Therefore to avoid this, we are disabling possible event requests before doing
         // the condition evaluation.
         JDIUtils.disableJDIRequests(context);
+        try {
+            ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads()
+                    .get((int) threadReference.uniqueID());
+            List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(thread.frames());
+            if (validFrames.isEmpty()) {
+                throw new IllegalStateException("Failed to use stack frames for evaluation");
+            }
 
-        ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get((int) threadReference.uniqueID());
-        List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(thread.frames());
-        if (validFrames.isEmpty()) {
-            throw new IllegalStateException("Failed to use stack frames for evaluation");
+            SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
+            EvaluationContext evaluationContext = new EvaluationContext(ctx);
+            DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
+            evaluator.setExpression(expression);
+            return evaluator.evaluate();
+        } finally {
+            // As we disabled all the breakpoint requests before evaluating the user's conditional
+            // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
+            JDIUtils.enableJDIRequests(context);
         }
-
-        SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
-        EvaluationContext evaluationContext = new EvaluationContext(ctx);
-        DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
-        evaluator.setExpression(expression);
-        BExpressionValue evaluationResult = evaluator.evaluate();
-
-        // As we disabled all the breakpoint requests before evaluating the user's conditional
-        // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
-        JDIUtils.enableJDIRequests(context);
-        return evaluationResult;
     }
 
     private boolean requireStepOut(BreakpointEvent event) {
