@@ -73,7 +73,9 @@ public class BreakpointProcessor {
     // Breakpoint conditions must not be evaluated in the common fork-join pool, which also runs the JDI event
     // processor. Otherwise, the event processor thread may run the evaluation task itself while waiting for its
     // result, and the remote method invocations of the evaluation can deadlock with the unprocessed JDI events.
-    private final ExecutorService conditionEvaluationExecutor = Executors.newSingleThreadExecutor();
+    // A cached thread pool is used so that an evaluation which does not complete (e.g. a condition calling a
+    // function which never returns) does not block the subsequent evaluations.
+    private final ExecutorService conditionEvaluationExecutor = Executors.newCachedThreadPool();
 
     private static final int BP_EVALUATION_TIMEOUT = 5000;
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
