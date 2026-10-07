@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -151,6 +152,10 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
                         keyString = VariableUtils.removeRedundantQuotes(keyString);
+                        // Record field names are stored in their escaped and encoded form.
+                        if (containerVar.getBType() == BVariableType.RECORD) {
+                            keyString = Utils.encodeNonFunctionIdentifier(Utils.escapeSpecialCharacters(keyString));
+                        }
                         Value child = getChildVarByName(containerVar, keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
