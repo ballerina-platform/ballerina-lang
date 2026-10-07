@@ -80,9 +80,9 @@ public class DebugHitListener extends TimerTask {
             }
             // If the debug hit is observed, cancels the timer task.
             if (bp != null) {
-                debugHitFound = true;
                 debugHitContext = event;
                 debugHitpoint = bp;
+                debugHitFound = true;
                 this.cancel();
             }
         }
