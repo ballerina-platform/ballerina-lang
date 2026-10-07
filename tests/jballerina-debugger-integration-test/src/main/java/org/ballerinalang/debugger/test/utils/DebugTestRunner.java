@@ -417,10 +417,14 @@ public class DebugTestRunner {
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(hitListener, 0, SCHEDULER_INTERVAL_MS);
 
-        waitUntil(hitListener::isDebugHitFound, timeoutMillis);
+        waitUntil(() -> hitListener.isDebugHitFound() || hitListener.isDebuggeeTerminated(), timeoutMillis);
         timer.cancel();
 
         if (!hitListener.isDebugHitFound()) {
+            if (hitListener.isDebuggeeTerminated()) {
+                throw new BallerinaTestException("Debuggee terminated before reaching a debug hit. Debuggee " +
+                        "outputs: " + getPendingDebugOutputs());
+            }
             throw new BallerinaTestException("Timeout expired waiting for the debug hit");
         }
         return new ImmutablePair<>(hitListener.getDebugHitpoint(), hitListener.getDebugHitContext());
@@ -524,6 +528,17 @@ public class DebugTestRunner {
                 return;
             }
         }
+    }
+
+    /**
+     * Returns the debugger outputs which are not yet consumed by an output listener, without consuming them.
+     */
+    private String getPendingDebugOutputs() {
+        StringBuilder outputs = new StringBuilder();
+        for (OutputEventArguments output : debugClientConnector.getServerEventHolder().getOutputEvents()) {
+            outputs.append(output.getOutput());
+        }
+        return outputs.toString();
     }
 
     /**
