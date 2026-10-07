@@ -83,12 +83,14 @@ public class DebugHitListener extends TimerTask {
             } catch (BallerinaTestException e) {
                 LOGGER.error(e.getMessage(), e);
             }
-            // If the debug hit is observed, cancels the timer task.
+            // If the debug hit is observed, cancels the timer task and leaves the remaining stopped events in the queue
+            // for the subsequent debug hit listeners.
             if (bp != null) {
                 debugHitContext = event;
                 debugHitpoint = bp;
                 debugHitFound = true;
                 this.cancel();
+                return;
             }
         }
 
