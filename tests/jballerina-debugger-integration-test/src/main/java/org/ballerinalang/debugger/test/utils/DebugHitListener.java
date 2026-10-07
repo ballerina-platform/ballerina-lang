@@ -44,6 +44,7 @@ public class DebugHitListener extends TimerTask {
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
     private volatile boolean debugHitFound;
+    private volatile boolean debuggeeTerminated;
 
     public DebugHitListener(DAPClientConnector connector) {
         this.connector = connector;
@@ -56,6 +57,10 @@ public class DebugHitListener extends TimerTask {
 
     public boolean isDebugHitFound() {
         return debugHitFound;
+    }
+
+    public boolean isDebuggeeTerminated() {
+        return debuggeeTerminated;
     }
 
     public BallerinaTestDebugPoint getDebugHitpoint() {
@@ -90,6 +95,7 @@ public class DebugHitListener extends TimerTask {
         // If the debuggee program execution is already finished, cancels the timer task immediately.
         if (!connector.getServerEventHolder().getTerminatedEvents().isEmpty() ||
                 !connector.getServerEventHolder().getExitedEvents().isEmpty()) {
+            debuggeeTerminated = true;
             this.cancel();
         }
     }
