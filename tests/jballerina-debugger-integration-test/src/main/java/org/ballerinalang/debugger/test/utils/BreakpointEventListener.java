@@ -56,7 +56,6 @@ public class BreakpointEventListener extends TimerTask {
     public void run() {
         ConcurrentLinkedQueue<BreakpointEventArguments> events = connector.getServerEventHolder().getBreakpointEvents();
         while (!events.isEmpty() && connector.isConnected()) {
-            breakpointEventFound = true;
             events.forEach(event -> {
                 if (event != null && event.getReason().equals(BreakpointEventArgumentsReason.CHANGED)) {
                     Breakpoint breakpoint = event.getBreakpoint();
@@ -65,6 +64,7 @@ public class BreakpointEventListener extends TimerTask {
                 }
             });
             events.clear();
+            breakpointEventFound = true;
             this.cancel();
         }
 

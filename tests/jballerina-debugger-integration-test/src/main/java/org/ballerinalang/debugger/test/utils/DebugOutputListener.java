@@ -66,10 +66,10 @@ public class DebugOutputListener extends TimerTask {
             if (outputEvents.length == 0) {
                 continue;
             }
-            this.debugOutputFound = true;
             this.outputs = outputEvents;
             this.lastOutputContext = outputEvents[outputEvents.length - 1];
             this.lastOutputLog = outputEvents[outputEvents.length - 1].getOutput();
+            this.debugOutputFound = true;
             this.cancel();
         }
     }
