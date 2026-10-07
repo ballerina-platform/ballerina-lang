@@ -50,6 +50,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -68,6 +70,10 @@ public class BreakpointProcessor {
     private final ExecutionContext context;
     private final JDIEventProcessor jdiEventProcessor;
     private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new ConcurrentHashMap<>();
+    // Breakpoint conditions must not be evaluated in the common fork-join pool, which also runs the JDI event
+    // processor. Otherwise, the event processor thread may run the evaluation task itself while waiting for its
+    // result, and the remote method invocations of the evaluation can deadlock with the unprocessed JDI events.
+    private final ExecutorService conditionEvaluationExecutor = Executors.newSingleThreadExecutor();
 
     private static final int BP_EVALUATION_TIMEOUT = 5000;
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
@@ -344,7 +350,7 @@ public class BreakpointProcessor {
                         "at line: %d, due to an internal error", lineNumber));
                 return false;
             }
-        });
+        }, conditionEvaluationExecutor);
     }
 
     /**
