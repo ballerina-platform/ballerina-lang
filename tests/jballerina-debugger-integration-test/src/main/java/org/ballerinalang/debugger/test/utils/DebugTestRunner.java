@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
+import java.util.function.BooleanSupplier;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
@@ -93,6 +94,7 @@ public class DebugTestRunner {
     private boolean clientSupportsRunInTerminal;
 
     private static final int SCHEDULER_INTERVAL_MS = 1000;
+    private static final int WAIT_POLL_INTERVAL_MS = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
@@ -415,19 +417,14 @@ public class DebugTestRunner {
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(hitListener, 0, SCHEDULER_INTERVAL_MS);
 
-        long retries = 2 * timeoutMillis / SCHEDULER_INTERVAL_MS;
-        for (int i = 0; i < retries; i++) {
-            try {
-                Thread.sleep(SCHEDULER_INTERVAL_MS / 2);
-                if (hitListener.isDebugHitFound()) {
-                    break;
-                }
-            } catch (InterruptedException ignored) {
-            }
-        }
+        waitUntil(() -> hitListener.isDebugHitFound() || hitListener.isDebuggeeTerminated(), timeoutMillis);
         timer.cancel();
 
         if (!hitListener.isDebugHitFound()) {
+            if (hitListener.isDebuggeeTerminated()) {
+                throw new BallerinaTestException("Debuggee terminated before reaching a debug hit. Debuggee " +
+                        "outputs: " + getPendingDebugOutputs());
+            }
             throw new BallerinaTestException("Timeout expired waiting for the debug hit");
         }
         return new ImmutablePair<>(hitListener.getDebugHitpoint(), hitListener.getDebugHitContext());
@@ -444,10 +441,7 @@ public class DebugTestRunner {
         DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(outputListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(outputListener::isDebugOutputFound, timeoutMillis);
         timer.cancel();
 
         if (!outputListener.isDebugOutputFound()) {
@@ -467,10 +461,7 @@ public class DebugTestRunner {
         BreakpointEventListener breakpointEventListener = new BreakpointEventListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(breakpointEventListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(breakpointEventListener::isBreakpointEventFound, timeoutMillis);
         timer.cancel();
 
         if (!breakpointEventListener.isBreakpointEventFound()) {
@@ -491,10 +482,7 @@ public class DebugTestRunner {
         DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(outputListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(outputListener::isDebugOutputFound, timeoutMillis);
         timer.cancel();
 
         if (!outputListener.isDebugOutputFound()) {
@@ -518,13 +506,39 @@ public class DebugTestRunner {
         DebugTerminationListener terminationListener = new DebugTerminationListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(terminationListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(terminationListener::isTerminationFound, timeoutMillis);
         timer.cancel();
 
         return terminationListener.isTerminationFound();
+    }
+
+    /**
+     * Blocks until the given condition is satisfied or the timeout expires, whichever happens first.
+     *
+     * @param condition     condition to be satisfied
+     * @param timeoutMillis timeout
+     */
+    private static void waitUntil(BooleanSupplier condition, long timeoutMillis) {
+        long deadline = System.currentTimeMillis() + timeoutMillis;
+        while (!condition.getAsBoolean() && System.currentTimeMillis() < deadline) {
+            try {
+                Thread.sleep(WAIT_POLL_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+    }
+
+    /**
+     * Returns the debugger outputs which are not yet consumed by an output listener, without consuming them.
+     */
+    private String getPendingDebugOutputs() {
+        StringBuilder outputs = new StringBuilder();
+        for (OutputEventArguments output : debugClientConnector.getServerEventHolder().getOutputEvents()) {
+            outputs.append(output.getOutput());
+        }
+        return outputs.toString();
     }
 
     /**
