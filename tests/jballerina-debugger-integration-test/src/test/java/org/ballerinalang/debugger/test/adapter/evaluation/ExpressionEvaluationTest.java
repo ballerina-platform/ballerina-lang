@@ -264,6 +264,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         // records
         debugTestRunner.assertExpression(context, ANON_RECORD_VAR + "[\"city\"]", "\"London\"", "string");
         debugTestRunner.assertExpression(context, RECORD_VAR + "[\"course\"]", "\"ballerina\"", "string");
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"Ȧɢέ_ /:@[`{~π\"]", "20", "int");
         debugTestRunner.assertExpression(context, RECORD_VAR + "[\"undefined\"]", "()", "nil");
         // XML
         debugTestRunner.assertExpression(context, XML_VAR + "[0]", "XMLElement", "xml");
