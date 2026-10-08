@@ -189,7 +189,7 @@ public class TypeConverter {
             BField field = key.getValue();
             JsonObject fieldTypeNode = getType(field.getType());
             effectiveTypeNode.add(field.getName().getValue(), fieldTypeNode);
-            if (!Symbols.isOptional(field.symbol)) {
+            if (!Symbols.isOptional(field.symbol) && !field.symbol.isDefaultable) {
                 requiredFields.add(field.getName().getValue());
             }
         }
