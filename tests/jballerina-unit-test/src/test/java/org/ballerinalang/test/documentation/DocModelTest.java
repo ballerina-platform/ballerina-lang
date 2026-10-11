@@ -729,18 +729,26 @@ public class DocModelTest {
         Assert.assertTrue(inlineRecordReturnFunc.isPresent());
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.category,
                 "inline_record");
-        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 3);
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 4);
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).name,
                 "latitude");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0)
                         .elementType.name, "string");
+        Assert.assertTrue(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).isOptional,
+                "Inline record latitude field should be optional");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).description,
+                "Latitude coordinate.\n", "Inline record latitude documentation should be preserved");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(1).name,
                 "longitude");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(1)
                         .elementType.name, "decimal");
-        Assert.assertTrue(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2).name,
+                "precision");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2).defaultValue,
+                "2", "Inline record precision default value should be preserved");
+        Assert.assertTrue(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(3)
                 .elementType.isRestParam);
-        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(3)
                 .elementType.elementType.name, "json");
     }
 

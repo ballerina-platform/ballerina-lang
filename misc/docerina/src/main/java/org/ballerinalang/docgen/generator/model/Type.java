@@ -96,6 +96,8 @@ public class Type {
     @Expose
     public List<String> descriptionSections;
     @Expose
+    public String defaultValue;
+    @Expose
     public String category;
     @Expose
     public boolean isAnonymousUnionType;
@@ -230,11 +232,15 @@ public class Type {
                     Type defField = new Type();
                     defField.name = recordField.fieldName().text();
                     defField.elementType = fromNode(recordField.typeName(), semanticModel, module);
+                    defField.defaultValue = recordField.expression().toString();
+                    defField.description = Generator.getDocFromMetadata(recordField.metadata());
                     fields.add(defField);
                 } else if (node1 instanceof RecordFieldNode recordField) {
                     Type recField = new Type();
                     recField.name = recordField.fieldName().text();
                     recField.elementType = fromNode(recordField.typeName(), semanticModel, module);
+                    recField.isOptional = recordField.questionMarkToken().isPresent();
+                    recField.description = Generator.getDocFromMetadata(recordField.metadata());
                     fields.add(recField);
                 }
             });
