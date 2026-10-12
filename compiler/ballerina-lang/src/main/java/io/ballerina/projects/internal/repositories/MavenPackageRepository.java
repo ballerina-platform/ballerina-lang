@@ -64,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -126,6 +127,7 @@ public class MavenPackageRepository implements PackageRepository {
         // Check if the package is in cache
         Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(request, options);
         if (cachedPackage.isPresent()) {
+            pullSbomAsync(request, options);
             return cachedPackage;
         }
 
@@ -145,12 +147,51 @@ public class MavenPackageRepository implements PackageRepository {
             return Optional.empty();
         }
         String version = request.version().get().value().toString();
+        pullSbomAsync(request, options);
         boolean isSuccess = getPackageFromRemoteRepo(orgName, packageName, version);
         if (!isSuccess) {
             return cachedPackage;
         }
 
         return this.fileSystemRepo.getPackage(request, options);
+    }
+
+    private CompletableFuture<Void> pullSbomAsync(ResolutionRequest request, ResolutionOptions options) {
+        if (!isProxyCentral || options.offline() || request.version().isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
+        return CompletableFuture.runAsync(() -> pullSbomFromRemoteRepo(request, options))
+                .exceptionally(ignored -> null);
+    }
+
+    /**
+     * Request the SBOM through the configured Central proxy so Artifactory can cache it alongside the package.
+     * This is best-effort because existing Central packages may not have an SBOM yet.
+     *
+     * @param request package resolution request
+     * @param options package resolution options
+     */
+    private void pullSbomFromRemoteRepo(ResolutionRequest request, ResolutionOptions options) {
+        if (!isProxyCentral || options.offline() || request.version().isEmpty()) {
+            return;
+        }
+
+        Path sbomDownloadDirectory = null;
+        try {
+            sbomDownloadDirectory = Files.createTempDirectory("ballerina-sbom-");
+            client.pullSbom(request.orgName().value(), request.packageName().value(),
+                    request.version().get().value().toString(), sbomDownloadDirectory.toString());
+        } catch (IOException | MavenResolverClientException e) {
+            // Do not fail package resolution when an SBOM is missing or cannot be fetched.
+        } finally {
+            if (sbomDownloadDirectory != null) {
+                try {
+                    FileUtils.deleteDirectory(sbomDownloadDirectory.toFile());
+                } catch (IOException e) {
+                    // Ignore cleanup failures for the temporary SBOM download.
+                }
+            }
+        }
     }
 
     @Override
