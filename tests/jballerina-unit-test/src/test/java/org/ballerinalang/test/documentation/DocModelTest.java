@@ -16,6 +16,11 @@
 package org.ballerinalang.test.documentation;
 
 import io.ballerina.projects.Project;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.json.JsonParser;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.BObjectType;
@@ -35,6 +40,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -729,19 +736,78 @@ public class DocModelTest {
         Assert.assertTrue(inlineRecordReturnFunc.isPresent());
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.category,
                 "inline_record");
-        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 3);
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 4);
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).name,
                 "latitude");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0)
                         .elementType.name, "string");
+        Assert.assertTrue(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).isOptional,
+                "Inline record latitude field should be optional");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).description,
+                "Latitude coordinate.\n", "Inline record latitude documentation should be preserved");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(1).name,
                 "longitude");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(1)
                         .elementType.name, "decimal");
-        Assert.assertTrue(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2).name,
+                "precision");
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2).defaultValue,
+                "2", "Inline record precision default value should be preserved");
+        Assert.assertTrue(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(3)
                 .elementType.isRestParam);
-        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
+        Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(3)
                 .elementType.elementType.name, "json");
+    }
+
+    @Test(description = "Test inline record JSON serialization")
+    public void testInlineRecordJsonSerialization() throws IOException {
+        Path outputDir = Files.createTempDirectory("docerina-inline-record-");
+        String sourceRoot = "test-src" + File.separator + "documentation" + File.separator + "docerina_project";
+        Project project = BCompileUtil.loadProject(sourceRoot);
+        BallerinaDocGenerator.generateAPIDocs(project, outputDir.toString(), true);
+
+        Path jsonPath = outputDir.resolve("test_org/docerina_project/1.0.0/api-docs.json");
+        String json = Files.readString(jsonPath);
+
+        BMap<BString, Object> root = (BMap<BString, Object>) JsonParser.parse(json);
+        BMap<BString, Object> docsData =
+                (BMap<BString, Object>) root.get(StringUtils.fromString("docsData"));
+        BArray modules = (BArray) docsData.get(StringUtils.fromString("modules"));
+        BMap<BString, Object> module = (BMap<BString, Object>) modules.get(0);
+        BArray functions = (BArray) module.get(StringUtils.fromString("functions"));
+
+        BMap<BString, Object> inlineRecordFunction = null;
+        for (int i = 0; i < functions.size(); i++) {
+            BMap<BString, Object> function = (BMap<BString, Object>) functions.get(i);
+            if ("inlineRecordReturn".equals(function.get(StringUtils.fromString("name")).toString())) {
+                inlineRecordFunction = function;
+                break;
+            }
+        }
+
+        Assert.assertNotNull(inlineRecordFunction, "Inline record function should exist in generated JSON");
+
+        BArray returnParameters = (BArray) inlineRecordFunction.get(StringUtils.fromString("returnParameters"));
+        BMap<BString, Object> returnParameter = (BMap<BString, Object>) returnParameters.get(0);
+        BMap<BString, Object> type =
+                (BMap<BString, Object>) returnParameter.get(StringUtils.fromString("type"));
+        BArray members = (BArray) type.get(StringUtils.fromString("memberTypes"));
+
+        Assert.assertEquals(members.size(), 4);
+
+        BMap<BString, Object> latitude = (BMap<BString, Object>) members.get(0);
+        Assert.assertEquals(latitude.get(StringUtils.fromString("name")).toString(), "latitude");
+        Assert.assertEquals(latitude.get(StringUtils.fromString("isOptional")), true);
+        Assert.assertEquals(latitude.get(StringUtils.fromString("description")).toString(),
+                "Latitude coordinate.\n");
+
+        BMap<BString, Object> longitude = (BMap<BString, Object>) members.get(1);
+        Assert.assertEquals(longitude.get(StringUtils.fromString("description")).toString(),
+                "Longitude coordinate.\n");
+
+        BMap<BString, Object> precision = (BMap<BString, Object>) members.get(2);
+        Assert.assertEquals(precision.get(StringUtils.fromString("name")).toString(), "precision");
+        Assert.assertEquals(precision.get(StringUtils.fromString("defaultValue")).toString(), "2");
     }
 
     @Test(description = "Test private record inclusion")
