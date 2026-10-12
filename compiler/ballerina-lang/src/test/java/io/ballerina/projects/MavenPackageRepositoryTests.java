@@ -45,6 +45,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -54,6 +57,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doAnswer;
 
 /**
  * Test maven package repository.
@@ -273,6 +277,30 @@ public class MavenPackageRepositoryTests {
         }
     }
 
+    private static class ParallelFetchPackageRepository extends MavenPackageRepository {
+        private final CountDownLatch sbomFetchStarted;
+        private final AtomicBoolean sbomFetchWasConcurrent = new AtomicBoolean();
+
+        private ParallelFetchPackageRepository(MavenResolverClient client, CountDownLatch sbomFetchStarted) {
+            super(PROXY_ENV, TEST_REPO, "1.2.3", client, PROXY_REPO_LOCATION, true);
+            this.sbomFetchStarted = sbomFetchStarted;
+        }
+
+        @Override
+        public boolean getPackageFromRemoteRepo(String org, String name, String version) {
+            try {
+                sbomFetchWasConcurrent.set(sbomFetchStarted.await(5, TimeUnit.SECONDS));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return false;
+        }
+
+        private boolean sbomFetchWasConcurrent() {
+            return sbomFetchWasConcurrent.get();
+        }
+    }
+
     private MavenPackageRepository proxyRepo(MavenResolverClient client) {
         return new MockProxyMavenPackageRepository(PROXY_ENV, TEST_REPO, "1.2.3", client, PROXY_REPO_LOCATION);
     }
@@ -468,6 +496,55 @@ public class MavenPackageRepositoryTests {
 
         Assert.assertEquals(versions, List.of(PackageVersion.from("1.1.0")));
         Assert.assertEquals(repo.exactPackageResolutionCount, 0);
+    }
+
+    @Test(description = "Proxy: fetches SBOM concurrently with a remote package", groups = {"proxy"})
+    public void testGetPackageProxyCentralFetchesSbomConcurrently() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        CountDownLatch sbomFetchStarted = new CountDownLatch(1);
+        doAnswer(invocation -> {
+            sbomFetchStarted.countDown();
+            return null;
+        }).when(mockClient).pullSbom(anyString(), anyString(), anyString(), anyString());
+
+        ParallelFetchPackageRepository repo = new ParallelFetchPackageRepository(mockClient, sbomFetchStarted);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("testorg"), PackageName.from("missingPkg"),
+                        PackageVersion.from("1.0.0")),
+                PackageDependencyScope.DEFAULT);
+
+        Optional<Package> result = repo.getPackage(request, ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(result.isEmpty());
+        Assert.assertTrue(repo.sbomFetchWasConcurrent(), "SBOM fetching should run while package fetch is in progress");
+        verify(mockClient).pullSbom(eq("testorg"), eq("missingPkg"), eq("1.0.0"), anyString());
+    }
+
+    @Test(description = "Proxy: SBOM fetch failure does not fail a cached package lookup", groups = {"proxy"})
+    public void testGetPackageProxyCentralIgnoresSbomFetchFailure() throws MavenResolverClientException {
+        MavenResolverClient mockClient = Mockito.mock(MavenResolverClient.class);
+        CountDownLatch sbomFetchCompleted = new CountDownLatch(1);
+        doAnswer(invocation -> {
+            sbomFetchCompleted.countDown();
+            throw new MavenResolverClientException("SBOM not found");
+        }).when(mockClient).pullSbom(anyString(), anyString(), anyString(), anyString());
+        MavenPackageRepository repo = proxyRepo(mockClient);
+        ResolutionRequest request = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("testorg"), PackageName.from("packA"),
+                        PackageVersion.from("0.1.0")),
+                PackageDependencyScope.DEFAULT);
+
+        Optional<Package> result = repo.getPackage(request, ResolutionOptions.builder().setOffline(false).build());
+
+        Assert.assertTrue(result.isPresent());
+        try {
+            Assert.assertTrue(sbomFetchCompleted.await(5, TimeUnit.SECONDS),
+                    "SBOM fetch should be attempted asynchronously");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Assert.fail("Interrupted while waiting for the SBOM fetch", e);
+        }
+        verify(mockClient).pullSbom(eq("testorg"), eq("packA"), eq("0.1.0"), anyString());
     }
 
     private PackageResolutionResponse buildResolutionResponse(String org, String name, String version) {
