@@ -18,9 +18,11 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.mockito.MockedConstruction;
@@ -32,8 +34,11 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Pull command tests.
@@ -251,6 +256,52 @@ public class PullCommandTest extends BaseCommandTest {
         Path pulledCacheDir = mockBallerinaHome.resolve("repositories").resolve("central.ballerina.io")
                 .resolve("bala").resolve("luheerathan").resolve("pact1").resolve("0.1.0");
         Assert.assertTrue(Files.exists(pulledCacheDir.resolve("any")));
+    }
+
+    @Test(description = "tests that a maven bala with a path-traversal platform value is rejected")
+    public void testExtractAndCopyBalaWithPathTraversalPlatformRejected() throws Exception {
+        Path testRoot = Files.createTempDirectory("maven-bala-platform-traversal-test");
+        try {
+            Path repository = testRoot.resolve("repository");
+            Path artifact = repository.resolve("testorg/attackpkg/0.1.0/attackpkg-0.1.0.bala");
+            Files.createDirectories(artifact.getParent());
+
+            // The malicious "platform" value points outside the intended cache directory entirely.
+            Path outsideDir = testRoot.resolve("outside-cache").toAbsolutePath();
+            String maliciousPlatform = outsideDir.toString().replace("\\", "\\\\");
+            String packageJson = "{\"organization\":\"testorg\",\"name\":\"attackpkg\",\"version\":\"0.1.0\","
+                    + "\"platform\":\"" + maliciousPlatform + "\"}";
+            try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(artifact))) {
+                zipOut.putNextEntry(new ZipEntry("package.json"));
+                zipOut.write(packageJson.getBytes(StandardCharsets.UTF_8));
+                zipOut.closeEntry();
+            }
+            Files.writeString(artifact.resolveSibling("attackpkg-0.1.0.pom"), """
+                    <project xmlns="http://maven.apache.org/POM/4.0.0">
+                      <modelVersion>4.0.0</modelVersion>
+                      <groupId>testorg</groupId>
+                      <artifactId>attackpkg</artifactId>
+                      <version>0.1.0</version>
+                    </project>
+                    """);
+
+            MavenResolverClient client = new MavenResolverClient();
+            client.addRepository("path-traversal-test-repo", repository.toUri().toString());
+            Path cache = testRoot.resolve("cache");
+
+            try {
+                CommandUtil.extractAndCopyBala(client, "testorg", "attackpkg", "0.1.0", cache);
+                Assert.fail("expected a ProjectException due to the path traversal platform value");
+            } catch (ProjectException e) {
+                Assert.assertTrue(e.getMessage().contains("invalid platform identifier"),
+                        "unexpected exception message: " + e.getMessage());
+            }
+
+            Assert.assertFalse(Files.exists(outsideDir),
+                    "platform path traversal wrote outside the intended cache directory");
+        } finally {
+            ProjectUtils.deleteDirectory(testRoot);
+        }
     }
 
     private static Settings readMockSettings(Path settingsFilePath, String repoPath) {

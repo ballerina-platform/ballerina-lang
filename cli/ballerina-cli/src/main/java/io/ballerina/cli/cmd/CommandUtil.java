@@ -1120,6 +1120,7 @@ public final class CommandUtil {
         try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
             JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
             String platform = resultObj.get(PLATFORM).getAsString();
+            ProjectUtils.validatePlatformIdentifier(platform);
             Path actualBalaPath = finalCachePath.resolve(platform);
             org.apache.commons.io.FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
                     actualBalaPath.toFile());
