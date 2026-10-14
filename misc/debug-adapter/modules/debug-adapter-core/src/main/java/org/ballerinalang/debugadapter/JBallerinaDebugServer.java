@@ -23,6 +23,7 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -946,8 +947,15 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         context.setDebuggeeVM(new VirtualMachineProxyImpl(attachedVm));
         EventRequestManager erm = context.getEventManager();
         erm.createClassPrepareRequest().enable();
-        erm.createThreadStartRequest().enable();
-        erm.createThreadDeathRequest().enable();
+        // Thread start/death events are only used to track the active threads, hence they should not suspend the
+        // remote VM. Otherwise, a thread started during a method invocation (i.e. breakpoint condition evaluation)
+        // suspends the whole VM and blocks the invocation until the event is processed.
+        EventRequest threadStartRequest = erm.createThreadStartRequest();
+        threadStartRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        threadStartRequest.enable();
+        EventRequest threadDeathRequest = erm.createThreadDeathRequest();
+        threadDeathRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        threadDeathRequest.enable();
         eventProcessor.startListenAsync();
     }
 
