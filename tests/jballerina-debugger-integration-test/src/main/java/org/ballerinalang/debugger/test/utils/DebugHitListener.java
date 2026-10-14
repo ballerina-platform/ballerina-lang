@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -84,8 +85,11 @@ public class DebugHitListener extends TimerTask {
                 LOGGER.error(e.getMessage(), e);
             }
             // If the debug hit is observed, cancels the timer task and leaves the remaining stopped events in the queue
-            // for the subsequent debug hit listeners.
+            // for the subsequent debug hit listeners. The remaining events of the same thread are removed, since the
+            // debug server can send more than one stopped event for the same suspension (e.g. a breakpoint and a step
+            // event at the same location).
             if (bp != null) {
+                events.removeIf(e -> Objects.equals(e.getThreadId(), event.getThreadId()));
                 debugHitContext = event;
                 debugHitpoint = bp;
                 debugHitFound = true;
