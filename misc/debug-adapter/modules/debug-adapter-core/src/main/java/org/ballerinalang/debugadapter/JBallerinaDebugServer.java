@@ -1014,7 +1014,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     public static ReferenceType loadAllVarsClass(SuspendedContext context, String className) {
         List<ReferenceType> classRefs = context.getAttachedVm().classesByName(className);
         if (classRefs != null && !classRefs.isEmpty()) {
-            classRefs.getFirst();
+            return classRefs.getFirst();
         }
         // Tries to load from init class
         try {
