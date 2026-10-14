@@ -255,12 +255,24 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"f\"", "string");
         // lists
         debugTestRunner.assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
+        debugTestRunner.assertExpression(context, TUPLE_VAR + "[0]", "20", "int");
+        debugTestRunner.assertExpression(context, TUPLE_VAR + "[1]", "\"foo\"", "string");
         // maps
         debugTestRunner.assertExpression(context, MAP_VAR + "[\"country\"]", "\"Sri Lanka\"", "string");
         debugTestRunner.assertExpression(context, MAP_VAR + "[\"undefined\"]", "()", "nil");
         // json
         debugTestRunner.assertExpression(context, JSON_VAR + "[\"color\"]", "\"red\"", "string");
         debugTestRunner.assertExpression(context, JSON_VAR + "[\"undefined\"]", "()", "nil");
+        // records
+        debugTestRunner.assertExpression(context, ANON_RECORD_VAR + "[\"city\"]", "\"London\"", "string");
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"course\"]", "\"ballerina\"", "string");
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"Ȧɢέ_ /:@[`{~π\"]", "20", "int");
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"undefined\"]", "()", "nil");
+        // optional record field that is not set
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"nickname\"]", "()", "nil");
+        // record keys from expressions
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[\"cour\" + \"se\"]", "\"ballerina\"", "string");
+        debugTestRunner.assertExpression(context, RECORD_VAR + "[" + STRING_VAR + "]", "()", "nil");
         // XML
         debugTestRunner.assertExpression(context, XML_VAR + "[0]", "XMLElement", "xml");
         debugTestRunner.assertExpression(context, XML_VAR + "[0][0]", "Praveen", "xml");
