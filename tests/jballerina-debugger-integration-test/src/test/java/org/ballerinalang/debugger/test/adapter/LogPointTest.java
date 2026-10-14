@@ -83,6 +83,7 @@ public class LogPointTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(4));
         try {
             outputInfo = debugTestRunner.waitForLastDebugOutput(1000);
+            Assert.fail("Unexpected debug output: " + outputInfo.getLeft());
         } catch (BallerinaTestException e) {
             Assert.assertEquals(e.getMessage(), "Timeout expired waiting for the debugger output");
         }
