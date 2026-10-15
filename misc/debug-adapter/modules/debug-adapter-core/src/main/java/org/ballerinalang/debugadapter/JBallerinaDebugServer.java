@@ -167,7 +167,6 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private final ExecutionContext context;
     private SuspendedContext suspendedContext;
     private DebugOutputLogger outputLogger;
-    private DebugExpressionEvaluator evaluator;
     private ThreadReferenceProxyImpl activeThread;
 
     private final AtomicInteger nextVarReference = new AtomicInteger(1);
@@ -544,7 +543,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             StackFrameProxyImpl frame = stackFrames.get(args.getFrameId());
             SuspendedContext suspendedContext = new SuspendedContext(context, activeThread, frame);
             EvaluationContext evaluationContext = new EvaluationContext(suspendedContext);
-            evaluator = Objects.requireNonNullElse(evaluator, new DebugExpressionEvaluator(evaluationContext));
+            DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
             evaluator.setExpression(args.getExpression());
             BExpressionValue evaluateResult = evaluator.evaluate();
             EvaluateResponse evaluateResponse = constructEvaluateResponse(args, evaluateResult.getBVariable());
@@ -1254,7 +1253,6 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      */
     private void clearSuspendedState() {
         suspendedContext = null;
-        evaluator = null;
         activeThread = null;
         stackFrames.clear();
         loadedCompoundVariables.clear();
