@@ -114,6 +114,25 @@ public class MavenResolverClientTest {
         // No exception should be thrown; unauthenticated proxy configured
     }
 
+    @Test
+    public void testPullSbomDownloadsRawFileAlongsidePackage() throws IOException, MavenResolverClientException {
+        Path remoteRepo = localCacheDir.resolve("sbom-remote-repo");
+        Path versionDirectory = remoteRepo.resolve("myorg/mypkg/1.0.0");
+        Files.createDirectories(versionDirectory);
+        String expectedSbom = "{\"bomFormat\":\"CycloneDX\",\"specVersion\":\"1.5\"}";
+        String sbomFileName = "mypkg-1.0.0.cdx.json";
+        Files.writeString(versionDirectory.resolve(sbomFileName), expectedSbom);
+
+        MavenResolverClient sbomClient = new MavenResolverClient();
+        sbomClient.addRepository("sbom-test-repo", remoteRepo.toUri().toString());
+        Path targetDirectory = localCacheDir.resolve("sbom-target");
+        Files.createDirectories(targetDirectory);
+
+        sbomClient.pullSbom("myorg", "mypkg", "1.0.0", targetDirectory.toString());
+
+        Assert.assertEquals(Files.readString(targetDirectory.resolve(sbomFileName)), expectedSbom);
+    }
+
     // -------------------------------------------------------------------------
     // Group 2: Package metadata (via local file repo)
     // -------------------------------------------------------------------------
