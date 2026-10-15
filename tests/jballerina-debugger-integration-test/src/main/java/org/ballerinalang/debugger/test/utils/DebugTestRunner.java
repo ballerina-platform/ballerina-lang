@@ -702,7 +702,22 @@ public class DebugTestRunner {
      */
     public void assertExpression(StoppedEventArguments context, String expression, String resultValue,
                                  String resultType) throws BallerinaTestException {
-        Variable result = evaluateExpression(context, expression);
+        assertExpression(context, expression, resultValue, resultType, 0);
+    }
+
+    /**
+     * Can be used to assert any expression evaluation result in a given stack frame.
+     *
+     * @param context     suspended context.
+     * @param expression  expression.
+     * @param resultValue result value.
+     * @param resultType  result type.
+     * @param frameIndex  index of the stack frame to evaluate the expression in (0 is the top frame).
+     * @throws BallerinaTestException if an error occurs when evaluating the expression.
+     */
+    public void assertExpression(StoppedEventArguments context, String expression, String resultValue,
+                                 String resultType, int frameIndex) throws BallerinaTestException {
+        Variable result = evaluateExpression(context, expression, frameIndex);
         switch (assertionMode) {
             case HARD_ASSERT:
                 Assert.assertEquals(result.getValue(), resultValue);
@@ -724,7 +739,7 @@ public class DebugTestRunner {
      */
     public void assertEvaluationError(StoppedEventArguments context, String expression, String errorMessage)
             throws BallerinaTestException {
-        Variable result = evaluateExpression(context, expression);
+        Variable result = evaluateExpression(context, expression, 0);
         if (assertionMode == AssertionMode.HARD_ASSERT) {
             if (result.getType() == null) {
                 Pair<String, OutputEventArguments> output = waitForLastDebugOutput(2000);
@@ -783,11 +798,13 @@ public class DebugTestRunner {
     /**
      * Can be used to evaluate any given expression, when a debug hit is occurred.
      *
-     * @param args debug stopped event arguments.
+     * @param args       debug stopped event arguments.
+     * @param frameIndex index of the stack frame to evaluate the expression in (0 is the top frame).
      * @return the evaluation result as a variable.
      * @throws BallerinaTestException if an error occurs when evaluating the expression.
      */
-    private Variable evaluateExpression(StoppedEventArguments args, String expr) throws BallerinaTestException {
+    private Variable evaluateExpression(StoppedEventArguments args, String expr, int frameIndex)
+            throws BallerinaTestException {
         if (!hitListener.getConnector().isConnected()) {
             throw new BallerinaTestException("Connection error occurred when trying to fetch information from the " +
                     "debug server");
@@ -797,13 +814,13 @@ public class DebugTestRunner {
             stackTraceArgs.setThreadId(args.getThreadId());
             StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackResp.getStackFrames();
-            if (stackFrames.length == 0) {
+            if (stackFrames.length <= frameIndex) {
                 throw new BallerinaTestException("Error occurred when trying to fetch stack frames from the suspended" +
                         " thread.");
             }
 
             EvaluateArguments evaluateArguments = new EvaluateArguments();
-            evaluateArguments.setFrameId(stackFrames[0].getId());
+            evaluateArguments.setFrameId(stackFrames[frameIndex].getId());
             evaluateArguments.setExpression(expr);
             EvaluateResponse evaluateResp = hitListener.getConnector().getRequestManager().evaluate(evaluateArguments);
 
