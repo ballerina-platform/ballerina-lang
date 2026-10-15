@@ -130,6 +130,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
@@ -177,6 +178,10 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private final Map<Integer, BCompoundVariable> loadedCompoundVariables = new ConcurrentHashMap<>();
     // Multi-threading is avoided here due to observed intermittent VM crashes, likely related to JDI limitations.
     private final ExecutorService variableExecutor = Executors.newSingleThreadExecutor();
+    // Expressions are evaluated outside the request processing thread, so that a long-running evaluation does not
+    // block the subsequent requests (e.g. continue, disconnect). A cached thread pool is used so that an evaluation
+    // which does not complete does not block the subsequent evaluations.
+    private final ExecutorService evaluationExecutor = Executors.newCachedThreadPool();
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
@@ -185,6 +190,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private static final String TERMINAL_TITLE = "Ballerina Debug Terminal";
     private static final String RUN_IN_TERMINAL_REQUEST = "runInTerminal";
     private static final int VARIABLE_FETCH_TIMEOUT = 2000;
+    private static final int EVALUATION_TIMEOUT = 5000;
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
 
     public JBallerinaDebugServer() {
@@ -539,22 +545,33 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             return CompletableFuture.completedFuture(response);
         }
 
-        try {
-            StackFrameProxyImpl frame = stackFrames.get(args.getFrameId());
-            SuspendedContext suspendedContext = new SuspendedContext(context, activeThread, frame);
-            EvaluationContext evaluationContext = new EvaluationContext(suspendedContext);
-            DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
-            evaluator.setExpression(args.getExpression());
-            BExpressionValue evaluateResult = evaluator.evaluate();
-            EvaluateResponse evaluateResponse = constructEvaluateResponse(args, evaluateResult.getBVariable());
-            return CompletableFuture.completedFuture(evaluateResponse);
-        } catch (EvaluationException e) {
-            context.getOutputLogger().sendErrorOutput(e.getMessage());
-            return CompletableFuture.completedFuture(new EvaluateResponse());
-        } catch (Exception e) {
-            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
-            return CompletableFuture.completedFuture(new EvaluateResponse());
-        }
+        StackFrameProxyImpl frame = stackFrames.get(args.getFrameId());
+        ThreadReferenceProxyImpl thread = activeThread;
+        return CompletableFuture.supplyAsync(() -> {
+                    try {
+                        SuspendedContext suspendedContext = new SuspendedContext(context, thread, frame);
+                        DebugExpressionEvaluator evaluator =
+                                new DebugExpressionEvaluator(new EvaluationContext(suspendedContext));
+                        evaluator.setExpression(args.getExpression());
+                        BExpressionValue evaluateResult = evaluator.evaluate();
+                        return constructEvaluateResponse(args, evaluateResult.getBVariable());
+                    } catch (EvaluationException e) {
+                        throw new CompletionException(e);
+                    }
+                }, evaluationExecutor)
+                .orTimeout(EVALUATION_TIMEOUT, TimeUnit.MILLISECONDS)
+                .exceptionally(e -> {
+                    Throwable cause = e instanceof CompletionException && e.getCause() != null ? e.getCause() : e;
+                    if (cause instanceof EvaluationException) {
+                        context.getOutputLogger().sendErrorOutput(cause.getMessage());
+                    } else if (cause instanceof TimeoutException) {
+                        context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "evaluation " +
+                                "did not complete within " + EVALUATION_TIMEOUT / 1000 + " seconds");
+                    } else {
+                        context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
+                    }
+                    return new EvaluateResponse();
+                });
     }
 
     @Override
