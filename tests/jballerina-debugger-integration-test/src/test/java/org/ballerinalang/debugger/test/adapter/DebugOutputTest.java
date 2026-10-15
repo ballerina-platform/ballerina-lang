@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,18 +88,46 @@ public class DebugOutputTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         boolean terminated = debugTestRunner.waitForDebugTermination(10000);
         Assert.assertTrue(terminated);
-        outputs = debugTestRunner.waitForDebugOutputs(1000);
+
+        // The program error outputs and the VM disconnection output can be received after the termination event.
+        // Therefore, collects the outputs until the VM disconnection output is received.
+        List<Pair<String, OutputEventArguments>> terminationOutputs = new ArrayList<>();
+        long deadline = System.currentTimeMillis() + 10000;
+        while (System.currentTimeMillis() < deadline && terminationOutputs.stream()
+                .noneMatch(o -> o.getLeft().contains("Disconnected from the target VM"))) {
+            try {
+                terminationOutputs.addAll(debugTestRunner.waitForDebugOutputs(1000));
+            } catch (BallerinaTestException ignored) {
+                // Continues until the deadline.
+            }
+        }
 
         // Validates debugger outputs with Ballerina runtime errors, which uses `STDERR` category.
-        Assert.assertEquals(outputs.get(0).getRight().getCategory(), OutputEventArgumentsCategory.STDERR);
-        Assert.assertEquals(outputs.get(0).getLeft().trim(), "error: {ballerina}DivisionByZero " +
+        int errorIndex = findOutputIndex(terminationOutputs, "error: {ballerina}DivisionByZero " +
                 "{\"message\":\" / by zero\"}");
-        Assert.assertEquals(outputs.get(1).getRight().getCategory(), OutputEventArgumentsCategory.STDERR);
-        Assert.assertEquals(outputs.get(1).getLeft().trim(), "at debug_test_resources.debug_output_test." +
+        Assert.assertEquals(terminationOutputs.get(errorIndex).getRight().getCategory(),
+                OutputEventArgumentsCategory.STDERR);
+        int stackTraceIndex = findOutputIndex(terminationOutputs, "at debug_test_resources.debug_output_test." +
                 "0:main(main.bal:19)");
-        Assert.assertEquals(outputs.get(2).getRight().getCategory(), OutputEventArgumentsCategory.CONSOLE);
-        Assert.assertTrue(outputs.get(2).getLeft().trim().startsWith("Disconnected from the target VM, address: " +
-                "'localhost:"));
+        Assert.assertEquals(terminationOutputs.get(stackTraceIndex).getRight().getCategory(),
+                OutputEventArgumentsCategory.STDERR);
+        Assert.assertTrue(errorIndex < stackTraceIndex, "Expected the error output before the stack trace");
+
+        Optional<Pair<String, OutputEventArguments>> disconnectOutput = terminationOutputs.stream()
+                .filter(o -> o.getLeft().trim().startsWith("Disconnected from the target VM, address: 'localhost:"))
+                .findFirst();
+        Assert.assertTrue(disconnectOutput.isPresent(), "Expected VM disconnection output not found");
+        Assert.assertEquals(disconnectOutput.get().getRight().getCategory(), OutputEventArgumentsCategory.CONSOLE);
+    }
+
+    private static int findOutputIndex(List<Pair<String, OutputEventArguments>> outputs, String expectedOutput) {
+        for (int i = 0; i < outputs.size(); i++) {
+            if (outputs.get(i).getLeft().trim().equals(expectedOutput)) {
+                return i;
+            }
+        }
+        Assert.fail("Expected output not found: " + expectedOutput);
+        return -1;
     }
 
     @Override
