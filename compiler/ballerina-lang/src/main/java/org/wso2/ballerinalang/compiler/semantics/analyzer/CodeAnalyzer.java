@@ -802,6 +802,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (onFailExists) {
             data.failureHandled = true;
         }
+
+        boolean hasErrorMatchPattern = data.hasErrorMatchPattern;
+        data.hasErrorMatchPattern = false;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         int clausesSize = matchClauses.size();
         for (int i = 0; i < clausesSize; i++) {
@@ -818,6 +821,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             analyzeNode(firstClause, data);
         }
+        data.hasErrorMatchPattern = hasErrorMatchPattern;
         data.failureHandled = failureHandled;
         analyzeOnFailClause(matchStatement.onFailClause, data);
     }
@@ -1378,9 +1382,17 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern, AnalyzerData data) {
-        wildCardMatchPattern.isLastPattern =
-                wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.getBType(),
-                                                                             symTable.anyType);
+        if (wildCardMatchPattern.matchExpr == null) {
+            return;
+        }
+
+        // if error portion exists but is already handled by a prior error clause,
+        // subtract error from the type before checking exhaustiveness
+        BType matchExprType = wildCardMatchPattern.matchExpr.getBType();
+        BType effectiveType = data.hasErrorMatchPattern
+                ? types.getRemainingType(matchExprType, symTable.errorType, data.env)
+                : matchExprType;
+        wildCardMatchPattern.isLastPattern = types.isAssignable(effectiveType, symTable.anyType);
     }
 
     @Override
@@ -1394,10 +1406,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeNode(bindingPattern, data);
         switch (bindingPattern.getKind()) {
             case WILDCARD_BINDING_PATTERN:
-                varBindingPattern.isLastPattern =
-                        varBindingPattern.matchExpr != null && types.isAssignable(
-                                varBindingPattern.matchExpr.getBType(),
-                                symTable.anyType);
+                if (varBindingPattern.matchExpr == null) {
+                    return;
+                }
+                BType matchExprType = varBindingPattern.matchExpr.getBType();
+                BType effectiveType = data.hasErrorMatchPattern
+                        ? types.getRemainingType(matchExprType, symTable.errorType, data.env)
+                        : matchExprType;
+                varBindingPattern.isLastPattern = types.isAssignable(effectiveType, symTable.anyType);
                 return;
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.isLastPattern =
@@ -1465,12 +1481,17 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangErrorMatchPattern errorMatchPattern, AnalyzerData data) {
-
+        if (errorMatchPattern.matchGuardIsAvailable) {
+            return;
+        }
+        if (errorMatchPattern.errorTypeReference == null ||
+                types.isAssignable(symTable.errorType, errorMatchPattern.errorTypeReference.getBType())) {
+            data.hasErrorMatchPattern = true;
+        }
     }
 
     @Override
     public void visit(BLangErrorBindingPattern errorBindingPattern, AnalyzerData data) {
-
     }
 
     @Override
@@ -4445,5 +4466,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Types.QueryConstructType queryConstructType;
         Deque<LinkedHashSet<BType>> returnTypes = new ArrayDeque<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
+        boolean hasErrorMatchPattern;
     }
 }

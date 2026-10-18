@@ -796,6 +796,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangErrorMatchPattern clone = new BLangErrorMatchPattern();
         source.cloneRef = clone;
         clone.matchExpr = clone(source.matchExpr);
+        clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.errorMessageMatchPattern = clone(source.errorMessageMatchPattern);
         clone.errorFieldMatchPatterns = clone(source.errorFieldMatchPatterns);
         clone.errorCauseMatchPattern = clone(source.errorCauseMatchPattern);
