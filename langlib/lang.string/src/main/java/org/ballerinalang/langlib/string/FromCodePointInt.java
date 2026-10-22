@@ -34,7 +34,8 @@ public final class FromCodePointInt {
 
     public static Object fromCodePointInt(long codePoint) {
 
-        if (codePoint <= Constants.MIDDLE_LIMIT_UNICODE && codePoint >= Constants.MIN_UNICODE) {
+        if (codePoint < Character.MIN_CODE_POINT || codePoint > Character.MAX_CODE_POINT ||
+                (codePoint <= Constants.MIDDLE_LIMIT_UNICODE && codePoint >= Constants.MIN_UNICODE)) {
             return ErrorCreator.createError(StringUtils.fromString("Invalid codepoint: " + codePoint));
         }
 

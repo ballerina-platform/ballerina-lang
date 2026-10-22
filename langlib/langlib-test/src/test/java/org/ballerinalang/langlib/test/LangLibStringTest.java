@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.test;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -153,6 +154,43 @@ public class LangLibStringTest {
         Object[] args = {ValueCreator.createArrayValue(new long[]{0x10FFFF, 0x10FFFF + 1})};
         Object returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
         assertEquals(returns.toString(), "error(\"Invalid codepoint: 1114112\")");
+    }
+
+    @Test(dataProvider = "invalidCodePoints")
+    public void testFromCodePointOutsideScalarRange(long codePoint) {
+        Object value = BRunUtil.invoke(compileResult, "testFromCodePointInt", new Object[]{codePoint});
+        assertTrue(value instanceof BError);
+        assertEquals(((BError) value).getErrorMessage().getValue(), "Invalid codepoint: " + codePoint);
+
+        for (long[] codePoints : new long[][]{new long[]{codePoint}, new long[]{65, codePoint, 66}}) {
+            Object values = BRunUtil.invoke(compileResult, "testFromCodePointInts",
+                    new Object[]{ValueCreator.createArrayValue(codePoints)});
+            assertTrue(values instanceof BError);
+            assertEquals(((BError) values).getErrorMessage().getValue(), "Invalid codepoint: " + codePoint);
+        }
+    }
+
+    @DataProvider(name = "invalidCodePoints")
+    public Object[][] invalidCodePoints() {
+        return new Object[][]{
+                {-1L}, {0xD800L}, {0xDFFFL}, {0x110000L},
+                {0x100000041L}, {-0xFFFFFFBFL}, {Long.MIN_VALUE}, {Long.MAX_VALUE}
+        };
+    }
+
+    @Test(dataProvider = "scalarBoundaryCodePoints")
+    public void testFromCodePointScalarBoundaries(long codePoint) {
+        String expected = new String(Character.toChars((int) codePoint));
+        Object value = BRunUtil.invoke(compileResult, "testFromCodePointInt", new Object[]{codePoint});
+        assertEquals(value.toString(), expected);
+        Object values = BRunUtil.invoke(compileResult, "testFromCodePointInts",
+                new Object[]{ValueCreator.createArrayValue(new long[]{codePoint})});
+        assertEquals(values.toString(), expected);
+    }
+
+    @DataProvider(name = "scalarBoundaryCodePoints")
+    public Object[][] scalarBoundaryCodePoints() {
+        return new Object[][]{{0L}, {0xD7FFL}, {0xE000L}, {0x10FFFFL}};
     }
 
     private int[] toIntArray(BArray array) {
