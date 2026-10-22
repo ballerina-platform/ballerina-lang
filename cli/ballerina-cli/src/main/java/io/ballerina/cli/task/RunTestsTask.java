@@ -475,7 +475,9 @@ public class RunTestsTask implements Task {
                 this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
                 this.listGroups, this.cliArgs, false, isParallelExecution);
 
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs)
+                .directory(TestUtils.getTestProcessWorkingDirectory(currentPackage).toFile())
+                .inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
     }
@@ -500,7 +502,9 @@ public class RunTestsTask implements Task {
                 this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
                 this.listGroups, this.cliArgs, false, isParallelExecution);
 
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs)
+                .directory(TestUtils.getTestProcessWorkingDirectory(currentPackage).toFile())
+                .inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
     }
