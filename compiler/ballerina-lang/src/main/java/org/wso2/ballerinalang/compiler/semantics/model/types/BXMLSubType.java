@@ -20,12 +20,10 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.AND_READONLY_SUFFIX;
@@ -37,19 +35,11 @@ import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.AND_READO
  */
 public class BXMLSubType extends BType implements SelectivelyImmutableReferenceType {
 
-    public static final BXMLSubType XML_ELEMENT = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT,
-                                                                SemTypes.XML_ELEMENT);
-    public static final BXMLSubType XML_PI = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI, SemTypes.XML_PI);
-    public static final BXMLSubType XML_COMMENT = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT,
-                                                                SemTypes.XML_COMMENT);
-    public static final BXMLSubType XML_TEXT = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY,
-                                                            SemTypes.XML_TEXT);
-
-    private BXMLSubType(int tag, Name name, SemType semType) {
+    public BXMLSubType(int tag, Name name, SemType semType) {
         this(tag, name, 0, semType);
     }
 
-    private BXMLSubType(int tag, Name name, long flags, SemType semType) {
+    public BXMLSubType(int tag, Name name, long flags, SemType semType) {
         super(tag, null, name, flags, semType);
     }
 

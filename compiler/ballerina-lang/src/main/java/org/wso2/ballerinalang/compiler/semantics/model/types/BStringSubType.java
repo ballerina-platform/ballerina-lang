@@ -31,9 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BStringSubType extends BType {
 
-    public static final BStringSubType CHAR = new BStringSubType();
-
-    private BStringSubType() {
+    public BStringSubType() {
         super(TypeTags.CHAR_STRING, null, Names.CHAR, Flags.READONLY, SemTypes.CHAR);
     }
 
