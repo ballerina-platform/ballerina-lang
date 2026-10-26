@@ -18,9 +18,10 @@
 package io.ballerina.types;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * TypeCheckContext node.
@@ -30,10 +31,10 @@ import java.util.Map;
 public final class Context {
 
     public final Env env;
-    public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
-    public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
-    public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
-    public final Map<SemTypePair, Boolean> comparableMemo = new HashMap<>();
+    public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
+    public final Map<Bdd, BddMemo> listMemo = new WeakHashMap<>();
+    public final Map<Bdd, BddMemo> mappingMemo = new WeakHashMap<>();
+    public final Map<SemTypePair, Boolean> comparableMemo = Collections.synchronizedMap(new WeakHashMap<>());
 
     // Contains all BddMemo entries with isEmpty == PROVISIONAL
     final List<BddMemo> memoStack = new ArrayList<>();

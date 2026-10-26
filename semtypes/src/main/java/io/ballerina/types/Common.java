@@ -173,6 +173,13 @@ public class Common {
 
     public static boolean memoSubtypeIsEmpty(Context cx, Map<Bdd, BddMemo> memoTable,
                                              BddIsEmptyPredicate isEmptyPredicate, Bdd b) {
+        synchronized (cx) {
+            return memoSubtypeIsEmptyLocked(cx, memoTable, isEmptyPredicate, b);
+        }
+    }
+
+    private static boolean memoSubtypeIsEmptyLocked(Context cx, Map<Bdd, BddMemo> memoTable,
+                                                    BddIsEmptyPredicate isEmptyPredicate, Bdd b) {
         BddMemo mm = memoTable.get(b);
         BddMemo m;
         if (mm != null) {
