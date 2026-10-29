@@ -70,6 +70,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -2493,6 +2494,26 @@ public class TestBuildProject extends BaseTest {
         buildOptions = BuildOptions.builder().build(); // CLI Sticky
         project = loadBuildProject(projectPath, buildOptions);
         Assert.assertTrue(project.buildOptions().sticky());
+    }
+
+    @Test(description = "tests that compiler contexts don't share the built-in subtypes")
+    public void testBuiltinSubtypesArePerCompilerContext() {
+        BuildProject project = loadBuildProject(tempResourceDir.resolve("myproject"));
+        // duplicate() builds a new environment, so the copy compiles in a separate compiler context
+        Project duplicate = project.duplicate();
+        project.currentPackage().getCompilation();
+        duplicate.currentPackage().getCompilation();
+
+        SymbolTable symTable = SymbolTable.getInstance(
+                project.projectEnvironmentContext().getService(CompilerContext.class));
+        SymbolTable duplicateSymTable = SymbolTable.getInstance(
+                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
+        Assert.assertNotSame(symTable, duplicateSymTable);
+        Assert.assertNotSame(symTable.charStringType, duplicateSymTable.charStringType);
+        Assert.assertNotSame(symTable.signed8IntType, duplicateSymTable.signed8IntType);
+        Assert.assertNotSame(symTable.xmlTextType, duplicateSymTable.xmlTextType);
+        Assert.assertSame(symTable.charStringType.tsymbol.owner, symTable.langStringModuleSymbol);
+        Assert.assertSame(duplicateSymTable.charStringType.tsymbol.owner, duplicateSymTable.langStringModuleSymbol);
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {
