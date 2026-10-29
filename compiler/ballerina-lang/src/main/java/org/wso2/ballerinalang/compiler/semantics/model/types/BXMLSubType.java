@@ -39,15 +39,15 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
 
     // Each SymbolTable creates its own instances. These shared instances are not used by the compiler: setting
     // their symbol per compiler context kept the last context reachable from a static field.
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_ELEMENT = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT,
                                                                 SemTypes.XML_ELEMENT);
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_PI = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI, SemTypes.XML_PI);
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_COMMENT = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT,
                                                                 SemTypes.XML_COMMENT);
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_TEXT = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY,
                                                             SemTypes.XML_TEXT);
 

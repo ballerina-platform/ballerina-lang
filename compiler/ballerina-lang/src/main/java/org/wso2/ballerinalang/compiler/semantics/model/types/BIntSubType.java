@@ -34,20 +34,20 @@ public class BIntSubType extends BType {
 
     // Each SymbolTable creates its own instances. These shared instances are not used by the compiler: setting
     // their symbol per compiler context kept the last context reachable from a static field.
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BIntSubType SIGNED32 = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BIntSubType SIGNED16 = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BIntSubType SIGNED8 = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
 
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BIntSubType UNSIGNED32 = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32,
                                                                 SemTypes.UINT32);
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BIntSubType UNSIGNED16 = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16,
                                                                 SemTypes.UINT16);
-    @Deprecated
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BIntSubType UNSIGNED8 = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8,
                                                                 SemTypes.UINT8);
 
