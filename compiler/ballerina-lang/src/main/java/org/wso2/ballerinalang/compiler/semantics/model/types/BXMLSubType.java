@@ -37,19 +37,25 @@ import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.AND_READO
  */
 public class BXMLSubType extends BType implements SelectivelyImmutableReferenceType {
 
+    // Each SymbolTable creates its own instances. These shared instances are not used by the compiler: setting
+    // their symbol per compiler context kept the last context reachable from a static field.
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_ELEMENT = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT,
                                                                 SemTypes.XML_ELEMENT);
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_PI = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI, SemTypes.XML_PI);
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_COMMENT = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT,
                                                                 SemTypes.XML_COMMENT);
+    @Deprecated(since = "2201.14.1", forRemoval = true)
     public static final BXMLSubType XML_TEXT = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY,
                                                             SemTypes.XML_TEXT);
 
-    private BXMLSubType(int tag, Name name, SemType semType) {
+    public BXMLSubType(int tag, Name name, SemType semType) {
         this(tag, name, 0, semType);
     }
 
-    private BXMLSubType(int tag, Name name, long flags, SemType semType) {
+    public BXMLSubType(int tag, Name name, long flags, SemType semType) {
         super(tag, null, name, flags, semType);
     }
 
