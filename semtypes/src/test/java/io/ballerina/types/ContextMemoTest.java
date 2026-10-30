@@ -23,12 +23,15 @@ import io.ballerina.types.definition.MappingDefinition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 /**
  * Tests the memo tables of a {@link Context}.
@@ -50,11 +53,26 @@ public class ContextMemoTest {
         }
         Assert.assertFalse(cx.mappingMemo.isEmpty());
 
-        for (int i = 0; i < 20 && !cx.mappingMemo.isEmpty(); i++) {
-            System.gc();
-            Thread.sleep(50);
-        }
+        collectGarbage(cx.mappingMemo::isEmpty);
         Assert.assertTrue(cx.mappingMemo.isEmpty(), "memo entries outlived their types");
+    }
+
+    @Test
+    public void testComparableMemoLivesAsLongAsBothTypes() throws InterruptedException {
+        Env env = new Env();
+        Context cx = Context.from(env);
+        Random random = new Random(2);
+        SemType t1 = tuple(env, random);
+        SemType t2 = tuple(env, random);
+        cx.memoizeComparable(t1, t2, true);
+        WeakReference<Object> control = new WeakReference<>(new Object());
+        collectGarbage(() -> control.get() == null);
+        Assert.assertEquals(cx.comparableMemo(t1, t2), Boolean.TRUE, "dropped while both types live");
+
+        WeakReference<SemType> released = new WeakReference<>(t1);
+        t1 = null;
+        collectGarbage(() -> released.get() == null);
+        Assert.assertNull(released.get(), "the memo entry kept its type alive");
     }
 
     @Test
@@ -84,6 +102,14 @@ public class ContextMemoTest {
             Assert.assertFalse(thread.isAlive(), "a subtype check did not finish");
         }
         Assert.assertTrue(failures.isEmpty(), "concurrent subtype checks failed: " + failures.peek());
+    }
+
+    private static void collectGarbage(BooleanSupplier done) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (!done.getAsBoolean() && System.nanoTime() < deadline) {
+            System.gc();
+            Thread.sleep(50);
+        }
     }
 
     private static SemType record(Env env, Random random) {

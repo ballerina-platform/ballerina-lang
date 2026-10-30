@@ -18,7 +18,6 @@
 package io.ballerina.types;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -34,7 +33,8 @@ public final class Context {
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> listMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new WeakHashMap<>();
-    public final Map<SemTypePair, Boolean> comparableMemo = Collections.synchronizedMap(new WeakHashMap<>());
+    // Keyed by each type separately, so an entry lives exactly as long as both types do.
+    private final Map<SemType, Map<SemType, Boolean>> comparableMemo = new WeakHashMap<>();
 
     // Contains all BddMemo entries with isEmpty == PROVISIONAL
     final List<BddMemo> memoStack = new ArrayList<>();
@@ -65,6 +65,15 @@ public final class Context {
             instance = new Context(env);
         }
         return instance;
+    }
+
+    public synchronized Boolean comparableMemo(SemType t1, SemType t2) {
+        Map<SemType, Boolean> results = comparableMemo.get(t1);
+        return results == null ? null : results.get(t2);
+    }
+
+    public synchronized void memoizeComparable(SemType t1, SemType t2, boolean comparable) {
+        comparableMemo.computeIfAbsent(t1, t -> new WeakHashMap<>()).put(t2, comparable);
     }
 
     public ListAtomicType listAtomType(Atom atom) {
