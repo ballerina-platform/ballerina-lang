@@ -63,6 +63,7 @@ import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
+import org.eclipse.aether.spi.connector.transport.GetTask;
 import org.eclipse.aether.spi.connector.transport.PutTask;
 import org.eclipse.aether.spi.connector.transport.Transporter;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
@@ -166,16 +167,47 @@ public class MavenResolverClient {
     public void pullPackage(String groupId, String artifactId, String version, String targetLocation) throws
             MavenResolverClientException {
         LocalRepository localRepo = new LocalRepository(targetLocation);
-        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
-        session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_IGNORE);
+        DefaultRepositorySystemSession requestSession = new DefaultRepositorySystemSession(session);
+        requestSession.setLocalRepositoryManager(system.newLocalRepositoryManager(requestSession, localRepo));
+        requestSession.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_IGNORE);
         Artifact artifact = new DefaultArtifact(groupId, artifactId, BALA_EXTENSION, version);
         try {
-            session.setTransferListener(new TransferListenerForClient());
+            requestSession.setTransferListener(new TransferListenerForClient());
             ArtifactRequest artifactRequest = new ArtifactRequest();
             artifactRequest.setArtifact(artifact);
             artifactRequest.addRepository(remoteRepository);
-            system.resolveArtifact(session, artifactRequest);
+            system.resolveArtifact(requestSession, artifactRequest);
         } catch (ArtifactResolutionException e) {
+            throw new MavenResolverClientException(e.getMessage());
+        }
+    }
+
+    /**
+     * Downloads the raw SBOM file published alongside a Ballerina package.
+     *
+     * @param groupId        group ID of the package
+     * @param artifactId     artifact ID of the package
+     * @param version        package version
+     * @param targetLocation directory to download the SBOM into
+     * @throws MavenResolverClientException when the SBOM cannot be downloaded
+     */
+    public void pullSbom(String groupId, String artifactId, String version, String targetLocation) throws
+            MavenResolverClientException {
+        try {
+            DefaultRepositorySystemSession requestSession = new DefaultRepositorySystemSession(session);
+            Artifact mainArtifact = new DefaultArtifact(groupId, artifactId, BALA_EXTENSION, version);
+            RepositoryLayout layout = repositoryLayoutProvider.newRepositoryLayout(requestSession, remoteRepository);
+            URI artifactLocation = layout.getLocation(mainArtifact, true);
+            String sbomFileName = artifactId + ARTIFACT_SEPERATOR + version + SBOM_FILE_EXTENSION;
+            URI sbomLocation = artifactLocation.resolve(sbomFileName);
+            Path targetPath = Paths.get(targetLocation).resolve(sbomFileName);
+            Transporter transporter = transporterProvider.newTransporter(requestSession, remoteRepository);
+            try {
+                transporter.get(new GetTask(sbomLocation).setDataFile(targetPath.toFile()));
+            } finally {
+                transporter.close();
+            }
+        } catch (Exception e) {
             throw new MavenResolverClientException(e.getMessage());
         }
     }
