@@ -161,19 +161,27 @@ public class SymbolTable {
     public BObjectType naturalGeneratorType;
 
     // builtin subtypes
-    public final BIntSubType signed32IntType = BIntSubType.SIGNED32;
-    public final BIntSubType signed16IntType = BIntSubType.SIGNED16;
-    public final BIntSubType signed8IntType = BIntSubType.SIGNED8;
-    public final BIntSubType unsigned32IntType = BIntSubType.UNSIGNED32;
-    public final BIntSubType unsigned16IntType = BIntSubType.UNSIGNED16;
-    public final BIntSubType unsigned8IntType = BIntSubType.UNSIGNED8;
+    public final BIntSubType signed32IntType =
+            new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
+    public final BIntSubType signed16IntType =
+            new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
+    public final BIntSubType signed8IntType = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
+    public final BIntSubType unsigned32IntType =
+            new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32, SemTypes.UINT32);
+    public final BIntSubType unsigned16IntType =
+            new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16, SemTypes.UINT16);
+    public final BIntSubType unsigned8IntType =
+            new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8, SemTypes.UINT8);
 
-    public final BStringSubType charStringType = BStringSubType.CHAR;
+    public final BStringSubType charStringType = new BStringSubType();
 
-    public final BXMLSubType xmlElementType = BXMLSubType.XML_ELEMENT;
-    public final BXMLSubType xmlPIType = BXMLSubType.XML_PI;
-    public final BXMLSubType xmlCommentType = BXMLSubType.XML_COMMENT;
-    public final BXMLSubType xmlTextType = BXMLSubType.XML_TEXT;
+    public final BXMLSubType xmlElementType =
+            new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT, SemTypes.XML_ELEMENT);
+    public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI, SemTypes.XML_PI);
+    public final BXMLSubType xmlCommentType =
+            new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT, SemTypes.XML_COMMENT);
+    public final BXMLSubType xmlTextType =
+            new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY, SemTypes.XML_TEXT);
 
     public final BRegexpType regExpType = new BRegexpType();
     public final BType xmlNeverType = new BXMLType(neverType,  null);

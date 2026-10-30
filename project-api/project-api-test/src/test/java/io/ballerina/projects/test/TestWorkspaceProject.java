@@ -38,10 +38,12 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TestWorkspaceProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/workspaces");
@@ -69,6 +71,25 @@ public class TestWorkspaceProject extends BaseTest {
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
             Assert.assertTrue(jBallerinaBackend.diagnosticResult().diagnostics().isEmpty());
         }
+    }
+
+    @Test(description = "tests that a compiled workspace can be garbage collected once it is no longer used")
+    public void testCompiledWorkspaceIsReleased() throws InterruptedException {
+        WeakReference<Project> workspace = new WeakReference<>(compileWorkspace(tempResourceDir.resolve("wp-simple")));
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (workspace.get() != null && System.nanoTime() < deadline) {
+            System.gc();
+            Thread.sleep(50);
+        }
+        Assert.assertNull(workspace.get(), "the compiled workspace is still reachable");
+    }
+
+    private static Project compileWorkspace(Path projectPath) {
+        WorkspaceProject project = (WorkspaceProject) TestUtils.loadWorkspaceProject(projectPath).project();
+        for (BuildProject buildProject : project.getResolution().dependencyGraph().toTopologicallySortedList()) {
+            buildProject.currentPackage().getCompilation();
+        }
+        return project;
     }
 
     @Test

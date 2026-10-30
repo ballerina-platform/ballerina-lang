@@ -18,11 +18,9 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -32,18 +30,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BIntSubType extends BType {
 
-    public static final BIntSubType SIGNED32 = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
-    public static final BIntSubType SIGNED16 = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
-    public static final BIntSubType SIGNED8 = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
-
-    public static final BIntSubType UNSIGNED32 = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32,
-                                                                SemTypes.UINT32);
-    public static final BIntSubType UNSIGNED16 = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16,
-                                                                SemTypes.UINT16);
-    public static final BIntSubType UNSIGNED8 = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8,
-                                                                SemTypes.UINT8);
-
-    private BIntSubType(int tag, Name name, SemType semType) {
+    public BIntSubType(int tag, Name name, SemType semType) {
         super(tag, null, name, Flags.READONLY, semType);
     }
 
