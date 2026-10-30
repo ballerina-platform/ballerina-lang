@@ -65,6 +65,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,6 +89,7 @@ public class MavenPackageRepository implements PackageRepository {
     private final MavenResolverClient client;
     private final String repoLocation;
     private final boolean isProxyCentral;
+    private final Set<CompletableFuture<Void>> pendingSbomFetches = ConcurrentHashMap.newKeySet();
 
     protected MavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
                                      MavenResolverClient client, String repoLocation, boolean isProxyCentral) {
@@ -156,12 +161,39 @@ public class MavenPackageRepository implements PackageRepository {
         return this.fileSystemRepo.getPackage(request, options);
     }
 
-    private CompletableFuture<Void> pullSbomAsync(ResolutionRequest request, ResolutionOptions options) {
+    private void pullSbomAsync(ResolutionRequest request, ResolutionOptions options) {
         if (!isProxyCentral || options.offline() || request.version().isEmpty()) {
-            return CompletableFuture.completedFuture(null);
+            return;
         }
-        return CompletableFuture.runAsync(() -> pullSbomFromRemoteRepo(request, options))
+        CompletableFuture<Void> sbomFetch = CompletableFuture.runAsync(() -> pullSbomFromRemoteRepo(request, options))
                 .exceptionally(ignored -> null);
+        pendingSbomFetches.add(sbomFetch);
+        sbomFetch.whenComplete((result, error) -> pendingSbomFetches.remove(sbomFetch));
+    }
+
+    /**
+     * Waits for pending SBOM downloads up to the remaining resolution lifecycle timeout.
+     *
+     * @param timeout the maximum time to wait
+     * @param unit the timeout unit
+     */
+    public void awaitPendingSbomFetches(long timeout, TimeUnit unit) {
+        long deadline = System.nanoTime() + unit.toNanos(timeout);
+        while (!pendingSbomFetches.isEmpty()) {
+            CompletableFuture<?>[] pending = pendingSbomFetches.toArray(CompletableFuture[]::new);
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                return;
+            }
+            try {
+                CompletableFuture.allOf(pending).get(remainingNanos, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            } catch (ExecutionException | TimeoutException ignored) {
+                return;
+            }
+        }
     }
 
     /**
