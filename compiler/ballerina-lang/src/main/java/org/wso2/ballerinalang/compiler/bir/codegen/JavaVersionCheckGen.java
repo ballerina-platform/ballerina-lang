@@ -27,17 +27,12 @@ import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
-import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IF_ICMPGE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V9;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
@@ -59,9 +54,6 @@ public final class JavaVersionCheckGen {
             LAUNCHER_AGENT_CLASS_NAME.replace('.', '/') + CLASS_FILE_SUFFIX;
     private static final int MIN_JAVA_VERSION = 25;
 
-    private static final String STRING_BUILDER = "java/lang/StringBuilder";
-    private static final String APPEND_STRING = "(Ljava/lang/String;)Ljava/lang/StringBuilder;";
-
     private JavaVersionCheckGen() {
     }
 
@@ -80,30 +72,13 @@ public final class JavaVersionCheckGen {
         mv.visitLdcInsn("java.specification.version");
         mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "getProperty", "(Ljava/lang/String;)Ljava/lang/String;",
                 false);
-        mv.visitVarInsn(ASTORE, 1);
-        mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I", false);
         mv.visitIntInsn(BIPUSH, MIN_JAVA_VERSION);
         Label supported = new Label();
         mv.visitJumpInsn(IF_ICMPGE, supported);
 
         mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-        mv.visitTypeInsn(NEW, STRING_BUILDER);
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("error: this Ballerina program requires Java " + MIN_JAVA_VERSION +
-                " or later, but it is being run with Java ");
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, "<init>", "(Ljava/lang/String;)V", false);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", APPEND_STRING, false);
-        mv.visitLdcInsn(" ('");
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", APPEND_STRING, false);
-        mv.visitLdcInsn("java.home");
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "getProperty", "(Ljava/lang/String;)Ljava/lang/String;",
-                false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", APPEND_STRING, false);
-        mv.visitLdcInsn("'). Please run it with Java " + MIN_JAVA_VERSION + " or later.");
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", APPEND_STRING, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "toString", "()Ljava/lang/String;", false);
+        mv.visitLdcInsn("error: this Ballerina program requires Java " + MIN_JAVA_VERSION + " or later to run.");
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
         mv.visitInsn(ICONST_1);
         mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "exit", "(I)V", false);
