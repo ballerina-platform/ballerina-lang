@@ -35,6 +35,7 @@ import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
+import io.ballerina.projects.internal.repositories.MavenPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,6 +61,7 @@ import static io.ballerina.projects.util.ProjectUtils.getLatest;
  * @since 2.0.0
  */
 public class DefaultPackageResolver implements PackageResolver {
+    private static final long SBOM_FETCH_WAIT_TIMEOUT_SECONDS = 15;
     private final PackageRepository distributionRepo;
     private final PackageRepository centralRepo;
     private final PackageRepository localRepo;
@@ -366,12 +369,31 @@ public class DefaultPackageResolver implements PackageResolver {
     public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> requests,
                                                           ResolutionOptions options) {
         if (requests.isEmpty()) {
+            awaitPendingSbomFetches();
             return Collections.emptyList();
         }
 
-        return requests.stream()
+        List<ResolutionResponse> responses = requests.stream()
                 .map(request -> resolvePackage(request, options))
                 .toList();
+        awaitPendingSbomFetches();
+        return responses;
+    }
+
+    private void awaitPendingSbomFetches() {
+        Set<PackageRepository> repositories = new HashSet<>(customRepos.values());
+        repositories.add(centralRepo);
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(SBOM_FETCH_WAIT_TIMEOUT_SECONDS);
+        for (PackageRepository repository : repositories) {
+            if (!(repository instanceof MavenPackageRepository mavenPackageRepository)) {
+                continue;
+            }
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                return;
+            }
+            mavenPackageRepository.awaitPendingSbomFetches(remainingNanos, TimeUnit.NANOSECONDS);
+        }
     }
 
     private ResolutionResponse resolvePackage(ResolutionRequest resolutionReq, ResolutionOptions options) {
