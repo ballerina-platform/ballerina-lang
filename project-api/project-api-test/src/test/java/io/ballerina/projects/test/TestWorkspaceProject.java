@@ -43,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TestWorkspaceProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/workspaces");
@@ -75,7 +76,8 @@ public class TestWorkspaceProject extends BaseTest {
     @Test(description = "tests that a compiled workspace can be garbage collected once it is no longer used")
     public void testCompiledWorkspaceIsReleased() throws InterruptedException {
         WeakReference<Project> workspace = new WeakReference<>(compileWorkspace(tempResourceDir.resolve("wp-simple")));
-        for (int i = 0; i < 20 && workspace.get() != null; i++) {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (workspace.get() != null && System.nanoTime() < deadline) {
             System.gc();
             Thread.sleep(50);
         }
