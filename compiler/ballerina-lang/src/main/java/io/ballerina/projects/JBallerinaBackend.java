@@ -40,6 +40,7 @@ import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.JavaVersionCheckGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -511,6 +512,7 @@ public class JBallerinaBackend extends CompilerBackend {
         try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(
                 new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())))) {
             writeManifest(manifest, outStream);
+            writeLauncherAgentClass(outStream);
 
             // Sort jar libraries list to avoid inconsistent jar reporting
             sortAndCopyJars(jarLibraries, outStream, copiedEntries, serviceEntries);
@@ -592,6 +594,13 @@ public class JBallerinaBackend extends CompilerBackend {
         outStream.closeArchiveEntry();
     }
 
+    private void writeLauncherAgentClass(ZipArchiveOutputStream outStream) throws IOException {
+        JarArchiveEntry e = new JarArchiveEntry(JavaVersionCheckGen.LAUNCHER_AGENT_CLASS_FILE);
+        outStream.putArchiveEntry(e);
+        outStream.write(JavaVersionCheckGen.generateLauncherAgentClass());
+        outStream.closeArchiveEntry();
+    }
+
     private Manifest createManifest() {
         // Getting the jarFileName of the root module of this executable
         PlatformLibrary rootModuleJarFile = codeGeneratedLibrary(packageContext.packageId(),
@@ -611,6 +620,8 @@ public class JBallerinaBackend extends CompilerBackend {
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
         mainAttributes.putValue("Enable-Native-Access", "ALL-UNNAMED");
+        // Runs before the main class is loaded with 'java -jar' to report unsupported Java versions.
+        mainAttributes.putValue("Launcher-Agent-Class", JavaVersionCheckGen.LAUNCHER_AGENT_CLASS_NAME);
         return manifest;
     }
 
