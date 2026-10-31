@@ -21,6 +21,7 @@ import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.lang.ref.WeakReference;
@@ -65,8 +66,7 @@ public class ContextMemoTest {
         SemType t1 = tuple(env, random);
         SemType t2 = tuple(env, random);
         cx.memoizeComparable(t1, t2, true);
-        WeakReference<Object> control = new WeakReference<>(new Object());
-        collectGarbage(() -> control.get() == null);
+        collectGarbage(() -> true);
         Assert.assertEquals(cx.comparableMemo(t1, t2), Boolean.TRUE, "dropped while both types live");
 
         WeakReference<SemType> released = new WeakReference<>(t1);
@@ -105,10 +105,14 @@ public class ContextMemoTest {
     }
 
     private static void collectGarbage(BooleanSupplier done) throws InterruptedException {
+        WeakReference<Object> control = new WeakReference<>(new Object());
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
-        while (!done.getAsBoolean() && System.nanoTime() < deadline) {
+        while ((control.get() != null || !done.getAsBoolean()) && System.nanoTime() < deadline) {
             System.gc();
             Thread.sleep(50);
+        }
+        if (control.get() != null) {
+            throw new SkipException("the JVM did not collect garbage");
         }
     }
 
