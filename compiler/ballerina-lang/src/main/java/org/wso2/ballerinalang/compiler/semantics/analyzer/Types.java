@@ -32,7 +32,6 @@ import io.ballerina.types.ListMemberTypes;
 import io.ballerina.types.MappingAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypePair;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
@@ -3634,8 +3633,7 @@ public class Types {
     }
 
     private boolean comparableNillableList(Context cx, SemType t1, SemType t2) {
-        SemTypePair semPair = SemTypePair.from(t1, t2);
-        Boolean b = cx.comparableMemo.get(semPair);
+        Boolean b = cx.comparableMemo(t1, t2);
         if (b != null) {
             return b;
         }
@@ -3671,11 +3669,11 @@ public class Types {
 
             if (!comparable(lmTypes1.semTypes().get(Math.toIntExact(i1)),
                     lmTypes2.semTypes().get(Math.toIntExact(i2)))) {
-                cx.comparableMemo.put(semPair, false);
+                cx.memoizeComparable(t1, t2, false);
                 return false;
             }
         }
-        cx.comparableMemo.put(semPair, true);
+        cx.memoizeComparable(t1, t2, true);
         return true;
     }
 
