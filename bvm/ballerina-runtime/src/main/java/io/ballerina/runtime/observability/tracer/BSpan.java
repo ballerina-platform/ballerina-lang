@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanContext;
@@ -162,6 +163,30 @@ public class BSpan {
 
     public void addTag(String tagKey, String tagValue) {
         span.setAttribute(tagKey, tagValue);
+    }
+
+
+    public void addLink(Map<String, String> linkedTraceContext) {
+        addLink(linkedTraceContext, Collections.emptyMap());
+    }
+
+    public void addLink(Map<String, String> linkedTraceContext, Map<String, String> attributes) {
+        if (linkedTraceContext == null || linkedTraceContext.isEmpty()) {
+            return;
+        }
+        Context linkedContext = TracersStore.getInstance().getPropagators()
+                .getTextMapPropagator().extract(Context.root(), linkedTraceContext, GETTER);
+        SpanContext linkedSpanContext = Span.fromContext(linkedContext).getSpanContext();
+        if (!linkedSpanContext.isValid()) {
+            return;
+        }
+        AttributesBuilder linkAttributes = Attributes.builder();
+        if (attributes != null) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                linkAttributes.put(entry.getKey(), entry.getValue());
+            }
+        }
+        span.addLink(linkedSpanContext, linkAttributes.build());
     }
 
     public Map<String, String> extractContextAsHttpHeaders() {

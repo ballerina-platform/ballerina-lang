@@ -557,6 +557,21 @@ public final class ObserveUtils {
         env.setStrandLocal(KEY_OBSERVER_CONTEXT, observerContext);
     }
 
+    public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext) {
+        addLinkToSpan(observerContext, traceContext, Collections.emptyMap());
+    }
+
+    public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext,
+                                     Map<String, String> attributes) {
+        if (observerContext == null) {
+            return;
+        }
+        BSpan span = observerContext.getSpan();
+        if (span != null) {
+            span.addLink(traceContext, attributes);
+        }
+    }
+
     /**
      * Generate a ID for a source code position.
      *
