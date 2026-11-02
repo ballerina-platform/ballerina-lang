@@ -34,11 +34,14 @@ import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.ballerinalang.debugadapter.variable.types.BRecord;
 import org.ballerinalang.debugadapter.variable.types.BXmlItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CUSTOM_ERROR;
@@ -51,6 +54,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_XML_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_STRING_AT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getChildVarByName;
 
 /**
  * Evaluator implementation for member access expressions.
@@ -64,6 +68,9 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
     private final List<Evaluator> keyEvaluators;
 
     private static final String FIELD_CHILDREN = "children";
+    private static final Set<BVariableType> SUPPORTED_CONTAINER_TYPES = EnumSet.of(BVariableType.STRING,
+            BVariableType.XML, BVariableType.ARRAY, BVariableType.TUPLE, BVariableType.MAP, BVariableType.JSON,
+            BVariableType.RECORD);
 
     public MemberAccessExpressionEvaluator(EvaluationContext context, IndexedExpressionNode indexedExpressionNode,
                                            Evaluator containerEvaluator, List<Evaluator> keyEvaluators) {
@@ -79,9 +86,7 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
             BExpressionValue containerResult = containerEvaluator.evaluate();
             BVariable containerVar = VariableFactory.getVariable(context, containerResult.getJdiValue());
             // Validates container expression result type.
-            if (containerVar.getBType() != BVariableType.STRING && containerVar.getBType() != BVariableType.XML
-                    && containerVar.getBType() != BVariableType.ARRAY && containerVar.getBType() != BVariableType.MAP
-                    && containerVar.getBType() != BVariableType.JSON) {
+            if (!SUPPORTED_CONTAINER_TYPES.contains(containerVar.getBType())) {
                 throw createEvaluationException(CUSTOM_ERROR, "Type `" + containerVar.getBType().getString() +
                         "' does not support member access.");
             }
@@ -113,10 +118,11 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                     getCodePointMethod.setArgValues(argValues);
                     return new BExpressionValue(context, getCodePointMethod.invokeSafely());
                 }
-                // Index access of lists
+                // Index access of lists (array, tuple)
                 // If it is list, and index is < 0 or ≥ the length of the list, then the evaluation completes abruptly
                 // with a panic; otherwise, the result is the member of the list with index k.
-                case ARRAY: {
+                case ARRAY:
+                case TUPLE: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
                         throw createEvaluationException(INVALID_KEY_TYPE_ERROR, BVariableType.INT.getString(),
@@ -132,11 +138,14 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                     Value child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
                 }
-                // Index access of mappings (map, json)
+                // Index access of mappings (map, json, record)
                 // If it is mapping, then if the mapping is () or c does not contain a member with key k, then the
                 // result is (); otherwise, the result is the member of the mapping with key k.
+                // Note: For closed records, accessing a field that is not defined in the record type is a compile
+                // error in Ballerina. The debugger intentionally evaluates it to () instead.
                 case MAP:
-                case JSON: {
+                case JSON:
+                case RECORD: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.STRING && keyVar.getBType() != BVariableType.NIL) {
                         throw createEvaluationException(INVALID_KEY_TYPE_ERROR, BVariableType.STRING.getString(),
@@ -148,7 +157,11 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
                         keyString = VariableUtils.removeRedundantQuotes(keyString);
-                        Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
+                        // Record field names are stored in their escaped and encoded form.
+                        if (containerVar.getBType() == BVariableType.RECORD) {
+                            keyString = BRecord.encodeFieldName(keyString);
+                        }
+                        Value child = getChildVarByName(containerVar, keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
                         return new BExpressionValue(context, null);
