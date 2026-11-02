@@ -61,7 +61,19 @@ public class BSpan {
     static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
         @Override
         public String get(Map<String, String> carrier, String key) {
-            return carrier.get(key);
+            if (carrier == null || key == null) {
+                return null;
+            }
+            String value = carrier.get(key);
+            if (value != null) {
+                return value;
+            }
+            for (Map.Entry<String, String> entry : carrier.entrySet()) {
+                if (key.equalsIgnoreCase(entry.getKey())) {
+                    return entry.getValue();
+                }
+            }
+            return null;
         }
 
         @Override
