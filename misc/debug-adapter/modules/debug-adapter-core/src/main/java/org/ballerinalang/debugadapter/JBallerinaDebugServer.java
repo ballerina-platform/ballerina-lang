@@ -23,6 +23,7 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -946,8 +947,15 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         context.setDebuggeeVM(new VirtualMachineProxyImpl(attachedVm));
         EventRequestManager erm = context.getEventManager();
         erm.createClassPrepareRequest().enable();
-        erm.createThreadStartRequest().enable();
-        erm.createThreadDeathRequest().enable();
+        // Thread start/death events are only used to track the active threads, hence they should not suspend the
+        // remote VM. Otherwise, a thread started during a method invocation (i.e. breakpoint condition evaluation)
+        // suspends the whole VM and blocks the invocation until the event is processed.
+        EventRequest threadStartRequest = erm.createThreadStartRequest();
+        threadStartRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        threadStartRequest.enable();
+        EventRequest threadDeathRequest = erm.createThreadDeathRequest();
+        threadDeathRequest.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        threadDeathRequest.enable();
         eventProcessor.startListenAsync();
     }
 
@@ -970,11 +978,17 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
 
     private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) throws EvaluationException {
         int stackFrameReference = requestArgs.getVariablesReference();
-        List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
+        Map<String, Value> globalVarValues = new LinkedHashMap<>();
         String allGlobalVarClassName = PackageUtils.getQualifiedClassName(suspendedContext, ALL_GLOBAL_VAR_CLASS_NAME);
         String allConstantsClassName = PackageUtils.getQualifiedClassName(suspendedContext, ALL_CONSTANTS_CLASS_NAME);
-        loadVariables(allGlobalVarClassName, scheduledVariables, stackFrameReference, GLOBAL_VARIABLES_PACKAGE_NAME);
-        loadVariables(allConstantsClassName, scheduledVariables, stackFrameReference, GLOBAL_CONSTANTS_PACKAGE_NAME);
+        loadVariables(allGlobalVarClassName, globalVarValues, GLOBAL_VARIABLES_PACKAGE_NAME);
+        loadVariables(allConstantsClassName, globalVarValues, GLOBAL_CONSTANTS_PACKAGE_NAME);
+
+        // Variable computations are scheduled only after loading all the variable classes, since both use method
+        // invocations on the suspended thread and JDI does not allow concurrent invocations on the same thread.
+        List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
+        globalVarValues.forEach((name, value) ->
+                scheduledVariables.add(computeVariableAsync(name, value, stackFrameReference)));
         return scheduledVariables.stream()
                 .map(varFuture -> {
                     try {
@@ -988,8 +1002,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 .toArray(Variable[]::new);
     }
 
-    private void loadVariables(String variablesClassName, List<CompletableFuture<Variable>> scheduledVariables,
-                               int stackFrameReference, String varClassPkg) throws EvaluationException {
+    private void loadVariables(String variablesClassName, Map<String, Value> varValues, String varClassPkg)
+            throws EvaluationException {
         ReferenceType allGlobalVarClassRef = loadAllVarsClass(suspendedContext, variablesClassName);
         if (allGlobalVarClassRef == null) {
             throw createEvaluationException(CLASS_LOADING_FAILED, variablesClassName);
@@ -1001,14 +1015,14 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             ReferenceType classRef = classRefs.getFirst();
             Field valueField = classRef.fieldByName(VALUE_VAR_FIELD_NAME);
             Value fieldValue = classRef.getValue(valueField);
-            scheduledVariables.add(computeVariableAsync(fieldName, fieldValue, stackFrameReference));
+            varValues.put(fieldName, fieldValue);
         }
     }
 
     public static ReferenceType loadAllVarsClass(SuspendedContext context, String className) {
         List<ReferenceType> classRefs = context.getAttachedVm().classesByName(className);
         if (classRefs != null && !classRefs.isEmpty()) {
-            classRefs.getFirst();
+            return classRefs.getFirst();
         }
         // Tries to load from init class
         try {

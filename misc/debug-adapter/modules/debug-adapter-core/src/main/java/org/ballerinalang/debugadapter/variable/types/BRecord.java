@@ -59,6 +59,16 @@ public class BRecord extends NamedCompoundVariable {
         }
     }
 
+    /**
+     * Returns the encoded form of the given record field name, which is used as the child variable name.
+     *
+     * @param fieldName record field name
+     * @return encoded field name
+     */
+    public static String encodeFieldName(String fieldName) {
+        return Utils.encodeNonFunctionIdentifier(Utils.escapeSpecialCharacters(fieldName));
+    }
+
     @Override
     public Map<String, Value> computeChildVariables() {
         try {
@@ -70,9 +80,7 @@ public class BRecord extends NamedCompoundVariable {
             Map<Value, Value> recordFields = getRecordFields();
 
             for (Map.Entry<Value, Value> mapEntry : recordFields.entrySet()) {
-                childVarMap.put(Utils.encodeNonFunctionIdentifier(
-                        Utils.escapeSpecialCharacters(VariableUtils.getStringFrom(mapEntry.getKey()))),
-                        mapEntry.getValue());
+                childVarMap.put(encodeFieldName(VariableUtils.getStringFrom(mapEntry.getKey())), mapEntry.getValue());
             }
             return childVarMap;
         } catch (Exception ignored) {

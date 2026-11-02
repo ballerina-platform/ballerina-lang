@@ -50,6 +50,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -68,6 +70,12 @@ public class BreakpointProcessor {
     private final ExecutionContext context;
     private final JDIEventProcessor jdiEventProcessor;
     private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new ConcurrentHashMap<>();
+    // Breakpoint conditions must not be evaluated in the common fork-join pool, which also runs the JDI event
+    // processor. Otherwise, the event processor thread may run the evaluation task itself while waiting for its
+    // result, and the remote method invocations of the evaluation can deadlock with the unprocessed JDI events.
+    // A cached thread pool is used so that an evaluation which does not complete (e.g. a condition calling a
+    // function which never returns) does not block the subsequent evaluations.
+    private final ExecutorService conditionEvaluationExecutor = Executors.newCachedThreadPool();
 
     private static final int BP_EVALUATION_TIMEOUT = 5000;
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
@@ -344,7 +352,7 @@ public class BreakpointProcessor {
                         "at line: %d, due to an internal error", lineNumber));
                 return false;
             }
-        });
+        }, conditionEvaluationExecutor);
     }
 
     /**
@@ -382,23 +390,24 @@ public class BreakpointProcessor {
         // will resume the EventSet. Therefore to avoid this, we are disabling possible event requests before doing
         // the condition evaluation.
         JDIUtils.disableJDIRequests(context);
+        try {
+            ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads()
+                    .get((int) threadReference.uniqueID());
+            List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(thread.frames());
+            if (validFrames.isEmpty()) {
+                throw new IllegalStateException("Failed to use stack frames for evaluation");
+            }
 
-        ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get((int) threadReference.uniqueID());
-        List<BallerinaStackFrame> validFrames = jdiEventProcessor.filterValidBallerinaFrames(thread.frames());
-        if (validFrames.isEmpty()) {
-            throw new IllegalStateException("Failed to use stack frames for evaluation");
+            SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
+            EvaluationContext evaluationContext = new EvaluationContext(ctx);
+            DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
+            evaluator.setExpression(expression);
+            return evaluator.evaluate();
+        } finally {
+            // As we disabled all the breakpoint requests before evaluating the user's conditional
+            // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
+            JDIUtils.enableJDIRequests(context);
         }
-
-        SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
-        EvaluationContext evaluationContext = new EvaluationContext(ctx);
-        DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
-        evaluator.setExpression(expression);
-        BExpressionValue evaluationResult = evaluator.evaluate();
-
-        // As we disabled all the breakpoint requests before evaluating the user's conditional
-        // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
-        JDIUtils.enableJDIRequests(context);
-        return evaluationResult;
     }
 
     private boolean requireStepOut(BreakpointEvent event) {
