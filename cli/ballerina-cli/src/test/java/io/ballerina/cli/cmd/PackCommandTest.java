@@ -3,6 +3,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
@@ -18,11 +19,14 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.assertTomlFilesEquals;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -109,6 +113,43 @@ public class PackCommandTest extends BaseCommandTest {
         String packageJsonContent = Files.readString(extractedPath.resolve(PACKAGE_JSON));
         PackageJson packageJson = new Gson().fromJson(packageJsonContent, PackageJson.class);
         Assert.assertEquals(BALA_DOCS_DIR + "/" + README_MD_FILE_NAME, packageJson.getReadme());
+    }
+
+    @Test(description = "tests that a bala with a path-traversal zip entry is rejected during extraction")
+    public void testExtractBalaWithPathTraversalEntryRejected() throws IOException {
+        Path testRoot = Files.createTempDirectory("bala-zip-slip-test");
+        try {
+            // extractionDir is the intended extraction directory; the malicious entry below tries to
+            // escape it and write two directories up, into testRoot.
+            Path extractionDir = testRoot.resolve("nested").resolve("extracted");
+            Files.createDirectories(extractionDir);
+            Path maliciousBala = testRoot.resolve("testorg-attackpkg-any-0.1.0.bala");
+            try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(maliciousBala))) {
+                writeZipEntry(zipOut, "package.json", "{"
+                        + "\"organization\":\"testorg\",\"name\":\"attackpkg\",\"version\":\"0.1.0\","
+                        + "\"platform\":\"any\"}");
+                writeZipEntry(zipOut, "../../evil-marker.txt", "owned");
+            }
+
+            try {
+                ProjectUtils.extractBala(maliciousBala, extractionDir);
+                Assert.fail("expected a ProjectException due to the path traversal zip entry");
+            } catch (ProjectException e) {
+                Assert.assertTrue(e.getMessage().contains("resolves outside the extraction directory"),
+                        "unexpected exception message: " + e.getMessage());
+            }
+
+            Assert.assertFalse(Files.exists(testRoot.resolve("evil-marker.txt")),
+                    "zip entry path traversal wrote a file outside the intended extraction directory");
+        } finally {
+            ProjectUtils.deleteDirectory(testRoot);
+        }
+    }
+
+    private static void writeZipEntry(ZipOutputStream zipOut, String entryName, String content) throws IOException {
+        zipOut.putNextEntry(new ZipEntry(entryName));
+        zipOut.write(content.getBytes(StandardCharsets.UTF_8));
+        zipOut.closeEntry();
     }
 
     @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins",
