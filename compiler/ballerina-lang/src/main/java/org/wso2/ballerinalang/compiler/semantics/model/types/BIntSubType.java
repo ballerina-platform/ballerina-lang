@@ -32,27 +32,63 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BIntSubType extends BType {
 
-    // Each SymbolTable creates its own instances. These shared instances are not used by the compiler: setting
-    // their symbol per compiler context kept the last context reachable from a static field.
+    /**
+     * @deprecated Use {@code SymbolTable#signed32IntType}, which is created per compiler context.
+     */
     @Deprecated(since = "2201.14.1", forRemoval = true)
-    public static final BIntSubType SIGNED32 = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
+    public static final BIntSubType SIGNED32 = newSigned32();
+    /**
+     * @deprecated Use {@code SymbolTable#signed16IntType}, which is created per compiler context.
+     */
     @Deprecated(since = "2201.14.1", forRemoval = true)
-    public static final BIntSubType SIGNED16 = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
+    public static final BIntSubType SIGNED16 = newSigned16();
+    /**
+     * @deprecated Use {@code SymbolTable#signed8IntType}, which is created per compiler context.
+     */
     @Deprecated(since = "2201.14.1", forRemoval = true)
-    public static final BIntSubType SIGNED8 = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
+    public static final BIntSubType SIGNED8 = newSigned8();
+    /**
+     * @deprecated Use {@code SymbolTable#unsigned32IntType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BIntSubType UNSIGNED32 = newUnsigned32();
+    /**
+     * @deprecated Use {@code SymbolTable#unsigned16IntType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BIntSubType UNSIGNED16 = newUnsigned16();
+    /**
+     * @deprecated Use {@code SymbolTable#unsigned8IntType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BIntSubType UNSIGNED8 = newUnsigned8();
 
-    @Deprecated(since = "2201.14.1", forRemoval = true)
-    public static final BIntSubType UNSIGNED32 = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32,
-                                                                SemTypes.UINT32);
-    @Deprecated(since = "2201.14.1", forRemoval = true)
-    public static final BIntSubType UNSIGNED16 = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16,
-                                                                SemTypes.UINT16);
-    @Deprecated(since = "2201.14.1", forRemoval = true)
-    public static final BIntSubType UNSIGNED8 = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8,
-                                                                SemTypes.UINT8);
-
-    public BIntSubType(int tag, Name name, SemType semType) {
+    private BIntSubType(int tag, Name name, SemType semType) {
         super(tag, null, name, Flags.READONLY, semType);
+    }
+
+    public static BIntSubType newSigned32() {
+        return new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
+    }
+
+    public static BIntSubType newSigned16() {
+        return new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
+    }
+
+    public static BIntSubType newSigned8() {
+        return new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
+    }
+
+    public static BIntSubType newUnsigned32() {
+        return new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32, SemTypes.UINT32);
+    }
+
+    public static BIntSubType newUnsigned16() {
+        return new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16, SemTypes.UINT16);
+    }
+
+    public static BIntSubType newUnsigned8() {
+        return new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8, SemTypes.UINT8);
     }
 
     @Override

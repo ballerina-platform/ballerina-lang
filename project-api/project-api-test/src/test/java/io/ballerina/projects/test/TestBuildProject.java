@@ -71,6 +71,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -2497,23 +2500,32 @@ public class TestBuildProject extends BaseTest {
     }
 
     @Test(description = "tests that compiler contexts don't share the built-in subtypes")
+    @SuppressWarnings("removal")
     public void testBuiltinSubtypesArePerCompilerContext() {
+        // Each load builds a new environment, so the two projects compile in separate compiler contexts
         BuildProject project = loadBuildProject(tempResourceDir.resolve("myproject"));
-        // duplicate() builds a new environment, so the copy compiles in a separate compiler context
-        Project duplicate = project.duplicate();
+        BuildProject otherProject = loadBuildProject(tempResourceDir.resolve("myproject"));
         project.currentPackage().getCompilation();
-        duplicate.currentPackage().getCompilation();
+        otherProject.currentPackage().getCompilation();
 
         SymbolTable symTable = SymbolTable.getInstance(
                 project.projectEnvironmentContext().getService(CompilerContext.class));
-        SymbolTable duplicateSymTable = SymbolTable.getInstance(
-                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
-        Assert.assertNotSame(symTable, duplicateSymTable);
-        Assert.assertNotSame(symTable.charStringType, duplicateSymTable.charStringType);
-        Assert.assertNotSame(symTable.signed8IntType, duplicateSymTable.signed8IntType);
-        Assert.assertNotSame(symTable.xmlTextType, duplicateSymTable.xmlTextType);
-        Assert.assertSame(symTable.charStringType.tsymbol.owner, symTable.langStringModuleSymbol);
-        Assert.assertSame(duplicateSymTable.charStringType.tsymbol.owner, duplicateSymTable.langStringModuleSymbol);
+        SymbolTable otherSymTable = SymbolTable.getInstance(
+                otherProject.projectEnvironmentContext().getService(CompilerContext.class));
+        Assert.assertNotSame(symTable, otherSymTable);
+        Assert.assertNotSame(symTable.charStringType, otherSymTable.charStringType);
+        Assert.assertNotSame(symTable.signed8IntType, otherSymTable.signed8IntType);
+        Assert.assertNotSame(symTable.xmlTextType, otherSymTable.xmlTextType);
+        for (SymbolTable table : List.of(symTable, otherSymTable)) {
+            Assert.assertSame(table.charStringType.tsymbol.owner, table.langStringModuleSymbol);
+            Assert.assertSame(table.signed8IntType.tsymbol.owner, table.langIntModuleSymbol);
+            Assert.assertSame(table.xmlTextType.tsymbol.owner, table.langXmlModuleSymbol);
+        }
+
+        // The deprecated static instances don't get a symbol, so they don't refer to any compiler context
+        Assert.assertNull(BStringSubType.CHAR.tsymbol);
+        Assert.assertNull(BIntSubType.SIGNED32.tsymbol);
+        Assert.assertNull(BXMLSubType.XML_TEXT.tsymbol);
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {

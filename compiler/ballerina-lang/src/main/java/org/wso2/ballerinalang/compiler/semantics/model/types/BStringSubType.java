@@ -31,13 +31,18 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BStringSubType extends BType {
 
-    // Each SymbolTable creates its own instances. These shared instances are not used by the compiler: setting
-    // their symbol per compiler context kept the last context reachable from a static field.
+    /**
+     * @deprecated Use {@code SymbolTable#charStringType}, which is created per compiler context.
+     */
     @Deprecated(since = "2201.14.1", forRemoval = true)
-    public static final BStringSubType CHAR = new BStringSubType();
+    public static final BStringSubType CHAR = newChar();
 
-    public BStringSubType() {
+    private BStringSubType() {
         super(TypeTags.CHAR_STRING, null, Names.CHAR, Flags.READONLY, SemTypes.CHAR);
+    }
+
+    public static BStringSubType newChar() {
+        return new BStringSubType();
     }
 
     @Override
