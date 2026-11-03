@@ -96,6 +96,8 @@ import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
+import static org.ballerinalang.central.client.CentralClientConstants.SIGSTORE_BUNDLE_EXT;
+import static org.ballerinalang.central.client.CentralClientConstants.SIGSTORE_BUNDLE_MEDIA_TYPE;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
@@ -396,6 +398,22 @@ public class CentralAPIClient {
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
                             String ballerinaVersion) throws CentralClientException {
+        pushPackage(balaPath, org, name, version, supportedPlatform, ballerinaVersion, null);
+    }
+
+    /**
+     * Push a package to registry, along with a Sigstore bundle that signs the bala.
+     *
+     * @param balaPath           The path to the bala file.
+     * @param org                The organization of the package.
+     * @param name               The name of the package.
+     * @param version            The version of the package.
+     * @param supportedPlatform  The supported platform.
+     * @param ballerinaVersion   The ballerina version.
+     * @param sigstoreBundlePath The path to the Sigstore bundle of the bala, or {@code null} to push it unsigned.
+     */
+    public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
+                            String ballerinaVersion, Path sigstoreBundlePath) throws CentralClientException {
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature = org + SEPARATOR + name + ":" + version;
@@ -409,11 +427,17 @@ public class CentralAPIClient {
                 fileName = fileNamePath.toString();
             }
 
-            RequestBody balaFileReqBody = new MultipartBody.Builder()
+            MultipartBody.Builder balaFileReqBodyBuilder = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("bala-file", fileName,
-                            RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
-                    .build();
+                            RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()));
+            if (sigstoreBundlePath != null) {
+                Path bundleFileName = sigstoreBundlePath.getFileName();
+                balaFileReqBodyBuilder.addFormDataPart("sigstore-bundle",
+                        bundleFileName != null ? bundleFileName.toString() : fileName + SIGSTORE_BUNDLE_EXT,
+                        RequestBody.create(MediaType.parse(SIGSTORE_BUNDLE_MEDIA_TYPE), sigstoreBundlePath.toFile()));
+            }
+            RequestBody balaFileReqBody = balaFileReqBodyBuilder.build();
             String remoteRepo = getRemoteRepo();
             String projectRepo = balaPath.toString().split(name)[0] + name;
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,

@@ -477,4 +477,16 @@ public class PushCommandTest extends BaseCommandTest {
                 "mentioned in the Settings.toml are supported.";
         Assert.assertTrue(readOutput().contains(errMsg));
     }
+
+    @Test(description = "Find the Sigstore bundle next to the bala")
+    public void testFindSiblingSigstoreBundle() throws IOException {
+        Path balaDir = Files.createTempDirectory(super.tmpDir, "sigstore-bundle");
+        Path balaPath = balaDir.resolve("foo-winery-any-0.1.0.bala");
+        Files.writeString(balaPath, "bala");
+        Assert.assertNull(PushCommand.findSiblingSigstoreBundle(balaPath));
+
+        Path bundlePath = balaDir.resolve("foo-winery-any-0.1.0.bala.sigstore.json");
+        Files.writeString(bundlePath, "{}");
+        Assert.assertEquals(PushCommand.findSiblingSigstoreBundle(balaPath), bundlePath);
+    }
 }

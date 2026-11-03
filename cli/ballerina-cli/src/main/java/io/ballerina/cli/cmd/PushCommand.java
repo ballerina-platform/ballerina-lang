@@ -492,9 +492,13 @@ public class PushCommand implements BLauncherCmd {
 
             authenticate(settingsTomlFilePath, client);
 
+            Path sigstoreBundlePath = findSiblingSigstoreBundle(balaPath);
+            if (sigstoreBundlePath != null) {
+                outStream.println("Attaching Sigstore bundle " + sigstoreBundlePath.getFileName());
+            }
             try {
                 client.pushPackage(balaPath, org, name, version, balaProject.platform(),
-                                   RepoUtils.getBallerinaVersion());
+                                   RepoUtils.getBallerinaVersion(), sigstoreBundlePath);
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
                 if (null != errorMessage && !errorMessage.trim().isEmpty()) {
@@ -603,5 +607,20 @@ public class PushCommand implements BLauncherCmd {
     private static Path findSiblingSbomFile(Path balaPath, String name, String version) {
         Path sbomPath = balaPath.resolveSibling(name + "-" + version + ".cdx.json");
         return Files.exists(sbomPath) ? sbomPath : null;
+    }
+
+    /**
+     * Find the Sigstore bundle that signs the bala, named {@code <bala file name>.sigstore.json}.
+     *
+     * @param balaPath path to the bala file being pushed
+     * @return path to the sibling Sigstore bundle, or {@code null} if none exists next to it
+     */
+    static Path findSiblingSigstoreBundle(Path balaPath) {
+        Path balaFileName = balaPath.getFileName();
+        if (balaFileName == null) {
+            return null;
+        }
+        Path bundlePath = balaPath.resolveSibling(balaFileName + CentralClientConstants.SIGSTORE_BUNDLE_EXT);
+        return Files.isRegularFile(bundlePath) ? bundlePath : null;
     }
 }

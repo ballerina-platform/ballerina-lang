@@ -14,6 +14,9 @@ DESCRIPTION
        To be able to publish a package to Ballerina Central, you should sign in
        to Ballerina Central and obtain an access token.
 
+       If a Sigstore bundle named <bala-file-name>.sigstore.json is next to the
+       BALA, it is pushed to Ballerina Central along with the BALA.
+
        To be able to publish a package to a custom remote repository, it must be defined
        in the <USER_HOME>/.ballerina/Settings.toml file.
 
