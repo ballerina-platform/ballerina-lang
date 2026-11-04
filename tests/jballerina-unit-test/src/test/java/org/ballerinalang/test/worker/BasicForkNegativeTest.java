@@ -45,6 +45,14 @@ public class BasicForkNegativeTest {
     }
 
     @Test
+    public void testDuplicateWorkerInFork() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork_duplicate_worker_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "redeclared symbol 'worker1'", 21, 16);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
     public void workerPeerCommunicationNegativeTests() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-peer-communication-negative.bal");
         int index = 0;

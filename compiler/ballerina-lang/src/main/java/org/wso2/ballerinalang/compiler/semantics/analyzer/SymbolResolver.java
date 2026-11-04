@@ -144,6 +144,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * @since 0.94
@@ -239,6 +240,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (isRedeclaredSymbol(symbol, foundSym)) {
 
             Name name = symbol.name;
+            if (name.value.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
+                name = Names.fromString(name.value.substring(WORKER_LAMBDA_VAR_PREFIX.length()));
+            }
             if (Symbols.isRemote(symbol) ^ Symbols.isRemote(foundSym)) {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
