@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
@@ -621,6 +622,6 @@ public class PushCommand implements BLauncherCmd {
             return null;
         }
         Path bundlePath = balaPath.resolveSibling(balaFileName + CentralClientConstants.SIGSTORE_BUNDLE_EXT);
-        return Files.isRegularFile(bundlePath) ? bundlePath : null;
+        return Files.isRegularFile(bundlePath, LinkOption.NOFOLLOW_LINKS) ? bundlePath : null;
     }
 }

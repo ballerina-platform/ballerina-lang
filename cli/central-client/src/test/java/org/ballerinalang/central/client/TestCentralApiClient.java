@@ -27,6 +27,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.Buffer;
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
@@ -530,7 +531,8 @@ public class TestCentralApiClient extends CentralAPIClient {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "false");
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         Path bundlePath = TMP_DIR.resolve(TEST_BALA_NAME + ".sigstore.json");
-        Files.writeString(bundlePath, "{\"mediaType\": \"application/vnd.dev.sigstore.bundle.v0.3+json\"}");
+        String bundleContent = "{\"mediaType\": \"application/vnd.dev.sigstore.bundle.v0.3+json\"}";
+        Files.writeString(bundlePath, bundleContent);
         setBallerinaHome();
 
         MultipartBody pushedBody = pushAndCaptureBody(balaPath, bundlePath);
@@ -540,6 +542,9 @@ public class TestCentralApiClient extends CentralAPIClient {
                 "application/vnd.dev.sigstore.bundle.v0.3+json");
         Assert.assertEquals(bundlePart.headers().get(CONTENT_DISPOSITION),
                 "form-data; name=\"sigstore-bundle\"; filename=\"" + TEST_BALA_NAME + ".sigstore.json\"");
+        Buffer bundleBytes = new Buffer();
+        bundlePart.body().writeTo(bundleBytes);
+        Assert.assertEquals(bundleBytes.readUtf8(), bundleContent);
         Files.delete(bundlePath);
     }
 
