@@ -134,7 +134,7 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public String getQualifiedPackageName() {
         String orgName = this.orgName.toString();
         String pkgName = String.join(".", pkgNameComps.stream()
-                .map(id -> id.value)
+                .map(id -> id.value.isEmpty() && id.originalValue != null ? id.originalValue : id.value)
                 .toList());
 
         String versionStr = (this.version.value != null) ? this.version.value : "";
