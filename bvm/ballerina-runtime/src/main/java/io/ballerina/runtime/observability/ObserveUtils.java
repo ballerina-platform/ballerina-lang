@@ -557,19 +557,51 @@ public final class ObserveUtils {
         env.setStrandLocal(KEY_OBSERVER_CONTEXT, observerContext);
     }
 
+    /**
+     * Add a link from the span of the observer context to another span, without making it the parent.
+     *
+     * @param observerContext observer context whose span the link is added to
+     * @param traceContext    trace context headers of the linked span
+     */
     public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext) {
-        addLinkToSpan(observerContext, traceContext, Collections.emptyMap());
+        addLinkToSpan(observerContext, traceContext, Attributes.empty());
     }
 
+    /**
+     * Add a link from the span of the observer context to another span, without making it the parent.
+     *
+     * @param observerContext observer context whose span the link is added to
+     * @param traceContext    trace context headers of the linked span
+     * @param attributes      attributes of the link
+     */
     public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext,
                                      Map<String, String> attributes) {
-        if (observerContext == null) {
-            return;
-        }
-        BSpan span = observerContext.getSpan();
+        BSpan span = getActiveSpan(observerContext);
         if (span != null) {
             span.addLink(traceContext, attributes);
         }
+    }
+
+    /**
+     * Add a link from the span of the observer context to another span, without making it the parent.
+     *
+     * @param observerContext observer context whose span the link is added to
+     * @param traceContext    trace context headers of the linked span
+     * @param attributes      attributes of the link
+     */
+    public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext,
+                                     Attributes attributes) {
+        BSpan span = getActiveSpan(observerContext);
+        if (span != null) {
+            span.addLink(traceContext, attributes);
+        }
+    }
+
+    private static BSpan getActiveSpan(ObserverContext observerContext) {
+        if (!enabled || observerContext == null || observerContext.isFinished()) {
+            return null;
+        }
+        return observerContext.getSpan();
     }
 
     /**
