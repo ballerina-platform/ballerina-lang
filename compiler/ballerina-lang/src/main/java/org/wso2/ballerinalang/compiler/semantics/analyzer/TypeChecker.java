@@ -8810,7 +8810,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private boolean accessCouldResultInError(BType bType) {
         SemType s = bType.semType();
-        return SemTypes.containsBasicType(s, PredefinedType.XML) ||
+        return SemTypes.containsBasicType(s, PredefinedType.ERROR) ||
+                SemTypes.containsBasicType(s, PredefinedType.XML) ||
                 SemTypes.containsType(types.semTypeCtx, s, Core.createJson(types.semTypeCtx));
     }
 
