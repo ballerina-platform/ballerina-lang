@@ -208,4 +208,9 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     public void testMissingClosingAndNextStartingAngleBracket() {
         testFile("xml-template/xml_template_source_36.bal", "xml-template/xml_template_assert_36.json");
     }
+
+    @Test
+    public void testWhitespaceAfterProcessingInstruction() {
+        testFile("xml-template/xml_template_source_37.bal", "xml-template/xml_template_assert_37.json");
+    }
 }
