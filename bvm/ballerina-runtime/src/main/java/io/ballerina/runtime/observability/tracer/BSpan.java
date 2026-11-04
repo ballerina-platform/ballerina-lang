@@ -42,6 +42,7 @@ import io.opentelemetry.context.propagation.TextMapSetter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * {@code BSpan} holds the trace of the current context.
@@ -61,19 +62,7 @@ public class BSpan {
     static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
         @Override
         public String get(Map<String, String> carrier, String key) {
-            if (carrier == null || key == null) {
-                return null;
-            }
-            String value = carrier.get(key);
-            if (value != null) {
-                return value;
-            }
-            for (Map.Entry<String, String> entry : carrier.entrySet()) {
-                if (key.equalsIgnoreCase(entry.getKey())) {
-                    return entry.getValue();
-                }
-            }
-            return null;
+            return carrier.get(key);
         }
 
         @Override
@@ -177,28 +166,54 @@ public class BSpan {
         span.setAttribute(tagKey, tagValue);
     }
 
-
+    /**
+     * Add a link from this span to another span, without making it the parent.
+     *
+     * @param linkedTraceContext Trace context headers of the linked span
+     */
     public void addLink(Map<String, String> linkedTraceContext) {
-        addLink(linkedTraceContext, Collections.emptyMap());
+        addLink(linkedTraceContext, Attributes.empty());
     }
 
+    /**
+     * Add a link from this span to another span, without making it the parent.
+     *
+     * @param linkedTraceContext Trace context headers of the linked span
+     * @param attributes         Attributes of the link
+     */
     public void addLink(Map<String, String> linkedTraceContext, Map<String, String> attributes) {
-        if (linkedTraceContext == null || linkedTraceContext.isEmpty()) {
-            return;
-        }
-        Context linkedContext = TracersStore.getInstance().getPropagators()
-                .getTextMapPropagator().extract(Context.root(), linkedTraceContext, GETTER);
-        SpanContext linkedSpanContext = Span.fromContext(linkedContext).getSpanContext();
-        if (!linkedSpanContext.isValid()) {
-            return;
-        }
         AttributesBuilder linkAttributes = Attributes.builder();
         if (attributes != null) {
             for (Map.Entry<String, String> entry : attributes.entrySet()) {
                 linkAttributes.put(entry.getKey(), entry.getValue());
             }
         }
-        span.addLink(linkedSpanContext, linkAttributes.build());
+        addLink(linkedTraceContext, linkAttributes.build());
+    }
+
+    /**
+     * Add a link from this span to another span, without making it the parent.
+     *
+     * @param linkedTraceContext Trace context headers of the linked span
+     * @param attributes         Attributes of the link
+     */
+    public void addLink(Map<String, String> linkedTraceContext, Attributes attributes) {
+        if (linkedTraceContext == null || linkedTraceContext.isEmpty()) {
+            return;
+        }
+        Map<String, String> carrier = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (Map.Entry<String, String> entry : linkedTraceContext.entrySet()) {
+            if (entry.getKey() != null) {
+                carrier.put(entry.getKey(), entry.getValue());
+            }
+        }
+        Context linkedContext = TracersStore.getInstance().getPropagators()
+                .getTextMapPropagator().extract(Context.root(), carrier, GETTER);
+        SpanContext linkedSpanContext = Span.fromContext(linkedContext).getSpanContext();
+        if (!linkedSpanContext.isValid()) {
+            return;
+        }
+        span.addLink(linkedSpanContext, attributes != null ? attributes : Attributes.empty());
     }
 
     public Map<String, String> extractContextAsHttpHeaders() {
