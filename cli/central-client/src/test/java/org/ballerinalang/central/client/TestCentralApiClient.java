@@ -27,6 +27,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.Buffer;
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
@@ -39,6 +40,7 @@ import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.central.client.model.ToolSearchResult;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -522,6 +524,60 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .with().pollDelay(Duration.ONE_SECOND)
                 .await().atMost(10, SECONDS)
                 .until(() -> buildLog.contains("foo/sf:1.3.5 pushed to central successfully"));
+    }
+
+    @Test(description = "Test push package with a Sigstore bundle")
+    public void testPushPackageWithSigstoreBundle() throws IOException, CentralClientException {
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "false");
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        Path bundlePath = TMP_DIR.resolve(TEST_BALA_NAME + ".sigstore.json");
+        String bundleContent = "{\"mediaType\": \"application/vnd.dev.sigstore.bundle.v0.3+json\"}";
+        Files.writeString(bundlePath, bundleContent);
+        setBallerinaHome();
+
+        MultipartBody pushedBody = pushAndCaptureBody(balaPath, bundlePath);
+        Assert.assertEquals(pushedBody.size(), 2);
+        MultipartBody.Part bundlePart = pushedBody.part(1);
+        Assert.assertEquals(String.valueOf(bundlePart.body().contentType()),
+                "application/vnd.dev.sigstore.bundle.v0.3+json");
+        Assert.assertEquals(bundlePart.headers().get(CONTENT_DISPOSITION),
+                "form-data; name=\"sigstore-bundle\"; filename=\"" + TEST_BALA_NAME + ".sigstore.json\"");
+        Buffer bundleBytes = new Buffer();
+        bundlePart.body().writeTo(bundleBytes);
+        Assert.assertEquals(bundleBytes.readUtf8(), bundleContent);
+        Files.delete(bundlePath);
+    }
+
+    @Test(description = "Test push package without a Sigstore bundle sends only the bala")
+    public void testPushPackageWithoutSigstoreBundle() throws IOException, CentralClientException {
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "false");
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        setBallerinaHome();
+
+        MultipartBody pushedBody = pushAndCaptureBody(balaPath, null);
+        Assert.assertEquals(pushedBody.size(), 1);
+        Assert.assertEquals(String.valueOf(pushedBody.part(0).body().contentType()), APPLICATION_OCTET_STREAM);
+    }
+
+    private MultipartBody pushAndCaptureBody(Path balaPath, Path bundlePath)
+            throws IOException, CentralClientException {
+        Request mockRequest = new Request.Builder()
+                .url("https://localhost:9090/registry/packages")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_NO_CONTENT)
+                .message("")
+                .build();
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(requestCaptor.capture())).thenReturn(this.remoteCall);
+
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION, bundlePath);
+        RequestBody pushedBody = requestCaptor.getValue().body();
+        Assert.assertTrue(pushedBody instanceof MultipartBody);
+        return (MultipartBody) pushedBody;
     }
 
     @Test(description = "Test push existing package", expectedExceptions = CentralClientException.class,
