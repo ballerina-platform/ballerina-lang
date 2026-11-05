@@ -56,4 +56,38 @@ public final class StringUtils {
     public static BError createNullReferenceError() {
         return createError(NULL_REF_EXCEPTION);
     }
+
+    /**
+     * Converts the ASCII letters in the range {@code [from, to]} by adding {@code delta}, leaving every other
+     * character unchanged. This is locale independent and never changes the length of the string.
+     *
+     * @param str   the string to convert
+     * @param from  first character of the range to convert
+     * @param to    last character of the range to convert
+     * @param delta value added to each character in the range
+     * @return the converted string, or {@code str} itself if no character is in the range
+     */
+    public static BString convertAsciiCase(BString str, char from, char to, int delta) {
+        String value = str.getValue();
+        int length = value.length();
+        int i = 0;
+        while (i < length && !isInRange(value.charAt(i), from, to)) {
+            i++;
+        }
+        if (i == length) {
+            return str;
+        }
+        char[] chars = value.toCharArray();
+        for (; i < length; i++) {
+            char c = chars[i];
+            if (isInRange(c, from, to)) {
+                chars[i] = (char) (c + delta);
+            }
+        }
+        return io.ballerina.runtime.api.utils.StringUtils.fromString(new String(chars));
+    }
+
+    private static boolean isInRange(char c, char from, char to) {
+        return c >= from && c <= to;
+    }
 }
