@@ -10,7 +10,7 @@ service HelloWorld on new grpc:Listener(9090) {
 
     //This `resource` is triggered when a new caller connection is initialized.
     resource function onOpen(grpc:Caller caller) {
-        log:printInfo("Client connected sucessfully.");
+        log:printInfo("Client connected successfully.");
     }
 
     //This `resource` is triggered when the caller sends a request message to the service.

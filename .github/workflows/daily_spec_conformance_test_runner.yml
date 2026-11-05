@@ -58,5 +58,5 @@ jobs:
         run: |
           curl -X POST \
           --header 'Content-Type: application/json' \
-          -d '{"text": "*Daily spec conformance test run SUCESSFULL* \nPlease visit <https://github.com/${{github .repository}}/actions/runs/${{github.run_id}}|the execution page> for more information"}' \
+          -d '{"text": "*Daily spec conformance test run SUCCESSFULL* \nPlease visit <https://github.com/${{github .repository}}/actions/runs/${{github.run_id}}|the execution page> for more information"}' \
           'https://chat.googleapis.com/v1/spaces/${{ secrets.CONFORMANCE_PASS_CHAT_ID }}/messages?key=${{ secrets.CONFORMANCE_PASS_CHAT_KEY }}&token=${{ secrets.CONFORMANCE_PASS_CHAT_TOKEN }}'
