@@ -21,6 +21,8 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import org.apache.axiom.om.OMNode;
 
 import java.util.Map;
@@ -78,7 +80,24 @@ public class XmlText extends XmlNonElementItem {
         if (!data.trim().isEmpty()) {
             return this;
         }
-        return new XmlText("");
+        return new XmlSequence();
+    }
+
+    @Override
+    public int size() {
+        return data.isEmpty() ? 0 : 1;
+    }
+
+    @Override
+    public XmlValue getItem(int index) {
+        if (data.isEmpty()) {
+            if (index >= 0) {
+                return new XmlSequence();
+            }
+            throw ErrorHelper.getRuntimeException(
+                    ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 0, index);
+        }
+        return super.getItem(index);
     }
 
     @Override
@@ -93,6 +112,19 @@ public class XmlText extends XmlNonElementItem {
 
     @Override
     public IteratorValue<XmlText> getIterator() {
+        if (data.isEmpty()) {
+            return new IteratorValue<>() {
+                @Override
+                public boolean hasNext() {
+                    return false;
+                }
+
+                @Override
+                public XmlText next() {
+                    throw new NoSuchElementException();
+                }
+            };
+        }
         XmlText that = this;
         return new IteratorValue<>() {
             boolean read = false;

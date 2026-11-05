@@ -118,7 +118,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
 
     @Override
     public BXml strip() {
-        return new XmlText("");
+        return new XmlSequence();
     }
 
     @Override
