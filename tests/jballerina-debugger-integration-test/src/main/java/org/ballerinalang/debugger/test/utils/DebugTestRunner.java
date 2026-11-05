@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
+import java.util.function.BooleanSupplier;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
@@ -93,6 +94,7 @@ public class DebugTestRunner {
     private boolean clientSupportsRunInTerminal;
 
     private static final int SCHEDULER_INTERVAL_MS = 1000;
+    private static final int WAIT_POLL_INTERVAL_MS = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
@@ -415,19 +417,14 @@ public class DebugTestRunner {
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(hitListener, 0, SCHEDULER_INTERVAL_MS);
 
-        long retries = 2 * timeoutMillis / SCHEDULER_INTERVAL_MS;
-        for (int i = 0; i < retries; i++) {
-            try {
-                Thread.sleep(SCHEDULER_INTERVAL_MS / 2);
-                if (hitListener.isDebugHitFound()) {
-                    break;
-                }
-            } catch (InterruptedException ignored) {
-            }
-        }
+        waitUntil(() -> hitListener.isDebugHitFound() || hitListener.isDebuggeeTerminated(), timeoutMillis);
         timer.cancel();
 
         if (!hitListener.isDebugHitFound()) {
+            if (hitListener.isDebuggeeTerminated()) {
+                throw new BallerinaTestException("Debuggee terminated before reaching a debug hit. Debuggee " +
+                        "outputs: " + getPendingDebugOutputs());
+            }
             throw new BallerinaTestException("Timeout expired waiting for the debug hit");
         }
         return new ImmutablePair<>(hitListener.getDebugHitpoint(), hitListener.getDebugHitContext());
@@ -444,10 +441,7 @@ public class DebugTestRunner {
         DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(outputListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(outputListener::isDebugOutputFound, timeoutMillis);
         timer.cancel();
 
         if (!outputListener.isDebugOutputFound()) {
@@ -467,10 +461,7 @@ public class DebugTestRunner {
         BreakpointEventListener breakpointEventListener = new BreakpointEventListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(breakpointEventListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(breakpointEventListener::isBreakpointEventFound, timeoutMillis);
         timer.cancel();
 
         if (!breakpointEventListener.isBreakpointEventFound()) {
@@ -491,10 +482,7 @@ public class DebugTestRunner {
         DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(outputListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(outputListener::isDebugOutputFound, timeoutMillis);
         timer.cancel();
 
         if (!outputListener.isDebugOutputFound()) {
@@ -518,13 +506,39 @@ public class DebugTestRunner {
         DebugTerminationListener terminationListener = new DebugTerminationListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(terminationListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
-        }
+        waitUntil(terminationListener::isTerminationFound, timeoutMillis);
         timer.cancel();
 
         return terminationListener.isTerminationFound();
+    }
+
+    /**
+     * Blocks until the given condition is satisfied or the timeout expires, whichever happens first.
+     *
+     * @param condition     condition to be satisfied
+     * @param timeoutMillis timeout
+     */
+    private static void waitUntil(BooleanSupplier condition, long timeoutMillis) {
+        long deadline = System.currentTimeMillis() + timeoutMillis;
+        while (!condition.getAsBoolean() && System.currentTimeMillis() < deadline) {
+            try {
+                Thread.sleep(WAIT_POLL_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+    }
+
+    /**
+     * Returns the debugger outputs which are not yet consumed by an output listener, without consuming them.
+     */
+    private String getPendingDebugOutputs() {
+        StringBuilder outputs = new StringBuilder();
+        for (OutputEventArguments output : debugClientConnector.getServerEventHolder().getOutputEvents()) {
+            outputs.append(output.getOutput());
+        }
+        return outputs.toString();
     }
 
     /**
@@ -688,7 +702,22 @@ public class DebugTestRunner {
      */
     public void assertExpression(StoppedEventArguments context, String expression, String resultValue,
                                  String resultType) throws BallerinaTestException {
-        Variable result = evaluateExpression(context, expression);
+        assertExpression(context, expression, resultValue, resultType, 0);
+    }
+
+    /**
+     * Can be used to assert any expression evaluation result in a given stack frame.
+     *
+     * @param context     suspended context.
+     * @param expression  expression.
+     * @param resultValue result value.
+     * @param resultType  result type.
+     * @param frameIndex  index of the stack frame to evaluate the expression in (0 is the top frame).
+     * @throws BallerinaTestException if an error occurs when evaluating the expression.
+     */
+    public void assertExpression(StoppedEventArguments context, String expression, String resultValue,
+                                 String resultType, int frameIndex) throws BallerinaTestException {
+        Variable result = evaluateExpression(context, expression, frameIndex);
         switch (assertionMode) {
             case HARD_ASSERT:
                 Assert.assertEquals(result.getValue(), resultValue);
@@ -710,7 +739,7 @@ public class DebugTestRunner {
      */
     public void assertEvaluationError(StoppedEventArguments context, String expression, String errorMessage)
             throws BallerinaTestException {
-        Variable result = evaluateExpression(context, expression);
+        Variable result = evaluateExpression(context, expression, 0);
         if (assertionMode == AssertionMode.HARD_ASSERT) {
             if (result.getType() == null) {
                 Pair<String, OutputEventArguments> output = waitForLastDebugOutput(2000);
@@ -769,11 +798,13 @@ public class DebugTestRunner {
     /**
      * Can be used to evaluate any given expression, when a debug hit is occurred.
      *
-     * @param args debug stopped event arguments.
+     * @param args       debug stopped event arguments.
+     * @param frameIndex index of the stack frame to evaluate the expression in (0 is the top frame).
      * @return the evaluation result as a variable.
      * @throws BallerinaTestException if an error occurs when evaluating the expression.
      */
-    private Variable evaluateExpression(StoppedEventArguments args, String expr) throws BallerinaTestException {
+    private Variable evaluateExpression(StoppedEventArguments args, String expr, int frameIndex)
+            throws BallerinaTestException {
         if (!hitListener.getConnector().isConnected()) {
             throw new BallerinaTestException("Connection error occurred when trying to fetch information from the " +
                     "debug server");
@@ -783,13 +814,13 @@ public class DebugTestRunner {
             stackTraceArgs.setThreadId(args.getThreadId());
             StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackResp.getStackFrames();
-            if (stackFrames.length == 0) {
+            if (stackFrames.length <= frameIndex) {
                 throw new BallerinaTestException("Error occurred when trying to fetch stack frames from the suspended" +
                         " thread.");
             }
 
             EvaluateArguments evaluateArguments = new EvaluateArguments();
-            evaluateArguments.setFrameId(stackFrames[0].getId());
+            evaluateArguments.setFrameId(stackFrames[frameIndex].getId());
             evaluateArguments.setExpression(expr);
             EvaluateResponse evaluateResp = hitListener.getConnector().getRequestManager().evaluate(evaluateArguments);
 

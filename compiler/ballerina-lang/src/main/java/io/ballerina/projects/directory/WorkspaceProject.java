@@ -138,14 +138,13 @@ public class WorkspaceProject extends Project {
     @Override
     public Project duplicate() {
         List<BuildProject> projects = new ArrayList<>();
-        for (Project project : this.projectList) {
-            projects.add((BuildProject) project.duplicate());
-        }
         WorkspaceProject duplicateWp = new WorkspaceProject(this.sourceRoot, this.buildOptions,
                 this.workspaceBallerinaToml.tomlDocument(), projects);
+        // Build one environment for the copy and duplicate each member into it, instead of letting each member
+        // build its own.
         Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(duplicateWp).build();
-        for (BuildProject buildProject : projects) {
-            buildProject.setEnvironment(environment);
+        for (BuildProject project : this.projectList) {
+            projects.add(project.duplicate(environment));
         }
         return duplicateWp;
     }

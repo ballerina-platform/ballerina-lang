@@ -37,13 +37,26 @@ import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.AND_READO
  */
 public class BXMLSubType extends BType implements SelectivelyImmutableReferenceType {
 
-    public static final BXMLSubType XML_ELEMENT = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT,
-                                                                SemTypes.XML_ELEMENT);
-    public static final BXMLSubType XML_PI = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI, SemTypes.XML_PI);
-    public static final BXMLSubType XML_COMMENT = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT,
-                                                                SemTypes.XML_COMMENT);
-    public static final BXMLSubType XML_TEXT = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY,
-                                                            SemTypes.XML_TEXT);
+    /**
+     * @deprecated Use {@code SymbolTable#xmlElementType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BXMLSubType XML_ELEMENT = newElement();
+    /**
+     * @deprecated Use {@code SymbolTable#xmlPIType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BXMLSubType XML_PI = newPI();
+    /**
+     * @deprecated Use {@code SymbolTable#xmlCommentType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BXMLSubType XML_COMMENT = newComment();
+    /**
+     * @deprecated Use {@code SymbolTable#xmlTextType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BXMLSubType XML_TEXT = newText();
 
     private BXMLSubType(int tag, Name name, SemType semType) {
         this(tag, name, 0, semType);
@@ -51,6 +64,22 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
 
     private BXMLSubType(int tag, Name name, long flags, SemType semType) {
         super(tag, null, name, flags, semType);
+    }
+
+    public static BXMLSubType newElement() {
+        return new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT, SemTypes.XML_ELEMENT);
+    }
+
+    public static BXMLSubType newPI() {
+        return new BXMLSubType(TypeTags.XML_PI, Names.XML_PI, SemTypes.XML_PI);
+    }
+
+    public static BXMLSubType newComment() {
+        return new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT, SemTypes.XML_COMMENT);
+    }
+
+    public static BXMLSubType newText() {
+        return new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY, SemTypes.XML_TEXT);
     }
 
     public static BXMLSubType newImmutableXMLSubType(BXMLSubType xmlSubType) {

@@ -863,79 +863,89 @@ public final class Core {
     }
 
     public static SemType createJson(Context context) {
-        SemType memo = context.jsonMemo;
-        Env env = context.env;
+        synchronized (context) {
+            SemType memo = context.jsonMemo;
+            Env env = context.env;
 
-        if (memo != null) {
-            return memo;
+            if (memo != null) {
+                return memo;
+            }
+            ListDefinition listDef = new ListDefinition();
+            MappingDefinition mapDef = new MappingDefinition();
+            SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
+            listDef.defineListTypeWrapped(env, j);
+            mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), j);
+            context.jsonMemo = j;
+            return j;
         }
-        ListDefinition listDef = new ListDefinition();
-        MappingDefinition mapDef = new MappingDefinition();
-        SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.defineListTypeWrapped(env, j);
-        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), j);
-        context.jsonMemo = j;
-        return j;
     }
 
     public static SemType createAnydata(Context context) {
-        SemType memo = context.anydataMemo;
-        Env env = context.env;
+        synchronized (context) {
+            SemType memo = context.anydataMemo;
+            Env env = context.env;
 
-        if (memo != null) {
-            return memo;
+            if (memo != null) {
+                return memo;
+            }
+            ListDefinition listDef = new ListDefinition();
+            MappingDefinition mapDef = new MappingDefinition();
+            SemType tableTy = TableSubtype.tableContaining(env, mapDef.getSemType(env));
+            SemType ad = union(union(SIMPLE_OR_STRING, union(XML, union(REGEXP, tableTy))),
+                    union(listDef.getSemType(env), mapDef.getSemType(env)));
+            listDef.defineListTypeWrapped(env, ad);
+            mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
+            context.anydataMemo = ad;
+            return ad;
         }
-        ListDefinition listDef = new ListDefinition();
-        MappingDefinition mapDef = new MappingDefinition();
-        SemType tableTy = TableSubtype.tableContaining(env, mapDef.getSemType(env));
-        SemType ad = union(union(SIMPLE_OR_STRING, union(XML, union(REGEXP, tableTy))),
-                union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.defineListTypeWrapped(env, ad);
-        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
-        context.anydataMemo = ad;
-        return ad;
     }
 
     public static SemType createCloneable(Context context) {
-        SemType memo = context.cloneableMemo;
-        Env env = context.env;
+        synchronized (context) {
+            SemType memo = context.cloneableMemo;
+            Env env = context.env;
 
-        if (memo != null) {
-            return memo;
+            if (memo != null) {
+                return memo;
+            }
+            ListDefinition listDef = new ListDefinition();
+            MappingDefinition mapDef = new MappingDefinition();
+            SemType tableTy = TableSubtype.tableContaining(env, mapDef.getSemType(env));
+            SemType ad = union(VAL_READONLY, union(XML, union(listDef.getSemType(env), union(tableTy,
+                    mapDef.getSemType(env)))));
+            listDef.defineListTypeWrapped(env, ad);
+            mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
+            context.cloneableMemo = ad;
+            return ad;
         }
-        ListDefinition listDef = new ListDefinition();
-        MappingDefinition mapDef = new MappingDefinition();
-        SemType tableTy = TableSubtype.tableContaining(env, mapDef.getSemType(env));
-        SemType ad = union(VAL_READONLY, union(XML, union(listDef.getSemType(env), union(tableTy,
-                mapDef.getSemType(env)))));
-        listDef.defineListTypeWrapped(env, ad);
-        mapDef.defineMappingTypeWrapped(env, new ArrayList<>(), ad);
-        context.cloneableMemo = ad;
-        return ad;
     }
 
     public static SemType createIsolatedObject(Context context) {
-        SemType memo = context.isolatedObjectMemo;
-        if (memo != null) {
-            return memo;
-        }
+        synchronized (context) {
+            SemType memo = context.isolatedObjectMemo;
+            if (memo != null) {
+                return memo;
+            }
 
-        ObjectQualifiers quals = new ObjectQualifiers(true, false, ObjectQualifiers.NetworkQualifier.None);
-        SemType isolatedObj = new ObjectDefinition().define(context.env, quals, Collections.emptyList());
-        context.isolatedObjectMemo = isolatedObj;
-        return isolatedObj;
+            ObjectQualifiers quals = new ObjectQualifiers(true, false, ObjectQualifiers.NetworkQualifier.None);
+            SemType isolatedObj = new ObjectDefinition().define(context.env, quals, Collections.emptyList());
+            context.isolatedObjectMemo = isolatedObj;
+            return isolatedObj;
+        }
     }
 
     public static SemType createServiceObject(Context context) {
-        SemType memo = context.serviceObjectMemo;
-        if (memo != null) {
-            return memo;
-        }
+        synchronized (context) {
+            SemType memo = context.serviceObjectMemo;
+            if (memo != null) {
+                return memo;
+            }
 
-        ObjectQualifiers quals = new ObjectQualifiers(false, false, ObjectQualifiers.NetworkQualifier.Service);
-        SemType serviceObj = new ObjectDefinition().define(context.env, quals, Collections.emptyList());
-        context.serviceObjectMemo = serviceObj;
-        return serviceObj;
+            ObjectQualifiers quals = new ObjectQualifiers(false, false, ObjectQualifiers.NetworkQualifier.Service);
+            SemType serviceObj = new ObjectDefinition().define(context.env, quals, Collections.emptyList());
+            context.serviceObjectMemo = serviceObj;
+            return serviceObj;
+        }
     }
 
     public static SemType createBasicSemType(BasicTypeCode typeCode, SubtypeData subtypeData) {
