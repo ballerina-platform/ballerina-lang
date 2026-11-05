@@ -24,7 +24,6 @@ function testToLower() returns string {
 }
 
 function testToLowerAsciiNonAscii() {
-    // Only A-Z are converted; every other character must be left unchanged.
     assertEquals("hello world 123 !@#", "Hello WORLD 123 !@#".toLowerAscii());
     assertEquals("", "".toLowerAscii());
     assertEquals("already lower", "already lower".toLowerAscii());
@@ -40,7 +39,6 @@ function testToLowerAsciiNonAscii() {
 }
 
 function testToUpperAsciiNonAscii() {
-    // Only a-z are converted; every other character must be left unchanged.
     assertEquals("HELLO WORLD 123 !@#", "Hello world 123 !@#".toUpperAscii());
     assertEquals("", "".toUpperAscii());
     assertEquals("ALREADY UPPER", "ALREADY UPPER".toUpperAscii());
