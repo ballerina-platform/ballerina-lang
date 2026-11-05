@@ -93,7 +93,7 @@ public class CellTypeTest {
 
     @Test(description = "Test basic cell subtyping", dataProvider = "basicCellSubtypingDataProvider")
     public void testBasicCellSubtyping(SemType t1, SemType t2, Relation[] relations) {
-        assert relations.length == 3;
+        Assert.assertEquals(relations.length, 3);
         Relation[] actual = new Relation[3];
 
         CellAtomicType.CellMutability[] values = CellAtomicType.CellMutability.values();
