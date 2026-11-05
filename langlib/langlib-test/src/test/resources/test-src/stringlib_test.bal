@@ -36,6 +36,7 @@ function testToLowerAsciiNonAscii() {
     assertEquals("\u{212A}g", "\u{212A}G".toLowerAscii());
     assertEquals("a\u{1F600}b", "A\u{1F600}B".toLowerAscii());
     assertEquals("İsta", "İSTA".toLowerAscii());
+    assertEquals("xyz", "XYZ".toLowerAscii());
 }
 
 function testToUpperAsciiNonAscii() {
@@ -50,6 +51,7 @@ function testToUpperAsciiNonAscii() {
     assertEquals("STRAßE", "straße".toUpperAscii());
     assertEquals("\u{FB01}LE", "\u{FB01}le".toUpperAscii());
     assertEquals("A\u{1F600}B", "a\u{1F600}b".toUpperAscii());
+    assertEquals("XYZ", "xyz".toUpperAscii());
 }
 
 function testAsciiCaseConversionConsistentWithEqualsIgnoreCase() {
