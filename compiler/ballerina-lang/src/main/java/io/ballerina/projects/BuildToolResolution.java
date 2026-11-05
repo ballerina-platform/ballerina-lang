@@ -371,7 +371,7 @@ public class BuildToolResolution {
                     BuildToolsUtil.addToolToBalToolsToml(resolvedTool);
                 }
 
-            } catch (MavenResolverClientException e) {
+            } catch (MavenResolverClientException | ProjectException e) {
                 // Tool resolution failed via Maven, skip and continue with next tool
             }
         }
