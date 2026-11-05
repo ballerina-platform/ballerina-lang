@@ -151,6 +151,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testFromJsonStringWithUnpairedSurrogates() {
+        BRunUtil.invoke(compileResult, "testFromJsonStringWithUnpairedSurrogates");
+    }
+
+    @Test
     public void testFromJsonFloatString() {
 
         Object returns = BRunUtil.invoke(compileResult, "testFromJsonFloatString");
