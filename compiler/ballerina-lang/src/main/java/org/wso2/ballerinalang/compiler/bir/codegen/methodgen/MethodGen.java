@@ -284,7 +284,7 @@ public class MethodGen {
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, moduleClassName, func, returnVarRefIndex,
                 channelMapVarIndex, localVarOffset, module, attachedType, sendWorkerChannelNamesVar,
-                receiveWorkerChannelNamesVar);
+                receiveWorkerChannelNamesVar, indexMap);
         termGen.genReturnTerm(returnVarRefIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
                 receiveWorkerChannelNamesVar, localVarOffset);
         handleWorkerPanic(func, mv, tryLabel, catchLabel, handleThrowableLabel, channelMapVarIndex,
@@ -516,7 +516,8 @@ public class MethodGen {
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
                              JvmTerminatorGen termGen, String moduleClassName, BIRFunction func, int returnVarRefIndex,
                              int channelMapVarIndex, int localVarOffset, BIRPackage module, BType attachedType,
-                             int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar) {
+                             int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar,
+                             BIRVarToJVMIndexMap indexMap) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -532,6 +533,14 @@ public class MethodGen {
                     visitedScopesSet, lastScope);
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
+
+            // Clear block-local reference variables at their scope boundary (normal flow)
+            genBlockLocalVarCleanup(mv, func, bb, indexMap);
+
+            // Clear block-local reference variables before scope-exit terminators
+            // (break, continue, goto out of scope, exception paths)
+            genScopeExitCleanup(mv, func, bb, indexMap, labelGen, funcName);
+
             BIRTerminator terminator = bb.terminator;
             processTerminator(mv, module, funcName, terminator);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
@@ -543,6 +552,134 @@ public class MethodGen {
             BIRBasicBlock thenBB = terminator.thenBB;
             JvmCodeGenUtil.genGotoThenBB(mv, thenBB, labelGen, terminator, funcName);
         }
+    }
+
+    /**
+     * Clear block-local reference variables at their scope boundary by setting the
+     * JVM slot to null. This allows the GC to collect objects that are no longer
+     * reachable from Ballerina source code. Called at normal flow scope exits (endBB).
+     */
+    private void genBlockLocalVarCleanup(MethodVisitor mv, BIRFunction func, BIRBasicBlock bb,
+                                        BIRVarToJVMIndexMap indexMap) {
+        for (BIRVariableDcl localVar : func.localVars) {
+            if (localVar.kind != VarKind.LOCAL || localVar.endBB == null) {
+                continue;
+            }
+            if (localVar.endBB.id.value.equals(bb.id.value)) {
+                BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
+                if (isReferenceType(bType)) {
+                    int index = indexMap.get(localVar.name.value);
+                    if (index != -1) {
+                        mv.visitInsn(ACONST_NULL);
+                        mv.visitVarInsn(ASTORE, index);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Clear block-local reference variables before scope-exit terminators (break, continue,
+     * goto out of scope, and exception paths). When control flow leaves a lexical scope
+     * through any path other than the normal endBB, this method emits cleanup for all
+     * variables whose scope ends at or after the current basic block.
+     *
+     * <p>This handles:
+     * <ul>
+     *   <li>break statements (GOTO to loop end)</li>
+     *   <li>continue statements (GOTO to loop header)</li>
+     *   <li>Any GOTO that jumps forward past a variable's endBB</li>
+     * </ul>
+     *
+     * <p>Exception path cleanup is handled separately in JvmErrorGen.
+     */
+    private void genScopeExitCleanup(MethodVisitor mv, BIRFunction func, BIRBasicBlock bb,
+                                    BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen, String funcName) {
+        BIRTerminator terminator = bb.terminator;
+        if (terminator == null) {
+            return;
+        }
+
+        // Only process GOTO terminators (break and continue are lowered to GOTO in BIR)
+        if (terminator.kind != InstructionKind.GOTO) {
+            return;
+        }
+
+        BIRTerminator.GOTO gotoIns = (BIRTerminator.GOTO) terminator;
+        BIRBasicBlock targetBB = gotoIns.targetBB;
+
+        // Find the current BB's index in the function's basic block list
+        int currentBBIndex = func.basicBlocks.indexOf(bb);
+        if (currentBBIndex < 0) {
+            return;
+        }
+
+        // For each block-local reference variable, check if this GOTO exits its scope.
+        // A scope exit occurs when:
+        //   1. The target BB is after the variable's endBB (break out of scope), OR
+        //   2. The target BB is before the variable's startBB (continue back past scope)
+        for (BIRVariableDcl localVar : func.localVars) {
+            if (localVar.kind != VarKind.LOCAL || localVar.startBB == null || localVar.endBB == null) {
+                continue;
+            }
+            BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
+            if (!isReferenceType(bType)) {
+                continue;
+            }
+            int index = indexMap.get(localVar.name.value);
+            if (index == -1) {
+                continue;
+            }
+
+            int endBBIndex = func.basicBlocks.indexOf(localVar.endBB);
+            int startBBIndex = func.basicBlocks.indexOf(localVar.startBB);
+            int targetBBIndex = func.basicBlocks.indexOf(targetBB);
+
+            if (endBBIndex < 0 || startBBIndex < 0 || targetBBIndex < 0) {
+                continue;
+            }
+
+            boolean exitsScope = false;
+            if (currentBBIndex >= startBBIndex && currentBBIndex <= endBBIndex) {
+                // We are inside the variable's live range
+                if (targetBBIndex > endBBIndex) {
+                    // GOTO jumps past the variable's endBB (break out of scope)
+                    exitsScope = true;
+                } else if (targetBBIndex < startBBIndex) {
+                    // GOTO jumps before the variable's startBB (continue past scope)
+                    exitsScope = true;
+                }
+            }
+
+            if (exitsScope) {
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, index);
+            }
+        }
+    }
+
+    /**
+     * Check if a BType is a reference type that requires explicit null initialization
+     * and cleanup for GC purposes.
+     */
+    private boolean isReferenceType(BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
+        if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)
+                || TypeTags.REGEXP == bType.tag) {
+            return true;
+        }
+        return switch (bType.tag) {
+            case TypeTags.MAP, TypeTags.ARRAY, TypeTags.STREAM, TypeTags.TABLE, TypeTags.ERROR,
+                 TypeTags.NIL, TypeTags.NEVER, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.OBJECT,
+                 TypeTags.DECIMAL, TypeTags.UNION, TypeTags.RECORD, TypeTags.TUPLE, TypeTags.FUTURE,
+                 TypeTags.JSON, TypeTags.INVOKABLE, TypeTags.FINITE, TypeTags.HANDLE, TypeTags.TYPEDESC,
+                 TypeTags.READONLY -> true;
+            case JTypeTags.JTYPE -> {
+                JType jType = (JType) bType;
+                yield jType.jTag == JTypeTags.JARRAY || jType.jTag == JTypeTags.JREF;
+            }
+            default -> false;
+        };
     }
 
     private static void createWorkerPanicLabels(BIRFunction func, MethodVisitor mv, Label tryLabel) {
