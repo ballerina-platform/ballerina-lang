@@ -20,7 +20,9 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultProjectEnvironment;
+import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import io.ballerina.projects.repos.BuildProjectCompilationCache;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 
@@ -36,6 +38,7 @@ public class ProjectEnvironmentBuilder {
     private final Environment environment;
     private final Map<Class<?>, Object> services = new HashMap<>();
     private CompilationCacheFactory compilationCacheFactory;
+    private boolean projectDependencyCacheWritable;
 
     private ProjectEnvironmentBuilder(Environment environment) {
         this.environment = environment;
@@ -54,7 +57,24 @@ public class ProjectEnvironmentBuilder {
         return this;
     }
 
+    /** Enables writes to the project target dependency cache. */
+    public ProjectEnvironmentBuilder enableProjectDependencyCacheWrites() {
+        this.projectDependencyCacheWritable = true;
+        return this;
+    }
+
+    public boolean isProjectDependencyCacheWritable() {
+        return projectDependencyCacheWritable;
+    }
+
     public ProjectEnvironment build(Project project) {
+        boolean isBuildProject = project.kind() == ProjectKind.BUILD_PROJECT
+                || project.kind() == ProjectKind.WORKSPACE_PROJECT;
+        if (isBuildProject && environment instanceof DefaultEnvironment defaultEnvironment
+                && defaultEnvironment.getService(ProjectDependencyCache.class) == null) {
+            defaultEnvironment.addService(ProjectDependencyCache.class,
+                    new ProjectDependencyCache(project.targetDir(), projectDependencyCacheWritable));
+        }
         CompilationCache compilationCache;
         if (compilationCacheFactory != null) {
             compilationCache = compilationCacheFactory.createCompilationCache(project);

@@ -39,7 +39,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -278,7 +277,7 @@ public class BuildCommand implements BLauncherCmd {
                         ". Please provide a valid Ballerina package, workspace or a standalone file.");
             }
 
-            ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
+            ProjectLoadResult loadResult = CommandUtil.loadProjectForBuild(projectPath, buildOptions);
             wpDiagnosticResult = loadResult.diagnostics();
             if (wpDiagnosticResult.hasErrors()) {
                 exitCode = 1;
@@ -411,7 +410,7 @@ public class BuildCommand implements BLauncherCmd {
                     }
                 }
                 WorkspaceProject recoveredProject = (WorkspaceProject)
-                        ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
+                        CommandUtil.loadProjectForBuild(workspaceProject.sourceRoot(), recoveryOptions).project();
                 executeWorkspaceFromRoot(recoveredProject, recoveryOptions, true);
             } else {
                 throw e;
@@ -519,7 +518,7 @@ public class BuildCommand implements BLauncherCmd {
                     }
                 }
                 WorkspaceProject recoveredProject = (WorkspaceProject)
-                        ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
+                        CommandUtil.loadProjectForBuild(workspaceProject.sourceRoot(), recoveryOptions).project();
                 executeWorkspaceFromProjectPath(recoveredProject, absProjectPath, recoveryOptions, true);
             } else {
                 throw e;

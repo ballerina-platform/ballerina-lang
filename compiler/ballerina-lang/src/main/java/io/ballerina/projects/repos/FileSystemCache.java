@@ -80,6 +80,7 @@ public class FileSystemCache extends CompilationCache {
         Path birFilePath = getBirPath().resolve(moduleName.toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
         if (!Files.exists(birFilePath)) {
             try {
+                Files.createDirectories(birPath);
                 File tempBirFile = birPath.resolve(".tmp").toFile();
                 // TODO Can we improve this logic
                 FileUtils.writeByteArrayToFile(tempBirFile, birContent.toByteArray());

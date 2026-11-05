@@ -19,8 +19,11 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -137,6 +140,26 @@ public class BuildCommandTest extends BaseCommandTest {
         replaced = Files.readString(depC250.resolve(BALLERINA_TOML)).replace("<version>", "2.5.0");
         Files.writeString(depC250.resolve(BALLERINA_TOML), replaced, Charset.defaultCharset());
         BCompileUtil.compileAndCacheBala(depC250.toString(), testCentralRepoCache);
+    }
+
+    @Test
+    public void testCleanTargetPreservesDependencyCache() throws IOException {
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        Project project = ProjectLoader.load(projectPath).project();
+        Path targetPath = project.targetDir();
+        Path dependencyBir = targetPath.resolve("cache/testorg/dependency/1.0.0/bir/dependency.bir");
+        Path rootBir = targetPath.resolve("cache").resolve(project.currentPackage().packageOrg().value())
+                .resolve(project.currentPackage().packageName().value())
+                .resolve(project.currentPackage().packageVersion().toString()).resolve("bir/root.bir");
+        Files.createDirectories(dependencyBir.getParent());
+        Files.createDirectories(rootBir.getParent());
+        Files.writeString(dependencyBir, "dependency");
+        Files.writeString(rootBir, "root");
+
+        new CleanTargetDirTask().execute(project);
+
+        Assert.assertTrue(Files.exists(dependencyBir), "Dependency compilation caches should survive a target clean");
+        Assert.assertFalse(Files.exists(rootBir), "The current package compilation cache should be cleaned");
     }
 
     @Test(description = "Build a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
@@ -1110,6 +1133,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 projectEnvironmentBuilder);
 
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
@@ -1127,6 +1151,28 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_25.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+        Path dependencyCache = projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("package_b").resolve("0.1.0");
+        Assert.assertTrue(dependencyCache.resolve("bir").resolve("package_b.bir").toFile().exists(),
+                "Dependency BIR should be populated in the project cache");
+        Assert.assertTrue(dependencyCache.resolve(JvmTarget.JAVA_25.code())
+                        .resolve("foo-package_b-0.1.0.jar").toFile().exists(),
+                "Dependency JAR should be populated in the project cache");
+
+        Path dependencyBir = dependencyCache.resolve("bir").resolve("package_b.bir");
+        byte[] staleBir = "stale BIR".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        Files.write(dependencyBir, staleBir);
+        Path dependenciesToml = projectPath.resolve("Dependencies.toml");
+        String dependenciesContent = Files.readString(dependenciesToml).replaceFirst(
+                "(?m)^(distribution-version\\s*=\\s*)\"[^\"]+\"$", "$1\"0.0.0\"");
+        Files.writeString(dependenciesToml, dependenciesContent);
+        BuildCommand rebuildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
+        new CommandLine(rebuildCommand).parseArgs("--dump-graph");
+        rebuildCommand.execute();
+        Assert.assertTrue(!Files.exists(dependencyBir) || !java.util.Arrays.equals(Files.readAllBytes(dependencyBir),
+                        staleBir),
+                "A distribution-version mismatch must discard stale project BIR cache entries");
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }

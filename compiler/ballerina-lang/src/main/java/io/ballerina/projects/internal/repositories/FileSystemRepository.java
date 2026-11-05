@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.repositories;
 
 import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
+import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleDescriptor;
@@ -35,6 +36,7 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.BalaFiles;
+import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
@@ -108,8 +110,12 @@ public class FileSystemRepository extends AbstractPackageRepository {
         }
 
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        environmentBuilder = environmentBuilder.addCompilationCacheFactory(
-                new FileSystemCache.FileSystemCacheFactory(cacheDir));
+        environmentBuilder = environmentBuilder.addCompilationCacheFactory(project -> {
+            CompilationCache repositoryCache = new FileSystemCache.FileSystemCacheFactory(cacheDir)
+                    .createCompilationCache(project);
+            ProjectDependencyCache projectCache = environment.getService(ProjectDependencyCache.class);
+            return projectCache == null ? repositoryCache : projectCache.wrap(project, repositoryCache);
+        });
         Project project = BalaProject.loadProject(environmentBuilder, balaPath);
         return Optional.of(project.currentPackage());
     }

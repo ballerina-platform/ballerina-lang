@@ -33,11 +33,13 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -133,6 +135,11 @@ import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
  * @since 2.0.0
  */
 public final class CommandUtil {
+
+    static ProjectLoadResult loadProjectForBuild(Path projectPath, BuildOptions buildOptions) {
+        return ProjectLoader.load(projectPath,
+                ProjectEnvironmentBuilder.getDefaultBuilder().enableProjectDependencyCacheWrites(), buildOptions);
+    }
 
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";

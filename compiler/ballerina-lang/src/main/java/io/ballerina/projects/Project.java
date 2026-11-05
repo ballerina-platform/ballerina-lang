@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -90,6 +91,13 @@ public abstract class Project {
 
     protected void setCurrentPackage(Package currentPackage) {
         this.currentPackage = currentPackage;
+        if (projectEnvironment != null && projectKind != ProjectKind.BALA_PROJECT) {
+            ProjectDependencyCache dependencyCache = projectEnvironment.environment()
+                    .getService(ProjectDependencyCache.class);
+            if (dependencyCache != null) {
+                dependencyCache.updateDistributionVersion(currentPackage.dependencyManifest());
+            }
+        }
     }
 
     public ProjectEnvironment projectEnvironmentContext() {

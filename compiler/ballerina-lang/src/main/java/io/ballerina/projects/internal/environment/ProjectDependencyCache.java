@@ -1,0 +1,220 @@
+/*
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
+ * All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package io.ballerina.projects.internal.environment;
+
+import io.ballerina.projects.CompilationCache;
+import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.DependencyManifest;
+import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.io.FileUtils;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+
+/** Project-local compiled dependency artifacts. Bala package resolution remains repository-backed. */
+public final class ProjectDependencyCache {
+    private final Path cacheDir;
+    private final boolean writable;
+    private volatile boolean cacheValidForDistribution;
+    private boolean distributionVersionChecked;
+    private boolean cacheClearedForWrite;
+
+    public ProjectDependencyCache(Path cacheDir, boolean writable) {
+        this.cacheDir = cacheDir.resolve(ProjectConstants.CACHES_DIR_NAME);
+        this.writable = writable;
+    }
+
+    public boolean isWritable() {
+        return writable;
+    }
+
+    /** Update cache validity from the distribution version recorded in Dependencies.toml. */
+    public synchronized void updateDistributionVersion(DependencyManifest dependencyManifest) {
+        if (distributionVersionChecked || dependencyManifest.packages().isEmpty()) {
+            return;
+        }
+        distributionVersionChecked = true;
+        SemanticVersion distributionVersion = dependencyManifest.distributionVersion();
+        String currentVersion = RepoUtils.getBallerinaShortVersion();
+        boolean distributionMatches = distributionVersion != null
+                && distributionVersion.toString().equals(currentVersion);
+        if (distributionMatches) {
+            cacheValidForDistribution = true;
+        } else {
+            cacheValidForDistribution = false;
+            if (writable) {
+                clearPackageCaches();
+                cacheClearedForWrite = true;
+                cacheValidForDistribution = true;
+            }
+        }
+    }
+
+    private synchronized void prepareForWrite() {
+        if (!cacheValidForDistribution && !cacheClearedForWrite) {
+            clearPackageCaches();
+            cacheClearedForWrite = true;
+            cacheValidForDistribution = true;
+        }
+    }
+
+    private void clearPackageCaches() {
+        if (!cacheDir.toFile().exists()) {
+            return;
+        }
+        try {
+            // The project package cache shares target/cache with other build caches. Remove only
+            // package version directories, preserving fixed-purpose caches and unrelated entries.
+            List<String> fixedCaches = List.of(ProjectConstants.BIR_CACHE_DIR_NAME, ProjectConstants.JAR_CACHE_DIR_NAME,
+                    ProjectConstants.JSON_CACHE_DIR_NAME, ProjectConstants.TESTS_CACHE_DIR_NAME,
+                    ProjectConstants.BALA_CACHE_DIR_NAME);
+            try (var children = Files.list(cacheDir)) {
+                for (Path child : children.toList()) {
+                    Path childName = child.getFileName();
+                    if (!Files.isDirectory(child) || childName == null
+                            || fixedCaches.contains(childName.toString())) {
+                        continue;
+                    }
+                    try (var packages = Files.list(child)) {
+                        for (Path packageDir : packages.toList()) {
+                            if (!Files.isDirectory(packageDir)) {
+                                continue;
+                            }
+                            try (var versions = Files.list(packageDir)) {
+                                for (Path versionDir : versions.toList()) {
+                                    if (Files.isDirectory(versionDir)) {
+                                        FileUtils.deleteDirectory(versionDir.toFile());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to clear stale project dependency cache: " + cacheDir, e);
+        }
+    }
+
+    public CompilationCache wrap(Project project, CompilationCache repositoryCache) {
+        return new ProjectDependencyCompilationCache(this, project, cacheDir, repositoryCache, writable);
+    }
+
+    private static boolean usesDistributionCache(Project project) {
+        var descriptor = project.currentPackage().descriptor();
+        return descriptor.isLangLibPackage()
+                || (descriptor.org().isBallerinaOrg() && descriptor.name().toString().equals(Names.TEST.getValue()));
+    }
+
+    private boolean cacheValidForDistribution() {
+        return cacheValidForDistribution;
+    }
+
+    private static final class ProjectDependencyCompilationCache extends CompilationCache {
+        private final ProjectDependencyCache cache;
+        private final FileSystemCache projectCache;
+        private final CompilationCache repositoryCache;
+        private final boolean writable;
+        private final Project project;
+
+        private ProjectDependencyCompilationCache(ProjectDependencyCache cache, Project project, Path cacheDir,
+                                                  CompilationCache repositoryCache, boolean writable) {
+            super(project);
+            this.cache = cache;
+            this.projectCache = new FileSystemCache(project, cacheDir);
+            this.repositoryCache = repositoryCache;
+            this.writable = writable;
+            this.project = project;
+        }
+
+        private boolean usesDistributionCache() {
+            // The compilation cache is created from the Project constructor, before the package
+            // is assigned. Defer package classification until the first cache operation.
+            return project.currentPackage() != null && ProjectDependencyCache.usesDistributionCache(project);
+        }
+
+        @Override
+        public byte[] getBir(ModuleName moduleName) {
+            if (usesDistributionCache()) {
+                return repositoryCache.getBir(moduleName);
+            }
+            byte[] bir = cache.cacheValidForDistribution() ? projectCache.getBir(moduleName) : new byte[0];
+            if (bir.length > 0) {
+                return bir;
+            }
+            // CLI builds must compile from the resolved bala sources on a project-cache miss. A
+            // shared repository BIR may have been produced by an incompatible distribution.
+            return writable ? new byte[0] : repositoryCache.getBir(moduleName);
+        }
+
+        @Override
+        public void cacheBir(ModuleName moduleName, ByteArrayOutputStream birContent) {
+            if (usesDistributionCache()) {
+                repositoryCache.cacheBir(moduleName, birContent);
+                return;
+            }
+            if (writable) {
+                cache.prepareForWrite();
+                projectCache.cacheBir(moduleName, birContent);
+                return;
+            }
+            repositoryCache.cacheBir(moduleName, birContent);
+        }
+
+        @Override
+        public Optional<Path> getPlatformSpecificLibrary(CompilerBackend backend, String libraryName) {
+            if (usesDistributionCache()) {
+                return repositoryCache.getPlatformSpecificLibrary(backend, libraryName);
+            }
+            Optional<Path> library = cache.cacheValidForDistribution() ?
+                    projectCache.getPlatformSpecificLibrary(backend, libraryName) : Optional.empty();
+            if (library.isPresent()) {
+                return library;
+            }
+            // Avoid shared compiled libraries in CLI builds as well; missing JARs are generated
+            // from source and written to the project cache by the backend.
+            return writable ? Optional.empty() : repositoryCache.getPlatformSpecificLibrary(backend, libraryName);
+        }
+
+        @Override
+        public void cachePlatformSpecificLibrary(CompilerBackend backend, String libraryName,
+                                                 ByteArrayOutputStream libraryContent) {
+            if (usesDistributionCache()) {
+                repositoryCache.cachePlatformSpecificLibrary(backend, libraryName, libraryContent);
+                return;
+            }
+            if (writable) {
+                cache.prepareForWrite();
+                projectCache.cachePlatformSpecificLibrary(backend, libraryName, libraryContent);
+                return;
+            }
+            repositoryCache.cachePlatformSpecificLibrary(backend, libraryName, libraryContent);
+        }
+    }
+}

@@ -35,6 +35,8 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -75,12 +77,22 @@ public class WorkspaceProject extends Project {
 
     static ProjectLoadResult loadProject(Path path, EnvironmentBuilder environmentBuilder,
                                                   BuildOptions buildOptions) {
+        return loadProject(path, environmentBuilder, buildOptions, false);
+    }
+
+    static ProjectLoadResult loadProject(Path path, EnvironmentBuilder environmentBuilder,
+                                         BuildOptions buildOptions, boolean dependencyCacheWritable) {
         if (ProjectPaths.isWorkspaceProjectRoot(path)) {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(path.resolve(BALLERINA_TOML)));
                 WorkspaceProject workspaceProject = new WorkspaceProject(path, buildOptions, tomlDocument);
                 Environment environment = environmentBuilder.setWorkspace(workspaceProject).build();
+                if (environment instanceof DefaultEnvironment defaultEnvironment) {
+                    defaultEnvironment.addService(ProjectDependencyCache.class,
+                            new ProjectDependencyCache(workspaceProject.targetDir(),
+                                    dependencyCacheWritable));
+                }
                 List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
                 String org = null;
                 for (Path pkgPath : workspaceProject.manifest().packages()) {
@@ -122,7 +134,13 @@ public class WorkspaceProject extends Project {
 
     @Override
     public void clearCaches() {
+        ProjectDependencyCache projectDependencyCache = this.projectList.isEmpty() ? null :
+                this.projectList.get(0).projectEnvironmentContext().environment()
+                        .getService(ProjectDependencyCache.class);
         Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(this).build();
+        if (environment instanceof DefaultEnvironment defaultEnvironment && projectDependencyCache != null) {
+            defaultEnvironment.addService(ProjectDependencyCache.class, projectDependencyCache);
+        }
         for (BuildProject buildProject : this.projectList) {
             buildProject.setEnvironment(environment);
             buildProject.clearCaches();
