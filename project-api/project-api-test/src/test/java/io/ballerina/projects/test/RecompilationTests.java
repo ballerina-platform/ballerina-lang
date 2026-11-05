@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.lang.reflect.Field;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,15 +45,16 @@ public class RecompilationTests extends BaseTest {
         project.currentPackage().getCompilation();
         DataflowAnalyzer analyzer = DataflowAnalyzer.getInstance(
                 project.projectEnvironmentContext().getService(CompilerContext.class));
-        Map<?, ?> invocations = perPackageMap(analyzer, "invocationToDependent");
-        int afterFirstCompilation = invocations.size();
-        Assert.assertTrue(afterFirstCompilation > 0);
+        List<Map<?, ?>> maps = List.of(perPackageMap(analyzer, "symbolOwner"),
+                perPackageMap(analyzer, "dependsOnLambda"), perPackageMap(analyzer, "invocationToDependent"));
+        List<Integer> afterFirstCompilation = maps.stream().map(Map::size).toList();
+        Assert.assertFalse(afterFirstCompilation.contains(0), afterFirstCompilation.toString());
 
         for (int i = 1; i <= 3; i++) {
             project = recompileWithEdit(project, i);
         }
 
-        Assert.assertEquals(invocations.size(), afterFirstCompilation);
+        Assert.assertEquals(maps.stream().map(Map::size).toList(), afterFirstCompilation);
     }
 
     private static Project recompileWithEdit(Project project, int edit) {
