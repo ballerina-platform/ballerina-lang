@@ -29,6 +29,7 @@ import io.ballerina.projects.WorkspaceBallerinaToml;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.io.FileUtils;
@@ -457,6 +458,12 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertFalse(buildProject.currentPackage().getCompilation().diagnosticResult()
                 .hasErrors());
         Project duplicateWp = buildProject.workspaceProject().orElseThrow().duplicate();
+        // All members of the copy share one environment
+        List<BuildProject> duplicateMembers = ((WorkspaceProject) duplicateWp).projects();
+        Environment environment = duplicateMembers.get(0).projectEnvironmentContext().environment();
+        for (BuildProject member : duplicateMembers) {
+            Assert.assertSame(member.projectEnvironmentContext().environment(), environment);
+        }
         Project duplicate = ((WorkspaceProject) duplicateWp).projects().stream().filter(prj ->
                 prj.currentPackage().descriptor().name().toString().equals("hello_app")).findFirst().orElseThrow();
         Assert.assertFalse(duplicate.currentPackage().getCompilation().diagnosticResult().hasErrors());
