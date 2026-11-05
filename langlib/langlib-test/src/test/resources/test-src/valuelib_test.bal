@@ -4410,6 +4410,54 @@ function testTableToJsonConversion() {
                                 "\"c\":\"xyz\"}, {\"a\":5, \"b\":{\"x\":[45.6, \"asd\"]}, \"d\":10.0, \"e\":12.5}]");
 }
 
+function testToJsonStringWithControlChars() {
+    // RFC 8259 §7: every control character U+0000 to U+001F must be escaped
+    foreach int cp in 0 ..< 32 {
+        string c = checkpanic string:fromCodePointInt(cp);
+        string esc = controlCharJsonEscape(cp);
+
+        // alone in a string
+        string s1 = "a" + c + "b";
+        assert(s1.toJsonString(), "\"a" + esc + "b\"");
+        assert(checkpanic s1.toJsonString().fromJsonString(), s1);
+
+        // alongside another escaped character
+        string s2 = "a" + c + "\"b";
+        assert(s2.toJsonString(), "\"a" + esc + "\\\"b\"");
+        assert(checkpanic s2.toJsonString().fromJsonString(), s2);
+
+        // as a map key and a map value
+        map<json> m = {[c]: c};
+        assert(m.toJsonString(), "{\"" + esc + "\":\"" + esc + "\"}");
+        assert(checkpanic m.toJsonString().fromJsonString(), m);
+    }
+
+    assert("a\u{1}b\u{C}c".toJsonString(), "\"a\\u0001b\\fc\"");
+    assert("a\u{0}b\u{1F}c".toJsonString(), "\"a\\u0000b\\u001fc\"");
+}
+
+function controlCharJsonEscape(int cp) returns string {
+    match cp {
+        8 => {
+            return "\\b";
+        }
+        9 => {
+            return "\\t";
+        }
+        10 => {
+            return "\\n";
+        }
+        12 => {
+            return "\\f";
+        }
+        13 => {
+            return "\\r";
+        }
+    }
+    string hex = cp.toHexString();
+    return hex.length() == 1 ? "\\u000" + hex : "\\u00" + hex;
+}
+
 type Basic record {|
     int id?;
 |};
