@@ -20,8 +20,12 @@ public type SubscriptionVerificationSuccess record {
 
 public isolated function inlineRecordReturn(CommonResponse prvtRecord, SubscriptionVerificationSuccess publicRecord)
     returns record {|
-        string latitude;
+        # Latitude coordinate.
+        string latitude?;
+
+        # Longitude coordinate.
         decimal longitude;
+        int precision = 2;
         json...;
     |} {
 }
