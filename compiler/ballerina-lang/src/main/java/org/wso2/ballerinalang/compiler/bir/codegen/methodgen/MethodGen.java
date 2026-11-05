@@ -284,7 +284,7 @@ public class MethodGen {
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, moduleClassName, func, returnVarRefIndex,
                 channelMapVarIndex, localVarOffset, module, attachedType, sendWorkerChannelNamesVar,
-                receiveWorkerChannelNamesVar);
+                receiveWorkerChannelNamesVar, indexMap);
         termGen.genReturnTerm(returnVarRefIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
                 receiveWorkerChannelNamesVar, localVarOffset);
         handleWorkerPanic(func, mv, tryLabel, catchLabel, handleThrowableLabel, channelMapVarIndex,
@@ -356,6 +356,13 @@ public class MethodGen {
             BIRVariableDcl localVar = localVars.get(i);
             int index = indexMap.addIfNotExists(localVar.name.value, localVar.type);
             if (localVar.kind != VarKind.ARG) {
+                // Skip initialization for block-local reference variables; they will be
+                // initialized at their declaration BB and cleared at their scope boundary
+                // in generateBasicBlocks(). This allows the GC to collect objects assigned
+                // to block-local variables once they go out of scope.
+                if (localVar.kind == VarKind.LOCAL && localVar.startBB != null) {
+                    continue;
+                }
                 BType bType = localVar.type;
                 genDefaultValue(mv, bType, index);
             }
@@ -516,7 +523,8 @@ public class MethodGen {
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
                              JvmTerminatorGen termGen, String moduleClassName, BIRFunction func, int returnVarRefIndex,
                              int channelMapVarIndex, int localVarOffset, BIRPackage module, BType attachedType,
-                             int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar) {
+                             int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar,
+                             BIRVarToJVMIndexMap indexMap) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -527,11 +535,18 @@ public class MethodGen {
             Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
             mv.visitLabel(bbLabel);
 
+            // Initialize block-local reference variables at their declaration BB
+            genBlockLocalVarInit(mv, func, bb, indexMap);
+
             // generate instructions
             lastScope = JvmCodeGenUtil.getLastScopeFromBBInsGen(mv, labelGen, instGen, localVarOffset, funcName, bb,
                     visitedScopesSet, lastScope);
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
+
+            // Clear block-local reference variables at their scope boundary
+            genBlockLocalVarCleanup(mv, func, bb, indexMap);
+
             BIRTerminator terminator = bb.terminator;
             processTerminator(mv, module, funcName, terminator);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
@@ -543,6 +558,76 @@ public class MethodGen {
             BIRBasicBlock thenBB = terminator.thenBB;
             JvmCodeGenUtil.genGotoThenBB(mv, thenBB, labelGen, terminator, funcName);
         }
+    }
+
+    /**
+     * Initialize block-local reference variables when their declaration basic block is reached.
+     * This emits ACONST_NULL + ASTORE for reference types, ensuring the slot is properly
+     * initialized at the point of declaration rather than at method entry.
+     */
+    private void genBlockLocalVarInit(MethodVisitor mv, BIRFunction func, BIRBasicBlock bb,
+                                     BIRVarToJVMIndexMap indexMap) {
+        for (BIRVariableDcl localVar : func.localVars) {
+            if (localVar.kind != VarKind.LOCAL || localVar.startBB == null) {
+                continue;
+            }
+            if (localVar.startBB.id.value.equals(bb.id.value)) {
+                BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
+                if (isReferenceType(bType)) {
+                    int index = indexMap.addIfNotExists(localVar.name.value, localVar.type);
+                    mv.visitInsn(ACONST_NULL);
+                    mv.visitVarInsn(ASTORE, index);
+                }
+            }
+        }
+    }
+
+    /**
+     * Clear block-local reference variables at their scope boundary by setting the
+     * JVM slot to null. This allows the GC to collect objects that are no longer
+     * reachable from Ballerina source code.
+     */
+    private void genBlockLocalVarCleanup(MethodVisitor mv, BIRFunction func, BIRBasicBlock bb,
+                                        BIRVarToJVMIndexMap indexMap) {
+        for (BIRVariableDcl localVar : func.localVars) {
+            if (localVar.kind != VarKind.LOCAL || localVar.endBB == null) {
+                continue;
+            }
+            if (localVar.endBB.id.value.equals(bb.id.value)) {
+                BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
+                if (isReferenceType(bType)) {
+                    int index = indexMap.get(localVar.name.value);
+                    if (index != -1) {
+                        mv.visitInsn(ACONST_NULL);
+                        mv.visitVarInsn(ASTORE, index);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if a BType is a reference type that requires explicit null initialization
+     * and cleanup for GC purposes.
+     */
+    private boolean isReferenceType(BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
+        if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)
+                || TypeTags.REGEXP == bType.tag) {
+            return true;
+        }
+        return switch (bType.tag) {
+            case TypeTags.MAP, TypeTags.ARRAY, TypeTags.STREAM, TypeTags.TABLE, TypeTags.ERROR,
+                 TypeTags.NIL, TypeTags.NEVER, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.OBJECT,
+                 TypeTags.DECIMAL, TypeTags.UNION, TypeTags.RECORD, TypeTags.TUPLE, TypeTags.FUTURE,
+                 TypeTags.JSON, TypeTags.INVOKABLE, TypeTags.FINITE, TypeTags.HANDLE, TypeTags.TYPEDESC,
+                 TypeTags.READONLY -> true;
+            case JTypeTags.JTYPE -> {
+                JType jType = (JType) bType;
+                yield jType.jTag == JTypeTags.JARRAY || jType.jTag == JTypeTags.JREF;
+            }
+            default -> false;
+        };
     }
 
     private static void createWorkerPanicLabels(BIRFunction func, MethodVisitor mv, Label tryLabel) {
