@@ -40,13 +40,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -72,7 +74,7 @@ import static javax.transaction.xa.XAResource.TMSUCCESS;
  */
 public class TransactionResourceManager {
 
-    private static TransactionResourceManager transactionResourceManager = null;
+    private static volatile TransactionResourceManager transactionResourceManager = null;
     private static UserTransactionManager userTransactionManager = null;
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
@@ -81,12 +83,19 @@ public class TransactionResourceManager {
     public static final String TRANSACTION_CLEANUP_TIMEOUT_KEY = "transactionCleanupTimeout";
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionResourceManager.class);
-    private final Map<String, List<BallerinaTransactionContext>> resourceRegistry = new HashMap<>();
+    private final ConcurrentMap<String, TransactionResourceCoordinator> resourceRegistry = new ConcurrentHashMap<>();
+    private final Set<String> cleanedTransactions = Collections.synchronizedSet(Collections.newSetFromMap(
+            new LinkedHashMap<>(1024, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+                    return size() > 10000;
+                }
+            }));
     private Map<String, Transaction> trxRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private final Map<String, List<BFunctionPointer>> committedFuncRegistry = new HashMap<>();;
-    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry = new HashMap<>();;
+    private final Map<String, List<BFunctionPointer>> committedFuncRegistry = new ConcurrentHashMap<>();
+    private final Map<String, List<BFunctionPointer>> abortedFuncRegistry = new ConcurrentHashMap<>();
 
     private final Set<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private final Set<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
@@ -100,11 +109,11 @@ public class TransactionResourceManager {
     private TransactionResourceManager() {
         transactionManagerEnabled = getTransactionManagerEnabled();
         if (transactionManagerEnabled) {
-            trxRegistry = new HashMap<>();
+            trxRegistry = new ConcurrentHashMap<>();
             setLogProperties();
             userTransactionManager = new UserTransactionManager();
         } else {
-            xidRegistry = new HashMap<>();
+            xidRegistry = new ConcurrentHashMap<>();
         }
     }
 
@@ -231,10 +240,28 @@ public class TransactionResourceManager {
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      * @param txContext          ballerina transaction context which includes the underlying connection info
+     * @return true if the context was successfully registered; false if registration was rejected
      */
-    public void register(String transactionId, String transactionBlockId, BallerinaTransactionContext txContext) {
+    public boolean register(String transactionId, String transactionBlockId, BallerinaTransactionContext txContext) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
-        resourceRegistry.computeIfAbsent(combinedId, resourceList -> new ArrayList<>()).add(txContext);
+        AtomicBoolean registered = new AtomicBoolean(false);
+        resourceRegistry.compute(combinedId, (key, existing) -> {
+            if (cleanedTransactions.contains(key)) {
+                return existing;
+            }
+            TransactionResourceCoordinator coordinator = existing != null ? existing
+                    : new TransactionResourceCoordinator();
+            if (coordinator.register(txContext)) {
+                registered.set(true);
+                return coordinator;
+            }
+            return existing;
+        });
+        if (!registered.get()) {
+            closeContextQuietly(txContext, transactionId);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -245,7 +272,8 @@ public class TransactionResourceManager {
      */
     public void registerCommittedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
-            committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
+            committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new CopyOnWriteArrayList<>())
+                    .add(fpValue);
         }
     }
 
@@ -257,7 +285,7 @@ public class TransactionResourceManager {
      */
     public void registerAbortedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
-            abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
+            abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new CopyOnWriteArrayList<>()).add(fpValue);
         }
     }
 
@@ -289,8 +317,9 @@ public class TransactionResourceManager {
             return true;
         }
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
-        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
-        if (txContextList != null) {
+        TransactionResourceCoordinator coordinator = resourceRegistry.get(combinedId);
+        if (coordinator != null) {
+            List<BallerinaTransactionContext> txContextList = coordinator.getContextsSnapshot();
             Xid xid = xidRegistry.get(combinedId);
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
@@ -325,21 +354,27 @@ public class TransactionResourceManager {
     public boolean notifyCommit(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
-        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
-        if (txContextList != null) {
-            if (transactionManagerEnabled) {
-                Transaction trx = trxRegistry.get(combinedId);
-                try {
-                    if (trx != null) {
-                        trx.commit();
-                    }
-                } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
-                        | RollbackException e) {
-                    LOG.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
-                    commitSuccess = false;
-                }
-            }
+        if (cleanedTransactions.contains(combinedId)) {
+            return true;
+        }
+        TransactionResourceCoordinator coordinator = resourceRegistry.compute(combinedId, (key, existing) ->
+                existing != null ? existing : new TransactionResourceCoordinator());
 
+        if (transactionManagerEnabled) {
+            Transaction trx = trxRegistry.get(combinedId);
+            try {
+                if (trx != null) {
+                    trx.commit();
+                }
+            } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
+                    | RollbackException e) {
+                LOG.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
+                commitSuccess = false;
+            }
+        }
+
+        List<BallerinaTransactionContext> txContextList = coordinator.startCommit();
+        try {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
@@ -366,12 +401,22 @@ public class TransactionResourceManager {
                     }
                 }
             }
+        } finally {
+            coordinator.finishCommit();
         }
         return commitSuccess;
     }
 
     public void cleanTransaction(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
+        cleanedTransactions.add(combinedId);
+        TransactionResourceCoordinator coordinator = resourceRegistry.remove(combinedId);
+        if (coordinator != null) {
+            List<BallerinaTransactionContext> unclosed = coordinator.clean();
+            for (BallerinaTransactionContext ctx : unclosed) {
+                closeContextQuietly(ctx, transactionId);
+            }
+        }
         removeContextsFromRegistry(combinedId, transactionId);
         failedResourceParticipantSet.remove(transactionId);
         failedLocalParticipantSet.remove(transactionId);
@@ -388,21 +433,26 @@ public class TransactionResourceManager {
     public boolean notifyAbort(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
-        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
+        if (cleanedTransactions.contains(combinedId)) {
+            return true;
+        }
+        TransactionResourceCoordinator coordinator = resourceRegistry.compute(combinedId, (key, existing) ->
+                existing != null ? existing : new TransactionResourceCoordinator());
 
-        if (txContextList != null) {
-            if (transactionManagerEnabled) {
-                Transaction trx = trxRegistry.get(combinedId);
-                try {
-                    if (trx != null) {
-                        trx.rollback();
-                    }
-                } catch (SystemException e) {
-                    LOG.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
-                    abortSuccess = false;
+        if (transactionManagerEnabled) {
+            Transaction trx = trxRegistry.get(combinedId);
+            try {
+                if (trx != null) {
+                    trx.rollback();
                 }
+            } catch (SystemException e) {
+                LOG.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
+                abortSuccess = false;
             }
+        }
 
+        List<BallerinaTransactionContext> txContextList = coordinator.startAbort();
+        try {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
@@ -429,16 +479,15 @@ public class TransactionResourceManager {
                     }
                 }
             }
+        } finally {
+            coordinator.finishAbort();
         }
         //For the retry  attempt failures the aborted function should not be invoked. It should invoked only when the
         //whole transaction aborts after all the retry attempts.
 
         // todo: Temporaraly disabling abort functions as there is no clear way to separate rollback and full abort.
 
-        removeContextsFromRegistry(combinedId, transactionId);
-        failedResourceParticipantSet.remove(transactionId);
-        failedLocalParticipantSet.remove(transactionId);
-        localParticipants.remove(transactionId);
+        cleanTransaction(transactionId, transactionBlockId);
         return abortSuccess;
     }
 
@@ -531,6 +580,7 @@ public class TransactionResourceManager {
         List<BFunctionPointer> abortFunctions =
                 abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (abortFunctions != null && !abortFunctions.isEmpty()) {
+            abortFunctions = new ArrayList<>(abortFunctions);
             Collections.reverse(abortFunctions);
             return ValueCreator.createArrayValue(abortFunctions.toArray(),
                     TypeCreator.createArrayType(abortFunctions.get(0).getType()));
@@ -547,6 +597,7 @@ public class TransactionResourceManager {
         List<BFunctionPointer> commitFunctions =
                 committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
         if (commitFunctions != null && !commitFunctions.isEmpty()) {
+            commitFunctions = new ArrayList<>(commitFunctions);
             Collections.reverse(commitFunctions);
             return ValueCreator.createArrayValue(commitFunctions.toArray(),
                     TypeCreator.createArrayType(commitFunctions.get(0).getType()));
@@ -594,27 +645,26 @@ public class TransactionResourceManager {
      */
     void endXATransaction(String transactionId, String transactionBlockId, boolean abortOnly) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
+        TransactionResourceCoordinator coordinator = resourceRegistry.get(combinedId);
+        List<BallerinaTransactionContext> txContextList = coordinator != null
+                ? coordinator.getContextsSnapshot() : null;
         if (transactionManagerEnabled) {
             Transaction trx = trxRegistry.get(combinedId);
-            if (trx != null) {
-                List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
-                if (txContextList != null) {
-                    for (BallerinaTransactionContext ctx : txContextList) {
-                        try {
-                            XAResource xaResource = ctx.getXAResource();
-                            if (xaResource != null) {
-                                trx.delistResource(xaResource, TMSUCCESS);
-                            }
-                        } catch (IllegalStateException | SystemException e) {
-                            LOG.error("error in ending the XA transaction " + transactionId
-                                    + ":" + e.getMessage(), e);
+            if (trx != null && txContextList != null) {
+                for (BallerinaTransactionContext ctx : txContextList) {
+                    try {
+                        XAResource xaResource = ctx.getXAResource();
+                        if (xaResource != null) {
+                            trx.delistResource(xaResource, TMSUCCESS);
                         }
+                    } catch (IllegalStateException | SystemException e) {
+                        LOG.error("error in ending the XA transaction " + transactionId
+                                + ":" + e.getMessage(), e);
                     }
                 }
             }
         } else {
             Xid xid = xidRegistry.get(combinedId);
-            List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
             if (xid != null && txContextList != null) {
                 for (BallerinaTransactionContext ctx : txContextList) {
                     try {
@@ -666,6 +716,81 @@ public class TransactionResourceManager {
                 return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
             }
             return null;
+        }
+    }
+
+    private void closeContextQuietly(BallerinaTransactionContext txContext, String transactionId) {
+        if (txContext != null) {
+            try {
+                txContext.close();
+            } catch (Exception e) {
+                LOG.error("error when closing transaction context for transaction " + transactionId +
+                        ":" + e.getMessage(), e);
+            }
+        }
+    }
+
+    private static class TransactionResourceCoordinator {
+        private enum State {
+            ACTIVE,
+            COMMITTING,
+            COMMITTED,
+            ABORTING,
+            ABORTED,
+            CLEANED
+        }
+
+        private State state = State.ACTIVE;
+        private final List<BallerinaTransactionContext> contexts = new ArrayList<>();
+
+        synchronized boolean register(BallerinaTransactionContext txContext) {
+            if (state != State.ACTIVE) {
+                return false;
+            }
+            contexts.add(txContext);
+            return true;
+        }
+
+        synchronized List<BallerinaTransactionContext> startCommit() {
+            if (state != State.ACTIVE) {
+                return Collections.emptyList();
+            }
+            state = State.COMMITTING;
+            return new ArrayList<>(contexts);
+        }
+
+        synchronized void finishCommit() {
+            if (state == State.COMMITTING) {
+                state = State.COMMITTED;
+            }
+        }
+
+        synchronized List<BallerinaTransactionContext> startAbort() {
+            if (state == State.COMMITTING || state == State.COMMITTED || state == State.ABORTING ||
+                    state == State.ABORTED || state == State.CLEANED) {
+                return Collections.emptyList();
+            }
+            state = State.ABORTING;
+            return new ArrayList<>(contexts);
+        }
+
+        synchronized void finishAbort() {
+            if (state == State.ABORTING) {
+                state = State.ABORTED;
+            }
+        }
+
+        synchronized List<BallerinaTransactionContext> clean() {
+            List<BallerinaTransactionContext> unclosed = (state == State.ACTIVE)
+                    ? new ArrayList<>(contexts)
+                    : Collections.emptyList();
+            state = State.CLEANED;
+            contexts.clear();
+            return unclosed;
+        }
+
+        synchronized List<BallerinaTransactionContext> getContextsSnapshot() {
+            return new ArrayList<>(contexts);
         }
     }
 }
