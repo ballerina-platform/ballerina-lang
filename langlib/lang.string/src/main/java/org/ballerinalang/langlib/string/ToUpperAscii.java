@@ -18,15 +18,13 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
-import java.util.Locale;
-
+import static org.ballerinalang.langlib.string.utils.StringUtils.convertAsciiCase;
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**
- * Extern function ballerina.model.strings:toUpper.
+ * Native implementation of lang.string:toUpperAscii.
  *
  * @since 0.8.0
  */
@@ -39,6 +37,6 @@ public final class ToUpperAscii {
         if (str == null) {
             throw createNullReferenceError();
         }
-        return StringUtils.fromString(str.getValue().toUpperCase(Locale.getDefault()));
+        return convertAsciiCase(str, 'a', 'z', 'A' - 'a');
     }
 }
