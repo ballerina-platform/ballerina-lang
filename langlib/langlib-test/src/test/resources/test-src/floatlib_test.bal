@@ -1173,7 +1173,7 @@ function testToExpStringWithHexaDecimalFloatingPoints() {
     a = 0x1.e412904862198p4;
     assertEquality("3.02545321300000012e+1", a.toExpString(17));
     assertEquality("3.0254532130e+1", a.toExpString(10));
-    assertEquality("3.0254e+1", a.toExpString(4));
+    assertEquality("3.0255e+1", a.toExpString(4));
 
     b = 0x1.cbe3p17;
     assertEquality("2.35462000000000000e+5", b.toExpString(17));
@@ -1183,12 +1183,44 @@ function testToExpStringWithHexaDecimalFloatingPoints() {
     a = -0x1.e412904862198p4;
     assertEquality("-3.02545321300000012e+1", a.toExpString(17));
     assertEquality("-3.0254532130e+1", a.toExpString(10));
-    assertEquality("-3.0254e+1", a.toExpString(4));
+    assertEquality("-3.0255e+1", a.toExpString(4));
 
     b = -0x1.cbe3p17;
     assertEquality("-2.35462000000000000e+5", b.toExpString(17));
     assertEquality("-2.3546200000e+5", b.toExpString(10));
     assertEquality("-2.3546e+5", b.toExpString(4));
+}
+
+function testToExpStringRoundsOnlyOnce() {
+    float a = 97.99461457216393;
+    assertEquality("9.799e+1", a.toExpString(3));
+    assertEquality("9.799461e+1", a.toExpString(6));
+    assertEquality("9.799461457216393e+1", a.toExpString(15));
+    assertEquality("9.7994614572163925e+1", a.toExpString(16));
+    assertEquality("9.799461457216393e+1", a.toExpString(()));
+
+    a = -97.99461457216393;
+    assertEquality("-9.799e+1", a.toExpString(3));
+    assertEquality("-9.799461e+1", a.toExpString(6));
+    assertEquality("-9.799461457216393e+1", a.toExpString(15));
+    assertEquality("-9.7994614572163925e+1", a.toExpString(16));
+
+    float b = 9.799461457216394;
+    assertEquality("9.799e+0", b.toExpString(3));
+    assertEquality("9.799461457216394e+0", b.toExpString(15));
+
+    float c = 1235.4999;
+    assertEquality("1.235e+3", c.toExpString(3));
+
+    float d = 99.96;
+    assertEquality("1.00e+2", d.toExpString(2));
+
+    float e = 0.0012345;
+    assertEquality("1.23e-3", e.toExpString(2));
+
+    // The exact value of 1e-20 is 9.999999999999999451...e-21, so rounding must start from the first 9.
+    float f = 1e-20;
+    assertEquality("9.999999999999999e-21", f.toExpString(15));
 }
 
 function testRound() {
