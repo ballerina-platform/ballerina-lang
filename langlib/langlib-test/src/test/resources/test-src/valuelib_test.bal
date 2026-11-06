@@ -184,6 +184,45 @@ function testFromJsonStringNegative() {
     assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
 }
 
+function testFromJsonStringWithOutOfRangeInt() {
+    json|error j1 = "9223372036854775807".fromJsonString();
+    assertTrue(j1 is int);
+    assert(<int>checkpanic j1, 9223372036854775807);
+
+    json|error j2 = "9223372036854775808".fromJsonString();
+    assertTrue(j2 is decimal);
+    assert(<decimal>checkpanic j2, 9223372036854775808d);
+
+    json|error j3 = "-9223372036854775809".fromJsonString();
+    assertTrue(j3 is decimal);
+    assert(<decimal>checkpanic j3, -9223372036854775809d);
+
+    json|error j4 = "18446744073709551615".fromJsonString();
+    assertTrue(j4 is decimal);
+    assert(<decimal>checkpanic j4, 18446744073709551615d);
+
+    json|error j5 = "{\"qty\": 18446744073709551615}".fromJsonString();
+    assertTrue(j5 is map<json>);
+    json qty = (<map<json>>checkpanic j5)["qty"];
+    assertTrue(qty is decimal);
+    assert(<decimal>qty, 18446744073709551615d);
+
+    json|error j6 = "12a".fromJsonString();
+    assertTrue(j6 is error);
+    error err = <error>j6;
+    assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
+    assertTrue((<string>checkpanic err.detail()["message"]).startsWith("unrecognized token '12a'"));
+
+    // An integer beyond the decimal range is still an error, not a panic.
+    string tooLarge = "1";
+    foreach int i in 0 ..< 6200 {
+        tooLarge += "0";
+    }
+    json|error j7 = tooLarge.fromJsonString();
+    assertTrue(j7 is error);
+    assert((<error>j7).message(), "{ballerina/lang.value}FromJsonStringError");
+}
+
 function testFromJsonFloatString() returns map<json|error> {
     string aNil = "()";
     string aNull = "null";

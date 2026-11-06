@@ -907,7 +907,12 @@ public final class JsonParser {
                 } else if (isExponential(str) || mode == FROM_JSON_DECIMAL_STRING) {
                     return new DecimalValue(str);
                 } else {
-                    return Long.parseLong(str);
+                    try {
+                        return Long.parseLong(str);
+                    } catch (NumberFormatException e) {
+                        // Integers outside the int range are converted to decimal.
+                        return new DecimalValue(str);
+                    }
                 }
             } catch (NumberFormatException ignore) {
                 throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
