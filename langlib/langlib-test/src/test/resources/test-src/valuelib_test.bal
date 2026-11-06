@@ -213,6 +213,12 @@ function testFromJsonStringWithOutOfRangeInt() {
     assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
     assertTrue((<string>checkpanic err.detail()["message"]).startsWith("unrecognized token '12a'"));
 
+    // An out-of-range integer with a leading '+' is not valid JSON.
+    json|error j8 = "+9223372036854775808".fromJsonString();
+    assertTrue(j8 is error);
+    assertTrue((<string>checkpanic (<error>j8).detail()["message"])
+            .startsWith("unrecognized token '+9223372036854775808'"));
+
     // An integer beyond the decimal range is still an error, not a panic.
     string tooLarge = "1";
     foreach int i in 0 ..< 6200 {
