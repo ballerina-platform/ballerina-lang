@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,15 +38,16 @@ public final class FromBase16 {
     }
 
     public static Object fromBase16(BString str) {
-        if (str.length() % 2 != 0) {
+        String hexStr = ArrayUtils.removeBinaryLiteralWhitespace(str.getValue());
+        if (hexStr.length() % 2 != 0) {
             return ErrorCreator
                     .createError(StringUtils.fromString("Invalid base16 string"),
                                  StringUtils
                                          .fromString("Expected an even length string, but the length of the string" +
-                                                             " was: " + str.length()));
+                                                             " excluding whitespace was: " + hexStr.length()));
         }
 
-        char[] chars = str.getValue().toCharArray();
+        char[] chars = hexStr.toCharArray();
         byte[] bytes = new byte[chars.length / 2];
         List<Character> invalidChars = new ArrayList<>();
 
