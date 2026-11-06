@@ -48,6 +48,7 @@ import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
+import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.Target;
@@ -1277,10 +1278,13 @@ public final class CommandUtil {
      * @param packageName name of the dependent package
      * @param version version of the dependent package
      * @param buildOptions build options {sticky, offline}
+     * @param repository repository name
+     * @param targetDir project target directory to write the compiled caches to, or null to use the
+     *                  home repository cache
      * @return true if the dependent package compilation has errors
      */
     static boolean pullDependencyPackages(String orgName, String packageName, String version,
-                                          BuildOptions buildOptions, String repository) {
+                                          BuildOptions buildOptions, String repository, Path targetDir) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(repository);
@@ -1291,11 +1295,24 @@ public final class CommandUtil {
                 ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion);
 
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-        defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
+        Path packageCacheDir;
+        if (targetDir == null) {
+            defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
+            packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
+        } else {
+            // Compiling on behalf of a project build. The package and its dependencies are cached in the
+            // project target, the same way as an in-process build.
+            ProjectDependencyCache projectDependencyCache = new ProjectDependencyCache(targetDir, true);
+            defaultBuilder.enableProjectDependencyCacheWrites()
+                    .setProjectDependencyCache(projectDependencyCache)
+                    .addCompilationCacheFactory(project -> projectDependencyCache.wrap(project,
+                            new FileSystemCache(project, cacheDir)));
+            packageCacheDir = targetDir.resolve(ProjectConstants.CACHES_DIR_NAME).resolve(orgName)
+                    .resolve(packageName).resolve(version);
+        }
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath, buildOptions);
 
         // Delete package cache if available
-        Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
         if (packageCacheDir.toFile().exists()) {
             deleteDirectory(packageCacheDir);
         }

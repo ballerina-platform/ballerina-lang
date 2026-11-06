@@ -37,6 +37,7 @@ import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
+import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
@@ -52,6 +53,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,6 +72,7 @@ import static io.ballerina.projects.util.ProjectConstants.EQUAL;
 import static io.ballerina.projects.util.ProjectConstants.LOCKING_MODE_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORY_FLAG;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_OPTION;
 import static io.ballerina.projects.util.ProjectUtils.getWarningForHigherDistribution;
 import static io.ballerina.projects.util.ProjectUtils.isNewUpdateDistribution;
 
@@ -144,6 +147,11 @@ public class PackageResolution {
      * This is typically useful for large packages to avoid OOM issues.
      */
     private void generateCaches() {
+        // When the project caches compiled dependencies in its target, the subprocess must write there as well.
+        ProjectDependencyCache projectDependencyCache = rootPackageContext.project().projectEnvironmentContext()
+                .environment().getService(ProjectDependencyCache.class);
+        Optional<Path> targetDir = projectDependencyCache != null && projectDependencyCache.isWritable() ?
+                Optional.of(projectDependencyCache.targetDir()) : Optional.empty();
         for (ResolvedPackageDependency resolvedPackageDependency : this.dependencyGraph.toTopologicallySortedList()) {
             Package packageInstance = resolvedPackageDependency.packageInstance();
 
@@ -179,6 +187,7 @@ public class PackageResolution {
             if (dependency.isPresent() && dependency.get().repository() != null) {
                 cmdArgs.add(REPOSITORY_FLAG + EQUAL + dependency.get().repository());
             }
+            targetDir.ifPresent(dir -> cmdArgs.add(TARGET_DIR_OPTION + EQUAL + dir));
             cmdArgs.add(packageDescriptor.toString());
 
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);

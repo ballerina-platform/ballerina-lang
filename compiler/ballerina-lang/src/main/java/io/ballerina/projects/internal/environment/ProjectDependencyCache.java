@@ -39,19 +39,31 @@ import java.util.Optional;
 
 /** Project-local compiled dependency artifacts. Bala package resolution remains repository-backed. */
 public final class ProjectDependencyCache {
+    // Records the distribution that produced the cache. Used when Dependencies.toml has no packages yet,
+    // e.g. before the first successful build or in a dependency compilation subprocess.
+    static final String DISTRIBUTION_VERSION_FILE = ".distribution-version";
+
+    private final Path targetDir;
     private final Path cacheDir;
     private final boolean writable;
-    private volatile boolean cacheValidForDistribution;
+    private boolean cacheValidForDistribution;
     private boolean distributionVersionChecked;
     private boolean cacheClearedForWrite;
+    private boolean markerWritten;
 
-    public ProjectDependencyCache(Path cacheDir, boolean writable) {
-        this.cacheDir = cacheDir.resolve(ProjectConstants.CACHES_DIR_NAME);
+    public ProjectDependencyCache(Path targetDir, boolean writable) {
+        this.targetDir = targetDir;
+        this.cacheDir = targetDir.resolve(ProjectConstants.CACHES_DIR_NAME);
         this.writable = writable;
     }
 
     public boolean isWritable() {
         return writable;
+    }
+
+    /** Returns the project target directory that holds this cache. */
+    public Path targetDir() {
+        return targetDir;
     }
 
     /** Update cache validity from the distribution version recorded in Dependencies.toml. */
@@ -61,26 +73,63 @@ public final class ProjectDependencyCache {
         }
         distributionVersionChecked = true;
         SemanticVersion distributionVersion = dependencyManifest.distributionVersion();
-        String currentVersion = RepoUtils.getBallerinaShortVersion();
-        boolean distributionMatches = distributionVersion != null
-                && distributionVersion.toString().equals(currentVersion);
-        if (distributionMatches) {
-            cacheValidForDistribution = true;
-        } else {
-            cacheValidForDistribution = false;
-            if (writable) {
-                clearPackageCaches();
-                cacheClearedForWrite = true;
-                cacheValidForDistribution = true;
-            }
-        }
+        applyValidity(distributionVersion != null
+                && distributionVersion.toString().equals(RepoUtils.getBallerinaShortVersion()));
     }
 
-    private synchronized void prepareForWrite() {
-        if (!cacheValidForDistribution && !cacheClearedForWrite) {
+    private synchronized boolean isCacheValid() {
+        if (!distributionVersionChecked) {
+            // No usable Dependencies.toml. Fall back to the marker written alongside the cache.
+            distributionVersionChecked = true;
+            applyValidity(markerMatchesDistribution());
+        }
+        return cacheValidForDistribution;
+    }
+
+    private void applyValidity(boolean distributionMatches) {
+        cacheValidForDistribution = distributionMatches;
+        if (!writable) {
+            return;
+        }
+        if (!distributionMatches) {
             clearPackageCaches();
             cacheClearedForWrite = true;
             cacheValidForDistribution = true;
+        }
+        writeMarker();
+    }
+
+    private synchronized void prepareForWrite() {
+        if (!isCacheValid() && !cacheClearedForWrite) {
+            clearPackageCaches();
+            cacheClearedForWrite = true;
+            cacheValidForDistribution = true;
+        }
+        writeMarker();
+    }
+
+    private boolean markerMatchesDistribution() {
+        Path marker = cacheDir.resolve(DISTRIBUTION_VERSION_FILE);
+        if (!Files.isRegularFile(marker)) {
+            return false;
+        }
+        try {
+            return Files.readString(marker).trim().equals(RepoUtils.getBallerinaShortVersion());
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private void writeMarker() {
+        if (markerWritten) {
+            return;
+        }
+        try {
+            Files.createDirectories(cacheDir);
+            Files.writeString(cacheDir.resolve(DISTRIBUTION_VERSION_FILE), RepoUtils.getBallerinaShortVersion());
+            markerWritten = true;
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to write project dependency cache metadata: " + cacheDir, e);
         }
     }
 
@@ -133,7 +182,7 @@ public final class ProjectDependencyCache {
     }
 
     private boolean cacheValidForDistribution() {
-        return cacheValidForDistribution;
+        return isCacheValid();
     }
 
     private static final class ProjectDependencyCompilationCache extends CompilationCache {

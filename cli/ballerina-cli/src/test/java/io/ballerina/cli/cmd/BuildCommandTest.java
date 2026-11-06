@@ -20,11 +20,14 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.task.CleanTargetDirTask;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -43,12 +46,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
@@ -58,6 +64,9 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
@@ -144,7 +153,11 @@ public class BuildCommandTest extends BaseCommandTest {
 
     @Test
     public void testCleanTargetPreservesDependencyCache() throws IOException {
-        Path projectPath = this.testResources.resolve("validApplicationProject");
+        // Work on a copy: cleaning the shared project's target would remove caches other tests depend on.
+        Path projectPath = this.tmpDir.resolve("clean-target-validApplicationProject");
+        deleteDirectory(projectPath);
+        FileUtils.copyDirectory(this.testResources.resolve("validApplicationProject").toFile(), projectPath.toFile());
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
         Project project = ProjectLoader.load(projectPath).project();
         Path targetPath = project.targetDir();
         Path dependencyBir = targetPath.resolve("cache/testorg/dependency/1.0.0/bir/dependency.bir");
@@ -160,6 +173,127 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(dependencyBir), "Dependency compilation caches should survive a target clean");
         Assert.assertFalse(Files.exists(rootBir), "The current package compilation cache should be cleaned");
+    }
+
+    @Test(description = "Dependency compilation for a project build writes the caches to the project target")
+    public void testPullDependencyPackagesWritesToProjectTarget() throws IOException {
+        Path targetDir = this.tmpDir.resolve("dependency-compilation-target");
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        deleteDirectory(homeCache.resolve("testorg").resolve("dep_b"));
+        deleteDirectory(homeCache.resolve("testorg").resolve("dep_c"));
+
+        boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0",
+                BuildOptions.builder().setOffline(true).build(), CENTRAL_REPOSITORY_CACHE_NAME, targetDir);
+
+        Assert.assertFalse(hasErrors, readOutput(true));
+        Path targetCache = targetDir.resolve(CACHES_DIR_NAME);
+        Path depBCache = targetCache.resolve("testorg").resolve("dep_b").resolve("2.0.0");
+        Assert.assertTrue(Files.exists(depBCache.resolve("bir").resolve("dep_b.bir")),
+                "The compiled package BIR should be written to the project target");
+        Assert.assertTrue(Files.exists(depBCache.resolve(JvmTarget.JAVA_25.code()).resolve("testorg-dep_b-2.0.0.jar")),
+                "The compiled package JAR should be written to the project target");
+        Assert.assertTrue(Files.isDirectory(targetCache.resolve("testorg").resolve("dep_c")),
+                "Transitive dependencies should be cached in the project target");
+        Assert.assertEquals(Files.readString(targetCache.resolve(".distribution-version")),
+                RepoUtils.getBallerinaShortVersion());
+        Assert.assertFalse(Files.exists(homeCache.resolve("testorg").resolve("dep_b")),
+                "The home repository cache must not be written for a project build");
+        Assert.assertFalse(Files.exists(homeCache.resolve("testorg").resolve("dep_c")),
+                "The home repository cache must not be written for a project build");
+    }
+
+    @Test(description = "bal pull without a project target writes the caches to the home repository cache")
+    public void testPullDependencyPackagesWritesToHomeCache() throws IOException {
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        Path depBHomeCache = homeCache.resolve("testorg").resolve("dep_b").resolve("2.0.0");
+        deleteDirectory(depBHomeCache);
+
+        boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0",
+                BuildOptions.builder().setOffline(true).build(), CENTRAL_REPOSITORY_CACHE_NAME, null);
+
+        Assert.assertFalse(hasErrors, readOutput(true));
+        Assert.assertTrue(Files.exists(depBHomeCache.resolve("bir").resolve("dep_b.bir")),
+                "bal pull should cache the BIR in the home repository");
+    }
+
+    @Test(description = "Project dependency caches are reused when Dependencies.toml is missing and the cache " +
+            "was produced by the current distribution")
+    public void testDependencyCacheReusedWithoutDependenciesToml() throws IOException {
+        Path projectPath = buildDumpGraphPackageA();
+        Path dependencyBir = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME).resolve("foo")
+                .resolve("package_b").resolve("0.1.0").resolve("bir").resolve("package_b.bir");
+        Assert.assertTrue(Files.exists(dependencyBir));
+        FileTime markerTime = FileTime.fromMillis(0);
+        Files.setLastModifiedTime(dependencyBir, markerTime);
+
+        // A failed build leaves no Dependencies.toml. The cache is then validated with the target marker.
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        forceRebuild(projectPath);
+        Assert.assertEquals(Files.getLastModifiedTime(dependencyBir), markerTime,
+                "A valid project dependency cache should be reused");
+
+        Path marker = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME).resolve(".distribution-version");
+        Files.writeString(marker, "0.0.0");
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        forceRebuild(projectPath);
+        Assert.assertNotEquals(Files.getLastModifiedTime(dependencyBir), markerTime,
+                "A cache produced by another distribution should be regenerated");
+        Assert.assertEquals(Files.readString(marker), RepoUtils.getBallerinaShortVersion());
+
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+    }
+
+    @Test(description = "Read-only project loads (e.g. the language server) never modify the project cache")
+    public void testReadOnlyLoadDoesNotModifyDependencyCache() throws IOException {
+        Path projectPath = buildDumpGraphPackageA();
+        Path targetCache = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
+        Path dependencyBir = targetCache.resolve("foo").resolve("package_b").resolve("0.1.0")
+                .resolve("bir").resolve("package_b.bir");
+        FileTime markerTime = FileTime.fromMillis(0);
+        Files.setLastModifiedTime(dependencyBir, markerTime);
+        Path marker = targetCache.resolve(".distribution-version");
+        Files.writeString(marker, "0.0.0");
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+
+        Project project = ProjectLoader.load(projectPath).project();
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend backend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
+
+        Assert.assertFalse(backend.diagnosticResult().hasErrors(), backend.diagnosticResult().toString());
+        Assert.assertTrue(Files.exists(dependencyBir), "A read-only load must not clear the project cache");
+        Assert.assertEquals(Files.getLastModifiedTime(dependencyBir), markerTime,
+                "A read-only load must not rewrite the project cache");
+        Assert.assertEquals(Files.readString(marker), "0.0.0", "A read-only load must not update the cache marker");
+
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+    }
+
+    private Path buildDumpGraphPackageA() throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        executeBuild(projectPath);
+        return projectPath;
+    }
+
+    private void forceRebuild(Path projectPath) throws IOException {
+        // Drop the previous build metadata so that the build does not skip compilation for unchanged sources.
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        executeBuild(projectPath);
+    }
+
+    private void executeBuild(Path projectPath) throws IOException {
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+        }
     }
 
     @Test(description = "Build a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
@@ -1160,7 +1294,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 "Dependency JAR should be populated in the project cache");
 
         Path dependencyBir = dependencyCache.resolve("bir").resolve("package_b.bir");
-        byte[] staleBir = "stale BIR".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] staleBir = "stale BIR".getBytes(StandardCharsets.UTF_8);
         Files.write(dependencyBir, staleBir);
         Path dependenciesToml = projectPath.resolve("Dependencies.toml");
         String dependenciesContent = Files.readString(dependenciesToml).replaceFirst(
@@ -1170,7 +1304,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
         new CommandLine(rebuildCommand).parseArgs("--dump-graph");
         rebuildCommand.execute();
-        Assert.assertTrue(!Files.exists(dependencyBir) || !java.util.Arrays.equals(Files.readAllBytes(dependencyBir),
+        Assert.assertTrue(!Files.exists(dependencyBir) || !Arrays.equals(Files.readAllBytes(dependencyBir),
                         staleBir),
                 "A distribution-version mismatch must discard stale project BIR cache entries");
 
