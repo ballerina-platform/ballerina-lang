@@ -151,6 +151,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testFromJsonStringWithOutOfRangeInt() {
+        BRunUtil.invoke(compileResult, "testFromJsonStringWithOutOfRangeInt");
+    }
+
+    @Test
     public void testFromJsonFloatString() {
 
         Object returns = BRunUtil.invoke(compileResult, "testFromJsonFloatString");
