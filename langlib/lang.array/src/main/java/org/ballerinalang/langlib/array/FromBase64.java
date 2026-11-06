@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
 import java.util.Base64;
 
@@ -37,7 +38,8 @@ public final class FromBase64 {
 
     public static Object fromBase64(BString str) {
         try {
-            byte[] decodedArr = Base64.getDecoder().decode(str.getValue());
+            byte[] decodedArr =
+                    Base64.getDecoder().decode(ArrayUtils.removeBinaryLiteralWhitespace(str.getValue()));
             return ValueCreator.createArrayValue(decodedArr);
         } catch (IllegalArgumentException e) {
             return ErrorCreator.createError(StringUtils.fromString("Invalid base64 string"),

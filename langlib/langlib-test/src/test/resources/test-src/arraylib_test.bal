@@ -2135,3 +2135,44 @@ function testArrayReverseWithEmptyArrayAndTypeBinding() {
     assertValueEquality(z, []);
     assertTrue(z is never[]);
 }
+
+function testFromBase64WithWhitespace() {
+    byte[] expected = [97, 98, 99, 100, 101, 102];
+    foreach string s in ["YWJjZGVm", "YWJj ZGVm", "YWJj\tZGVm", "YWJj\nZGVm", "YWJj\r\nZGVm", "YWJjZGVm\n",
+            " Y W J j Z G V m ", "\n\tYWJj\r\n  ZGVm\r\n"] {
+        assertValueEquality(expected, checkpanic array:fromBase64(s));
+    }
+    assertValueEquality(base64 `YWJj
+        ZGVm`, checkpanic array:fromBase64("YWJj\n        ZGVm"));
+    assertValueEquality(<byte[]>[97], checkpanic array:fromBase64("YQ = =\n"));
+    assertValueEquality(<byte[]>[], checkpanic array:fromBase64(" \t\r\n"));
+
+    // Only the whitespace allowed by a Base64Literal is ignored.
+    foreach string s in ["YWJj$GVm", "YWJj-GVm", "YWJj\u{B}ZGVm", "YWJj\u{C}ZGVm", "YWJj\u{A0}ZGVm", "YQ=",
+            "Y=Q=", "YQ===", "YQ==\nYQ=="] {
+        assertTrue(array:fromBase64(s) is error);
+    }
+}
+
+function testFromBase16WithWhitespace() {
+    byte[] expected = [97, 98, 99];
+    foreach string s in ["616263", "61 62 63", "6162\n63", "61\t62\r\n63\n", " 6 1 6 2 6 3 "] {
+        assertValueEquality(expected, checkpanic array:fromBase16(s));
+    }
+    assertValueEquality(base16 `61 62
+        63`, checkpanic array:fromBase16("61 62\n        63"));
+    assertValueEquality(<byte[]>[], checkpanic array:fromBase16(" \t\r\n"));
+
+    byte[]|error result = array:fromBase16("61 62 6");
+    assertTrue(result is error);
+    if (result is error) {
+        assertValueEquality("Invalid base16 string", result.message());
+        assertValueEquality("Expected an even length string, but the length of the string excluding whitespace was: 5",
+                <string> checkpanic result.detail()["message"]);
+    }
+
+    // Only the whitespace allowed by a Base16Literal is ignored.
+    foreach string s in ["61$263", "61\u{B}6263", "61\u{C}6263", "61\u{A0}6263"] {
+        assertTrue(array:fromBase16(s) is error);
+    }
+}
