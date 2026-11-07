@@ -20,14 +20,14 @@ file by passing `--dump-bir-file /location/to/save.bir`
 
 1. Support multiple backend implementations.
 
-2. Help ballerina compiler writes as a diagnostic tool.
+2. Help Ballerina compiler function as a diagnostic tool.
 
 3. Act as the internal format for the optimizer and instrumentation.
 
 
-## Bir binary file structure
+## BIR binary file structure
 
-Binary file constant of two main areas, Constant Pool and the Module section.
+The binary file consists of two main areas, Constant Pool and the Module section.
 
 WIP
 - Issue [ballerina-lang/issues/10257](https://github.com/ballerina-platform/ballerina-lang/issues/10257)
