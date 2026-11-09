@@ -558,6 +558,53 @@ public final class ObserveUtils {
     }
 
     /**
+     * Add a link from the span of the observer context to another span, without making it the parent.
+     *
+     * @param observerContext observer context whose span the link is added to
+     * @param traceContext    trace context headers of the linked span
+     */
+    public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext) {
+        addLinkToSpan(observerContext, traceContext, Attributes.empty());
+    }
+
+    /**
+     * Add a link from the span of the observer context to another span, without making it the parent.
+     *
+     * @param observerContext observer context whose span the link is added to
+     * @param traceContext    trace context headers of the linked span
+     * @param attributes      attributes of the link
+     */
+    public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext,
+                                     Map<String, String> attributes) {
+        BSpan span = getActiveSpan(observerContext);
+        if (span != null) {
+            span.addLink(traceContext, attributes);
+        }
+    }
+
+    /**
+     * Add a link from the span of the observer context to another span, without making it the parent.
+     *
+     * @param observerContext observer context whose span the link is added to
+     * @param traceContext    trace context headers of the linked span
+     * @param attributes      attributes of the link
+     */
+    public static void addLinkToSpan(ObserverContext observerContext, Map<String, String> traceContext,
+                                     Attributes attributes) {
+        BSpan span = getActiveSpan(observerContext);
+        if (span != null) {
+            span.addLink(traceContext, attributes);
+        }
+    }
+
+    private static BSpan getActiveSpan(ObserverContext observerContext) {
+        if (!enabled || observerContext == null || observerContext.isFinished()) {
+            return null;
+        }
+        return observerContext.getSpan();
+    }
+
+    /**
      * Generate a ID for a source code position.
      *
      * @param srcFileName source file name
