@@ -291,7 +291,10 @@ function emitError(int i) returns int|Err|error {
     match i {
         1 => { return 1; }
         2 => { return error Err("Err"); }
-        _ => { return error("Any error"); }
+        _ => {
+            error e = error("Any error");
+            return e;
+        }
     }
 }
 
@@ -305,6 +308,9 @@ function testCheckWithMixOfDefaultErrorAndDistinctErrors() {
 
     result = performErrornousAction(2);
     assertTrue(result is Err && result.message() == "Err");
+
+    result = performErrornousAction(3);
+    assertTrue(result is error && !(result is Err) && result.message() == "Any error");
 }
 
 float location1 =

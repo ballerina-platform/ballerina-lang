@@ -3813,6 +3813,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 && (userProvidedTypeRef == null
                 || Types.getImpliedType(userProvidedTypeRef.getBType()) ==
                 Types.getImpliedType(selectedCandidate))) {
+            if (userProvidedTypeRef == null && expandedCandidates.size() > 1
+                    && hasMatchingCandidateWithDifferentTypeIds(expandedCandidates, errorDetailTypes,
+                                                                selectedCandidate, inferredDetailType)) {
+                // The applicable contextually expected type must be definite (spec section 6.17).
+                dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.CANNOT_INFER_ERROR_TYPE, data.expType);
+            }
             checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType, data);
             // TODO: When the `userProvidedTypeRef` is present diagnostic message is provided for just `error`
             // https://github.com/ballerina-platform/ballerina-lang/issues/33574
@@ -4013,6 +4019,36 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         return expandedCandidates;
+    }
+
+    /**
+     * Checks whether another error candidate accepts the same detail mapping as the selected candidate but induces
+     * a different set of type-ids. In that case the applicable contextually expected type is not definite, and the
+     * type-ids of the constructed error value cannot be decided.
+     * <p>
+     * Comparing every matching candidate against the selected one is sufficient since type-id set equality is
+     * transitive.
+     *
+     * @param candidates         error types in the contextually expected type
+     * @param detailTypes        detail types of the candidates, in the same order
+     * @param selectedCandidate  candidate selected for the error constructor
+     * @param inferredDetailType detail type inferred for the error constructor arguments
+     * @return true if a matching candidate induces a different set of type-ids than the selected candidate
+     */
+    private boolean hasMatchingCandidateWithDifferentTypeIds(List<BType> candidates, List<BType> detailTypes,
+                                                             BType selectedCandidate, BType inferredDetailType) {
+        Set<BTypeIdSet.BTypeId> selectedTypeIds = getErrorTypeIds(selectedCandidate);
+        for (int i = 0; i < candidates.size(); i++) {
+            if (types.isSameType(detailTypes.get(i), inferredDetailType)
+                    && !getErrorTypeIds(candidates.get(i)).equals(selectedTypeIds)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Set<BTypeIdSet.BTypeId> getErrorTypeIds(BType errorType) {
+        return ((BErrorType) Types.getImpliedType(errorType)).typeIdSet.getAll();
     }
 
     @Override
