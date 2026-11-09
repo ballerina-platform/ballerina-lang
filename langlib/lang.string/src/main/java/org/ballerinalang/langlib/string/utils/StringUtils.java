@@ -56,4 +56,28 @@ public final class StringUtils {
     public static BError createNullReferenceError() {
         return createError(NULL_REF_EXCEPTION);
     }
+
+    public static BString convertAsciiCase(BString str, char from, char to, int delta) {
+        String value = str.getValue();
+        int length = value.length();
+        int i = 0;
+        while (i < length && !isInRange(value.charAt(i), from, to)) {
+            i++;
+        }
+        if (i == length) {
+            return str;
+        }
+        char[] chars = value.toCharArray();
+        for (; i < length; i++) {
+            char c = chars[i];
+            if (isInRange(c, from, to)) {
+                chars[i] = (char) (c + delta);
+            }
+        }
+        return io.ballerina.runtime.api.utils.StringUtils.fromString(new String(chars));
+    }
+
+    private static boolean isInRange(char c, char from, char to) {
+        return c >= from && c <= to;
+    }
 }
