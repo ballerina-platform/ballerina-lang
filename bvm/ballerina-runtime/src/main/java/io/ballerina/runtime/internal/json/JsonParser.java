@@ -922,10 +922,14 @@ public final class JsonParser {
             }
         }
 
-        // Returns true if the given string is an optional '-' followed by one or more ASCII digits.
+        // Returns true if the given string is an optional '-' followed by one or more ASCII digits,
+        // without leading zeros, as required by the JSON number grammar.
         private static boolean isIntegerSyntax(String str) {
             int start = str.charAt(0) == '-' ? 1 : 0;
             if (start == str.length()) {
+                return false;
+            }
+            if (str.charAt(start) == '0' && str.length() - start > 1) {
                 return false;
             }
             for (int i = start; i < str.length(); i++) {

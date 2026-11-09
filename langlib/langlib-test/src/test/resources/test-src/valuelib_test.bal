@@ -219,6 +219,20 @@ function testFromJsonStringWithOutOfRangeInt() {
     assertTrue((<string>checkpanic (<error>j8).detail()["message"])
             .startsWith("unrecognized token '+9223372036854775808'"));
 
+    // An out-of-range integer with leading zeros is not valid JSON.
+    json|error j9 = "09223372036854775808".fromJsonString();
+    assertTrue(j9 is error);
+    assertTrue((<string>checkpanic (<error>j9).detail()["message"])
+            .startsWith("unrecognized token '09223372036854775808'"));
+
+    json|error j10 = "-09223372036854775809".fromJsonString();
+    assertTrue(j10 is error);
+    assertTrue((<string>checkpanic (<error>j10).detail()["message"])
+            .startsWith("unrecognized token '-09223372036854775809'"));
+
+    json|error j11 = "{\"qty\": 018446744073709551615}".fromJsonString();
+    assertTrue(j11 is error);
+
     // An integer beyond the decimal range is still an error, not a panic.
     string tooLarge = "1";
     foreach int i in 0 ..< 6200 {
