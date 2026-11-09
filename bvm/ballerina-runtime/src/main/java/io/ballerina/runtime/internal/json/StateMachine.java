@@ -81,6 +81,7 @@ public abstract class StateMachine {
     protected final StringBuilder hexBuilder = new StringBuilder(4);
     protected char[] charBuff = new char[1024];
     protected int charBuffIndex;
+    private boolean hasSurrogateEscape;
 
     protected int index = 0;
     protected int line = 1;
@@ -383,13 +384,33 @@ public abstract class StateMachine {
         }
     }
 
-    String value() {
+    String value() throws ParserException {
+        if (this.hasSurrogateEscape) {
+            this.hasSurrogateEscape = false;
+            validateSurrogatePairs();
+        }
         String result = new String(this.charBuff, 0, this.charBuffIndex);
         this.charBuffIndex = 0;
         return result;
     }
 
-    public void processFieldName() {
+    private void validateSurrogatePairs() throws ParserException {
+        for (int i = 0; i < this.charBuffIndex; i++) {
+            char c = this.charBuff[i];
+            if (!Character.isSurrogate(c)) {
+                continue;
+            }
+            if (Character.isHighSurrogate(c) && i + 1 < this.charBuffIndex
+                    && Character.isLowSurrogate(this.charBuff[i + 1])) {
+                i++;
+                continue;
+            }
+            this.charBuffIndex = 0;
+            throw new ParserException("unpaired surrogate character U+" + String.format("%04X", (int) c));
+        }
+    }
+
+    public void processFieldName() throws ParserException {
         this.fieldNames.push(this.value());
     }
 
@@ -687,7 +708,11 @@ public abstract class StateMachine {
                 if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')) {
                     sm.hexBuilder.append(ch);
                     if (sm.hexBuilder.length() >= 4) {
-                        sm.append(this.extractUnicodeChar(sm));
+                        char c = this.extractUnicodeChar(sm);
+                        if (Character.isSurrogate(c)) {
+                            sm.hasSurrogateEscape = true;
+                        }
+                        sm.append(c);
                         this.reset(sm);
                         state = this.getSourceState(sm);
                         break;
