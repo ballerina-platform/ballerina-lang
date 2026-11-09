@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,28 +38,29 @@ public final class FromBase16 {
     }
 
     public static Object fromBase16(BString str) {
-        if (str.length() % 2 != 0) {
+        String hexStr = ArrayUtils.removeBinaryLiteralWhitespace(str.getValue());
+        if (hexStr.length() % 2 != 0) {
             return ErrorCreator
                     .createError(StringUtils.fromString("Invalid base16 string"),
                                  StringUtils
                                          .fromString("Expected an even length string, but the length of the string" +
-                                                             " was: " + str.length()));
+                                                             " excluding whitespace was: " + hexStr.length()));
         }
 
-        char[] chars = str.getValue().toCharArray();
+        char[] chars = hexStr.toCharArray();
         byte[] bytes = new byte[chars.length / 2];
         List<Character> invalidChars = new ArrayList<>();
 
         for (int i = 0, j = 0; i < chars.length; i += 2, j++) {
-            int upperHalf = Character.digit(chars[i], 16);
-            int lowerHalf = Character.digit(chars[i + 1], 16);
+            int upperHalf = hexDigitValue(chars[i]);
+            int lowerHalf = hexDigitValue(chars[i + 1]);
 
             if (upperHalf < 0) {
                 invalidChars.add(chars[i]);
             }
 
             if (lowerHalf < 0) {
-                invalidChars.add(chars[i]);
+                invalidChars.add(chars[i + 1]);
             }
 
             bytes[j] = (byte) (upperHalf << 4 | lowerHalf);
@@ -66,10 +68,15 @@ public final class FromBase16 {
 
         if (!invalidChars.isEmpty()) {
             return ErrorCreator.createError(StringUtils.fromString("Invalid base16 string"),
-                                            StringUtils
-                                                     .fromString("Invalid character(s): " + invalidChars.toString()));
+                                            StringUtils.fromString("Invalid character(s): " + invalidChars));
         }
 
         return ValueCreator.createArrayValue(bytes);
+    }
+
+    private static int hexDigitValue(char c) {
+        // Character.digit also accepts non-ASCII digits and letters (e.g. fullwidth '６'), which are not Base16
+        // characters. For ASCII characters, it accepts only 0..9, a..f and A..F.
+        return c < 128 ? Character.digit(c, 16) : -1;
     }
 }

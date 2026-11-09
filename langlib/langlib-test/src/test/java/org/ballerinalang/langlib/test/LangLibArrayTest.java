@@ -606,7 +606,9 @@ public class LangLibArrayTest {
                 "testArrayPop",
                 "testSetLengthNegative",
                 "testArrayFilterWithEmptyArrayAndTypeBinding",
-                "testArrayReverseWithEmptyArrayAndTypeBinding"
+                "testArrayReverseWithEmptyArrayAndTypeBinding",
+                "testFromBase64WithWhitespace",
+                "testFromBase16WithWhitespace"
         };
     }
 }
