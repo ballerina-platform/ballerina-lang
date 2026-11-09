@@ -127,17 +127,22 @@ public final class ArrayUtils {
      * i.e. tab (U+0009), line feed (U+000A), carriage return (U+000D) and space (U+0020).
      *
      * @param str the string to remove whitespace from
-     * @return the string without the whitespace characters
+     * @return the string without the whitespace characters, or the same string if it has none
      */
     public static String removeBinaryLiteralWhitespace(String str) {
-        StringBuilder sb = new StringBuilder(str.length());
+        StringBuilder sb = null;
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
-            if (c != '\t' && c != '\n' && c != '\r' && c != ' ') {
+            if (c == '\t' || c == '\n' || c == '\r' || c == ' ') {
+                if (sb == null) {
+                    sb = new StringBuilder(str.length() - 1);
+                    sb.append(str, 0, i);
+                }
+            } else if (sb != null) {
                 sb.append(c);
             }
         }
-        return sb.toString();
+        return sb == null ? str : sb.toString();
     }
 
     private ArrayUtils() {
