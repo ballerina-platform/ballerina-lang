@@ -52,8 +52,8 @@ public final class FromBase16 {
         List<Character> invalidChars = new ArrayList<>();
 
         for (int i = 0, j = 0; i < chars.length; i += 2, j++) {
-            int upperHalf = Character.digit(chars[i], 16);
-            int lowerHalf = Character.digit(chars[i + 1], 16);
+            int upperHalf = hexDigitValue(chars[i]);
+            int lowerHalf = hexDigitValue(chars[i + 1]);
 
             if (upperHalf < 0) {
                 invalidChars.add(chars[i]);
@@ -73,5 +73,11 @@ public final class FromBase16 {
         }
 
         return ValueCreator.createArrayValue(bytes);
+    }
+
+    private static int hexDigitValue(char c) {
+        // Character.digit also accepts non-ASCII digits and letters (e.g. fullwidth '６'), which are not Base16
+        // characters. For ASCII characters, it accepts only 0..9, a..f and A..F.
+        return c < 128 ? Character.digit(c, 16) : -1;
     }
 }

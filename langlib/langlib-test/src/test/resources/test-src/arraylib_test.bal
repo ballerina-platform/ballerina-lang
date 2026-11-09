@@ -2175,4 +2175,10 @@ function testFromBase16WithWhitespace() {
     foreach string s in ["61$263", "61\u{B}6263", "61\u{C}6263", "61\u{A0}6263"] {
         assertTrue(array:fromBase16(s) is error);
     }
+
+    // Only the ASCII characters 0..9, a..f and A..F are hex digits.
+    assertValueEquality(<byte[]>[170, 171, 207], checkpanic array:fromBase16("AA ab cF"));
+    foreach string s in ["\u{FF16}\u{FF11}", "\u{FF16} \u{FF11}", "\u{FF21}1", "\u{0666}1"] {
+        assertTrue(array:fromBase16(s) is error);
+    }
 }
