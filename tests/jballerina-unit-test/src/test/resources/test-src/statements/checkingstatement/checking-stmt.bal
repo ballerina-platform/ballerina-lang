@@ -58,7 +58,7 @@ function checkingFunc5() returns error? {
 
 function checkingFunc6() returns error {
     error e = error("msg6");
-    check e;  
+    check e;
     return error("new msg");
 }
 
@@ -72,7 +72,7 @@ type REC2 record {
 
 function testFieldAccessExpr() {
     REC1 rec = { n: () };
-    check rec.n; // no error    
+    check rec.n; // no error
     error? e = checkingFunc7();
     assertTrue(e is error && e.message() == "msg7");
 }
@@ -110,4 +110,66 @@ function assertEquality(anydata expected, anydata actual) {
     }
 
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+function testCheckInsideForeachAndOnFail() returns error? {
+    int[] items = [1, 2];
+    do {
+        if items.length() == 0 {
+            fail error("empty");
+        }
+        foreach int item in items {
+            _ = check mockOperation();
+        }
+    } on fail error e {
+        foreach int item in items {
+            _ = check mockOperation();
+        }
+    }
+}
+
+function mockOperation() returns error? {
+    return ();
+}
+
+function testSingleFailSiteCheck() returns error? {
+    int[] items = [1, 2];
+    boolean onFailReached = false;
+    do {
+        foreach int item in items {
+            _ = check mockOperation();
+        }
+    } on fail error e {
+        onFailReached = true;
+    }
+    assertTrue(!onFailReached);
+}
+
+function testCheckInsideMatchAndOnFail() returns error? {
+    int[] items = [];
+    int[] onFailItems = [1, 2];
+    int selector = 0;
+    boolean onFailReached = false;
+    int count = 0;
+
+    match selector {
+        0 => {
+            if items.length() == 0 {
+                fail error("empty");
+            }
+        }
+        1 => {
+            foreach int item in items {
+                _ = check mockOperation();
+            }
+        }
+    } on fail error e {
+        onFailReached = true;
+        foreach int item in onFailItems {
+            _ = check mockOperation();
+            count += 1;
+        }
+    }
+    assertTrue(onFailReached);
+    assertEquality(2, count);
 }

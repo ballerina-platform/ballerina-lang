@@ -47,6 +47,9 @@ public class BLangOnFailClause extends BLangNode implements OnFailClauseNode {
     public boolean bodyContainsFail;
     public boolean isInternal;
 
+    // Desugar State
+    public boolean bodyDesugared = false;
+
     public BLangOnFailClause() {
     }
 
