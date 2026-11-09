@@ -1221,6 +1221,10 @@ function testToExpStringRoundsOnlyOnce() {
     // The exact value of 1e-20 is 9.999999999999999451...e-21, so rounding must start from the first 9.
     float f = 1e-20;
     assertEquality("9.999999999999999e-21", f.toExpString(15));
+
+    // 2.5 is an exact tie: roundTiesToEven gives 2, whereas HALF_UP would give 3.
+    float g = 2.5;
+    assertEquality("2e+0", g.toExpString(0));
 }
 
 function testRound() {
