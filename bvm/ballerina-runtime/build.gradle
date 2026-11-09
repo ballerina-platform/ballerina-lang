@@ -41,6 +41,8 @@ dependencies {
     implementation libs.caffeine
 
     testImplementation libs.testng
+    testImplementation libs.open.telemetry.sdk.trace
+    testImplementation libs.open.telemetry.sdk.testing
 }
 
 
