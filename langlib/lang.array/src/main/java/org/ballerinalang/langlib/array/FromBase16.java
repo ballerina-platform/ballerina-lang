@@ -60,7 +60,7 @@ public final class FromBase16 {
             }
 
             if (lowerHalf < 0) {
-                invalidChars.add(chars[i]);
+                invalidChars.add(chars[i + 1]);
             }
 
             bytes[j] = (byte) (upperHalf << 4 | lowerHalf);
@@ -68,8 +68,7 @@ public final class FromBase16 {
 
         if (!invalidChars.isEmpty()) {
             return ErrorCreator.createError(StringUtils.fromString("Invalid base16 string"),
-                                            StringUtils
-                                                     .fromString("Invalid character(s): " + invalidChars.toString()));
+                                            StringUtils.fromString("Invalid character(s): " + invalidChars));
         }
 
         return ValueCreator.createArrayValue(bytes);

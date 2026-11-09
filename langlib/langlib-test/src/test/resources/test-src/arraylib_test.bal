@@ -2171,6 +2171,12 @@ function testFromBase16WithWhitespace() {
                 <string> checkpanic result.detail()["message"]);
     }
 
+    result = array:fromBase16("61 2$");
+    assertTrue(result is error);
+    if (result is error) {
+        assertValueEquality("Invalid character(s): [$]", <string> checkpanic result.detail()["message"]);
+    }
+
     // Only the whitespace allowed by a Base16Literal is ignored.
     foreach string s in ["61$263", "61\u{B}6263", "61\u{C}6263", "61\u{A0}6263"] {
         assertTrue(array:fromBase16(s) is error);
