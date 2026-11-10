@@ -23,6 +23,46 @@ function testToLower() returns string {
     return str.toLowerAscii();
 }
 
+function testToLowerAsciiNonAscii() {
+    assertEquals("hello world 123 !@#", "Hello WORLD 123 !@#".toLowerAscii());
+    assertEquals("", "".toLowerAscii());
+    assertEquals("already lower", "already lower".toLowerAscii());
+    assertEquals("@[`{", "@[`{".toLowerAscii());
+    foreach string s in ["É", "Σ", "Ж", "İ", "\u{212A}", "ÀÉÎÕÜ", "ΑΒΓ", "\u{1F600}"] {
+        assertEquals(s, s.toLowerAscii());
+    }
+    assertEquals("ÉtÉ", "ÉTÉ".toLowerAscii());
+    assertEquals("\u{212A}g", "\u{212A}G".toLowerAscii());
+    assertEquals("a\u{1F600}b", "A\u{1F600}B".toLowerAscii());
+    assertEquals("İsta", "İSTA".toLowerAscii());
+    assertEquals("xyz", "XYZ".toLowerAscii());
+}
+
+function testToUpperAsciiNonAscii() {
+    assertEquals("HELLO WORLD 123 !@#", "Hello world 123 !@#".toUpperAscii());
+    assertEquals("", "".toUpperAscii());
+    assertEquals("ALREADY UPPER", "ALREADY UPPER".toUpperAscii());
+    assertEquals("@[`{", "@[`{".toUpperAscii());
+    foreach string s in ["é", "ß", "ı", "\u{FB01}", "àéîõü", "αβγ", "\u{1F600}"] {
+        assertEquals(s, s.toUpperAscii());
+    }
+    assertEquals("STRAßE", "straße".toUpperAscii());
+    assertEquals("\u{FB01}LE", "\u{FB01}le".toUpperAscii());
+    assertEquals("A\u{1F600}B", "a\u{1F600}b".toUpperAscii());
+    assertEquals("XYZ", "xyz".toUpperAscii());
+}
+
+function testAsciiCaseConversionConsistentWithEqualsIgnoreCase() {
+    foreach [string, string] [a, b] in [["ÉTÉ", "été"], ["Hello", "hELLO"], ["ß", "SS"], ["\u{212A}", "k"]] {
+        assertEquals(a.equalsIgnoreCaseAscii(b), a.toLowerAscii() == b.toLowerAscii());
+        assertEquals(a.equalsIgnoreCaseAscii(b), a.toUpperAscii() == b.toUpperAscii());
+    }
+}
+
+function testAsciiCaseConversionOnAsciiInput() returns string[] {
+    return ["TITLE".toLowerAscii(), "file".toUpperAscii(), "Iİıi".toLowerAscii(), "Iİıi".toUpperAscii()];
+}
+
 type EqualityOp "==" | "!=" | "===" | "!==";
 
 type EqualityInsn record {|
