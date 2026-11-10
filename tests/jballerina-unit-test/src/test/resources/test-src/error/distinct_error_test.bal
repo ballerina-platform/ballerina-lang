@@ -25,6 +25,16 @@ public function testFunctionCallInDetailArgExpr() {
     assertEquality(x.detail().details, details);
 }
 
+type DistinctErrA distinct error;
+type Detail record {| DistinctErrA|int inner; |};
+type Outer error<Detail>;
+
+function testErrorConstructorInUnionDetailArg() {
+    Outer e = error("outer", inner = error("msg"));
+    assertEquality(e.detail().inner is DistinctErrA, true);
+    assertEquality((<DistinctErrA>e.detail().inner).message(), "msg");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

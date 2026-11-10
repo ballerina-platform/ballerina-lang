@@ -3813,7 +3813,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 && (userProvidedTypeRef == null
                 || Types.getImpliedType(userProvidedTypeRef.getBType()) ==
                 Types.getImpliedType(selectedCandidate))) {
-            checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType, data);
+            checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType, true, data);
             // TODO: When the `userProvidedTypeRef` is present diagnostic message is provided for just `error`
             // https://github.com/ballerina-platform/ballerina-lang/issues/33574
             data.resultType = types.checkType(errorConstructorExpr.pos, selectedCandidate, data.expType,
@@ -3839,7 +3839,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             errorType = symTable.errorType;
         }
         List<BLangNamedArgsExpression> namedArgs =
-                checkProvidedErrorDetails(errorConstructorExpr, errorType.detailType, data);
+                checkProvidedErrorDetails(errorConstructorExpr, errorType.detailType, false, data);
 
         BType detailType = errorType.detailType;
 
@@ -7045,12 +7045,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private List<BLangNamedArgsExpression> checkProvidedErrorDetails(BLangErrorConstructorExpr errorConstructorExpr,
-                                                                     BType expectedType, AnalyzerData data) {
+                                                                     BType expectedType,
+                                                                     boolean passUnionExpectedType,
+                                                                     AnalyzerData data) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>(errorConstructorExpr.namedArgs.size());
         for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
             BType target = checkErrCtrTargetTypeAndSetSymbol(namedArgsExpression, expectedType);
 
-            if (Types.getImpliedType(target).tag != TypeTags.UNION) {
+            if (passUnionExpectedType || Types.getImpliedType(target).tag != TypeTags.UNION) {
                 checkExpr(namedArgsExpression, target, data);
             } else {
                 checkExpr(namedArgsExpression, data);
