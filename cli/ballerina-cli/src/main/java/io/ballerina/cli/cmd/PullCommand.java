@@ -104,6 +104,12 @@ public class PullCommand implements BLauncherCmd {
             description = "project target directory to write the compiled dependency caches to.")
     private Path targetDir;
 
+    // Set together with --target-dir. The dependency is compiled against the versions resolved by the project
+    // build instead of the versions recorded in its bala.
+    @CommandLine.Option(names = "--dependency-graph", hidden = true,
+            description = "dependency graph JSON to compile the package against.")
+    private Path dependencyGraph;
+
     public PullCommand() {
         this.outStream = System.out;
         this.errStream = System.err;
@@ -415,7 +421,7 @@ public class PullCommand implements BLauncherCmd {
             BuildOptions buildOptions = BuildOptions.builder().setLockingMode(packageLockingMode).setOffline(offline)
                     .build();
             boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
-                    orgName, packageName, version, buildOptions, repositoryName, targetDir);
+                    orgName, packageName, version, buildOptions, repositoryName, targetDir, dependencyGraph);
             if (hasCompilationErrors) {
                 CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
                 return false;

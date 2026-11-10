@@ -23,7 +23,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultProjectEnvironment;
 import io.ballerina.projects.internal.environment.ProjectDependencyCache;
-import io.ballerina.projects.internal.environment.ProjectDependencyCacheContext;
 import io.ballerina.projects.repos.BuildProjectCompilationCache;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 
@@ -93,14 +92,7 @@ public class ProjectEnvironmentBuilder {
             dependencyCache = new ProjectDependencyCache(project.targetDir(), projectDependencyCacheWritable);
         }
         if (environment == null && defaultEnvironment) {
-            if (dependencyCache != null) {
-                ProjectDependencyCacheContext.set(dependencyCache);
-            }
-            try {
-                environment = EnvironmentBuilder.buildDefault();
-            } finally {
-                ProjectDependencyCacheContext.remove();
-            }
+            environment = EnvironmentBuilder.buildDefault();
         }
         if (dependencyCache != null && environment instanceof DefaultEnvironment defaultEnvironment
                 && defaultEnvironment.getService(ProjectDependencyCache.class) == null) {

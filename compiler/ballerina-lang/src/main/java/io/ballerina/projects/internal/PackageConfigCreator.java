@@ -129,6 +129,21 @@ public final class PackageConfigCreator {
                 packageDependencyGraph.packageDependencyGraph(), packageDependencyGraph.moduleDependencies());
     }
 
+    public static PackageConfig createBalaProjectConfig(Path balaPath, Path dependencyGraphJson) {
+        ProjectFiles.validateBalaProjectPath(balaPath);
+        PackageManifest packageManifest = BalaFiles.createPackageManifest(balaPath);
+        DependencyManifest dependencyManifest = BalaFiles.createDependencyManifest(balaPath);
+        PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
+        PackageData packageData = BalaFiles.loadPackageData(balaPath, packageJson);
+        // Module dependencies do not depend on the resolved versions, hence they are read from the bala.
+        BalaFiles.DependencyGraphResult balaDependencyGraph = BalaFiles.createPackageDependencyGraph(balaPath);
+        BalaFiles.DependencyGraphResult overriddenDependencyGraph =
+                BalaFiles.createPackageDependencyGraphFromJson(dependencyGraphJson);
+
+        return createPackageConfig(packageData, packageManifest, dependencyManifest,
+                overriddenDependencyGraph.packageDependencyGraph(), balaDependencyGraph.moduleDependencies());
+    }
+
     public static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
                                                     DependencyManifest dependencyManifest) {

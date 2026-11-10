@@ -22,6 +22,7 @@ import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.repos.FileSystemCache;
@@ -34,14 +35,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /** Project-local compiled dependency artifacts. Bala package resolution remains repository-backed. */
 public final class ProjectDependencyCache {
     // Records the distribution that produced the cache. Used when Dependencies.toml has no packages yet,
     // e.g. before the first successful build or in a dependency compilation subprocess.
     static final String DISTRIBUTION_VERSION_FILE = ".distribution-version";
+    // Records the resolved dependency versions a cached package was compiled against.
+    static final String DEPENDENCIES_FILE = ".dependencies";
 
     private final Path targetDir;
     private final Path cacheDir;
@@ -50,6 +57,10 @@ public final class ProjectDependencyCache {
     private boolean distributionVersionChecked;
     private boolean cacheClearedForWrite;
     private boolean markerWritten;
+    // Keyed by org/name/version of the cached package.
+    private final Map<String, String> dependencyFingerprints = new HashMap<>();
+    private final Set<String> stalePackages = new HashSet<>();
+    private final Set<String> dependencyMarkersWritten = new HashSet<>();
 
     public ProjectDependencyCache(Path targetDir, boolean writable) {
         this.targetDir = targetDir;
@@ -75,6 +86,82 @@ public final class ProjectDependencyCache {
         SemanticVersion distributionVersion = dependencyManifest.distributionVersion();
         applyValidity(distributionVersion != null
                 && distributionVersion.toString().equals(RepoUtils.getBallerinaShortVersion()));
+    }
+
+    /**
+     * Checks a package's cached artifacts against the dependency versions resolved for this build.
+     * When they were compiled against different versions, a writable cache deletes them so the package is
+     * compiled from source, and a read-only cache ignores them in favour of the repository cache.
+     *
+     * @param packageDescriptor     cached package
+     * @param dependencyFingerprint resolved versions of all direct and transitive dependencies of the package
+     */
+    public synchronized void validatePackage(PackageDescriptor packageDescriptor, String dependencyFingerprint) {
+        if (usesDistributionCache(packageDescriptor) || !isCacheValid()) {
+            return;
+        }
+        String key = packageKey(packageDescriptor);
+        dependencyFingerprints.put(key, dependencyFingerprint);
+        Path packageCacheDir = packageCacheDir(packageDescriptor);
+        if (!Files.isDirectory(packageCacheDir)
+                || dependencyFingerprint.equals(readDependencyMarker(packageCacheDir))) {
+            stalePackages.remove(key);
+            return;
+        }
+        if (!writable) {
+            stalePackages.add(key);
+            return;
+        }
+        try {
+            FileUtils.deleteDirectory(packageCacheDir.toFile());
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to clear stale project dependency cache: " + packageCacheDir, e);
+        }
+        dependencyMarkersWritten.remove(key);
+    }
+
+    private synchronized boolean isPackageStale(PackageDescriptor packageDescriptor) {
+        return stalePackages.contains(packageKey(packageDescriptor));
+    }
+
+    private synchronized void writeDependencyMarker(PackageDescriptor packageDescriptor) {
+        String key = packageKey(packageDescriptor);
+        String dependencyFingerprint = dependencyFingerprints.get(key);
+        // Without a fingerprint the artifacts stay unmarked and are recompiled by the next build.
+        if (dependencyFingerprint == null || dependencyMarkersWritten.contains(key)) {
+            return;
+        }
+        Path marker = packageCacheDir(packageDescriptor).resolve(DEPENDENCIES_FILE);
+        try {
+            Files.createDirectories(marker.getParent());
+            Files.writeString(marker, dependencyFingerprint);
+            dependencyMarkersWritten.add(key);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to write project dependency cache metadata: " + marker, e);
+        }
+    }
+
+    private static String readDependencyMarker(Path packageCacheDir) {
+        Path marker = packageCacheDir.resolve(DEPENDENCIES_FILE);
+        if (!Files.isRegularFile(marker)) {
+            return null;
+        }
+        try {
+            return Files.readString(marker);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private Path packageCacheDir(PackageDescriptor packageDescriptor) {
+        return cacheDir.resolve(packageDescriptor.org().value())
+                .resolve(packageDescriptor.name().value())
+                .resolve(packageDescriptor.version().toString());
+    }
+
+    private static String packageKey(PackageDescriptor packageDescriptor) {
+        return packageDescriptor.org().value() + "/" + packageDescriptor.name().value() + "/"
+                + packageDescriptor.version();
     }
 
     private synchronized boolean isCacheValid() {
@@ -175,14 +262,13 @@ public final class ProjectDependencyCache {
         return new ProjectDependencyCompilationCache(this, project, cacheDir, repositoryCache, writable);
     }
 
-    private static boolean usesDistributionCache(Project project) {
-        var descriptor = project.currentPackage().descriptor();
+    private static boolean usesDistributionCache(PackageDescriptor descriptor) {
         return descriptor.isLangLibPackage()
                 || (descriptor.org().isBallerinaOrg() && descriptor.name().toString().equals(Names.TEST.getValue()));
     }
 
-    private boolean cacheValidForDistribution() {
-        return isCacheValid();
+    private boolean useProjectCache(Project project) {
+        return isCacheValid() && !isPackageStale(project.currentPackage().descriptor());
     }
 
     private static final class ProjectDependencyCompilationCache extends CompilationCache {
@@ -205,7 +291,8 @@ public final class ProjectDependencyCache {
         private boolean usesDistributionCache() {
             // The compilation cache is created from the Project constructor, before the package
             // is assigned. Defer package classification until the first cache operation.
-            return project.currentPackage() != null && ProjectDependencyCache.usesDistributionCache(project);
+            return project.currentPackage() != null
+                    && ProjectDependencyCache.usesDistributionCache(project.currentPackage().descriptor());
         }
 
         @Override
@@ -213,7 +300,7 @@ public final class ProjectDependencyCache {
             if (usesDistributionCache()) {
                 return repositoryCache.getBir(moduleName);
             }
-            byte[] bir = cache.cacheValidForDistribution() ? projectCache.getBir(moduleName) : new byte[0];
+            byte[] bir = cache.useProjectCache(project) ? projectCache.getBir(moduleName) : new byte[0];
             if (bir.length > 0) {
                 return bir;
             }
@@ -231,6 +318,7 @@ public final class ProjectDependencyCache {
             if (writable) {
                 cache.prepareForWrite();
                 projectCache.cacheBir(moduleName, birContent);
+                cache.writeDependencyMarker(project.currentPackage().descriptor());
                 return;
             }
             repositoryCache.cacheBir(moduleName, birContent);
@@ -241,7 +329,7 @@ public final class ProjectDependencyCache {
             if (usesDistributionCache()) {
                 return repositoryCache.getPlatformSpecificLibrary(backend, libraryName);
             }
-            Optional<Path> library = cache.cacheValidForDistribution() ?
+            Optional<Path> library = cache.useProjectCache(project) ?
                     projectCache.getPlatformSpecificLibrary(backend, libraryName) : Optional.empty();
             if (library.isPresent()) {
                 return library;
@@ -261,6 +349,7 @@ public final class ProjectDependencyCache {
             if (writable) {
                 cache.prepareForWrite();
                 projectCache.cachePlatformSpecificLibrary(backend, libraryName, libraryContent);
+                cache.writeDependencyMarker(project.currentPackage().descriptor());
                 return;
             }
             repositoryCache.cachePlatformSpecificLibrary(backend, libraryName, libraryContent);

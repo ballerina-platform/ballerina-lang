@@ -24,8 +24,6 @@ import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
-import io.ballerina.projects.internal.environment.ProjectDependencyCacheContext;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.WorkspaceRepository;
@@ -116,10 +114,6 @@ public class EnvironmentBuilder {
 
         CompilerContext compilerContext = populateCompilerContext();
         environment.addService(CompilerContext.class, compilerContext);
-        ProjectDependencyCache projectDependencyCache = ProjectDependencyCacheContext.get();
-        if (projectDependencyCache != null) {
-            environment.addService(ProjectDependencyCache.class, projectDependencyCache);
-        }
         ballerinaDistribution.loadLangLibPackages(compilerContext, packageResolver);
         environment.addService(CompilerPluginCache.class, new CompilerPluginCache());
         return environment;

@@ -1281,10 +1281,13 @@ public final class CommandUtil {
      * @param repository repository name
      * @param targetDir project target directory to write the compiled caches to, or null to use the
      *                  home repository cache
+     * @param dependencyGraph dependency graph JSON to compile the package against, or null to use the graph
+     *                        recorded in its bala
      * @return true if the dependent package compilation has errors
      */
     static boolean pullDependencyPackages(String orgName, String packageName, String version,
-                                          BuildOptions buildOptions, String repository, Path targetDir) {
+                                          BuildOptions buildOptions, String repository, Path targetDir,
+                                          Path dependencyGraph) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(repository);
@@ -1310,7 +1313,9 @@ public final class CommandUtil {
             packageCacheDir = targetDir.resolve(ProjectConstants.CACHES_DIR_NAME).resolve(orgName)
                     .resolve(packageName).resolve(version);
         }
-        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath, buildOptions);
+        BalaProject balaProject = dependencyGraph == null ?
+                BalaProject.loadProject(defaultBuilder, balaPath, buildOptions) :
+                BalaProject.loadProject(defaultBuilder, balaPath, buildOptions, dependencyGraph);
 
         // Delete package cache if available
         if (packageCacheDir.toFile().exists()) {

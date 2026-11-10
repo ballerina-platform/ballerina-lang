@@ -537,7 +537,7 @@ public abstract class BalaWriter {
         return relativePath;
     }
 
-    private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
+    static List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
         List<Dependency> dependencies = new ArrayList<>();
         for (ResolvedPackageDependency resolvedDep : dependencyGraph.getNodes()) {
             if (resolvedDep.scope() == PackageDependencyScope.TEST_ONLY) {
