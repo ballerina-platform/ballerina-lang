@@ -57,13 +57,16 @@ public class JsonGenerator implements Closeable {
 
     private static final boolean[] ESC_CHARS = new boolean[93];
 
+    private static final String[] CONTROL_CHAR_ESCAPES = new String[0x20];
+
     static {
         ESC_CHARS['"'] = true;
         ESC_CHARS['\\'] = true;
-        ESC_CHARS['\b'] = true;
-        ESC_CHARS['\n'] = true;
-        ESC_CHARS['\r'] = true;
-        ESC_CHARS['\t'] = true;
+        // RFC 8259 §7: control characters U+0000 to U+001F must be escaped
+        for (char c = 0; c < 0x20; c++) {
+            ESC_CHARS[c] = true;
+            CONTROL_CHAR_ESCAPES[c] = String.format("\\u%04x", (int) c);
+        }
     }
 
     public JsonGenerator(OutputStream out) {
@@ -226,6 +229,11 @@ public class JsonGenerator implements Closeable {
                     index = i + 1;
                     break;
                 default:
+                    if (ch < 0x20) {
+                        this.writer.write(chs, index, i - index);
+                        writer.write(CONTROL_CHAR_ESCAPES[ch]);
+                        index = i + 1;
+                    }
                     break;
             }
         }
