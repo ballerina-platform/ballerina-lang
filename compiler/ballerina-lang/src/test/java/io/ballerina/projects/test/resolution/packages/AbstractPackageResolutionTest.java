@@ -18,6 +18,7 @@
 package io.ballerina.projects.test.resolution.packages;
 
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.test.resolution.packages.internal.GraphComparisonResult;
@@ -56,6 +57,32 @@ public abstract class AbstractPackageResolutionTest {
     }
 
     public void runTestCase(String testSuiteDirName, String testCaseDirName, PackageLockingMode lockingMode) {
+        runTestCaseAndGetDiagnostics(testSuiteDirName, testCaseDirName, lockingMode);
+    }
+
+    /**
+     * Runs the test case and asserts that the resolution reports no errors in addition to the expected graph.
+     */
+    public void runTestCaseWithoutErrors(String testSuiteDirName, String testCaseDirName,
+                                         PackageLockingMode lockingMode) {
+        DiagnosticResult diagnosticResult = runTestCaseAndGetDiagnostics(testSuiteDirName, testCaseDirName,
+                lockingMode);
+        Assert.assertFalse(diagnosticResult.hasErrors(), getDiagnosticLine(diagnosticResult.errors().stream()
+                .map(Object::toString).toList()));
+    }
+
+    /**
+     * Runs the test case and asserts that the resolution reports an error in addition to the expected graph.
+     */
+    public void runTestCaseWithErrors(String testSuiteDirName, String testCaseDirName,
+                                      PackageLockingMode lockingMode) {
+        DiagnosticResult diagnosticResult = runTestCaseAndGetDiagnostics(testSuiteDirName, testCaseDirName,
+                lockingMode);
+        Assert.assertTrue(diagnosticResult.hasErrors(), "Expected the resolution to report an error");
+    }
+
+    private DiagnosticResult runTestCaseAndGetDiagnostics(String testSuiteDirName, String testCaseDirName,
+                                                          PackageLockingMode lockingMode) {
         Path testSuitePath = RESOURCE_DIRECTORY.resolve(testSuiteDirName);
         TestCaseFilePaths filePaths = TestCaseFilePathsBuilder.build(testSuitePath,
                 testSuitePath.resolve(testCaseDirName));
@@ -64,6 +91,7 @@ public abstract class AbstractPackageResolutionTest {
         DependencyGraph<DependencyNode> expectedGraph = resolutionTestCase.getExpectedGraph(lockingMode);
         GraphComparisonResult compResult = GraphUtils.compareGraph(actualGraph, expectedGraph);
         Assert.assertTrue(compResult.isIdenticalGraphs(), getDiagnosticLine(compResult.diagnostics()));
+        return resolutionTestCase.diagnosticResult();
     }
 
 

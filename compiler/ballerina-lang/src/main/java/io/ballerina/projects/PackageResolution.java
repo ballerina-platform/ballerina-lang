@@ -66,6 +66,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -204,6 +205,13 @@ public class PackageResolution {
                 continue;
             }
 
+            // 'provided' platform libraries are not packed in the bala, so the subprocess cannot generate the code
+            // of such a package or of a package that depends on it. `bal pull` then skips caching but succeeds.
+            // These packages are compiled in this process, where the project supplies the libraries.
+            if (hasProvidedPlatformLibraries(resolvedPackageDependency)) {
+                continue;
+            }
+
             // We use the pull command to generate the BIR of the dependency.
             List<String> cmdArgs = new ArrayList<>();
             String balExecutable = isWindows ? "bal.bat" : "bal";
@@ -228,21 +236,31 @@ public class PackageResolution {
             dependencyGraphJson.ifPresent(graph -> cmdArgs.add(DEPENDENCY_GRAPH_OPTION + EQUAL + graph));
             cmdArgs.add(packageDescriptor.toString());
 
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
+            // The subprocess output is not needed: on failure, the dependency is compiled in this process, which
+            // reports its diagnostics. Discarding also keeps the subprocess from blocking on a full pipe buffer.
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD);
+            boolean compiled;
             try {
-                Process process = processBuilder.start();
-                int i = process.waitFor();
-                if (i != 0) {
-                    String errMessage = packageDescriptor.toString();
-                    if (dependency.isPresent()) {
-                        errMessage += " [repository=" + dependency.get().repository() + "]";
-                    }
-                    throw new ProjectException("failed to compile " + errMessage);
-                }
-            } catch (IOException | InterruptedException e) {
+                compiled = processBuilder.start().waitFor() == 0;
+            } catch (IOException e) {
+                compiled = false;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new ProjectException(e);
             } finally {
                 dependencyGraphJson.ifPresent(graph -> graph.toFile().delete());
+            }
+            if (!compiled) {
+                // Compile this dependency and the remaining ones in this process, so that the build reports the
+                // same diagnostics, including those of the root package, as without this option. Dependencies
+                // compiled by earlier subprocesses are loaded from the cache.
+                for (ModuleId moduleId : packageInstance.moduleIds()) {
+                    packageInstance.module(moduleId).moduleContext()
+                            .setCompilationState(ModuleCompilationState.LOADED_FROM_SOURCES);
+                }
+                return;
             }
 
             // Finally, we set the compilation state of the dependency to LOADED_FROM_CACHE
@@ -251,6 +269,16 @@ public class PackageResolution {
                         .setCompilationState(ModuleCompilationState.LOADED_FROM_CACHE);
             }
         }
+    }
+
+    private boolean hasProvidedPlatformLibraries(ResolvedPackageDependency dependency) {
+        Collection<ResolvedPackageDependency> packages = new ArrayList<>(dependencyGraph.getAllDependencies(dependency));
+        packages.add(dependency);
+        return packages.stream()
+                .flatMap(pkg -> pkg.packageInstance().manifest().platforms().values().stream())
+                .filter(Objects::nonNull)
+                .flatMap(platform -> platform.dependencies().stream())
+                .anyMatch(library -> PlatformLibraryScope.PROVIDED.getStringValue().equals(library.get("scope")));
     }
 
     /**

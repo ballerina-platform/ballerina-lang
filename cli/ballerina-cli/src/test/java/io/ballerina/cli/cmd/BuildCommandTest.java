@@ -311,6 +311,78 @@ public class BuildCommandTest extends BaseCommandTest {
         deleteDirectory(targetDir);
     }
 
+    @Test(description = "Dependency compilation errors are reported the same with --optimize-dependency-compilation")
+    public void testOptimizeDependencyCompilationReportsDependencyErrors() throws IOException {
+        Path projectsPath = this.tmpDir.resolve("optimize-dependency-errors");
+        Path libPath = projectsPath.resolve("broken_lib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML), """
+                [package]
+                org = "foo"
+                name = "broken_lib"
+                version = "0.1.0"
+                """);
+        Files.writeString(libPath.resolve("lib.bal"), """
+                public function greet(string name) returns string {
+                    return "Hello " + name;
+                }
+                """);
+        Path appPath = projectsPath.resolve("app");
+        Files.createDirectories(appPath);
+        Files.writeString(appPath.resolve(BALLERINA_TOML), """
+                [package]
+                org = "foo"
+                name = "app"
+                version = "0.1.0"
+                """);
+        Files.writeString(appPath.resolve("main.bal"), """
+                import foo/broken_lib;
+
+                public function main() {
+                    string _ = broken_lib:greet("world");
+                    int _ = "app error";
+                }
+                """);
+        Path publishedLib = testDistCacheDirectory.resolve("bala").resolve("foo").resolve("broken_lib");
+        try {
+            BCompileUtil.compileAndCacheBala(libPath, testDistCacheDirectory, projectEnvironmentBuilder);
+            // Break the published sources, so that the dependency fails to compile when it is built from source.
+            Files.writeString(publishedLib.resolve("0.1.0").resolve("any").resolve("modules")
+                    .resolve("broken_lib").resolve("lib.bal"), """
+                    public function greet(string name) returns string {
+                        int count = "not an int";
+                        return "Hello " + name;
+                    }
+                    """);
+
+            String withoutOption = buildWithErrors(appPath, false);
+            String withOption = buildWithErrors(appPath, true);
+
+            Assert.assertTrue(withoutOption.contains("ERROR [foo/broken_lib/0.1.0::lib.bal:(2:17,2:29)]"),
+                    withoutOption);
+            Assert.assertTrue(withoutOption.contains("ERROR [main.bal:(5:13,5:24)]"), withoutOption);
+            Assert.assertEquals(withOption, withoutOption);
+        } finally {
+            deleteDirectory(publishedLib);
+            deleteDirectory(projectsPath);
+        }
+    }
+
+    private String buildWithErrors(Path projectPath, boolean optimizeDependencyCompilation) throws IOException {
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
+        try {
+            buildCommand.execute();
+            Assert.fail("The build should fail: " + readOutput(true));
+        } catch (BLauncherException e) {
+            return readOutput(true) + "error: " + String.join("\n", e.getDetailedMessages());
+        }
+        return null;
+    }
+
     @Test(description = "Cached dependencies record the dependency versions they were compiled against")
     public void testDependencyCacheRecordsResolvedDependencies() throws IOException {
         Path projectPath = buildDumpGraphPackageA();

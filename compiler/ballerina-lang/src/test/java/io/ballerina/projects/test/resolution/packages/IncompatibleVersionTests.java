@@ -80,7 +80,49 @@ public class IncompatibleVersionTests extends AbstractPackageResolutionTest {
                 {"suite-incompatible_versions", "case-0015", PackageLockingMode.HARD},
                 {"suite-incompatible_versions", "case-0015", PackageLockingMode.MEDIUM},
                 {"suite-incompatible_versions", "case-0015", PackageLockingMode.SOFT},
+                // 16. Rebuild with the Dependencies.toml written by a successful build, where a published
+                // dependency graph still refers to an incompatible version that the final graph drops
+                {"suite-incompatible_versions", "case-0016", PackageLockingMode.HARD},
+                {"suite-incompatible_versions", "case-0016", PackageLockingMode.MEDIUM},
+                {"suite-incompatible_versions", "case-0016", PackageLockingMode.SOFT},
         };
+    }
+
+    @Test(dataProvider = "resolutionTestCaseProviderWithoutErrors")
+    public void testcaseResolvesWithoutErrors(String testSuite, String testCase, PackageLockingMode lockingMode) {
+        runTestCaseWithoutErrors(testSuite, testCase, lockingMode);
+    }
+
+    @Test(dataProvider = "resolutionTestCaseProviderWithErrors")
+    public void testcaseReportsErrors(String testSuite, String testCase, PackageLockingMode lockingMode) {
+        runTestCaseWithErrors(testSuite, testCase, lockingMode);
+    }
+
+    // Cases whose incompatible versions are only transient: they are dropped before the final graph is built,
+    // hence the resolution must not report an error.
+    @DataProvider(name = "resolutionTestCaseProviderWithoutErrors")
+    public static Object[][] testCaseProviderWithoutErrors() {
+        return allLockingModes("case-0008", "case-0009", "case-0010", "case-0011", "case-0012", "case-0013",
+                "case-0014", "case-0015", "case-0016");
+    }
+
+    // Cases whose incompatible versions remain in the final graph.
+    @DataProvider(name = "resolutionTestCaseProviderWithErrors")
+    public static Object[][] testCaseProviderWithErrors() {
+        return allLockingModes("case-0003", "case-0006", "case-0007");
+    }
+
+    private static Object[][] allLockingModes(String... testCases) {
+        PackageLockingMode[] lockingModes = {PackageLockingMode.HARD, PackageLockingMode.MEDIUM,
+                PackageLockingMode.SOFT};
+        Object[][] data = new Object[testCases.length * lockingModes.length][];
+        int i = 0;
+        for (String testCase : testCases) {
+            for (PackageLockingMode lockingMode : lockingModes) {
+                data[i++] = new Object[]{"suite-incompatible_versions", testCase, lockingMode};
+            }
+        }
+        return data;
     }
 
     @Test(dataProvider = "resolutionTestCaseProviderOld")
@@ -137,6 +179,10 @@ public class IncompatibleVersionTests extends AbstractPackageResolutionTest {
                 // 15. Fresh project: patch upgrade changes dep structure with incompatible transitive dep versions
                 {"suite-incompatible_versions", "case-0015", true},
                 {"suite-incompatible_versions", "case-0015", false},
+                // 16. Rebuild with the Dependencies.toml written by a successful build, where a published
+                // dependency graph still refers to an incompatible version that the final graph drops
+                {"suite-incompatible_versions", "case-0016", true},
+                {"suite-incompatible_versions", "case-0016", false},
         };
     }
 }

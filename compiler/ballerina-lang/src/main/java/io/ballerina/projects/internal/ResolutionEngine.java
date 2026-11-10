@@ -358,6 +358,10 @@ public class ResolutionEngine {
             }
             if (resolutionRequest == null) {
                 // There is a genuine version incompatibility (user-specified).
+                // Conflicts within the blended manifest itself are reported when it is created.
+                if (blendedDepOptional.isPresent() && !blendedDepOptional.get().isError()) {
+                    reportIncompatibleVersion(blendedDepOptional.get(), unresolvedNode);
+                }
                 // We mark it as an error node and skip to the next node.
                 errorNodes.add(new DependencyNode(
                         unresolvedNode.pkgDesc,
@@ -435,23 +439,26 @@ public class ResolutionEngine {
                     unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode(),
                     unresolvedNode.skipWorkspace);
         } else {
-            // Blended Dep version is incompatible with the unresolved node.
-            // We report a diagnostic and return null.
-            String depInfo = blendedDep.org() + "/" + blendedDep.name();
-            String sourceFile = blendedDep.origin() == BlendedManifest.DependencyOrigin.USER_SPECIFIED ?
-                    ProjectConstants.BALLERINA_TOML : ProjectConstants.DEPENDENCIES_TOML;
-
-            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                    ProjectDiagnosticErrorCode.INCOMPATIBLE_DEPENDENCY_VERSIONS.diagnosticId(),
-                    "Incompatible versions: " + depInfo + ". " +
-                            "Version specified in " + sourceFile + ": " + blendedDep.version() +
-                            " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version(),
-                    DiagnosticSeverity.ERROR);
-            PackageDiagnostic diagnostic = new PackageDiagnostic(
-                    diagnosticInfo, this.rootPkgDesc.name().toString());
-            diagnostics.add(diagnostic);
+            // Blended Dep version is incompatible with the unresolved node. The caller decides whether this is
+            // an error: the unresolved node may be dropped from the graph before resolution completes.
             return null;
         }
+    }
+
+    private void reportIncompatibleVersion(BlendedManifest.Dependency blendedDep, DependencyNode unresolvedNode) {
+        String depInfo = blendedDep.org() + "/" + blendedDep.name();
+        String sourceFile = blendedDep.origin() == BlendedManifest.DependencyOrigin.USER_SPECIFIED ?
+                ProjectConstants.BALLERINA_TOML : ProjectConstants.DEPENDENCIES_TOML;
+
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.INCOMPATIBLE_DEPENDENCY_VERSIONS.diagnosticId(),
+                "Incompatible versions: " + depInfo + ". " +
+                        "Version specified in " + sourceFile + ": " + blendedDep.version() +
+                        " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version(),
+                DiagnosticSeverity.ERROR);
+        PackageDiagnostic diagnostic = new PackageDiagnostic(
+                diagnosticInfo, this.rootPkgDesc.name().toString());
+        diagnostics.add(diagnostic);
     }
 
     private Collection<DependencyNode> getUnresolvedNode() {
@@ -480,6 +487,11 @@ public class ResolutionEngine {
                         blendedManifest.userSpecifiedDependency(unresolvedPkgDes.org(), unresolvedPkgDes.name());
                 ResolutionRequest resolutionRequest = getRequestForUnresolvedNode(unresolvedNode,
                         blendedDepOptional.orElse(null));
+                if (resolutionRequest == null && blendedDepOptional.isPresent()
+                        && !blendedDepOptional.get().isError()) {
+                    // Only user-specified versions are checked here, hence the incompatibility is genuine.
+                    reportIncompatibleVersion(blendedDepOptional.get(), unresolvedNode);
+                }
                 if (unresolvedNode.errorNode()) {
                     pkgMetadataResponses.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
                     continue;

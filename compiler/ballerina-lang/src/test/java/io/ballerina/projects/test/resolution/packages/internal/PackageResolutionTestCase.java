@@ -18,6 +18,7 @@
 package io.ballerina.projects.test.resolution.packages.internal;
 
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageLockingMode;
@@ -45,6 +46,7 @@ public class PackageResolutionTestCase {
     private final DependencyGraph<DependencyNode> expectedGraphHard;
     private final DependencyGraph<DependencyNode> expectedGraphMedium;
     private final DependencyGraph<DependencyNode> expectedGraphSoft;
+    private DiagnosticResult diagnosticResult;
 
     public PackageResolutionTestCase(PackageDescriptor rootPkgDesc,
                                      BlendedManifest blendedManifest,
@@ -75,7 +77,18 @@ public class PackageResolutionTestCase {
                 .setPackageLockingMode(lockingMode).build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
                 packageResolver, moduleResolver, options);
-        return resolutionEngine.resolveDependencies(moduleLoadRequests);
+        DependencyGraph<DependencyNode> dependencyGraph = resolutionEngine.resolveDependencies(moduleLoadRequests);
+        this.diagnosticResult = resolutionEngine.diagnosticResult();
+        return dependencyGraph;
+    }
+
+    /**
+     * Returns the diagnostics reported by the last resolution executed by this test case.
+     *
+     * @return diagnostics of the last resolution
+     */
+    public DiagnosticResult diagnosticResult() {
+        return diagnosticResult;
     }
 
     public DependencyGraph<DependencyNode> getExpectedGraph(boolean sticky) {
