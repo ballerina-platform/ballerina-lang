@@ -171,7 +171,8 @@ public class LangLibFloatTest {
                 "testToExpStringWithVerySmallAndLargePositiveFloats",
                 "testToExpStringWithMoreNegativeFloats",
                 "testToExpStringWithVerySmallAndLargeNegativeFloats",
-                "testToExpStringWithHexaDecimalFloatingPoints"
+                "testToExpStringWithHexaDecimalFloatingPoints",
+                "testToExpStringRoundsOnlyOnce"
         };
     }
 
