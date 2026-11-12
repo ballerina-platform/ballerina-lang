@@ -733,3 +733,10 @@ function getOptionalField2() returns int? {
     AllOptionalBasicTypeField r = {val: 5};
     return r.val;
 }
+
+function testOptionalFieldAccessErrorReturnOnChainedLaxAccess() returns boolean {
+    map<map<json>> value = {};
+    json|error res = value.missing?.x;
+    return res is error && res.message() == "{ballerina/lang.map}KeyNotFound";
+}
+
