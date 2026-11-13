@@ -907,11 +907,38 @@ public final class JsonParser {
                 } else if (isExponential(str) || mode == FROM_JSON_DECIMAL_STRING) {
                     return new DecimalValue(str);
                 } else {
-                    return Long.parseLong(str);
+                    try {
+                        return Long.parseLong(str);
+                    } catch (NumberFormatException e) {
+                        // Integers outside the int range are converted to decimal.
+                        if (!isIntegerSyntax(str)) {
+                            throw e;
+                        }
+                        return new DecimalValue(str);
+                    }
                 }
             } catch (NumberFormatException ignore) {
                 throw new ParserException(UNRECOGNIZED_TOKEN + str + "'");
             }
+        }
+
+        // Returns true if the given string is an optional '-' followed by one or more ASCII digits,
+        // without leading zeros, as required by the JSON number grammar.
+        private static boolean isIntegerSyntax(String str) {
+            int start = str.charAt(0) == '-' ? 1 : 0;
+            if (start == str.length()) {
+                return false;
+            }
+            if (str.charAt(start) == '0' && str.length() - start > 1) {
+                return false;
+            }
+            for (int i = start; i < str.length(); i++) {
+                char ch = str.charAt(i);
+                if (ch < '0' || ch > '9') {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static Object getFloatingPointValue(String str) throws ParserException {
