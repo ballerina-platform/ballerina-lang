@@ -532,31 +532,40 @@ public class TestCentralApiClient extends CentralAPIClient {
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         Path bundlePath = TMP_DIR.resolve(TEST_BALA_NAME + ".sigstore.json");
         String bundleContent = "{\"mediaType\": \"application/vnd.dev.sigstore.bundle.v0.3+json\"}";
-        Files.writeString(bundlePath, bundleContent);
-        setBallerinaHome();
+        try {
+            Files.writeString(bundlePath, bundleContent);
+            setBallerinaHome();
 
-        MultipartBody pushedBody = pushAndCaptureBody(balaPath, bundlePath);
-        Assert.assertEquals(pushedBody.size(), 2);
-        MultipartBody.Part bundlePart = pushedBody.part(1);
-        Assert.assertEquals(String.valueOf(bundlePart.body().contentType()),
-                "application/vnd.dev.sigstore.bundle.v0.3+json");
-        Assert.assertEquals(bundlePart.headers().get(CONTENT_DISPOSITION),
-                "form-data; name=\"sigstore-bundle\"; filename=\"" + TEST_BALA_NAME + ".sigstore.json\"");
-        Buffer bundleBytes = new Buffer();
-        bundlePart.body().writeTo(bundleBytes);
-        Assert.assertEquals(bundleBytes.readUtf8(), bundleContent);
-        Files.delete(bundlePath);
+            MultipartBody pushedBody = pushAndCaptureBody(balaPath, bundlePath);
+            Assert.assertEquals(pushedBody.size(), 2);
+            Assert.assertEquals(String.valueOf(pushedBody.part(0).body().contentType()), APPLICATION_OCTET_STREAM);
+            MultipartBody.Part bundlePart = pushedBody.part(1);
+            Assert.assertEquals(String.valueOf(bundlePart.body().contentType()),
+                    "application/vnd.dev.sigstore.bundle.v0.3+json");
+            Assert.assertEquals(bundlePart.headers().get(CONTENT_DISPOSITION),
+                    "form-data; name=\"sigstore-bundle\"; filename=\"" + TEST_BALA_NAME + ".sigstore.json\"");
+            Buffer bundleBytes = new Buffer();
+            bundlePart.body().writeTo(bundleBytes);
+            Assert.assertEquals(bundleBytes.readUtf8(), bundleContent);
+        } finally {
+            Files.deleteIfExists(bundlePath);
+            System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+        }
     }
 
     @Test(description = "Test push package without a Sigstore bundle sends only the bala")
     public void testPushPackageWithoutSigstoreBundle() throws IOException, CentralClientException {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "false");
-        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
-        setBallerinaHome();
+        try {
+            Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+            setBallerinaHome();
 
-        MultipartBody pushedBody = pushAndCaptureBody(balaPath, null);
-        Assert.assertEquals(pushedBody.size(), 1);
-        Assert.assertEquals(String.valueOf(pushedBody.part(0).body().contentType()), APPLICATION_OCTET_STREAM);
+            MultipartBody pushedBody = pushAndCaptureBody(balaPath, null);
+            Assert.assertEquals(pushedBody.size(), 1);
+            Assert.assertEquals(String.valueOf(pushedBody.part(0).body().contentType()), APPLICATION_OCTET_STREAM);
+        } finally {
+            System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+        }
     }
 
     private MultipartBody pushAndCaptureBody(Path balaPath, Path bundlePath)

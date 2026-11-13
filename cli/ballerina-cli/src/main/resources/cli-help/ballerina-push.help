@@ -26,6 +26,9 @@ OPTIONS
            Push the BALA of the current package to a custom repository.
            Only 'local' and repositories specified in the Settings.toml are allowed.
 
+       --no-sigstore-bundle
+           Do not push the Sigstore bundle next to the BALA to Ballerina Central.
+
 EXAMPLES
        Push the BALA of the current package to Ballerina Central.
        The 'bal pack' command should be run before executing this.

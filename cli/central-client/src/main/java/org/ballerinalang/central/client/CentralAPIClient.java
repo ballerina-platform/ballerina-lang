@@ -432,9 +432,7 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()));
             if (sigstoreBundlePath != null) {
-                Path bundleFileName = sigstoreBundlePath.getFileName();
-                balaFileReqBodyBuilder.addFormDataPart("sigstore-bundle",
-                        bundleFileName != null ? bundleFileName.toString() : fileName + SIGSTORE_BUNDLE_EXT,
+                balaFileReqBodyBuilder.addFormDataPart("sigstore-bundle", fileName + SIGSTORE_BUNDLE_EXT,
                         RequestBody.create(MediaType.parse(SIGSTORE_BUNDLE_MEDIA_TYPE), sigstoreBundlePath.toFile()));
             }
             RequestBody balaFileReqBody = balaFileReqBodyBuilder.build();

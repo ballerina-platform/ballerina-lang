@@ -487,25 +487,45 @@ public class PushCommandTest extends BaseCommandTest {
         Path balaDir = Files.createTempDirectory(super.tmpDir, "sigstore-bundle");
         Path balaPath = balaDir.resolve("foo-winery-any-0.1.0.bala");
         Files.writeString(balaPath, "bala");
-        Assert.assertNull(PushCommand.findSiblingSigstoreBundle(balaPath));
+        Assert.assertNull(PushCommand.findSiblingSigstoreBundle(balaPath, printStream));
 
         Path bundlePath = balaDir.resolve("foo-winery-any-0.1.0.bala.sigstore.json");
         Path bundleTarget = balaDir.resolve("bundle.json");
         Files.writeString(bundleTarget, "{}");
+        boolean symlinkCreated;
         try {
             Files.createSymbolicLink(bundlePath, bundleTarget.getFileName());
-            Assert.assertNull(PushCommand.findSiblingSigstoreBundle(balaPath));
-            Files.delete(bundlePath);
+            symlinkCreated = true;
         } catch (UnsupportedOperationException | IOException e) {
             // Creating symbolic links is not permitted on this platform
+            symlinkCreated = false;
+        }
+        if (symlinkCreated) {
+            readOutput(true);
+            Assert.assertNull(PushCommand.findSiblingSigstoreBundle(balaPath, printStream));
+            Assert.assertTrue(readOutput(true).contains(
+                    "WARNING: Sigstore bundle foo-winery-any-0.1.0.bala.sigstore.json is not a regular file"));
+            Files.delete(bundlePath);
         }
 
         Files.writeString(bundlePath, "{}");
-        Assert.assertEquals(PushCommand.findSiblingSigstoreBundle(balaPath), bundlePath);
+        Assert.assertEquals(PushCommand.findSiblingSigstoreBundle(balaPath, printStream), bundlePath);
     }
 
     @Test(description = "Push a bala to Central with the Sigstore bundle next to it")
     public void testPushToCentralWithSigstoreBundle() throws IOException, CentralClientException {
+        String output = pushWithSiblingSigstoreBundle(true);
+        Assert.assertTrue(output.contains("Attaching Sigstore bundle foo-winery-any-0.1.0.bala.sigstore.json"));
+    }
+
+    @Test(description = "Push a bala to Central without the bundle next to it when --no-sigstore-bundle is given")
+    public void testPushToCentralWithNoSigstoreBundleFlag() throws IOException, CentralClientException {
+        String output = pushWithSiblingSigstoreBundle(false, "--no-sigstore-bundle");
+        Assert.assertFalse(output.contains("Attaching Sigstore bundle"));
+    }
+
+    private String pushWithSiblingSigstoreBundle(boolean expectBundle, String... args)
+            throws IOException, CentralClientException {
         Path validBalProject = Path.of("build/validProjectWithSigstoreBundle");
         FileUtils.copyDirectory(
                 this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
@@ -514,7 +534,7 @@ public class PushCommandTest extends BaseCommandTest {
         Files.writeString(bundlePath, "{}");
 
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false, balaPath);
-        new CommandLine(pushCommand).parseArgs();
+        new CommandLine(pushCommand).parseArgs(args);
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
              MockedConstruction<CentralAPIClient> clients = Mockito.mockConstruction(CentralAPIClient.class,
                      (mock, ctx) -> Mockito.when(mock.accessToken()).thenReturn("token"))) {
@@ -529,11 +549,10 @@ public class PushCommandTest extends BaseCommandTest {
             Assert.assertEquals(pushClients.size(), 1);
             Mockito.verify(pushClients.get(0)).pushPackage(Mockito.eq(balaPath), Mockito.eq("foo"),
                     Mockito.eq("winery"), Mockito.eq("0.1.0"), Mockito.any(), Mockito.any(),
-                    Mockito.eq(bundlePath));
+                    Mockito.eq(expectBundle ? bundlePath : null));
         } finally {
             ProjectUtils.deleteDirectory(validBalProject);
         }
-        Assert.assertTrue(readOutput(true)
-                .contains("Attaching Sigstore bundle foo-winery-any-0.1.0.bala.sigstore.json"));
+        return readOutput(true);
     }
 }
