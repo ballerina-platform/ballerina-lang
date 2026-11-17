@@ -28,6 +28,9 @@ import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -44,6 +47,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -476,5 +480,79 @@ public class PushCommandTest extends BaseCommandTest {
         String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository and repositories " +
                 "mentioned in the Settings.toml are supported.";
         Assert.assertTrue(readOutput().contains(errMsg));
+    }
+
+    @Test(description = "Find the Sigstore bundle next to the bala")
+    public void testFindSiblingSigstoreBundle() throws IOException {
+        Path balaDir = Files.createTempDirectory(super.tmpDir, "sigstore-bundle");
+        Path balaPath = balaDir.resolve("foo-winery-any-0.1.0.bala");
+        Files.writeString(balaPath, "bala");
+        Assert.assertNull(PushCommand.findSiblingSigstoreBundle(balaPath, printStream));
+
+        Path bundlePath = balaDir.resolve("foo-winery-any-0.1.0.bala.sigstore.json");
+        Path bundleTarget = balaDir.resolve("bundle.json");
+        Files.writeString(bundleTarget, "{}");
+        boolean symlinkCreated;
+        try {
+            Files.createSymbolicLink(bundlePath, bundleTarget.getFileName());
+            symlinkCreated = true;
+        } catch (UnsupportedOperationException | IOException e) {
+            // Creating symbolic links is not permitted on this platform
+            symlinkCreated = false;
+        }
+        if (symlinkCreated) {
+            readOutput(true);
+            Assert.assertNull(PushCommand.findSiblingSigstoreBundle(balaPath, printStream));
+            Assert.assertTrue(readOutput(true).contains(
+                    "WARNING: Sigstore bundle foo-winery-any-0.1.0.bala.sigstore.json is not a regular file"));
+            Files.delete(bundlePath);
+        }
+
+        Files.writeString(bundlePath, "{}");
+        Assert.assertEquals(PushCommand.findSiblingSigstoreBundle(balaPath, printStream), bundlePath);
+    }
+
+    @Test(description = "Push a bala to Central with the Sigstore bundle next to it")
+    public void testPushToCentralWithSigstoreBundle() throws IOException, CentralClientException {
+        String output = pushWithSiblingSigstoreBundle(true);
+        Assert.assertTrue(output.contains("Attaching Sigstore bundle foo-winery-any-0.1.0.bala.sigstore.json"));
+    }
+
+    @Test(description = "Push a bala to Central without the bundle next to it when --no-sigstore-bundle is given")
+    public void testPushToCentralWithNoSigstoreBundleFlag() throws IOException, CentralClientException {
+        String output = pushWithSiblingSigstoreBundle(false, "--no-sigstore-bundle");
+        Assert.assertFalse(output.contains("Attaching Sigstore bundle"));
+    }
+
+    private String pushWithSiblingSigstoreBundle(boolean expectBundle, String... args)
+            throws IOException, CentralClientException {
+        Path validBalProject = Path.of("build/validProjectWithSigstoreBundle");
+        FileUtils.copyDirectory(
+                this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
+        Path balaPath = validBalProject.resolve("target-dir/bala/foo-winery-any-0.1.0.bala");
+        Path bundlePath = balaPath.resolveSibling("foo-winery-any-0.1.0.bala.sigstore.json");
+        Files.writeString(bundlePath, "{}");
+
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false, balaPath);
+        new CommandLine(pushCommand).parseArgs(args);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<CentralAPIClient> clients = Mockito.mockConstruction(CentralAPIClient.class,
+                     (mock, ctx) -> Mockito.when(mock.accessToken()).thenReturn("token"))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            pushCommand.execute();
+
+            List<CentralAPIClient> pushClients = clients.constructed().stream()
+                    .filter(client -> Mockito.mockingDetails(client).getInvocations().stream()
+                            .anyMatch(invocation -> invocation.getMethod().getName().equals("pushPackage")))
+                    .toList();
+            Assert.assertEquals(pushClients.size(), 1);
+            Mockito.verify(pushClients.get(0)).pushPackage(Mockito.eq(balaPath), Mockito.eq("foo"),
+                    Mockito.eq("winery"), Mockito.eq("0.1.0"), Mockito.any(), Mockito.any(),
+                    Mockito.eq(expectBundle ? bundlePath : null));
+        } finally {
+            ProjectUtils.deleteDirectory(validBalProject);
+        }
+        return readOutput(true);
     }
 }
