@@ -27,7 +27,9 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageLockingMode;
@@ -55,10 +57,14 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.assertTomlFilesEquals;
@@ -386,33 +392,17 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Workspace packages that do not depend on one another compile and cache their own variant "
             + "of a shared dependency")
     public void testWorkspacePackagesCacheOwnDependencyVariants() throws IOException {
-        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
-        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
-                projectEnvironmentBuilder);
-        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
-                projectEnvironmentBuilder);
         Path workspace = this.tmpDir.resolve("workspace-dependency-variants");
         deleteDirectory(workspace);
         // 'older' and 'olderdependent' (which imports 'older') use package_c 0.1.0, and 'newer' uses 0.1.1.
         writeWorkspacePackage(workspace, "older", "0.1.0", "");
         writeWorkspacePackage(workspace, "olderdependent", "0.1.0", "import wsorg/older as _;\n");
         writeWorkspacePackage(workspace, "newer", "0.1.1", "");
-        Path newPackageC = this.tmpDir.resolve("workspace-package_c_0_1_1");
         try {
-            // Lock 'older' to package_c 0.1.0 before 0.1.1 is published.
-            Files.writeString(workspace.resolve(BALLERINA_TOML), "[workspace]\npackages = [\"older\"]\n");
-            executeBuild(workspace, "--locking-mode=hard");
-            Files.writeString(workspace.resolve("olderdependent").resolve(DEPENDENCIES_TOML),
-                    Files.readString(workspace.resolve("older").resolve(DEPENDENCIES_TOML))
-                            .replace("name = \"older\"", "name = \"olderdependent\""));
-            FileUtils.copyDirectory(dumpGraphResourcePath.resolve("package_c").toFile(), newPackageC.toFile());
-            Path newPackageCToml = newPackageC.resolve(BALLERINA_TOML);
-            Files.writeString(newPackageCToml,
-                    Files.readString(newPackageCToml).replace("version = \"0.1.0\"", "version = \"0.1.1\""));
-            BCompileUtil.compileAndCacheBala(newPackageC, testDistCacheDirectory, projectEnvironmentBuilder);
-
-            Files.writeString(workspace.resolve(BALLERINA_TOML),
-                    "[workspace]\npackages = [\"older\", \"olderdependent\", \"newer\"]\n");
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "olderdependent");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "olderdependent", "newer");
             executeBuild(workspace, "--locking-mode=hard");
 
             Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
@@ -435,14 +425,147 @@ public class BuildCommandTest extends BaseCommandTest {
                         "The cached dependency of '" + member + "' should be reused");
             }
         } finally {
-            try (Stream<Path> paths = Files.walk(testDistCacheDirectory)) {
-                for (Path path : paths.filter(p -> p.endsWith(Path.of("foo", "package_c", "0.1.1"))).toList()) {
-                    deleteDirectory(path);
-                }
-            }
-            deleteDirectory(newPackageC);
+            removePackageC011();
             deleteDirectory(workspace);
         }
+    }
+
+    @Test(description = "A dependency compiled for a group of workspace packages is cached only in the targets of "
+            + "the packages that resolved it against the same dependency versions")
+    public void testWorkspaceGroupCachesDependencyOnlyForMatchingPackages() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-group-variants");
+        deleteDirectory(workspace);
+        // 'groupnewer' imports 'older', so both are compiled in one compiler context, but it resolves
+        // package_c 0.1.1 while 'older' is locked to 0.1.0.
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "groupnewer", "0.1.1", "import wsorg/older as _;\n");
+        try {
+            lockOlderToPackageC010(workspace);
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "groupnewer");
+            executeBuild(workspace, "--locking-mode=hard");
+
+            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
+            Assert.assertFalse(Files.exists(packageBDir(workspace, "groupnewer")),
+                    "A dependency compiled against other versions should not be cached for the package");
+            // The dependency versions of the packages in a group are resolved as before.
+            Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
+            Assert.assertEquals(lockedVersion(workspace, "groupnewer", "package_c"), "0.1.1");
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    @Test(description = "Read-only loads of a workspace (e.g. the language server) use the package caches without "
+            + "modifying them")
+    public void testReadOnlyWorkspaceLoadDoesNotModifyPackageCaches() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-read-only");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "olderdependent", "0.1.0", "import wsorg/older as _;\n");
+        writeWorkspacePackage(workspace, "newer", "0.1.1", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "olderdependent");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "olderdependent", "newer");
+            executeBuild(workspace, "--locking-mode=hard");
+
+            FileTime markerTime = FileTime.fromMillis(0);
+            for (String member : List.of("older", "olderdependent", "newer")) {
+                Files.setLastModifiedTime(packageBBir(workspace, member), markerTime);
+            }
+            Path staleRecord = packageBDir(workspace, "newer").resolve(".dependencies");
+            Files.writeString(staleRecord, "foo/package_c:0.0.9");
+            List<Path> cachedFiles = dependencyCacheFiles(workspace);
+
+            WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace).project();
+            for (BuildProject member : project.projects()) {
+                JBallerinaBackend backend = JBallerinaBackend.from(member.currentPackage().getCompilation(),
+                        JvmTarget.JAVA_25);
+                Assert.assertFalse(backend.diagnosticResult().hasErrors(), backend.diagnosticResult().toString());
+            }
+
+            Assert.assertEquals(dependencyCacheFiles(workspace), cachedFiles,
+                    "A read-only load must not add or remove cached dependencies");
+            for (String member : List.of("older", "olderdependent", "newer")) {
+                Assert.assertEquals(Files.getLastModifiedTime(packageBBir(workspace, member)), markerTime,
+                        "A read-only load must not rewrite the cache of '" + member + "'");
+            }
+            Assert.assertEquals(Files.readString(staleRecord), "foo/package_c:0.0.9",
+                    "A read-only load must not update a stale record");
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    /** Builds a workspace with only 'older', before package_c 0.1.1 is published, to lock it to 0.1.0. */
+    private void lockOlderToPackageC010(Path workspace) throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        setWorkspacePackages(workspace, "older");
+        executeBuild(workspace, "--locking-mode=hard");
+    }
+
+    private void publishPackageC011() throws IOException {
+        Path newPackageC = this.tmpDir.resolve("workspace-package_c_0_1_1");
+        deleteDirectory(newPackageC);
+        FileUtils.copyDirectory(this.testResources.resolve("projectsForDumpGraph").resolve("package_c").toFile(),
+                newPackageC.toFile());
+        Path newPackageCToml = newPackageC.resolve(BALLERINA_TOML);
+        Files.writeString(newPackageCToml,
+                Files.readString(newPackageCToml).replace("version = \"0.1.0\"", "version = \"0.1.1\""));
+        BCompileUtil.compileAndCacheBala(newPackageC, testDistCacheDirectory, projectEnvironmentBuilder);
+    }
+
+    private void removePackageC011() throws IOException {
+        // Other tests resolve package_c 0.1.0 from the shared test repository.
+        try (Stream<Path> paths = Files.walk(testDistCacheDirectory)) {
+            for (Path path : paths.filter(p -> p.endsWith(Path.of("foo", "package_c", "0.1.1"))).toList()) {
+                deleteDirectory(path);
+            }
+        }
+        deleteDirectory(this.tmpDir.resolve("workspace-package_c_0_1_1"));
+    }
+
+    private static void setWorkspacePackages(Path workspace, String... packages) throws IOException {
+        Files.writeString(workspace.resolve(BALLERINA_TOML), "[workspace]\npackages = [" + Arrays.stream(packages)
+                .map(name -> "\"" + name + "\"").collect(Collectors.joining(", ")) + "]\n");
+    }
+
+    private static void copyLock(Path workspace, String from, String to) throws IOException {
+        Files.writeString(workspace.resolve(to).resolve(DEPENDENCIES_TOML),
+                Files.readString(workspace.resolve(from).resolve(DEPENDENCIES_TOML))
+                        .replace("name = \"" + from + "\"", "name = \"" + to + "\""));
+    }
+
+    private static String lockedVersion(Path workspace, String member, String packageName) throws IOException {
+        Matcher matcher = Pattern
+                .compile("name = \"" + packageName + "\"\\s*version = \"([^\"]+)\"")
+                .matcher(Files.readString(workspace.resolve(member).resolve(DEPENDENCIES_TOML)));
+        Assert.assertTrue(matcher.find(), packageName + " is not locked in " + member);
+        return matcher.group(1);
+    }
+
+    private static List<Path> dependencyCacheFiles(Path workspace) throws IOException {
+        List<Path> files = new ArrayList<>();
+        for (Path cacheDir : List.of(workspace.resolve(TARGET_DIR_NAME), workspace.resolve("older")
+                .resolve(TARGET_DIR_NAME), workspace.resolve("olderdependent").resolve(TARGET_DIR_NAME),
+                workspace.resolve("newer").resolve(TARGET_DIR_NAME))) {
+            Path dependencies = cacheDir.resolve(CACHES_DIR_NAME).resolve("foo");
+            if (Files.exists(dependencies)) {
+                try (Stream<Path> paths = Files.walk(dependencies)) {
+                    paths.filter(Files::isRegularFile).forEach(files::add);
+                }
+            }
+        }
+        files.sort(null);
+        return files;
     }
 
     private static void writeWorkspacePackage(Path workspace, String name, String packageCVersion,
