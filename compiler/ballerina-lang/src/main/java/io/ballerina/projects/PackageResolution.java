@@ -169,7 +169,8 @@ public class PackageResolution {
                     .sorted()
                     .distinct()
                     .collect(Collectors.joining("\n"));
-            projectDependencyCache.validatePackage(packageInstance.descriptor(), dependencyFingerprint);
+            projectDependencyCache.validatePackage(rootPackageContext.project(), packageInstance.descriptor(),
+                    dependencyFingerprint);
         }
     }
 
@@ -183,7 +184,7 @@ public class PackageResolution {
         ProjectDependencyCache projectDependencyCache = rootPackageContext.project().projectEnvironmentContext()
                 .environment().getService(ProjectDependencyCache.class);
         Optional<Path> targetDir = projectDependencyCache != null && projectDependencyCache.isWritable() ?
-                Optional.of(projectDependencyCache.targetDir()) : Optional.empty();
+                Optional.of(projectDependencyCache.targetDir(rootPackageContext.project())) : Optional.empty();
         for (ResolvedPackageDependency resolvedPackageDependency : this.dependencyGraph.toTopologicallySortedList()) {
             Package packageInstance = resolvedPackageDependency.packageInstance();
 
@@ -250,7 +251,7 @@ public class PackageResolution {
                 Thread.currentThread().interrupt();
                 throw new ProjectException(e);
             } finally {
-                dependencyGraphJson.ifPresent(graph -> graph.toFile().delete());
+                dependencyGraphJson.ifPresent(PackageResolution::deleteDependencyGraph);
             }
             if (!compiled) {
                 // Compile this dependency and the remaining ones in this process, so that the build reports the
@@ -279,6 +280,14 @@ public class PackageResolution {
                 .filter(Objects::nonNull)
                 .flatMap(platform -> platform.dependencies().stream())
                 .anyMatch(library -> PlatformLibraryScope.PROVIDED.getStringValue().equals(library.get("scope")));
+    }
+
+    private static void deleteDependencyGraph(Path dependencyGraphFile) {
+        try {
+            Files.deleteIfExists(dependencyGraphFile);
+        } catch (IOException e) {
+            // The file is a temporary input of the subprocess. A leftover file in the target is harmless.
+        }
     }
 
     /**

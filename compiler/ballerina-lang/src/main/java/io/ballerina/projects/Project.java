@@ -95,7 +95,7 @@ public abstract class Project {
             ProjectDependencyCache dependencyCache = projectEnvironment.environment()
                     .getService(ProjectDependencyCache.class);
             if (dependencyCache != null) {
-                dependencyCache.updateDistributionVersion(currentPackage.dependencyManifest());
+                dependencyCache.updateDistributionVersion(this, currentPackage.dependencyManifest());
             }
         }
     }

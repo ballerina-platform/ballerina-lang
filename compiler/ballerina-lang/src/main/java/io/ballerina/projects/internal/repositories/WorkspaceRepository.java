@@ -32,6 +32,7 @@ import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,26 +40,53 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class WorkspaceRepository extends AbstractPackageRepository {
 
     private final WorkspaceProject workspaceProject;
+    // Source roots of the packages this repository provides. Null provides all packages of the workspace.
+    private Set<Path> memberRoots;
 
     public WorkspaceRepository(WorkspaceProject workspace) {
         this.workspaceProject = workspace;
     }
 
+    /**
+     * Restricts this repository to the given packages of the workspace.
+     * <p>
+     * The repository provides the packages themselves, which are bound to the environment they are loaded into.
+     * Packages that depend on one another share an environment, and an environment only provides its own
+     * packages, so that a package never resolves a package of another environment.
+     *
+     * @param packageRoots source roots of the packages to provide
+     */
+    public void restrictTo(Collection<Path> packageRoots) {
+        this.memberRoots = packageRoots.stream().map(root -> root.toAbsolutePath().normalize())
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private List<BuildProject> members() {
+        Set<Path> roots = this.memberRoots;
+        if (roots == null) {
+            return this.workspaceProject.projects();
+        }
+        return this.workspaceProject.projects().stream()
+                .filter(project -> roots.contains(project.sourceRoot().toAbsolutePath().normalize()))
+                .toList();
+    }
+
     @Override
     protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
         if (version == null) {
-            return this.workspaceProject.projects().stream().filter(project ->
+            return members().stream().filter(project ->
                     project.currentPackage().packageOrg().equals(org)
                             && project.currentPackage().packageName().equals(name)).findFirst().map(project ->
                     Collections.singletonList(project.currentPackage().packageVersion()))
                     .orElse(Collections.emptyList());
         }
-        return this.workspaceProject.projects().stream().filter(project ->
+        return members().stream().filter(project ->
                 project.currentPackage().descriptor().equals(PackageDescriptor.from(org, name, version))).findFirst()
                 .map(project -> Collections.singletonList(project.currentPackage().packageVersion()))
                 .orElse(Collections.emptyList());
@@ -67,7 +95,7 @@ public class WorkspaceRepository extends AbstractPackageRepository {
     @Override
     protected DependencyGraph<PackageDescriptor> getDependencyGraph(
             PackageOrg org, PackageName name, PackageVersion version) {
-        for (Project project : this.workspaceProject.projects()) {
+        for (Project project : members()) {
             Package pkg = project.currentPackage();
             if (pkg.packageOrg().equals(org)
                     && pkg.packageName().equals(name)) {
@@ -91,12 +119,12 @@ public class WorkspaceRepository extends AbstractPackageRepository {
     @Override
     public boolean isPackageExists(PackageOrg org, PackageName name, PackageVersion version) {
         if (version == null) {
-            return this.workspaceProject.projects().stream()
+            return members().stream()
                     .anyMatch(project -> project.currentPackage().packageOrg().equals(org)
                             && project.currentPackage().packageName().equals(name));
 
         }
-        return this.workspaceProject.projects().stream()
+        return members().stream()
                 .anyMatch(project -> project.currentPackage().descriptor()
                 .equals(PackageDescriptor.from(org, name, version)));
     }
@@ -105,7 +133,7 @@ public class WorkspaceRepository extends AbstractPackageRepository {
     public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
         List<ModuleDescriptor> moduleDescriptors = new ArrayList<>();
         if (version == null) {
-            for (BuildProject buildProject : this.workspaceProject.projects()) {
+            for (BuildProject buildProject : members()) {
                 if (buildProject.currentPackage().packageOrg().equals(org)
                         && buildProject.currentPackage().packageName().equals(name)) {
                     buildProject.currentPackage().moduleIds().stream().map(moduleId -> buildProject.currentPackage().
@@ -115,7 +143,7 @@ public class WorkspaceRepository extends AbstractPackageRepository {
             }
             return moduleDescriptors;
         }
-        for (BuildProject buildProject : this.workspaceProject.projects()) {
+        for (BuildProject buildProject : members()) {
             if (buildProject.currentPackage().descriptor().equals(PackageDescriptor.from(org, name, version))) {
                 buildProject.currentPackage().moduleIds().stream().map(moduleId ->
                         buildProject.currentPackage().module(moduleId).descriptor()).forEach(moduleDescriptors::add);
@@ -128,12 +156,12 @@ public class WorkspaceRepository extends AbstractPackageRepository {
     @Override
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         if (request.version().isEmpty()) {
-            return this.workspaceProject.projects().stream().filter(project ->
+            return members().stream().filter(project ->
                     project.currentPackage().packageOrg().equals(request.orgName())
                             && project.currentPackage().packageName().equals(request.packageName())).findFirst()
                     .map(Project::currentPackage);
         }
-        return this.workspaceProject.projects().stream().filter(project ->
+        return members().stream().filter(project ->
                 project.currentPackage().descriptor().equals(
                 request.packageDescriptor())).findFirst().map(Project::currentPackage);
     }
@@ -146,7 +174,7 @@ public class WorkspaceRepository extends AbstractPackageRepository {
     @Override
     public Map<String, List<String>> getPackages() {
         Map<String, List<String>> packageMap = new HashMap<>();
-        for (Project project : this.workspaceProject.projects()) {
+        for (Project project : members()) {
             Package pkg = project.currentPackage();
             String pkgEntry = pkg.descriptor().name() + ":" +
                     pkg.descriptor().version();

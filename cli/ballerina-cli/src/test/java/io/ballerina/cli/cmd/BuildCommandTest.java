@@ -383,6 +383,115 @@ public class BuildCommandTest extends BaseCommandTest {
         return null;
     }
 
+    @Test(description = "Workspace packages that do not depend on one another compile and cache their own variant "
+            + "of a shared dependency")
+    public void testWorkspacePackagesCacheOwnDependencyVariants() throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        Path workspace = this.tmpDir.resolve("workspace-dependency-variants");
+        deleteDirectory(workspace);
+        // 'older' and 'olderdependent' (which imports 'older') use package_c 0.1.0, and 'newer' uses 0.1.1.
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "olderdependent", "0.1.0", "import wsorg/older as _;\n");
+        writeWorkspacePackage(workspace, "newer", "0.1.1", "");
+        Path newPackageC = this.tmpDir.resolve("workspace-package_c_0_1_1");
+        try {
+            // Lock 'older' to package_c 0.1.0 before 0.1.1 is published.
+            Files.writeString(workspace.resolve(BALLERINA_TOML), "[workspace]\npackages = [\"older\"]\n");
+            executeBuild(workspace, "--locking-mode=hard");
+            Files.writeString(workspace.resolve("olderdependent").resolve(DEPENDENCIES_TOML),
+                    Files.readString(workspace.resolve("older").resolve(DEPENDENCIES_TOML))
+                            .replace("name = \"older\"", "name = \"olderdependent\""));
+            FileUtils.copyDirectory(dumpGraphResourcePath.resolve("package_c").toFile(), newPackageC.toFile());
+            Path newPackageCToml = newPackageC.resolve(BALLERINA_TOML);
+            Files.writeString(newPackageCToml,
+                    Files.readString(newPackageCToml).replace("version = \"0.1.0\"", "version = \"0.1.1\""));
+            BCompileUtil.compileAndCacheBala(newPackageC, testDistCacheDirectory, projectEnvironmentBuilder);
+
+            Files.writeString(workspace.resolve(BALLERINA_TOML),
+                    "[workspace]\npackages = [\"older\", \"olderdependent\", \"newer\"]\n");
+            executeBuild(workspace, "--locking-mode=hard");
+
+            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
+            Assert.assertEquals(packageBRecord(workspace, "olderdependent"), "foo/package_c:0.1.0",
+                    "A package of the group should get the dependencies compiled for the group");
+            Assert.assertEquals(packageBRecord(workspace, "newer"), "foo/package_c:0.1.1",
+                    "An independent package should compile its own variant of the dependency");
+            Assert.assertFalse(Files.exists(workspace.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                    .resolve("foo")), "Dependencies should be cached in the package targets");
+
+            // A second build reuses the cached variants.
+            FileTime markerTime = FileTime.fromMillis(0);
+            for (String member : List.of("older", "olderdependent", "newer")) {
+                Files.setLastModifiedTime(packageBBir(workspace, member), markerTime);
+                Files.deleteIfExists(workspace.resolve(member).resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            }
+            executeBuild(workspace, "--locking-mode=hard");
+            for (String member : List.of("older", "olderdependent", "newer")) {
+                Assert.assertEquals(Files.getLastModifiedTime(packageBBir(workspace, member)), markerTime,
+                        "The cached dependency of '" + member + "' should be reused");
+            }
+        } finally {
+            try (Stream<Path> paths = Files.walk(testDistCacheDirectory)) {
+                for (Path path : paths.filter(p -> p.endsWith(Path.of("foo", "package_c", "0.1.1"))).toList()) {
+                    deleteDirectory(path);
+                }
+            }
+            deleteDirectory(newPackageC);
+            deleteDirectory(workspace);
+        }
+    }
+
+    private static void writeWorkspacePackage(Path workspace, String name, String packageCVersion,
+                                              String extraImports) throws IOException {
+        Path packagePath = workspace.resolve(name);
+        Files.createDirectories(packagePath);
+        Files.writeString(packagePath.resolve(BALLERINA_TOML), """
+                [package]
+                org = "wsorg"
+                name = "%s"
+                version = "0.1.0"
+
+                [[dependency]]
+                org = "foo"
+                name = "package_c"
+                version = "%s"
+                """.formatted(name, packageCVersion));
+        Files.writeString(packagePath.resolve("main.bal"), extraImports + """
+                import foo/package_b as _;
+
+                public function main() {
+                }
+                """);
+    }
+
+    private static Path packageBDir(Path workspace, String member) {
+        return workspace.resolve(member).resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME).resolve("foo")
+                .resolve("package_b").resolve("0.1.0");
+    }
+
+    private static Path packageBBir(Path workspace, String member) {
+        return packageBDir(workspace, member).resolve("bir").resolve("package_b.bir");
+    }
+
+    private static String packageBRecord(Path workspace, String member) throws IOException {
+        return Files.readString(packageBDir(workspace, member).resolve(".dependencies"));
+    }
+
+    private void executeBuild(Path projectPath, String... args) throws IOException {
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
+        new CommandLine(buildCommand).parseArgs(args);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+    }
+
     @Test(description = "Cached dependencies record the dependency versions they were compiled against")
     public void testDependencyCacheRecordsResolvedDependencies() throws IOException {
         Path projectPath = buildDumpGraphPackageA();

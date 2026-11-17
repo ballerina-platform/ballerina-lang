@@ -23,6 +23,8 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.WorkspaceBallerinaToml;
@@ -31,6 +33,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.internal.repositories.WorkspaceRepository;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
@@ -458,14 +461,52 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertFalse(buildProject.currentPackage().getCompilation().diagnosticResult()
                 .hasErrors());
         Project duplicateWp = buildProject.workspaceProject().orElseThrow().duplicate();
-        // All members of the copy share one environment
-        List<BuildProject> duplicateMembers = ((WorkspaceProject) duplicateWp).projects();
-        Environment environment = duplicateMembers.get(0).projectEnvironmentContext().environment();
-        for (BuildProject member : duplicateMembers) {
-            Assert.assertSame(member.projectEnvironmentContext().environment(), environment);
-        }
+        // Members of the copy that depend on one another share one environment (hello_app -> depA -> depB).
+        // bye_app depends on no other member, so it has an environment of its own.
+        WorkspaceProject duplicateWorkspace = (WorkspaceProject) duplicateWp;
+        Environment helloAppEnvironment = memberEnvironment(duplicateWorkspace, "hello_app");
+        Assert.assertSame(memberEnvironment(duplicateWorkspace, "depA"), helloAppEnvironment);
+        Assert.assertSame(memberEnvironment(duplicateWorkspace, "depB"), helloAppEnvironment);
+        Assert.assertNotSame(memberEnvironment(duplicateWorkspace, "bye_app"), helloAppEnvironment);
         Project duplicate = ((WorkspaceProject) duplicateWp).projects().stream().filter(prj ->
                 prj.currentPackage().descriptor().name().toString().equals("hello_app")).findFirst().orElseThrow();
         Assert.assertFalse(duplicate.currentPackage().getCompilation().diagnosticResult().hasErrors());
+    }
+
+    @Test(description = "Packages that depend on one another share an environment, independent packages do not")
+    public void testWorkspacePackageGroupsHaveSeparateEnvironments() {
+        Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+
+        // hello_app -> depA -> depB form one group. bye_app depends on no other member.
+        Environment helloAppEnvironment = memberEnvironment(project, "hello_app");
+        Assert.assertSame(memberEnvironment(project, "depA"), helloAppEnvironment);
+        Assert.assertSame(memberEnvironment(project, "depB"), helloAppEnvironment);
+        Environment byeAppEnvironment = memberEnvironment(project, "bye_app");
+        Assert.assertNotSame(byeAppEnvironment, helloAppEnvironment);
+
+        // Each environment only provides the packages of its group.
+        WorkspaceRepository helloAppRepository = helloAppEnvironment.getService(WorkspaceRepository.class);
+        Assert.assertTrue(helloAppRepository.isPackageExists(PackageOrg.from("testorg"), PackageName.from("depB"),
+                null));
+        Assert.assertFalse(helloAppRepository.isPackageExists(PackageOrg.from("testorg"),
+                PackageName.from("bye_app"), null));
+
+        // Grouping is kept when the caches are cleared, and every package still compiles.
+        project.clearCaches();
+        Assert.assertNotSame(memberEnvironment(project, "bye_app"), memberEnvironment(project, "hello_app"));
+        for (BuildProject member : project.projects()) {
+            Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors(),
+                    member.currentPackage().packageName().toString());
+        }
+    }
+
+    private static Environment memberEnvironment(WorkspaceProject workspaceProject, String packageName) {
+        return workspaceProject.projects().stream()
+                .filter(member -> member.currentPackage().packageName().toString().equals(packageName))
+                .findFirst().orElseThrow()
+                .projectEnvironmentContext().environment();
     }
 }

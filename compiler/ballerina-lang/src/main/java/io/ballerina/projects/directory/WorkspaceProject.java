@@ -37,6 +37,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.ProjectDependencyCache;
+import io.ballerina.projects.internal.repositories.WorkspaceRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -46,7 +47,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -57,6 +60,10 @@ public class WorkspaceProject extends Project {
     private final BuildOptions buildOptions;
     private WorkspaceManifest workspaceManifest;
     private WorkspaceResolution workspaceResolution;
+    private boolean dependencyCacheWritable;
+    // Source roots of the packages that depend on one another, directly or transitively. Each group is compiled
+    // in its own environment.
+    private List<List<Path>> packageGroups = List.of();
 
     private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument) {
         super(ProjectKind.WORKSPACE_PROJECT, projectPath, buildOptions);
@@ -87,12 +94,8 @@ public class WorkspaceProject extends Project {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(path.resolve(BALLERINA_TOML)));
                 WorkspaceProject workspaceProject = new WorkspaceProject(path, buildOptions, tomlDocument);
-                ProjectDependencyCache projectDependencyCache = new ProjectDependencyCache(
-                        workspaceProject.targetDir(), dependencyCacheWritable);
+                workspaceProject.dependencyCacheWritable = dependencyCacheWritable;
                 Environment environment = environmentBuilder.setWorkspace(workspaceProject).build();
-                if (environment instanceof DefaultEnvironment defaultEnvironment) {
-                    defaultEnvironment.addService(ProjectDependencyCache.class, projectDependencyCache);
-                }
                 List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
                 String org = null;
                 for (Path pkgPath : workspaceProject.manifest().packages()) {
@@ -107,6 +110,7 @@ public class WorkspaceProject extends Project {
                     }
                     workspaceProject.projectList.add((BuildProject) buildProjectLoadResult.project());
                 }
+                workspaceProject.assignEnvironments(environmentBuilder, environment);
                 return new ProjectLoadResult(workspaceProject, new DefaultDiagnosticResult(diagnostics));
             } catch (IOException e) {
                 throw new ProjectException("Error reading " + BALLERINA_TOML + " file in workspace: "
@@ -134,18 +138,90 @@ public class WorkspaceProject extends Project {
 
     @Override
     public void clearCaches() {
-        ProjectDependencyCache projectDependencyCache = this.projectList.isEmpty() ? null :
-                this.projectList.get(0).projectEnvironmentContext().environment()
-                        .getService(ProjectDependencyCache.class);
-        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(this).build();
-        if (environment instanceof DefaultEnvironment defaultEnvironment && projectDependencyCache != null) {
-            defaultEnvironment.addService(ProjectDependencyCache.class, projectDependencyCache);
-        }
-        for (BuildProject buildProject : this.projectList) {
-            buildProject.setEnvironment(environment);
-            buildProject.clearCaches();
+        List<List<BuildProject>> groups = groupPackages();
+        for (List<BuildProject> group : groups) {
+            Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), this, group,
+                    groups.size() > 1);
+            for (BuildProject buildProject : group) {
+                buildProject.setEnvironment(environment);
+                buildProject.clearCaches();
+            }
         }
         this.workspaceResolution = null;
+    }
+
+    /**
+     * Assigns an environment to each group of packages that depend on one another.
+     * <p>
+     * The packages are loaded into one environment, as the groups are found from their imports. When the
+     * workspace has a single group, the packages stay in that environment. Otherwise, each group is moved to an
+     * environment of its own, so that each can use its own resolution of a shared dependency.
+     */
+    private void assignEnvironments(EnvironmentBuilder environmentBuilder, Environment loadEnvironment) {
+        List<List<BuildProject>> groups = groupPackages();
+        if (groups.size() <= 1) {
+            addDependencyCache(loadEnvironment, this.projectList, this.dependencyCacheWritable);
+            return;
+        }
+        for (List<BuildProject> group : groups) {
+            Environment environment = createEnvironment(environmentBuilder, this, group, true);
+            for (BuildProject buildProject : group) {
+                buildProject.setEnvironment(environment);
+                buildProject.clearCaches();
+            }
+        }
+    }
+
+    /**
+     * Moves the packages to new environments when their groups changed since they were assigned, e.g. when a
+     * build tool generated code that imports another package of the workspace.
+     */
+    private void refreshPackageGroups() {
+        List<List<BuildProject>> groups = WorkspacePackageGroups.of(this.projectList);
+        if (toSourceRoots(groups).equals(this.packageGroups)) {
+            return;
+        }
+        clearCaches();
+    }
+
+    private static List<List<Path>> toSourceRoots(List<List<BuildProject>> groups) {
+        return groups.stream().map(group -> group.stream().map(BuildProject::sourceRoot).toList()).toList();
+    }
+
+    private List<List<BuildProject>> groupPackages() {
+        List<List<BuildProject>> groups = WorkspacePackageGroups.of(this.projectList);
+        this.packageGroups = toSourceRoots(groups);
+        return groups;
+    }
+
+    /**
+     * Creates the environment of a group of packages. The environment only provides the packages of its group,
+     * and caches the compiled dependencies in the targets of those packages.
+     */
+    private static Environment createEnvironment(EnvironmentBuilder environmentBuilder, WorkspaceProject workspace,
+                                                 List<BuildProject> group, boolean restrictToGroup) {
+        Environment environment = environmentBuilder.setWorkspace(workspace).build();
+        if (restrictToGroup) {
+            environment.getService(WorkspaceRepository.class)
+                    .restrictTo(group.stream().map(BuildProject::sourceRoot).toList());
+        }
+        addDependencyCache(environment, group, workspace.dependencyCacheWritable);
+        return environment;
+    }
+
+    private static void addDependencyCache(Environment environment, List<BuildProject> group, boolean writable) {
+        if (group.isEmpty() || !(environment instanceof DefaultEnvironment defaultEnvironment)) {
+            return;
+        }
+        ProjectDependencyCache dependencyCache = new ProjectDependencyCache(
+                group.stream().map(BuildProject::targetDir).toList(), writable);
+        defaultEnvironment.addService(ProjectDependencyCache.class, dependencyCache);
+        for (BuildProject buildProject : group) {
+            if (buildProject.currentPackage() != null) {
+                dependencyCache.updateDistributionVersion(buildProject,
+                        buildProject.currentPackage().dependencyManifest());
+            }
+        }
     }
 
     @Override
@@ -158,11 +234,22 @@ public class WorkspaceProject extends Project {
         List<BuildProject> projects = new ArrayList<>();
         WorkspaceProject duplicateWp = new WorkspaceProject(this.sourceRoot, this.buildOptions,
                 this.workspaceBallerinaToml.tomlDocument(), projects);
-        // Build one environment for the copy and duplicate each member into it, instead of letting each member
-        // build its own.
-        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(duplicateWp).build();
+        duplicateWp.dependencyCacheWritable = this.dependencyCacheWritable;
+        duplicateWp.packageGroups = this.packageGroups;
+        // Build one environment per group of packages for the copy, and duplicate each member into the
+        // environment of its group, instead of letting each member build its own.
+        Map<Path, Environment> environments = new HashMap<>();
+        List<List<Path>> groups = this.packageGroups.isEmpty() ?
+                List.of(this.projectList.stream().map(BuildProject::sourceRoot).toList()) : this.packageGroups;
+        for (List<Path> groupRoots : groups) {
+            List<BuildProject> group = this.projectList.stream()
+                    .filter(project -> groupRoots.contains(project.sourceRoot())).toList();
+            Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), duplicateWp, group,
+                    groups.size() > 1);
+            groupRoots.forEach(root -> environments.put(root, environment));
+        }
         for (BuildProject project : this.projectList) {
-            projects.add(project.duplicate(environment));
+            projects.add(project.duplicate(environments.get(project.sourceRoot())));
         }
         return duplicateWp;
     }
@@ -194,12 +281,21 @@ public class WorkspaceProject extends Project {
         this.projectList.forEach(Project::save);
     }
 
+    /**
+     * Returns the environment of the first package of the workspace.
+     * <p>
+     * Packages that do not depend on one another are compiled in separate environments. Use
+     * {@code projectEnvironmentContext()} of a package of the workspace to get the environment it is compiled in.
+     *
+     * @return environment of the first package
+     */
     @Override
     public ProjectEnvironment projectEnvironmentContext() {
         return this.projectList.iterator().next().projectEnvironmentContext();
     }
 
     public WorkspaceResolution getResolution() {
+        refreshPackageGroups();
         if (this.workspaceResolution == null) {
             this.workspaceResolution = WorkspaceResolution.from(this);
         }
@@ -207,6 +303,7 @@ public class WorkspaceProject extends Project {
     }
 
     public WorkspaceResolution getResolution(ResolutionOptions resolutionOptions) {
+        refreshPackageGroups();
         return WorkspaceResolution.from(this, resolutionOptions);
     }
 
