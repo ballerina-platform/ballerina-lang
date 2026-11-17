@@ -76,6 +76,13 @@ public class SigningEnvironmentTest {
     }
 
     @Test
+    public void testGithubActionsWithoutIdTokenPermissionUsesTokenFile() throws SigningException {
+        SigningEnvironment environment = SigningEnvironment.detect(Map.of("GITHUB_ACTIONS", "true"), tokenFile, false);
+        Assert.assertEquals(environment.kind(), SigningEnvironment.Kind.TOKEN_FILE);
+        Assert.assertEquals(environment.tokenFile(), tokenFile);
+    }
+
+    @Test
     public void testGitlabWithoutToken() {
         SigningException e = Assert.expectThrows(SigningException.class, () -> SigningEnvironment.detect(
                 Map.of("GITLAB_CI", "true", "CI", "true"), missingFile, false));

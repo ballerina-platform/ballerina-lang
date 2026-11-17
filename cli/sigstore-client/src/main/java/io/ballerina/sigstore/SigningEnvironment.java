@@ -82,15 +82,17 @@ public final class SigningEnvironment {
         if (isSet(env, ID_TOKEN_ENV)) {
             return new SigningEnvironment(Kind.ID_TOKEN_ENV, null);
         }
-        if ("true".equalsIgnoreCase(env.get("GITHUB_ACTIONS"))) {
-            if (isSet(env, "ACTIONS_ID_TOKEN_REQUEST_URL") && isSet(env, "ACTIONS_ID_TOKEN_REQUEST_TOKEN")) {
-                return new SigningEnvironment(Kind.GITHUB_ACTIONS, null);
-            }
-            throw new SigningException("GitHub Actions detected but no identity token is available. " +
-                    "Add 'permissions: id-token: write' to the workflow or job.");
+        boolean githubActions = "true".equalsIgnoreCase(env.get("GITHUB_ACTIONS"));
+        if (githubActions && isSet(env, "ACTIONS_ID_TOKEN_REQUEST_URL") &&
+                isSet(env, "ACTIONS_ID_TOKEN_REQUEST_TOKEN")) {
+            return new SigningEnvironment(Kind.GITHUB_ACTIONS, null);
         }
         if (tokenFile != null && Files.isRegularFile(tokenFile)) {
             return new SigningEnvironment(Kind.TOKEN_FILE, tokenFile);
+        }
+        if (githubActions) {
+            throw new SigningException("GitHub Actions detected but no identity token is available. " +
+                    "Add 'permissions: id-token: write' to the workflow or job.");
         }
         if ("true".equalsIgnoreCase(env.get("GITLAB_CI"))) {
             throw new SigningException("GitLab CI detected but no identity token is available. Add to the job:" +
