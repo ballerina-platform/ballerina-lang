@@ -24,6 +24,7 @@ import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.utils.FloatUtils;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
@@ -79,17 +80,11 @@ public final class ToExpString {
 
         int exponent = (int) noOfFractionDigits;
 
-        int tens = 0;
-        if (xAbsValue != 0 && xAbsValue < 1) {
-            tens = calculatePowerForFloatLessThanOne(xAbsValue);
-        }
-
-        BigDecimal numberBigDecimal = new BigDecimal(x);
-        if (xAbsValue != 0 && xAbsValue < 1) {
-            numberBigDecimal  = numberBigDecimal.setScale(exponent + tens, RoundingMode.HALF_EVEN);
-        } else {
-            numberBigDecimal  = numberBigDecimal.setScale(exponent, RoundingMode.HALF_EVEN);
-        }
+        // Round the exact value once to (exponent + 1) significant digits, so that the formatter below only lays
+        // out already-rounded digits. Rounding at a fixed scale first and letting the formatter round again would
+        // round twice for |x| >= 10 and could break roundTiesToEven.
+        BigDecimal numberBigDecimal = new BigDecimal(x)
+                .round(new MathContext(exponent + 1, RoundingMode.HALF_EVEN));
 
         return getScientificNotation(numberBigDecimal, exponent);
     }
