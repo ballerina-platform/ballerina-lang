@@ -44,6 +44,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
+    implementation project(':sigstore-client')
     implementation libs.picocli
     implementation(libs.apache.commons.compress) {
         exclude group: 'commons-codec', module: 'commons-codec'

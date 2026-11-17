@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2026, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+plugins {
+    id 'javaProject'
+    id 'com.gradleup.shadow'
+}
+
+dependencies {
+    implementation libs.sigstore.java
+
+    testImplementation libs.testng
+}
+
+// Ship sigstore-java and its libraries inside one jar, relocated so they don't clash with the distribution's jars
+configurations {
+    [apiElements, runtimeElements].each {
+        it.outgoing.artifacts.removeIf {
+            it.buildDependencies.getDependencies(null).contains(jar)
+        }
+        it.outgoing.artifact(shadowJar)
+    }
+}
+
+jar {
+    enabled = false
+    dependsOn(shadowJar { archiveClassifier = null })
+}
+
+shadowJar {
+    configurations = [project.configurations.runtimeClasspath]
+    manifest {
+        attributes('Automatic-Module-Name': 'io.ballerina.sigstore')
+    }
+    // gRPC registers its DNS resolver and transports as services, so all copies must be merged
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    filesNotMatching('META-INF/services/**') {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    mergeServiceFiles()
+    def prefix = 'io.ballerina.sigstore.internal.'
+    ['com.google', 'org.bouncycastle', 'org.apache', 'org.erdtman', 'io.opencensus', 'io.perfmark',
+     'org.checkerframework', 'org.jspecify', 'org.codehaus'].each { pkg ->
+        relocate(pkg, prefix + pkg)
+    }
+    dependencies {
+        exclude(dependency('org.slf4j:slf4j-api'))
+        exclude(dependency('com.google.code.findbugs:jsr305'))
+    }
+    exclude('META-INF/*.SF')
+    exclude('META-INF/*.DSA')
+    exclude('META-INF/*.RSA')
+    exclude('META-INF/versions/*/module-info.class')
+    exclude('module-info.class')
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+build.dependsOn shadowJar
+
+description = 'Ballerina - Sigstore Client'

@@ -48,6 +48,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -522,6 +523,55 @@ public class PushCommandTest extends BaseCommandTest {
     public void testPushToCentralWithNoSigstoreBundleFlag() throws IOException, CentralClientException {
         String output = pushWithSiblingSigstoreBundle(false, "--no-sigstore-bundle");
         Assert.assertFalse(output.contains("Attaching Sigstore bundle"));
+    }
+
+    @Test(description = "--sign can't be used with --no-sigstore-bundle")
+    public void testSignWithNoSigstoreBundle() throws IOException {
+        PushCommand pushCommand = new PushCommand(this.testResources.resolve("validLibraryProject"), printStream,
+                printStream, false);
+        new CommandLine(pushCommand).parseArgs("--sign", "--no-sigstore-bundle");
+        pushCommand.execute();
+        Assert.assertTrue(readOutput(true).contains("'--sign' and '--no-sigstore-bundle' can't be used together"));
+    }
+
+    @Test(description = "--sign is supported only for Ballerina Central")
+    public void testSignWithCustomRepository() throws IOException {
+        PushCommand pushCommand = new PushCommand(this.testResources.resolve("validLibraryProject"), printStream,
+                printStream, false);
+        new CommandLine(pushCommand).parseArgs("--sign", "--repository=local");
+        pushCommand.execute();
+        Assert.assertTrue(readOutput(true).contains("'--sign' is supported only when pushing to Ballerina Central"));
+    }
+
+    @Test(description = "Don't push when --sign finds no identity")
+    public void testSignWithoutIdentityStopsPush() throws IOException, CentralClientException {
+        Path validBalProject = Path.of("build/validProjectSignWithoutIdentity");
+        FileUtils.copyDirectory(
+                this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
+        Path balaPath = validBalProject.resolve("target-dir/bala/foo-winery-any-0.1.0.bala");
+
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false, balaPath);
+        pushCommand.setSigningEnvironment(Map.of("JENKINS_URL", "https://jenkins.example.com"),
+                validBalProject.resolve("no-oidc-token"));
+        new CommandLine(pushCommand).parseArgs("--sign");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS);
+             MockedConstruction<CentralAPIClient> clients = Mockito.mockConstruction(CentralAPIClient.class,
+                     (mock, ctx) -> Mockito.when(mock.accessToken()).thenReturn("token"))) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(Path.of("build/ballerina-home"));
+            pushCommand.execute();
+
+            for (CentralAPIClient client : clients.constructed()) {
+                Mockito.verify(client, Mockito.never()).pushPackage(Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+            }
+            Assert.assertFalse(Files.exists(balaPath.resolveSibling("foo-winery-any-0.1.0.bala.sigstore.json")));
+        } finally {
+            ProjectUtils.deleteDirectory(validBalProject);
+        }
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("could not sign the bala: Jenkins detected"), output);
+        Assert.assertTrue(output.contains("The package was not pushed."), output);
     }
 
     private String pushWithSiblingSigstoreBundle(boolean expectBundle, String... args)

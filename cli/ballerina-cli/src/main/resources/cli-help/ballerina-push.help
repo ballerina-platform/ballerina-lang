@@ -29,6 +29,12 @@ OPTIONS
        --no-sigstore-bundle
            Do not push the Sigstore bundle next to the BALA to Ballerina Central.
 
+       --sign
+           Sign the BALA with Sigstore before pushing it to Ballerina Central.
+           The identity comes from the CI system (GitHub Actions, or a token in
+           SIGSTORE_ID_TOKEN), or from a browser login when run in a terminal.
+           If signing fails, the BALA is not pushed.
+
 EXAMPLES
        Push the BALA of the current package to Ballerina Central.
        The 'bal pack' command should be run before executing this.
@@ -36,6 +42,9 @@ EXAMPLES
 
        Push the BALA of the current package to the local repository for testing.
            $ bal push --repository=local
+
+       Sign the BALA with Sigstore and push it to Ballerina Central.
+           $ bal push --sign
 
        Push the provided BALA file. The file path can be relative or absolute.
            $ bal push <bala-path>

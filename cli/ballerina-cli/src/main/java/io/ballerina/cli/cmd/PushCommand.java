@@ -36,6 +36,9 @@ import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.sigstore.BalaSigner;
+import io.ballerina.sigstore.SigningEnvironment;
+import io.ballerina.sigstore.SigningException;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -46,6 +49,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -56,6 +60,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -102,10 +107,16 @@ public class PushCommand implements BLauncherCmd {
             description = "do not push the Sigstore bundle next to the bala")
     private boolean noSigstoreBundle;
 
+    @CommandLine.Option(names = {"--sign"},
+            description = "sign the bala with Sigstore before pushing it to Ballerina Central")
+    private boolean sign;
+
     private final Path userDir;
     private final PrintStream errStream;
     private final PrintStream outStream;
     private final boolean exitWhenFinish;
+    private Map<String, String> environment = System.getenv();
+    private Path sigstoreTokenFile = SigningEnvironment.DEFAULT_TOKEN_FILE;
 
     public PushCommand() {
         this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
@@ -139,6 +150,19 @@ public class PushCommand implements BLauncherCmd {
             if (exitWhenFinish) {
                 Runtime.getRuntime().exit(0);
             }
+            return;
+        }
+
+        if (sign && noSigstoreBundle) {
+            CommandUtil.printError(errStream, "'--sign' and '--no-sigstore-bundle' can't be used together",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (sign && repositoryName != null) {
+            CommandUtil.printError(errStream, "'--sign' is supported only when pushing to Ballerina Central",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -496,6 +520,9 @@ public class PushCommand implements BLauncherCmd {
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
 
             authenticate(settingsTomlFilePath, client);
+            if (sign) {
+                signBala(balaPath);
+            }
 
             Path sigstoreBundlePath = noSigstoreBundle ? null : findSiblingSigstoreBundle(balaPath, outStream);
             if (sigstoreBundlePath != null) {
@@ -612,6 +639,37 @@ public class PushCommand implements BLauncherCmd {
     private static Path findSiblingSbomFile(Path balaPath, String name, String version) {
         Path sbomPath = balaPath.resolveSibling(name + "-" + version + ".cdx.json");
         return Files.exists(sbomPath) ? sbomPath : null;
+    }
+
+    void setSigningEnvironment(Map<String, String> environment, Path sigstoreTokenFile) {
+        this.environment = environment;
+        this.sigstoreTokenFile = sigstoreTokenFile;
+    }
+
+    private void signBala(Path balaPath) {
+        Console console = System.console();
+        boolean interactive = console != null && console.isTerminal();
+        try {
+            SigningEnvironment signingEnvironment = SigningEnvironment.detect(environment, sigstoreTokenFile,
+                    interactive);
+            if (signingEnvironment.kind() == SigningEnvironment.Kind.BROWSER && !confirmEmailPublication(console)) {
+                throw new ProjectException("signing cancelled. The package was not pushed.");
+            }
+            outStream.println("Signing " + balaPath.getFileName() + " with " +
+                    signingEnvironment.kind().description());
+            BalaSigner.Result result = BalaSigner.sign(balaPath, signingEnvironment, environment, outStream);
+            outStream.println("Signed by " + result.identity());
+        } catch (SigningException e) {
+            throw new ProjectException("could not sign the bala: " + e.getMessage() +
+                    System.lineSeparator() + "The package was not pushed.");
+        }
+    }
+
+    private boolean confirmEmailPublication(Console console) {
+        outStream.println("Signing logs the email you log in with in Sigstore's public transparency log (Rekor). " +
+                "It is public and can't be removed.");
+        String answer = console.readLine("Continue? [y/N]: ");
+        return answer != null && (answer.trim().equalsIgnoreCase("y") || answer.trim().equalsIgnoreCase("yes"));
     }
 
     /**

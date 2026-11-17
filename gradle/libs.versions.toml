@@ -50,7 +50,7 @@ eclipseLsp4jJsonrpcVersion="0.15.0"
 eclipseLsp4jVersion="0.15.0"
 fasterxmlWoodstoxCoreVersion="6.5.0"
 findbugsJsr305Version="3.0.2"
-gradleupShadowVersion="8.3.5"
+gradleupShadowVersion="9.6.1"
 githubSpotbugsVersion="6.1.0"
 spotbugsToolVersion="4.9.8"
 gsonVersion="2.10.1"
@@ -113,6 +113,7 @@ picocliVersion="4.0.1"
 puppycrawlCheckstyleVersion="10.12.0"
 researchgateReleaseVersion="3.1.0"
 scalaLibraryVersion="2.11.7"
+sigstoreJavaVersion="2.4.0"
 slf4jApiVersion="2.0.7"
 slf4jJdk14Version="2.0.7"
 slf4jSimpleVersion="2.0.7"
@@ -242,6 +243,7 @@ ow2-asm-util = { module = "org.ow2.asm:asm-util", version.ref = "ow2AsmUtilVersi
 picocli = { module = "info.picocli:picocli", version.ref = "picocliVersion"}
 puppycrawl-checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "puppycrawlCheckstyleVersion"}
 scala-library = { module = "org.scala-lang:scala-library", version.ref = "scalaLibraryVersion"}
+sigstore-java = { module = "dev.sigstore:sigstore-java", version.ref = "sigstoreJavaVersion"}
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApiVersion"}
 slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4jJdk14Version"}
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimpleVersion"}

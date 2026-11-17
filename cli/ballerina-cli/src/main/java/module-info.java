@@ -18,6 +18,7 @@ module io.ballerina.cli {
     requires com.google.gson;
     requires org.jacoco.core;
     requires io.ballerina.central.client;
+    requires io.ballerina.sigstore;
     requires io.ballerina.docerina;
     requires org.slf4j;
     requires io.ballerina.shell.cli;
