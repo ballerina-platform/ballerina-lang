@@ -159,6 +159,44 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.notExists(projectPath.resolve("tests/main_test.bal")));
     }
 
+    @Test(description = "Clean the caches of dependencies that are compiled into the project target")
+    public void testDependencyCacheDeleteWithProjectCache() throws IOException {
+        Path root = this.tmpDir.resolve("clean-project-dependency-cache");
+        Path dependencyPath = root.resolve("cleandep");
+        Files.createDirectories(dependencyPath);
+        Files.writeString(dependencyPath.resolve("Ballerina.toml"),
+                "[package]\norg = \"testorg\"\nname = \"cleandep\"\nversion = \"1.0.0\"\n");
+        Files.writeString(dependencyPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        Path projectPath = root.resolve("cleanapp");
+        Files.createDirectories(projectPath);
+        Files.writeString(projectPath.resolve("Ballerina.toml"),
+                "[package]\norg = \"testorg\"\nname = \"cleanapp\"\nversion = \"0.1.0\"\n");
+        Files.writeString(projectPath.resolve("main.bal"),
+                "import testorg/cleandep;\n\npublic function main() {\n    string _ = cleandep:hello();\n}\n");
+        BCompileUtil.compileAndCacheBala(dependencyPath.toString(), testCentralRepoCache);
+        Path dependencyBala = testCentralRepoCache.resolve("bala").resolve("testorg").resolve("cleandep")
+                .resolve("1.0.0").resolve("any");
+
+        String userDir = System.getProperty(USER_DIR_PROPERTY);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        try {
+            new BuildCommand(projectPath, printStream, printStream, false).execute();
+            Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("cache").resolve("testorg")
+                    .resolve("cleandep").resolve("1.0.0")), "The dependency should be cached in the project target");
+
+            new CleanCommand(projectPath, printStream, true, false).execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput() + "\n" + e.getDetailedMessages().get(0));
+        } finally {
+            System.setProperty(USER_DIR_PROPERTY, userDir);
+        }
+
+        String cleanLog = readOutput().replace("\r", "");
+        Assert.assertFalse(Files.exists(dependencyBala), "The dependency bala should be deleted");
+        Assert.assertTrue(cleanLog.contains("Successfully deleted " + dependencyBala), cleanLog);
+        Assert.assertFalse(Files.exists(projectPath.resolve("target")), "The project target should be deleted");
+    }
+
     @Test (enabled = false)
     public void testDependencyCacheDelete() throws IOException {
         Path projectsRoot = this.testResources.resolve("clean-cache-project");

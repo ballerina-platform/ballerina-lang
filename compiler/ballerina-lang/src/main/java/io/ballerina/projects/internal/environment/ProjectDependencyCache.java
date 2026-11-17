@@ -151,6 +151,18 @@ public final class ProjectDependencyCache {
         return new ProjectDependencyCompilationCache(this, project, repositoryCache, writable);
     }
 
+    /**
+     * Returns the repository cache of a dependency, i.e. the cache in the distribution or a user home repository,
+     * whether or not the dependency's compilation cache is wrapped by a project dependency cache.
+     *
+     * @param compilationCache compilation cache of a dependency
+     * @return repository cache of the dependency
+     */
+    public static CompilationCache repositoryCache(CompilationCache compilationCache) {
+        return compilationCache instanceof ProjectDependencyCompilationCache projectCache ?
+                projectCache.repositoryCache : compilationCache;
+    }
+
     private TargetCache target(Project project) {
         return targetOf(project).orElseGet(() -> targets.values().iterator().next());
     }
