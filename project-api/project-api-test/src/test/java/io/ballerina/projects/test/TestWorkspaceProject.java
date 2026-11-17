@@ -462,55 +462,47 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertFalse(buildProject.currentPackage().getCompilation().diagnosticResult()
                 .hasErrors());
         Project duplicateWp = buildProject.workspaceProject().orElseThrow().duplicate();
-        // Members of the copy that depend on one another share one environment (hello_app -> depA -> depB).
-        // bye_app depends on no other member, so it has an environment of its own.
+        // All members of the copy share one environment: hello_app -> depA -> depB depend on one another, and
+        // bye_app does not share any dependency with them in another version.
         WorkspaceProject duplicateWorkspace = (WorkspaceProject) duplicateWp;
         Environment helloAppEnvironment = memberEnvironment(duplicateWorkspace, "hello_app");
         Assert.assertSame(memberEnvironment(duplicateWorkspace, "depA"), helloAppEnvironment);
         Assert.assertSame(memberEnvironment(duplicateWorkspace, "depB"), helloAppEnvironment);
-        Assert.assertNotSame(memberEnvironment(duplicateWorkspace, "bye_app"), helloAppEnvironment);
+        Assert.assertSame(memberEnvironment(duplicateWorkspace, "bye_app"), helloAppEnvironment);
         Project duplicate = ((WorkspaceProject) duplicateWp).projects().stream().filter(prj ->
                 prj.currentPackage().descriptor().name().toString().equals("hello_app")).findFirst().orElseThrow();
         Assert.assertFalse(duplicate.currentPackage().getCompilation().diagnosticResult().hasErrors());
     }
 
-    @Test(description = "Packages that depend on one another share an environment, independent packages do not")
-    public void testWorkspacePackageGroupsHaveSeparateEnvironments() {
+    @Test(description = "Independent packages that resolve their shared dependencies alike share an environment")
+    public void testIndependentPackagesWithCompatibleDependenciesShareEnvironment() {
         Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
         ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
         WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
 
-        // hello_app -> depA -> depB form one group. bye_app depends on no other member.
+        // hello_app -> depA -> depB form one group. bye_app depends on no other member, but resolves no shared
+        // dependency to another version, so all packages share one environment.
         Environment helloAppEnvironment = memberEnvironment(project, "hello_app");
-        Assert.assertSame(memberEnvironment(project, "depA"), helloAppEnvironment);
         Assert.assertSame(memberEnvironment(project, "depB"), helloAppEnvironment);
-        Environment byeAppEnvironment = memberEnvironment(project, "bye_app");
-        Assert.assertNotSame(byeAppEnvironment, helloAppEnvironment);
+        Assert.assertSame(memberEnvironment(project, "bye_app"), helloAppEnvironment);
 
-        // Each environment only provides the packages of its group.
-        WorkspaceRepository helloAppRepository = helloAppEnvironment.getService(WorkspaceRepository.class);
-        Assert.assertTrue(helloAppRepository.isPackageExists(PackageOrg.from("testorg"), PackageName.from("depB"),
-                null));
-        Assert.assertFalse(helloAppRepository.isPackageExists(PackageOrg.from("testorg"),
-                PackageName.from("bye_app"), null));
-
-        // Grouping is kept when the caches are cleared, and every package still compiles.
+        // Placement after resolving all packages keeps them in one environment, and every package compiles.
+        Assert.assertFalse(project.getResolution().diagnosticResult().hasErrors());
         project.clearCaches();
-        Assert.assertNotSame(memberEnvironment(project, "bye_app"), memberEnvironment(project, "hello_app"));
+        Assert.assertSame(memberEnvironment(project, "bye_app"), memberEnvironment(project, "hello_app"));
         for (BuildProject member : project.projects()) {
             Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors(),
                     member.currentPackage().packageName().toString());
         }
     }
 
-    @Test(description = "An edit that adds an import of a package of another group merges the groups")
+    @Test(description = "An edit that adds an import of another workspace package compiles with that package")
     public void testEditAddingCrossGroupImportMergesGroups() {
         Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
         ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
         WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
-        Assert.assertNotSame(memberEnvironment(project, "bye_app"), memberEnvironment(project, "depB"));
 
         // bye_app starts importing depB, as an edit in the language server would.
         Package byeApp = editDefaultModule(project, "bye_app", "import testorg/depB as _;\n\n");
@@ -529,7 +521,7 @@ public class TestWorkspaceProject extends BaseTest {
         }
     }
 
-    @Test(description = "A copy of a single workspace package is compiled with the packages of its group")
+    @Test(description = "A copy of a single workspace package is compiled with the packages of its environment")
     public void testDuplicateWorkspacePackageUsesItsGroup() {
         Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
         ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
@@ -537,17 +529,13 @@ public class TestWorkspaceProject extends BaseTest {
         WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
 
         Project byeAppCopy = member(project, "bye_app").duplicate();
-        WorkspaceRepository byeAppRepository = byeAppCopy.projectEnvironmentContext().environment()
-                .getService(WorkspaceRepository.class);
-        Assert.assertFalse(byeAppRepository.isPackageExists(PackageOrg.from("testorg"), PackageName.from("depB"),
-                null), "A copy must not resolve packages of another group");
         Assert.assertFalse(byeAppCopy.currentPackage().getCompilation().diagnosticResult().hasErrors());
 
         Project helloAppCopy = member(project, "hello_app").duplicate();
         WorkspaceRepository helloAppRepository = helloAppCopy.projectEnvironmentContext().environment()
                 .getService(WorkspaceRepository.class);
         Assert.assertTrue(helloAppRepository.isPackageExists(PackageOrg.from("testorg"), PackageName.from("depB"),
-                null), "A copy should resolve the packages of its group");
+                null), "A copy should resolve the packages of its environment");
         Assert.assertFalse(helloAppCopy.currentPackage().getCompilation().diagnosticResult().hasErrors());
     }
 

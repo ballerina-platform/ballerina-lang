@@ -128,9 +128,22 @@ public final class ProjectDependencyCache {
         if (target.isEmpty()) {
             return;
         }
+        target.get().recordVariant(packageDescriptor, dependencyFingerprint);
         compiledFingerprints.putIfAbsent(packageKey(packageDescriptor), dependencyFingerprint);
         target.get().validatePackage(packageDescriptor, dependencyFingerprint);
         copyFromGroup(target.get(), packageDescriptor, dependencyFingerprint);
+    }
+
+    /**
+     * Returns the variants of the dependencies resolved for the given project: the version of each dependency and
+     * the versions of its own dependencies, keyed by org/name. Packages compiled in one compiler context must agree
+     * on the variant of every dependency they share.
+     *
+     * @param project project compiled with this cache
+     * @return variants of the dependencies resolved for the project, empty if it was not resolved
+     */
+    public synchronized Map<String, String> resolvedVariants(Project project) {
+        return targetOf(project).map(target -> Map.copyOf(target.variants)).orElse(Map.of());
     }
 
     /**
@@ -247,6 +260,8 @@ public final class ProjectDependencyCache {
         private boolean markerWritten;
         // Keyed by org/name/version of the cached package.
         private final Map<String, String> dependencyFingerprints = new HashMap<>();
+        // The version and dependency versions of each dependency resolved for the project, keyed by org/name.
+        private final Map<String, String> variants = new HashMap<>();
         private final Set<String> stalePackages = new HashSet<>();
         private final Set<String> dependencyMarkersWritten = new HashSet<>();
         private final Map<Project, FileSystemCache> fileSystemCaches = new HashMap<>();
@@ -265,6 +280,11 @@ public final class ProjectDependencyCache {
             SemanticVersion distributionVersion = dependencyManifest.distributionVersion();
             applyValidity(distributionVersion != null
                     && distributionVersion.toString().equals(RepoUtils.getBallerinaShortVersion()));
+        }
+
+        private void recordVariant(PackageDescriptor packageDescriptor, String dependencyFingerprint) {
+            variants.put(packageDescriptor.org().value() + "/" + packageDescriptor.name().value(),
+                    packageDescriptor.version() + "\n" + dependencyFingerprint);
         }
 
         private void validatePackage(PackageDescriptor packageDescriptor, String dependencyFingerprint) {

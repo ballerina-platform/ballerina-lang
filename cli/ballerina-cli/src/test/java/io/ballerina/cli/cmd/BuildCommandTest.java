@@ -430,6 +430,33 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Independent workspace packages that resolve their shared dependencies alike are compiled "
+            + "together, and each gets the compiled dependencies in its target")
+    public void testWorkspacePackagesShareCompatibleDependencies() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-compatible-dependencies");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "first", "0.1.0", "");
+        writeWorkspacePackage(workspace, "second", "0.1.0", "");
+        try {
+            Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+            BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                    projectEnvironmentBuilder);
+            BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                    projectEnvironmentBuilder);
+            setWorkspacePackages(workspace, "first", "second");
+            executeBuild(workspace, "--locking-mode=hard");
+
+            Assert.assertEquals(packageBRecord(workspace, "first"), "foo/package_c:0.1.0");
+            Assert.assertEquals(packageBRecord(workspace, "second"), "foo/package_c:0.1.0");
+            Assert.assertEquals(Files.readAllBytes(packageBBir(workspace, "second")),
+                    Files.readAllBytes(packageBBir(workspace, "first")));
+            Assert.assertFalse(Files.exists(workspace.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                    .resolve("foo")), "Dependencies should be cached in the package targets");
+        } finally {
+            deleteDirectory(workspace);
+        }
+    }
+
     @Test(description = "A dependency compiled for a group of workspace packages is cached only in the targets of "
             + "the packages that resolved it against the same dependency versions")
     public void testWorkspaceGroupCachesDependencyOnlyForMatchingPackages() throws IOException {
