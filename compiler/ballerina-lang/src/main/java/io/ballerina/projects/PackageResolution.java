@@ -172,6 +172,13 @@ public class PackageResolution {
             projectDependencyCache.validatePackage(rootPackageContext.project(), packageInstance.descriptor(),
                     dependencyFingerprint);
         }
+        // Only a build of a source package knows the complete graph of its target. A dependency compiled in a
+        // subprocess only sees its part of the graph.
+        if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
+            projectDependencyCache.removeSupersededVersions(rootPackageContext.project(),
+                    dependencyGraph.getNodes().stream()
+                            .map(node -> node.packageInstance().descriptor()).toList());
+        }
     }
 
     /**

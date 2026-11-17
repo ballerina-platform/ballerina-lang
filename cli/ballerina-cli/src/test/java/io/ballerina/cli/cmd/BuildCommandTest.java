@@ -615,6 +615,38 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Builds remove versions of dependencies that are no longer used from the project target")
+    public void testDependencyCacheRemovesSupersededVersions() throws IOException {
+        Path projectPath = buildDumpGraphPackageA();
+        Path targetCache = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
+        Path packageC = targetCache.resolve("foo").resolve("package_c");
+        Assert.assertTrue(Files.exists(packageC.resolve("0.1.0")));
+        // A package not in the graph of this build, e.g. one only used by builds with other options.
+        Path unusedPackage = targetCache.resolve("foo").resolve("unused").resolve("1.0.0");
+        Files.createDirectories(unusedPackage.resolve("bir"));
+        try {
+            publishPackageC011();
+            Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+            forceRebuild(projectPath);
+
+            Assert.assertTrue(Files.exists(packageC.resolve("0.1.1").resolve("bir").resolve("package_c.bir")));
+            Assert.assertFalse(Files.exists(packageC.resolve("0.1.0")),
+                    "The version of package_c that is no longer used should be removed");
+            Assert.assertTrue(Files.exists(targetCache.resolve("foo").resolve("package_b").resolve("0.1.0")));
+            Assert.assertTrue(Files.exists(unusedPackage), "Packages not in the graph should be kept");
+
+            // Read-only loads (e.g. the language server) remove nothing.
+            Path oldVersion = packageC.resolve("0.0.9");
+            Files.createDirectories(oldVersion.resolve("bir"));
+            ProjectLoader.load(projectPath).project().currentPackage().getCompilation();
+            Assert.assertTrue(Files.exists(oldVersion), "A read-only load must not remove cached versions");
+        } finally {
+            removePackageC011();
+            Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+            deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        }
+    }
+
     @Test(description = "Cached dependencies record the dependency versions they were compiled against")
     public void testDependencyCacheRecordsResolvedDependencies() throws IOException {
         Path projectPath = buildDumpGraphPackageA();

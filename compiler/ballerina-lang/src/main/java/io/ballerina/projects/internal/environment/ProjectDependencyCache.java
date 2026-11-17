@@ -60,6 +60,10 @@ public final class ProjectDependencyCache {
     static final String DISTRIBUTION_VERSION_FILE = ".distribution-version";
     // Records the resolved dependency versions a cached package was compiled against.
     static final String DEPENDENCIES_FILE = ".dependencies";
+    // Directories of target/cache that hold other build caches, not packages.
+    private static final List<String> FIXED_CACHES = List.of(ProjectConstants.BIR_CACHE_DIR_NAME,
+            ProjectConstants.JAR_CACHE_DIR_NAME, ProjectConstants.JSON_CACHE_DIR_NAME,
+            ProjectConstants.TESTS_CACHE_DIR_NAME, ProjectConstants.BALA_CACHE_DIR_NAME);
 
     private final Map<Path, TargetCache> targets = new LinkedHashMap<>();
     private final boolean writable;
@@ -145,6 +149,21 @@ public final class ProjectDependencyCache {
                 return;
             }
         }
+    }
+
+    /**
+     * Removes versions of the given packages that are no longer used from the given project's target, e.g. the
+     * previous version of a dependency after it is updated. Packages that are not given are kept, as other
+     * commands may use them, e.g. a compiler plugin only used by builds with a cloud option.
+     *
+     * @param project  project whose dependency graph contains the packages
+     * @param packages packages of the project's dependency graph
+     */
+    public synchronized void removeSupersededVersions(Project project, Collection<PackageDescriptor> packages) {
+        if (!writable) {
+            return;
+        }
+        targetOf(project).ifPresent(target -> target.removeSupersededVersions(packages));
     }
 
     public CompilationCache wrap(Project project, CompilationCache repositoryCache) {
@@ -295,6 +314,47 @@ public final class ProjectDependencyCache {
             stalePackages.remove(packageKey(packageDescriptor));
         }
 
+        private void removeSupersededVersions(Collection<PackageDescriptor> packages) {
+            if (!isCacheValid() || !Files.isDirectory(cacheDir)) {
+                return;
+            }
+            Map<Path, Set<String>> usedVersions = new HashMap<>();
+            for (PackageDescriptor descriptor : packages) {
+                if (usesDistributionCache(descriptor)) {
+                    continue;
+                }
+                usedVersions.computeIfAbsent(cacheDir.resolve(descriptor.org().value())
+                        .resolve(descriptor.name().value()), dir -> new HashSet<>())
+                        .add(descriptor.version().toString());
+            }
+            for (Map.Entry<Path, Set<String>> entry : usedVersions.entrySet()) {
+                Path packageDir = entry.getKey();
+                Path orgDir = packageDir.getParent();
+                if (orgDir == null || isFixedCache(orgDir) || !Files.isDirectory(packageDir)) {
+                    continue;
+                }
+                try (var versions = Files.list(packageDir)) {
+                    for (Path versionDir : versions.toList()) {
+                        Path version = versionDir.getFileName();
+                        if (Files.isDirectory(versionDir) && version != null
+                                && !entry.getValue().contains(version.toString())) {
+                            FileUtils.deleteDirectory(versionDir.toFile());
+                            dependencyMarkersWritten.remove(orgDir.getFileName() + "/" + packageDir.getFileName() + "/"
+                                    + version);
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to remove unused versions in the project dependency "
+                            + "cache: " + packageDir, e);
+                }
+            }
+        }
+
+        private static boolean isFixedCache(Path dir) {
+            Path name = dir.getFileName();
+            return name != null && FIXED_CACHES.contains(name.toString());
+        }
+
         private boolean hasChecked(String key) {
             return dependencyFingerprints.containsKey(key);
         }
@@ -410,14 +470,11 @@ public final class ProjectDependencyCache {
             try {
                 // The project package cache shares target/cache with other build caches. Remove only
                 // package version directories, preserving fixed-purpose caches and unrelated entries.
-                List<String> fixedCaches = List.of(ProjectConstants.BIR_CACHE_DIR_NAME,
-                        ProjectConstants.JAR_CACHE_DIR_NAME, ProjectConstants.JSON_CACHE_DIR_NAME,
-                        ProjectConstants.TESTS_CACHE_DIR_NAME, ProjectConstants.BALA_CACHE_DIR_NAME);
                 try (var children = Files.list(cacheDir)) {
                     for (Path child : children.toList()) {
                         Path childName = child.getFileName();
                         if (!Files.isDirectory(child) || childName == null
-                                || fixedCaches.contains(childName.toString())) {
+                                || FIXED_CACHES.contains(childName.toString())) {
                             continue;
                         }
                         try (var packages = Files.list(child)) {
