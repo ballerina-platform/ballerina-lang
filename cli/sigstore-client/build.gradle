@@ -21,8 +21,16 @@ plugins {
     id 'com.gradleup.shadow'
 }
 
+// Kept out of implementation so consumers get only the shaded jar, not sigstore-java's dependencies
+configurations {
+    shaded
+    compileClasspath.extendsFrom shaded
+    runtimeClasspath.extendsFrom shaded
+    testImplementation.extendsFrom shaded
+}
+
 dependencies {
-    implementation libs.sigstore.java
+    shaded libs.sigstore.java
 
     testImplementation libs.testng
 }
