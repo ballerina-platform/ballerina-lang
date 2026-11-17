@@ -22,6 +22,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.sigstore.BalaVerifier;
+import io.ballerina.sigstore.SigningException;
 import okhttp3.Authenticator;
 import okhttp3.Cache;
 import okhttp3.Call;
@@ -98,7 +100,11 @@ import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.SIGSTORE_BUNDLE_EXT;
 import static org.ballerinalang.central.client.CentralClientConstants.SIGSTORE_BUNDLE_MEDIA_TYPE;
+import static org.ballerinalang.central.client.CentralClientConstants.SIGSTORE_BUNDLE_RESOURCE;
+import static org.ballerinalang.central.client.CentralClientConstants.SIGSTORE_SIGNER_ISSUER;
+import static org.ballerinalang.central.client.CentralClientConstants.SIGSTORE_SIGNER_SUBJECT;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
+import static org.ballerinalang.central.client.CentralClientConstants.VERIFIED_PUBLISHER;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.SET_TEST_MODE_ACTIVE;
@@ -557,6 +563,58 @@ public class CentralAPIClient {
         }
     }
 
+    /**
+     * Get a check that verifies a downloaded bala against the Sigstore bundle and signer Central recorded for it.
+     *
+     * @return the check, or {@code null} if the bundle can't be fetched
+     */
+    BalaCheck getSigstoreSignatureCheck(OkHttpClient client, String org, String name, String balaUrl,
+                                        String supportedPlatform, String ballerinaVersion,
+                                        boolean enableOutputStream, LogFormatter logFormatter) {
+        String[] balaUrlParts = balaUrl.split("\\?")[0].split(SEPARATOR);
+        String version = balaUrlParts.length > 1 ? balaUrlParts[balaUrlParts.length - 2] : "";
+        String packageSignature = org + SEPARATOR + name + ":" + version;
+        Request bundleRequest = getNewRequest(supportedPlatform, ballerinaVersion)
+                .get()
+                .url(this.baseUrl + PACKAGE_PATH_PREFIX + org + SEPARATOR + name + SEPARATOR + version +
+                        SIGSTORE_BUNDLE_RESOURCE)
+                .build();
+        String bundle;
+        String issuer;
+        String subject;
+        try (Response bundleResponse = client.newCall(bundleRequest).execute()) {
+            ResponseBody bundleBody = bundleResponse.body();
+            issuer = bundleResponse.header(SIGSTORE_SIGNER_ISSUER);
+            subject = bundleResponse.header(SIGSTORE_SIGNER_SUBJECT);
+            if (bundleResponse.code() != HTTP_OK || bundleBody == null || issuer == null || subject == null) {
+                outStream.println(logFormatter.formatLog("WARNING: could not get the Sigstore bundle of " +
+                        packageSignature + ", so its signature was not checked"));
+                return null;
+            }
+            bundle = bundleBody.string();
+        } catch (IOException e) {
+            outStream.println(logFormatter.formatLog("WARNING: could not get the Sigstore bundle of " +
+                    packageSignature + ", so its signature was not checked: " + e.getMessage()));
+            return null;
+        }
+        return balaPath -> {
+            try {
+                BalaVerifier.verify(balaPath, bundle, issuer, subject);
+            } catch (BalaVerifier.VerificationException e) {
+                throw new CentralClientException(logFormatter.formatLog("Sigstore signature check failed for " +
+                        packageSignature + ": " + e.getMessage() + ". The package was not installed."));
+            } catch (SigningException e) {
+                outStream.println(logFormatter.formatLog("WARNING: could not check the Sigstore signature of " +
+                        packageSignature + ": " + e.getMessage()));
+                return;
+            }
+            if (enableOutputStream) {
+                outStream.println(logFormatter.formatLog("Verified the Sigstore signature of " + packageSignature +
+                        ", signed by " + subject));
+            }
+        };
+    }
+
     private void pullPackageInternal(String org, String name, String version, Path packagePathInBalaCache,
                                      String supportedPlatform, String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
@@ -633,10 +691,14 @@ public class CentralAPIClient {
 
                     if (balaDownloadResponse.code() == HTTP_OK) {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
+                        BalaCheck signatureCheck = Boolean.parseBoolean(packagePullResponse.header(VERIFIED_PUBLISHER))
+                                ? getSigstoreSignatureCheck(client, org, name, balaUrl.get(), supportedPlatform,
+                                        ballerinaVersion, enableOutputStream, logFormatter)
+                                : null;
                         createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
                                 isDeprecated ? deprecationMessage : null,
                                 balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter,
-                                digestVal);
+                                digestVal, signatureCheck);
                         return;
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +

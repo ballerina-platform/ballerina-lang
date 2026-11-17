@@ -122,7 +122,7 @@ public class TestUtils {
 
         writeBalaFile(mockResponse, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
                 10000, System.out, new LogFormatter(), UTILS_TEST_RESOURCES,
-                "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4");
+                "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4", null);
 
         Assert.assertTrue(tempBalaCache.resolve("package.json").toFile().exists());
         Assert.assertTrue(tempBalaCache.resolve("bala.json").toFile().exists());

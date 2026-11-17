@@ -1030,7 +1030,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenCallRealMethod();
@@ -1092,7 +1092,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
@@ -1161,7 +1161,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenCallRealMethod();
@@ -1228,7 +1228,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .build();
             try (MockedStatic<Utils> utils = Mockito.mockStatic(Utils.class, CALLS_REAL_METHODS)) {
                 utils.when(() -> Utils.writeBalaFile(any(), any(), any(),
-                                anyLong(), any(), any(), any(), any()))
+                                anyLong(), any(), any(), any(), any(), any()))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
                         .thenThrow(new CentralClientException(ERROR_CONNECTION_RESET))
@@ -1260,5 +1260,83 @@ public class TestCentralApiClient extends CentralAPIClient {
         } finally {
             cleanTmpDir();
         }
+    }
+
+    @Test(description = "Don't install a signed package whose Sigstore bundle doesn't verify")
+    public void testPullSignedPackageWithInvalidBundle() throws IOException {
+        Response bundleResponse = sigstoreBundleResponse(HttpURLConnection.HTTP_OK, "{}");
+        try {
+            pullSignedPackage(bundleResponse);
+            Assert.fail("pull should fail");
+        } catch (CentralClientException e) {
+            Assert.assertTrue(e.getMessage().contains("Sigstore signature check failed for foo/sf:1.3.5"),
+                    e.getMessage());
+            Assert.assertTrue(e.getMessage().contains("The package was not installed."), e.getMessage());
+            Assert.assertFalse(TMP_DIR.resolve("1.3.5").resolve("2020r2-any").resolve("bala.json").toFile().exists());
+        } finally {
+            cleanTmpDir();
+        }
+    }
+
+    @Test(description = "Install a signed package with a warning when its Sigstore bundle can't be fetched")
+    public void testPullSignedPackageWithoutBundle() throws IOException, CentralClientException {
+        Response bundleResponse = sigstoreBundleResponse(HttpURLConnection.HTTP_NOT_FOUND, "{}");
+        try {
+            pullSignedPackage(bundleResponse);
+            Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("2020r2-any").resolve("bala.json").toFile().exists());
+            Assert.assertTrue(readOutput().contains(
+                    "WARNING: could not get the Sigstore bundle of foo/sf:1.3.5, so its signature was not checked"));
+        } finally {
+            cleanTmpDir();
+        }
+    }
+
+    private void pullSignedPackage(Response bundleResponse) throws IOException, CentralClientException {
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
+        Request pullRequest = new Request.Builder().get().url("https://localhost:9090/registry/packages/foo/sf/1.3.5")
+                .build();
+        Response pullResponse = new Response.Builder()
+                .request(pullRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_MOVED_TEMP)
+                .addHeader(LOCATION, this.balaUrl)
+                .addHeader(CONTENT_DISPOSITION, balaFileName)
+                .addHeader(DIGEST, "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4")
+                .addHeader("VerifiedPublisher", "true")
+                .message("")
+                .body(null)
+                .build();
+        Response downloadResponse = new Response.Builder()
+                .request(new Request.Builder().get().url(this.balaUrl).build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(MediaType.get(APPLICATION_OCTET_STREAM), Files.readAllBytes(balaPath)))
+                .build();
+        when(this.remoteCall.execute()).thenReturn(pullResponse, downloadResponse, bundleResponse);
+        ArgumentCaptor<Request> requests = ArgumentCaptor.forClass(Request.class);
+        when(this.client.newCall(requests.capture())).thenReturn(this.remoteCall);
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+        try {
+            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+        } finally {
+            Assert.assertEquals(requests.getAllValues().get(2).url().toString(),
+                    "https://localhost:9090/registry/packages/foo/sf/1.3.5/sigstore-bundle");
+        }
+    }
+
+    private static Response sigstoreBundleResponse(int code, String bundle) {
+        return new Response.Builder()
+                .request(new Request.Builder().get()
+                        .url("https://localhost:9090/registry/packages/foo/sf/1.3.5/sigstore-bundle").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(code)
+                .addHeader("Sigstore-Signer-Issuer", "https://token.actions.githubusercontent.com")
+                .addHeader("Sigstore-Signer-Subject",
+                        "https://github.com/foo/sf/.github/workflows/release.yml@refs/heads/main")
+                .message("")
+                .body(ResponseBody.create(MediaType.get(APPLICATION_JSON), bundle))
+                .build();
     }
 }

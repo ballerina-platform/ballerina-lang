@@ -14,4 +14,5 @@ module io.ballerina.central.client {
     requires kotlin.stdlib;
     requires okhttp3;
     requires okio;
+    requires io.ballerina.sigstore;
 }

@@ -50,6 +50,10 @@ public final class CentralClientConstants {
     static final String PKG_NAME = "name";
     static final String IS_DEPRECATED = "isdeprecated";
     static final String DIGEST = "digest";
+    static final String VERIFIED_PUBLISHER = "verifiedpublisher";
+    static final String SIGSTORE_SIGNER_ISSUER = "sigstore-signer-issuer";
+    static final String SIGSTORE_SIGNER_SUBJECT = "sigstore-signer-subject";
+    static final String SIGSTORE_BUNDLE_RESOURCE = "/sigstore-bundle";
     static final String DEPRECATE_MESSAGE = "deprecatemessage";
     public static final String ENABLE_OUTPUT_STREAM = "enableOutputStream";
     static final String PRODUCTION_REPO = "central.ballerina.io";

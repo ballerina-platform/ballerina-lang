@@ -42,6 +42,7 @@ dependencies {
     implementation libs.squareup.okhttp
     implementation libs.jetbrains.kotlin.stdlib
     implementation libs.squareup.okio
+    implementation project(':sigstore-client')
 
     testImplementation libs.squareup.mock.webserver
     testImplementation libs.mockito.core

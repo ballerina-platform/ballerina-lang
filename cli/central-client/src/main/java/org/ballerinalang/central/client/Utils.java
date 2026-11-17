@@ -117,6 +117,31 @@ public final class Utils {
             String newUrl, String contentDisposition, PrintStream outStream,
             LogFormatter logFormatter, String trueDigest)
             throws CentralClientException {
+        createBalaInHomeRepo(balaDownloadResponse, pkgPathInBalaCache, pkgOrg, pkgName, isNightlyBuild, deprecationMsg,
+                newUrl, contentDisposition, outStream, logFormatter, trueDigest, null);
+    }
+
+    /**
+     * Create the bala in home repo, running a check on the downloaded bala before it is extracted.
+     *
+     * @param balaDownloadResponse http response for downloading the bala file
+     * @param pkgPathInBalaCache   package path in bala cache
+     * @param pkgOrg               package org
+     * @param pkgName              package name
+     * @param isNightlyBuild       is nightly build
+     * @param deprecationMsg       deprecation message for deprecated packages
+     * @param newUrl               new redirect url
+     * @param contentDisposition   content disposition header
+     * @param outStream            Output print stream
+     * @param logFormatter         log formatter
+     * @param trueDigest           digest of the bala
+     * @param balaCheck            check to run on the downloaded bala, or {@code null}
+     */
+    public static void createBalaInHomeRepo(Response balaDownloadResponse, Path pkgPathInBalaCache, String pkgOrg,
+            String pkgName, boolean isNightlyBuild, String deprecationMsg,
+            String newUrl, String contentDisposition, PrintStream outStream,
+            LogFormatter logFormatter, String trueDigest, BalaCheck balaCheck)
+            throws CentralClientException {
 
         long responseContentLength = 0;
         Optional<ResponseBody> downloadBody = Optional.ofNullable(balaDownloadResponse.body());
@@ -185,7 +210,7 @@ public final class Utils {
         // Write balaFiles to tempPath
         writeBalaFile(balaDownloadResponse, tempPath.resolve(balaFile),
                 pkgOrg + "/" + pkgName + ":" + validPkgVersion, responseContentLength,
-                outStream, logFormatter, pkgPathInBalaCache.resolve(validPkgVersion), trueDigest);
+                outStream, logFormatter, pkgPathInBalaCache.resolve(validPkgVersion), trueDigest, balaCheck);
 
         // Once files are written to temp path, rename temp path with platform name
         try {
@@ -267,7 +292,7 @@ public final class Utils {
      * @param homeRepo             path of the repo bala file is saved to
      */
     static void writeBalaFile(Response balaDownloadResponse, Path balaPath, String fullPkgName, long resContentLength,
-            PrintStream outStream, LogFormatter logFormatter, Path homeRepo, String trueDigest)
+            PrintStream outStream, LogFormatter logFormatter, Path homeRepo, String trueDigest, BalaCheck balaCheck)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.ofNullable(balaDownloadResponse.body());
         if (body.isPresent()) {
@@ -283,6 +308,18 @@ public final class Utils {
                 } catch (IOException e) {
                     throw new CentralClientException(
                             logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+                }
+                if (balaCheck != null) {
+                    try {
+                        balaCheck.check(balaPath);
+                    } catch (CentralClientException e) {
+                        try {
+                            Files.deleteIfExists(balaPath);
+                        } catch (IOException deleteError) {
+                            e.addSuppressed(deleteError);
+                        }
+                        throw e;
+                    }
                 }
                 try {
                     extractBala(balaPath, Optional.of(balaPath.getParent()).get(), trueDigest, fullPkgName, outStream);
