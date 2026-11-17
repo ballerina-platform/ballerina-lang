@@ -953,7 +953,7 @@ public final class Generator {
         return false;
     }
 
-    private static String getDocFromMetadata(Optional<MetadataNode> optionalMetadataNode) {
+    public static String getDocFromMetadata(Optional<MetadataNode> optionalMetadataNode) {
         if (optionalMetadataNode.isEmpty()) {
             return "";
         }
