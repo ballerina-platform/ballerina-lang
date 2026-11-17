@@ -173,15 +173,69 @@ public class WorkspaceProject extends Project {
     }
 
     /**
-     * Moves the packages to new environments when their groups changed since they were assigned, e.g. when a
-     * build tool generated code that imports another package of the workspace.
+     * Merges groups of packages when a package now depends on a package of another group, e.g. when a build tool
+     * generated code or an edit added an import of another package of the workspace. Only the merged groups move
+     * to new environments; the other groups keep their environments and compiled state.
+     * <p>
+     * Groups are not split when such a dependency is removed. Compiling the packages in one environment is still
+     * correct, and they are regrouped from scratch when the workspace is loaded again or its caches are cleared.
      */
     private void refreshPackageGroups() {
-        List<List<BuildProject>> groups = WorkspacePackageGroups.of(this.projectList);
-        if (toSourceRoots(groups).equals(this.packageGroups)) {
+        if (this.packageGroups.isEmpty() || withinCurrentGroups(WorkspacePackageGroups.of(this.projectList))) {
             return;
         }
-        clearCaches();
+        List<List<Path>> previousGroups = this.packageGroups;
+        List<List<BuildProject>> groups = WorkspacePackageGroups.of(this.projectList, previousGroups);
+        this.packageGroups = toSourceRoots(groups);
+        for (List<BuildProject> group : groups) {
+            if (previousGroups.contains(group.stream().map(BuildProject::sourceRoot).toList())) {
+                continue;
+            }
+            Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), this, group,
+                    groups.size() > 1);
+            for (BuildProject buildProject : group) {
+                buildProject.setEnvironment(environment);
+                buildProject.clearCaches();
+            }
+        }
+        this.workspaceResolution = null;
+    }
+
+    /** Returns true if each of the given groups is part of one of the current groups. */
+    private boolean withinCurrentGroups(List<List<BuildProject>> groups) {
+        Map<Path, Integer> currentGroupOf = new HashMap<>();
+        for (int i = 0; i < this.packageGroups.size(); i++) {
+            for (Path root : this.packageGroups.get(i)) {
+                currentGroupOf.put(root, i);
+            }
+        }
+        for (List<BuildProject> group : groups) {
+            Integer currentGroup = currentGroupOf.get(group.get(0).sourceRoot());
+            for (BuildProject buildProject : group) {
+                Integer memberGroup = currentGroupOf.get(buildProject.sourceRoot());
+                if (memberGroup == null || !memberGroup.equals(currentGroup)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Creates an environment for a copy of the given package, holding the packages of its group. Used when a single
+     * package of the workspace is duplicated.
+     *
+     * @param buildProject package of this workspace
+     * @return environment for the group of the package
+     */
+    Environment groupEnvironment(BuildProject buildProject) {
+        List<BuildProject> group = this.packageGroups.stream()
+                .filter(roots -> roots.contains(buildProject.sourceRoot()))
+                .findFirst()
+                .map(roots -> this.projectList.stream().filter(member -> roots.contains(member.sourceRoot()))
+                        .toList())
+                .orElse(this.projectList);
+        return createEnvironment(EnvironmentBuilder.getBuilder(), this, group, this.packageGroups.size() > 1);
     }
 
     private static List<List<Path>> toSourceRoots(List<List<BuildProject>> groups) {

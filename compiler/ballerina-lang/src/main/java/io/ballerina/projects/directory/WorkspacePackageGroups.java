@@ -26,6 +26,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,6 +56,17 @@ final class WorkspacePackageGroups {
      * @return groups of packages that depend on one another
      */
     static List<List<BuildProject>> of(List<BuildProject> packages) {
+        return of(packages, List.of());
+    }
+
+    /**
+     * Returns the groups of the given workspace packages, keeping the packages of each given group together.
+     *
+     * @param packages      packages of the workspace
+     * @param keptTogether  source roots of packages that must stay in one group
+     * @return groups of packages that depend on one another
+     */
+    static List<List<BuildProject>> of(List<BuildProject> packages, List<List<Path>> keptTogether) {
         Map<String, BuildProject> packagesByName = new HashMap<>();
         for (BuildProject buildProject : packages) {
             packagesByName.put(fullName(buildProject.currentPackage()), buildProject);
@@ -62,6 +74,22 @@ final class WorkspacePackageGroups {
 
         Map<BuildProject, BuildProject> parents = new LinkedHashMap<>();
         packages.forEach(buildProject -> parents.put(buildProject, buildProject));
+        Map<Path, BuildProject> packagesByRoot = new HashMap<>();
+        packages.forEach(buildProject -> packagesByRoot.put(buildProject.sourceRoot(), buildProject));
+        for (List<Path> group : keptTogether) {
+            BuildProject first = null;
+            for (Path root : group) {
+                BuildProject buildProject = packagesByRoot.get(root);
+                if (buildProject == null) {
+                    continue;
+                }
+                if (first == null) {
+                    first = buildProject;
+                } else {
+                    union(parents, first, buildProject);
+                }
+            }
+        }
         for (BuildProject buildProject : packages) {
             for (String dependency : packageDependencies(buildProject.currentPackage(), packagesByName)) {
                 union(parents, buildProject, packagesByName.get(dependency));

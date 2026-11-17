@@ -20,6 +20,7 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -501,6 +502,71 @@ public class TestWorkspaceProject extends BaseTest {
             Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors(),
                     member.currentPackage().packageName().toString());
         }
+    }
+
+    @Test(description = "An edit that adds an import of a package of another group merges the groups")
+    public void testEditAddingCrossGroupImportMergesGroups() {
+        Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        Assert.assertNotSame(memberEnvironment(project, "bye_app"), memberEnvironment(project, "depB"));
+
+        // bye_app starts importing depB, as an edit in the language server would.
+        Package byeApp = editDefaultModule(project, "bye_app", "import testorg/depB as _;\n\n");
+        Assert.assertFalse(byeApp.getCompilation().diagnosticResult().hasErrors(),
+                byeApp.getCompilation().diagnosticResult().errors().toString());
+        Environment mergedEnvironment = memberEnvironment(project, "depB");
+        Assert.assertSame(memberEnvironment(project, "bye_app"), mergedEnvironment);
+        Assert.assertSame(memberEnvironment(project, "hello_app"), mergedEnvironment);
+
+        // Removing the import does not split the group until the workspace is loaded again.
+        editDefaultModule(project, "bye_app", "");
+        Assert.assertSame(memberEnvironment(project, "bye_app"), memberEnvironment(project, "depB"));
+        for (BuildProject member : project.projects()) {
+            Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors(),
+                    member.currentPackage().packageName().toString());
+        }
+    }
+
+    @Test(description = "A copy of a single workspace package is compiled with the packages of its group")
+    public void testDuplicateWorkspacePackageUsesItsGroup() {
+        Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+
+        Project byeAppCopy = member(project, "bye_app").duplicate();
+        WorkspaceRepository byeAppRepository = byeAppCopy.projectEnvironmentContext().environment()
+                .getService(WorkspaceRepository.class);
+        Assert.assertFalse(byeAppRepository.isPackageExists(PackageOrg.from("testorg"), PackageName.from("depB"),
+                null), "A copy must not resolve packages of another group");
+        Assert.assertFalse(byeAppCopy.currentPackage().getCompilation().diagnosticResult().hasErrors());
+
+        Project helloAppCopy = member(project, "hello_app").duplicate();
+        WorkspaceRepository helloAppRepository = helloAppCopy.projectEnvironmentContext().environment()
+                .getService(WorkspaceRepository.class);
+        Assert.assertTrue(helloAppRepository.isPackageExists(PackageOrg.from("testorg"), PackageName.from("depB"),
+                null), "A copy should resolve the packages of its group");
+        Assert.assertFalse(helloAppCopy.currentPackage().getCompilation().diagnosticResult().hasErrors());
+    }
+
+    /** Replaces the content of the first document of a package's default module with the given imports. */
+    private static Package editDefaultModule(WorkspaceProject workspaceProject, String packageName,
+                                             String imports) {
+        Package pkg = member(workspaceProject, packageName).currentPackage();
+        Module defaultModule = pkg.getDefaultModule();
+        DocumentId documentId = defaultModule.documentIds().iterator().next();
+        String content = defaultModule.document(documentId).textDocument().toString()
+                .replace("import testorg/depB as _;\n\n", "");
+        return defaultModule.document(documentId).modify().withContent(imports + content).apply()
+                .module().packageInstance();
+    }
+
+    private static BuildProject member(WorkspaceProject workspaceProject, String packageName) {
+        return workspaceProject.projects().stream()
+                .filter(member -> member.currentPackage().packageName().toString().equals(packageName))
+                .findFirst().orElseThrow();
     }
 
     private static Environment memberEnvironment(WorkspaceProject workspaceProject, String packageName) {

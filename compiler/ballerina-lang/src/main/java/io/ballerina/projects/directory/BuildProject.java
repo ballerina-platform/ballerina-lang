@@ -259,7 +259,11 @@ public class BuildProject extends Project implements Comparable<Project> {
 
     @Override
     public Project duplicate() {
-        return duplicate(EnvironmentBuilder.getBuilder().setWorkspace(workspaceProject).build());
+        if (workspaceProject != null) {
+            // A package of a workspace is compiled with the packages of its group.
+            return duplicate(workspaceProject.groupEnvironment(this));
+        }
+        return duplicate(EnvironmentBuilder.getBuilder().build());
     }
 
     /**
