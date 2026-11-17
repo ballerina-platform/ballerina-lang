@@ -56,4 +56,18 @@ public class ImportsNegativeTests {
         validateError(result, index++, "unknown type 'CallStackElement'", 51, 30);
         assertEquals(result.getErrorCount(), index);
     }
+
+    @Test(description = "Test diagnostic message for reserved keyword in module import path")
+    public void testReservedKeywordInModuleImportDiagnostic() {
+        CompileResult result = BCompileUtil.compile("test-src/imports/ReservedKeywordImportTestProject");
+        int index = 0;
+        // 'client' is a reserved keyword; the diagnostic must include it in the module path,
+        // i.e. "ballerinax/client.config", not "ballerinax/.config" (regression for #44509/#44519).
+        // Diagnostics are ordered by source position; the import declaration starts at col 1,
+        // so the module-resolution error precedes the parser errors at col 19.
+        validateError(result, index++, "cannot resolve module 'ballerinax/client.config as config'", 5, 1);
+        validateError(result, index++, "invalid token 'client'", 5, 19);
+        validateError(result, index++, "missing identifier", 5, 25);
+        assertEquals(result.getErrorCount(), index);
+    }
 }
