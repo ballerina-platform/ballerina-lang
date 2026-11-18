@@ -539,6 +539,42 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Of three independent workspace packages, only the one that resolves a shared dependency "
+            + "differently is compiled apart")
+    public void testWorkspaceOnlyConflictingPackageCompiledApart() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-one-conflict");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "second", "0.1.0", "");
+        writeWorkspacePackage(workspace, "third", "0.1.1", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "second");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "second", "third");
+
+            // Placement after resolving all packages, as the CLI does before building.
+            WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                    BuildOptions.builder().setLockingMode(PackageLockingMode.HARD).build()).project();
+            Assert.assertFalse(project.getResolution().diagnosticResult().hasErrors());
+            project.clearCaches();
+            Assert.assertSame(memberEnvironment(project, "second"), memberEnvironment(project, "older"),
+                    "Packages that resolve their shared dependencies alike should share an environment");
+            Assert.assertNotSame(memberEnvironment(project, "third"), memberEnvironment(project, "older"),
+                    "Only the package that resolves a shared dependency differently should be compiled apart");
+
+            executeBuild(workspace, "--locking-mode=hard");
+            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
+            Assert.assertEquals(packageBRecord(workspace, "second"), "foo/package_c:0.1.0");
+            Assert.assertEquals(Files.readAllBytes(packageBBir(workspace, "second")),
+                    Files.readAllBytes(packageBBir(workspace, "older")));
+            Assert.assertEquals(packageBRecord(workspace, "third"), "foo/package_c:0.1.1");
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
     private static BuildProject workspaceMember(WorkspaceProject workspaceProject, String name) {
         return workspaceProject.projects().stream()
                 .filter(member -> member.currentPackage().packageName().toString().equals(name))
