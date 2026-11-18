@@ -33,6 +33,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Locale;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -62,6 +64,26 @@ public class LangLibStringTest {
     public void testToLower() {
         Object returns = BRunUtil.invoke(compileResult, "testToLower");
         assertEquals(returns.toString(), "hello ballerina!");
+    }
+
+    @Test(dataProvider = "localeProvider")
+    public void testAsciiCaseConversionIsLocaleIndependent(Locale locale) {
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(locale);
+            Object returns = BRunUtil.invoke(compileResult, "testAsciiCaseConversionOnAsciiInput");
+            assertEquals(returns.toString(), "[\"title\",\"FILE\",\"iİıi\",\"IİıI\"]");
+            BRunUtil.invoke(compileResult, "testToLowerAsciiNonAscii");
+            BRunUtil.invoke(compileResult, "testToUpperAsciiNonAscii");
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+    }
+
+    @DataProvider(name = "localeProvider")
+    public Object[] localeProvider() {
+        return new Object[]{Locale.ROOT, Locale.ENGLISH, Locale.forLanguageTag("tr-TR"),
+                Locale.forLanguageTag("az-AZ"), Locale.forLanguageTag("lt-LT")};
     }
 
     @Test
@@ -448,7 +470,10 @@ public class LangLibStringTest {
                 "testMatches",
                 "testIncludesMatch",
                 "testFromBytesAsync",
-                "testEqualsIgnoreCaseAsciiAsync"
+                "testEqualsIgnoreCaseAsciiAsync",
+                "testToLowerAsciiNonAscii",
+                "testToUpperAsciiNonAscii",
+                "testAsciiCaseConversionConsistentWithEqualsIgnoreCase"
         };
     }
 
