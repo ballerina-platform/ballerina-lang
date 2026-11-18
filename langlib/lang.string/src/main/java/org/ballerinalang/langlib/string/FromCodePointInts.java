@@ -34,17 +34,18 @@ public final class FromCodePointInts {
     }
 
     public static Object fromCodePointInts(BArray codePoints) {
-        int codePoint = 0;
+        long codePoint = 0;
         try {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < codePoints.size(); i++) {
-                codePoint = (int) codePoints.getInt(i);
+                codePoint = codePoints.getInt(i);
 
-                if (codePoint <= Constants.MIDDLE_LIMIT_UNICODE && codePoint >= Constants.MIN_UNICODE) {
+                if (codePoint < Character.MIN_CODE_POINT || codePoint > Character.MAX_CODE_POINT ||
+                        (codePoint <= Constants.MIDDLE_LIMIT_UNICODE && codePoint >= Constants.MIN_UNICODE)) {
                     return ErrorCreator.createError(StringUtils.fromString("Invalid codepoint: " + codePoint));
                 }
 
-                builder.appendCodePoint(codePoint);
+                builder.appendCodePoint((int) codePoint);
             }
             return StringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {

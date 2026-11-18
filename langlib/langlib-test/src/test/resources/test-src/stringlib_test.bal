@@ -189,6 +189,10 @@ function testToCodepointInts(string st) returns int[] {
     return st.toCodePointInts();
 }
 
+function testFromCodePointInt(int codePoint) returns string|error {
+    return strings:fromCodePointInt(codePoint);
+}
+
 function testFromCodePointInts(int[] ints) returns string|error {
     return strings:fromCodePointInts(ints);
 }
