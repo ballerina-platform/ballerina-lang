@@ -260,6 +260,61 @@ public class WorkspaceProject extends Project {
         this.workspaceResolution = null;
     }
 
+    /**
+     * Moves the given package, with the packages it is grouped with by dependencies on one another, to an
+     * environment of their own when the dependency versions last resolved for them conflict with those of the other
+     * packages of their environment, i.e. when they share a dependency resolved to another version, or compiled
+     * against other dependency versions.
+     * <p>
+     * Call this after resolving the package and before compiling it, e.g. after an edit changes its dependencies.
+     * The other packages keep their environments and compiled state.
+     *
+     * @param buildProject package of this workspace
+     * @return true if the package moved to a new environment
+     */
+    public boolean ensureCompatibleEnvironment(BuildProject buildProject) {
+        Path root = buildProject.sourceRoot();
+        Optional<List<Path>> context = this.contexts.stream().filter(roots -> roots.contains(root)).findFirst();
+        if (context.isEmpty()) {
+            return false;
+        }
+        List<Path> groupRoots = this.packageGroups.stream().filter(roots -> roots.contains(root)).findFirst()
+                .orElse(List.of(root));
+        if (context.get().stream().allMatch(groupRoots::contains)) {
+            return false;
+        }
+        Map<String, String> groupVariants = new HashMap<>();
+        Map<String, String> otherVariants = new HashMap<>();
+        for (BuildProject member : this.projectList) {
+            if (groupRoots.contains(member.sourceRoot())) {
+                resolvedVariants(member).forEach(groupVariants::putIfAbsent);
+            } else if (context.get().contains(member.sourceRoot())) {
+                resolvedVariants(member).forEach(otherVariants::putIfAbsent);
+            }
+        }
+        if (compatible(otherVariants, groupVariants)) {
+            return false;
+        }
+        List<List<Path>> contexts = new ArrayList<>();
+        for (List<Path> roots : this.contexts) {
+            List<Path> remaining = roots.stream().filter(contextRoot -> !groupRoots.contains(contextRoot)).toList();
+            if (!remaining.isEmpty()) {
+                contexts.add(remaining);
+            }
+        }
+        contexts.add(groupRoots);
+        this.contexts = contexts;
+        List<BuildProject> group = this.projectList.stream()
+                .filter(member -> groupRoots.contains(member.sourceRoot())).toList();
+        Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), this, group, true);
+        for (BuildProject member : group) {
+            member.setEnvironment(environment);
+            member.clearCaches();
+        }
+        this.workspaceResolution = null;
+        return true;
+    }
+
     /** Returns true if each of the given groups is part of one of the current groups. */
     private boolean withinCurrentGroups(List<List<BuildProject>> groups) {
         Map<Path, Integer> currentGroupOf = new HashMap<>();

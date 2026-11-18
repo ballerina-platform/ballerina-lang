@@ -28,6 +28,7 @@ import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -124,6 +125,12 @@ public class CompileTask implements Task {
             }
             Set<String> packageImports = ProjectUtils.getPackageImports(project.currentPackage());
             PackageResolution packageResolution = project.currentPackage().getResolution();
+            // A workspace package that resolved a shared dependency differently from the packages it is compiled
+            // with moves to an environment of its own before it is compiled.
+            if (project instanceof BuildProject buildProject && buildProject.workspaceProject().isPresent()
+                    && buildProject.workspaceProject().get().ensureCompatibleEnvironment(buildProject)) {
+                packageResolution = project.currentPackage().getResolution();
+            }
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
             }

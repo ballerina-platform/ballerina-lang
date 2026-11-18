@@ -457,6 +457,98 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "An edit that makes a workspace package resolve a shared dependency differently moves it to "
+            + "an environment of its own, and other edits move nothing")
+    public void testWorkspaceEditChangingSharedDependencyMovesPackage() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-edit-variant");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "newer", "0.1.0", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "newer");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "newer");
+
+            // Load as the language server does, resolving with the locked versions.
+            WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                    BuildOptions.builder().setLockingMode(PackageLockingMode.HARD).build()).project();
+            for (BuildProject member : project.projects()) {
+                Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors());
+            }
+            Environment sharedEnvironment = memberEnvironment(project, "older");
+            Assert.assertSame(memberEnvironment(project, "newer"), sharedEnvironment,
+                    "Packages that resolve their shared dependencies alike should share an environment");
+
+            // An edit that changes no dependency versions moves nothing.
+            BuildProject newer = workspaceMember(project, "newer");
+            newer.currentPackage().ballerinaToml().orElseThrow().modify()
+                    .withContent(Files.readString(workspace.resolve("newer").resolve(BALLERINA_TOML)) + "\n")
+                    .apply();
+            Assert.assertSame(memberEnvironment(project, "newer"), sharedEnvironment);
+
+            // 'newer' now requires package_c 0.1.1, which 'older' does not use.
+            newer.currentPackage().ballerinaToml().orElseThrow().modify()
+                    .withContent(Files.readString(workspace.resolve("newer").resolve(BALLERINA_TOML))
+                            .replace("name = \"package_c\"\nversion = \"0.1.0\"",
+                                    "name = \"package_c\"\nversion = \"0.1.1\""))
+                    .apply();
+            Assert.assertNotSame(memberEnvironment(project, "newer"), sharedEnvironment,
+                    "A package that resolves a shared dependency differently should move");
+            Assert.assertSame(memberEnvironment(project, "older"), sharedEnvironment,
+                    "The other packages should keep their environment");
+            BuildProject movedNewer = workspaceMember(project, "newer");
+            Assert.assertTrue(movedNewer.currentPackage().getResolution().allDependencies().stream()
+                    .anyMatch(dependency -> dependency.packageInstance().descriptor().toString()
+                            .equals("foo/package_c:0.1.1")));
+            for (BuildProject member : project.projects()) {
+                Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors(),
+                        member.currentPackage().packageName().toString());
+            }
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    @Test(description = "Workspace packages are placed in environments by the dependency versions resolved with "
+            + "their own locking modes")
+    public void testWorkspaceBuildPlacesPackagesByTheirResolution() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-build-variant");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "newer", "0.1.0", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "newer");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "newer");
+            // Both packages lock package_c 0.1.0. 'older' was built just now, so it keeps the locked version, while
+            // 'newer', which was never built, resolves with medium locking and picks the patch 0.1.1. The workspace
+            // resolution before the build sees this and compiles them in separate environments.
+            executeBuild(workspace);
+
+            Assert.assertEquals(lockedVersion(workspace, "newer", "package_c"), "0.1.1");
+            Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
+            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
+            Assert.assertEquals(packageBRecord(workspace, "newer"), "foo/package_c:0.1.1",
+                    "The package should be compiled with its own variant of the shared dependency");
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    private static BuildProject workspaceMember(WorkspaceProject workspaceProject, String name) {
+        return workspaceProject.projects().stream()
+                .filter(member -> member.currentPackage().packageName().toString().equals(name))
+                .findFirst().orElseThrow();
+    }
+
+    private static Environment memberEnvironment(WorkspaceProject workspaceProject, String name) {
+        return workspaceMember(workspaceProject, name).projectEnvironmentContext().environment();
+    }
+
     @Test(description = "A dependency compiled for a group of workspace packages is cached only in the targets of "
             + "the packages that resolved it against the same dependency versions")
     public void testWorkspaceGroupCachesDependencyOnlyForMatchingPackages() throws IOException {

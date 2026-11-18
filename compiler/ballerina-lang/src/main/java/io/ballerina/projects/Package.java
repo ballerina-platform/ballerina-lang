@@ -702,6 +702,9 @@ public class Package {
                     .getResolution(offlineCompOptions, true).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
             if (this.project.kind() == ProjectKind.BUILD_PROJECT && this.project.workspaceProject().isPresent()) {
+                // An edit that changes the dependency versions of the package may require compiling it apart from
+                // the other packages of its environment.
+                this.project.workspaceProject().get().ensureCompatibleEnvironment((BuildProject) this.project);
                 Collection<BuildProject> wpDependents = this.project.workspaceProject().get().getResolution()
                         .dependencyGraph().getDirectDependents((BuildProject) this.project);
                 for (BuildProject dependent : wpDependents) {
