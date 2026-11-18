@@ -63,6 +63,7 @@ public class ErrorConstructorExprTest {
                 {"testErrorConstructorExpr8"},
                 {"testErrorConstructorExpr9"},
                 {"testContextuallyExpectedErrorCtor"},
+                {"testErrorCtorWithDefiniteErrorUnion"},
         };
     }
 
@@ -107,6 +108,22 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 98, 83);
         validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'application'," +
                 " expected 'StringType', found 'record {| |} & readonly'", 99, 68);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from '(string|DistinctErrA|DistinctErrB)'", 108, 12);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from '(string|DistinctErrB|DistinctErrA)'", 112, 12);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from '(string|DistinctErrA|error)'", 116, 12);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from '(string|error|DistinctErrA)'", 120, 12);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from '(DistinctErrA|DistinctErrB)'", 123, 33);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from '(DistinctErrA|DistinctErrAAlias|DistinctErrB)'", 124, 51);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from '(DistinctErrB|DistinctErrA|DistinctErrAAlias)'", 125, 51);
+        validateError(negativeSemanticResult, i++,
+                "cannot infer type of the error from 'DistinctErrUnion'", 126, 24);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 

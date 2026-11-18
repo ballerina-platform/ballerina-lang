@@ -98,3 +98,29 @@ function customError() {
     ErrorR2 er4 = error ErrorR2("Custom error", errorCode = "104", application = [{}]);
     ErrorR3 er5 = error ErrorR3("Custom error", errorCode = "104", application = {});
 }
+
+type DistinctErrA distinct error;
+type DistinctErrB distinct error;
+type DistinctErrAAlias DistinctErrA;
+type DistinctErrUnion DistinctErrA|DistinctErrB;
+
+function ambiguousErrorCtor1() returns string|DistinctErrA|DistinctErrB {
+    return error("msg"); // cannot infer type of the error
+}
+
+function ambiguousErrorCtor2() returns string|DistinctErrB|DistinctErrA {
+    return error("msg"); // cannot infer type of the error
+}
+
+function ambiguousErrorCtor3() returns string|DistinctErrA|error {
+    return error("msg"); // cannot infer type of the error
+}
+
+function ambiguousErrorCtor4() returns string|error|DistinctErrA {
+    return error("msg"); // cannot infer type of the error
+}
+
+DistinctErrA|DistinctErrB ae1 = error("msg", code = 1); // cannot infer type of the error
+DistinctErrA|DistinctErrAAlias|DistinctErrB ae2 = error("msg"); // cannot infer type of the error
+DistinctErrB|DistinctErrA|DistinctErrAAlias ae3 = error("msg"); // cannot infer type of the error
+DistinctErrUnion ae4 = error("msg"); // cannot infer type of the error

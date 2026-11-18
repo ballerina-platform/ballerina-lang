@@ -183,6 +183,46 @@ function getError(AppError ae) returns [AppError, CodeError, AppCodeError[]] {
     return [ae, error("msg", no = 2), [error("m", code = 0, no = 0)]];
 }
 
+type DistinctErrA distinct error;
+type DistinctErrB distinct error;
+type DistinctErrAAlias DistinctErrA;
+type CodeErr distinct error<record { int code; }>;
+type ReasonErr distinct error<record { string reason; }>;
+
+function testErrorCtorWithDefiniteErrorUnion() {
+    // Members induce the same set of type-ids.
+    DistinctErrA|DistinctErrAAlias e1 = error("msg");
+    assertEquals(e1 is DistinctErrA, true);
+
+    // Detail args match a single member.
+    CodeErr|ReasonErr|string e2 = error("msg", code = 1);
+    assertEquals(e2 is CodeErr, true);
+    assertEquals(e2 is ReasonErr, false);
+
+    e2 = error("msg", reason = "r");
+    assertEquals(e2 is ReasonErr, true);
+    assertEquals(e2 is CodeErr, false);
+
+    // Error type is specified explicitly.
+    string|DistinctErrA|DistinctErrB e3 = getDistinctErrB();
+    assertEquals(e3 is DistinctErrB, true);
+    assertEquals(e3 is DistinctErrA, false);
+
+    // Plain error constructed with a definite contextually expected type.
+    string|DistinctErrA|error e4 = getPlainError();
+    assertEquals(e4 is error, true);
+    assertEquals(e4 is DistinctErrA, false);
+}
+
+function getDistinctErrB() returns string|DistinctErrA|DistinctErrB {
+    return error DistinctErrB("msg");
+}
+
+function getPlainError() returns string|DistinctErrA|error {
+    error e = error("msg");
+    return e;
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
