@@ -328,6 +328,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void fromStringWithBOMTest() {
+        BRunUtil.invoke(compileResult, "fromStringWithByteOrderMarkTest");
+    }
+
+    @Test
     public void testXmlSubtypeFillerValue() {
         BRunUtil.invoke(compileResult, "testXmlSubtypeFillerValue");
     }
