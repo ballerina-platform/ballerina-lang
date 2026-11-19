@@ -280,6 +280,16 @@ public class ModuleContext {
         return moduleCompState;
     }
 
+    boolean isLoadingFromCache() {
+        ModuleCompilationState state = currentCompilationState();
+        return state == ModuleCompilationState.LOADED_FROM_CACHE || state == ModuleCompilationState.BIR_LOADED
+                || state == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_BALA;
+    }
+
+    void loadFromSources() {
+        this.moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+    }
+
     void setCompilationState(ModuleCompilationState moduleCompState) {
         this.moduleCompState = moduleCompState;
     }
