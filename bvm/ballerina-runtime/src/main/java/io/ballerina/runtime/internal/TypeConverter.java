@@ -114,6 +114,7 @@ public final class TypeConverter {
     public static final String ERROR_MESSAGE_UNION_END = "}";
     public static final String ERROR_MESSAGE_UNION_SEPARATOR = "or";
     public static final String XML_DECLARATION = "<?xml ";
+    private static final char BYTE_ORDER_MARK = '\uFEFF';
 
     public static Object convertValues(Type targetType, Object inputValue) {
         Type inputType = TypeChecker.getType(inputValue);
@@ -974,11 +975,13 @@ public final class TypeConverter {
     }
 
     public static BXml stringToXml(String value) throws BError {
-        String xml = value.trim();
+        // Skip a leading byte order mark.
+        String content = !value.isEmpty() && value.charAt(0) == BYTE_ORDER_MARK ? value.substring(1) : value;
+        String xml = content.trim();
         if (xml.startsWith(XML_DECLARATION)) {
             return XmlUtils.parse(xml);
         }
-        return XmlUtils.parse("<root>" + value + "</root>").children();
+        return XmlUtils.parse("<root>" + content + "</root>").children();
     }
 
     public static RegExpValue stringToRegExp(String value) throws BError {
