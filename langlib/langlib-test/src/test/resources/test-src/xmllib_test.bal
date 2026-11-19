@@ -950,6 +950,28 @@ function fromStringTest() {
     assertEquals(xmlWithCData, xml `<Description>OK</Description>`);
 }
 
+function fromStringWithByteOrderMarkTest() {
+    string declDoc = "<?xml version=\"1.0\"?><root><child>v</child></root>";
+    xml withDecl = checkpanic xml:fromString("\u{FEFF}" + declDoc);
+    assertEquals(withDecl, checkpanic xml:fromString(declDoc));
+    assertEquals(withDecl.length(), 2);
+    assertEquals(withDecl[0] is xml:ProcessingInstruction, true);
+    assertEquals(withDecl[1] is xml:Element, true);
+
+    xml noDecl = checkpanic xml:fromString("\u{FEFF}<root><child>v</child></root>");
+    assertEquals(noDecl.length(), 1);
+    assertEquals(noDecl is xml:Element, true);
+    assertEquals(noDecl, xml `<root><child>v</child></root>`);
+
+    xml inner = checkpanic xml:fromString("<a>\u{FEFF}</a>");
+    assertEquals(inner is xml:Element, true);
+    assertEquals((<xml:Element> inner).getChildren().toString(), "\u{FEFF}");
+
+    // cloneWithType does not skip a leading BOM.
+    xml|error cloned = ("\u{FEFF}" + declDoc).cloneWithType();
+    assertEquals(cloned is error, true);
+}
+
 function testXmlIteratorNextInvocations() {
 
     'xml:Text x1 = xml `foo`;
