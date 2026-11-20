@@ -227,6 +227,31 @@ public class LangLibDecimalTest {
         BRunUtil.invoke(compileResult, "testRunnerTestRoundToFractionDigits");
     }
 
+    @Test(description = "Test decimal:round result scale")
+    public void testRoundScale() {
+        BRunUtil.invoke(compileResult, "testRoundScale");
+    }
+
+    @Test(dataProvider = "roundToZeroScaleProvider")
+    public void testRoundToZeroScale(String arg, long fractionDigits, int expectedScale) {
+        Object returns = BRunUtil.invoke(compileResult, "testRoundWithFractionDigits",
+                new Object[] {ValueCreator.createDecimalValue(arg), fractionDigits});
+        BDecimal result = (BDecimal) returns;
+        assertEquals(0, result.decimalValue().signum());
+        assertEquals(expectedScale, result.decimalValue().scale());
+    }
+
+    @DataProvider(name = "roundToZeroScaleProvider")
+    public static Object[][] roundToZeroScaleProvider() {
+        return new Object[][] {
+                {"13.3", -2, -2},
+                {"3.3", -2, -2},
+                {"5.55", -200, -200},
+                {"5.55", Long.MIN_VALUE, -6111},
+                {"5.55", Integer.MIN_VALUE, -6111}
+        };
+    }
+
     @Test(description = "Test decimal:round with named arguments")
     public void testRoundWithNamedArguments() {
         BRunUtil.invoke(compileResult, "testRoundWithNamedArguments");

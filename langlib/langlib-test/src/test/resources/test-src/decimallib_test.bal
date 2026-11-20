@@ -76,6 +76,7 @@ function testRunnerTestRoundToFractionDigits() {
 
         [5.55, 2147483647, 5.55],
         [5.55, -2147483648, 0],
+        [5.55, int:MIN_VALUE, 0],
         [5.5E-2, 3, 0.055],
         [5.52156E2, 3, 552.156],
         [5.521561234452654235E2, 15, 552.156123445265424]
@@ -93,6 +94,31 @@ function testRoundWithNamedArguments() {
     assertEquality(x.toBalString(), "5.6d");
     assertEquality(y.toBalString(), "6d");
     assertEquality(z.toBalString(), "5.6d");
+}
+
+function testRoundWithFractionDigits(decimal x, int fractionDigits) returns decimal {
+    return x.round(fractionDigits);
+}
+
+type RoundScaleDataPoint [decimal, int, string];
+
+function testRoundScale() {
+    RoundScaleDataPoint[] data = [
+        [2.5, 2, "2.50"],
+        [1e3, 2, "1000.00"],
+        [1e3, 0, "1000"],
+        [-1.5e2, 1, "-150.0"],
+        [3234.303567, 10, "3234.3035670000"],
+        [5.5555, 4, "5.5555"],
+        [5.5555, 2, "5.56"],
+        [4345.55, -3, "4E+3"],
+        [5.55, 2147483647, "5.550000000000000000000000000000000"],
+        [1234567890123456789012345678901234d, 5, "1234567890123456789012345678901234"]
+    ];
+
+    foreach RoundScaleDataPoint [x, fractionDigits, expected] in data {
+        assertEquality(x.round(fractionDigits).toString(), expected);
+    }
 }
 
 function testRunnerTestRoundToZeroWithCast() {
