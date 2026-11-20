@@ -106,6 +106,9 @@ public isolated function abs(decimal x) returns decimal = @java:Method {
 # and for Ballerina).
 # A value of `fractionDigits` greater than 0 thus corresponds to the number of digits after the decimal
 # point being `fractionDigits`; a value of 0 for `fractionDigits` rounds to an integer.
+# If decimal128 cannot represent a nonzero result with exponent `-fractionDigits`
+# (because it would need more than 34 significant digits), the result instead has
+# the smallest exponent with which decimal128 can represent it exactly.
 # If the result is zero, its exponent is 0, as for other operations on decimal
 # (only `quantize` preserves the exponent of a zero result).
 # Note that IEEE 754 roundToIntegralTiesToEven operation differs from `round` with `fractionDigits` as 0, in that
