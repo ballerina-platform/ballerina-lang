@@ -74,6 +74,25 @@ public class CachedBirDependencyTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 0, "Unexpected compilation errors");
     }
 
+    @Test(description = "Report a missing dependency of a cached module as a diagnostic",
+            dependsOnMethods = "testCachedBirWithDependencyCompiledFromSources")
+    public void testCachedBirWithUnresolvedDependency() throws IOException {
+        Assert.assertTrue(Files.exists(ORG_CACHE.resolve("package_a")), "package_a BIR is not cached");
+        // package_a keeps its cached BIR; package_b is no longer available, so the build cannot resolve it.
+        ProjectUtils.deleteDirectory(ORG_CACHE.resolve("package_b"));
+        ProjectUtils.deleteDirectory(DIST_REPO.resolve("bala").resolve("cachedbir").resolve("package_b"));
+        ProjectUtils.deleteDirectory(tempResourceDir.resolve("package_app").resolve("target"));
+        Files.deleteIfExists(tempResourceDir.resolve("package_app").resolve("Dependencies.toml"));
+
+        BuildProject buildProject = TestUtils.loadBuildProject(tempResourceDir.resolve("package_app"));
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertTrue(diagnosticResult.errors().stream().anyMatch(diagnostic ->
+                        diagnostic.message().equals("cannot resolve module 'cachedbir/package_b'")),
+                "Missing dependency is not reported");
+    }
+
     @AfterClass
     public void cleanUp() throws IOException {
         ProjectUtils.deleteDirectory(ORG_CACHE);
