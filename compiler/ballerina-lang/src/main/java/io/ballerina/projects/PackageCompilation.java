@@ -193,15 +193,17 @@ public class PackageCompilation {
     }
 
     // A cached BIR refers to the dependency builds it was compiled against, so it cannot be loaded in a build that
-    // compiles one of those dependencies from sources. Built-in packages are bootstrapped and keep their caches.
-    private static void compileFromSourcesIfDependencyIs(ModuleContext moduleContext,
-                                                         Set<ModuleDescriptor> compiledFromSources) {
+    // compiles one of those dependencies from sources or cannot resolve one of them; compiling the module from its
+    // sources reports a missing import as a diagnostic. Built-in packages are bootstrapped and keep their caches.
+    private static void compileFromSourcesIfBirCannotLoad(ModuleContext moduleContext,
+                                                          Set<ModuleDescriptor> compiledFromSources) {
         ModuleDescriptor descriptor = moduleContext.descriptor();
         if (ProjectUtils.isBuiltInPackage(descriptor.org(), descriptor.packageName().value())) {
             return;
         }
-        if (moduleContext.isLoadingFromCache() && moduleContext.dependencies().stream()
-                .anyMatch(dependency -> compiledFromSources.contains(dependency.descriptor()))) {
+        if (moduleContext.isLoadingFromCache() && (moduleContext.hasUnresolvedDependencies()
+                || moduleContext.dependencies().stream()
+                        .anyMatch(dependency -> compiledFromSources.contains(dependency.descriptor())))) {
             moduleContext.loadFromSources();
         }
         if (!moduleContext.isLoadingFromCache()) {
@@ -221,7 +223,7 @@ public class PackageCompilation {
         if (!packageResolution.diagnosticResult().hasErrors()) {
             Set<ModuleDescriptor> compiledFromSources = new HashSet<>();
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-                compileFromSourcesIfDependencyIs(moduleContext, compiledFromSources);
+                compileFromSourcesIfBirCannotLoad(moduleContext, compiledFromSources);
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                     if (ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) &&
