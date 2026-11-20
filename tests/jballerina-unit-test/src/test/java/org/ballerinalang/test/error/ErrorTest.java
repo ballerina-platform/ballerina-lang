@@ -68,6 +68,11 @@ public class ErrorTest {
     }
 
     @Test
+    public void testErrorConstructorInUnionDetailArg() {
+        BRunUtil.invoke(distinctErrorTestResult, "testErrorConstructorInUnionDetailArg");
+    }
+
+    @Test
     public void testNegativeDistinctError() {
         int i = 0;
         BAssertUtil.validateError(negativeDistinctErrorRes, i++,
