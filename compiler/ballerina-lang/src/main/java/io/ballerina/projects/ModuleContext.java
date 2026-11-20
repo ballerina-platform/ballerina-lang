@@ -86,6 +86,7 @@ public class ModuleContext {
     private final List<ModuleDescriptor> moduleDescDependencies;
 
     private Set<ModuleDependency> moduleDependencies;
+    private boolean hasUnresolvedDependencies;
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
     private WeakReference<byte[]> birBytes = DEFAULT_BIR_BYTE;
@@ -280,16 +281,31 @@ public class ModuleContext {
         return moduleCompState;
     }
 
+    boolean isLoadingFromCache() {
+        ModuleCompilationState state = currentCompilationState();
+        return state == ModuleCompilationState.LOADED_FROM_CACHE || state == ModuleCompilationState.BIR_LOADED
+                || state == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_BALA;
+    }
+
+    boolean hasUnresolvedDependencies() {
+        return hasUnresolvedDependencies;
+    }
+
+    void loadFromSources() {
+        this.moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+    }
+
     void setCompilationState(ModuleCompilationState moduleCompState) {
         this.moduleCompState = moduleCompState;
     }
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
         Set<ModuleDependency> moduleDependencies = new HashSet<>();
+        boolean unresolved = false;
         if (this.project.kind() == ProjectKind.BALA_PROJECT) {
             for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
                 // Dependencies loaded from cache should not contain test dependencies
-                addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
+                unresolved |= !addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
                         dependencyModDesc.name(), PackageDependencyScope.DEFAULT,
                         moduleDependencies, dependencyResolution);
             }
@@ -309,39 +325,42 @@ public class ModuleContext {
                     packageOrg = modLoadRequest.orgName().get();
                 }
 
-                addModuleDependency(packageOrg, modLoadRequest.moduleName(),
+                boolean resolved = addModuleDependency(packageOrg, modLoadRequest.moduleName(),
                         modLoadRequest.scope(), moduleDependencies, dependencyResolution);
+                unresolved |= !resolved && this.allModuleLoadRequests.contains(modLoadRequest);
             }
         }
 
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+        this.hasUnresolvedDependencies = unresolved;
     }
 
-    private void addModuleDependency(PackageOrg org,
-                                     String moduleName,
-                                     PackageDependencyScope scope,
-                                     Set<ModuleDependency> moduleDependencies,
-                                     DependencyResolution dependencyResolution) {
+    private boolean addModuleDependency(PackageOrg org,
+                                      String moduleName,
+                                      PackageDependencyScope scope,
+                                      Set<ModuleDependency> moduleDependencies,
+                                      DependencyResolution dependencyResolution) {
         Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName);
         if (resolvedModuleOptional.isEmpty()) {
-            return;
+            return false;
         }
 
         ModuleContext resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
                 new PackageDependency(resolvedModule.moduleId().packageId(), scope), resolvedModule.descriptor());
         moduleDependencies.add(moduleDependency);
+        return true;
     }
 
-    private void addModuleDependency(PackageOrg org,
-                                     PackageName packageName,
-                                     ModuleName moduleName,
-                                     PackageDependencyScope scope,
-                                     Set<ModuleDependency> moduleDependencies,
-                                     DependencyResolution dependencyResolution) {
+    private boolean addModuleDependency(PackageOrg org,
+                                      PackageName packageName,
+                                      ModuleName moduleName,
+                                      PackageDependencyScope scope,
+                                      Set<ModuleDependency> moduleDependencies,
+                                      DependencyResolution dependencyResolution) {
         Optional<Module> resolvedModuleOptional = dependencyResolution.getModule(org, packageName, moduleName);
         if (resolvedModuleOptional.isEmpty()) {
-            return;
+            return false;
         }
 
         Module resolvedModule = resolvedModuleOptional.get();
@@ -349,6 +368,7 @@ public class ModuleContext {
                 new PackageDependency(resolvedModule.packageInstance().packageId(), scope),
                 resolvedModule.descriptor());
         moduleDependencies.add(moduleDependency);
+        return true;
     }
 
     void compile(CompilerContext compilerContext) {

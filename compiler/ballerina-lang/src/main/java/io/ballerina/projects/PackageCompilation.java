@@ -23,6 +23,7 @@ import io.ballerina.projects.CompilerBackend.TargetPlatform;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
@@ -33,9 +34,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.function.Function;
 
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
@@ -189,6 +192,25 @@ public class PackageCompilation {
         }
     }
 
+    // A cached BIR refers to the dependency builds it was compiled against, so it cannot be loaded in a build that
+    // compiles one of those dependencies from sources or cannot resolve one of them; compiling the module from its
+    // sources reports a missing import as a diagnostic. Built-in packages are bootstrapped and keep their caches.
+    private static void compileFromSourcesIfBirCannotLoad(ModuleContext moduleContext,
+                                                          Set<ModuleDescriptor> compiledFromSources) {
+        ModuleDescriptor descriptor = moduleContext.descriptor();
+        if (ProjectUtils.isBuiltInPackage(descriptor.org(), descriptor.packageName().value())) {
+            return;
+        }
+        if (moduleContext.isLoadingFromCache() && (moduleContext.hasUnresolvedDependencies()
+                || moduleContext.dependencies().stream()
+                        .anyMatch(dependency -> compiledFromSources.contains(dependency.descriptor())))) {
+            moduleContext.loadFromSources();
+        }
+        if (!moduleContext.isLoadingFromCache()) {
+            compiledFromSources.add(descriptor);
+        }
+    }
+
     private void compileModulesInternal() {
         List<Diagnostic> diagnostics = new ArrayList<>();
         // add resolution diagnostics
@@ -199,7 +221,9 @@ public class PackageCompilation {
         diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
         if (!packageResolution.diagnosticResult().hasErrors()) {
+            Set<ModuleDescriptor> compiledFromSources = new HashSet<>();
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                compileFromSourcesIfBirCannotLoad(moduleContext, compiledFromSources);
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                     if (ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) &&
