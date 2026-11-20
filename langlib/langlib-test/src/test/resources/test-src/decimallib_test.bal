@@ -113,12 +113,19 @@ function testRoundScale() {
         [5.5555, 2, "5.56"],
         [4345.55, -3, "4E+3"],
         [5.55, 2147483647, "5.550000000000000000000000000000000"],
-        [1234567890123456789012345678901234d, 5, "1234567890123456789012345678901234"]
+        [1234567890123456789012345678901234d, 5, "1234567890123456789012345678901234"],
+        [0.0000005, 6, "0"],
+        [13.3, -2, "0"]
     ];
 
     foreach RoundScaleDataPoint [x, fractionDigits, expected] in data {
         assertEquality(x.round(fractionDigits).toString(), expected);
     }
+
+    decimal a = 13.3;
+    decimal b = 3.3;
+    assertEquality(true, a.round(-2) === 0d);
+    assertEquality(true, b.round(-2) === 0d);
 }
 
 function testRunnerTestRoundToZeroWithCast() {
