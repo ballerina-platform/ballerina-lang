@@ -214,6 +214,22 @@ function testDecimalNotExactEquality() {
     test:assertFalse(d1 !== d2);
 }
 
+function testFromStringNonAscii() {
+    // U+0661..U+0663 ARABIC-INDIC DIGIT ONE..THREE, U+0665 ARABIC-INDIC DIGIT FIVE
+    // U+0967 DEVANAGARI DIGIT ONE, U+FF11 FULLWIDTH DIGIT ONE
+    string[] inputs = ["\u{0661}\u{0662}\u{0663}", "\u{0661}.\u{0665}", "\u{0967}e2", "-\u{FF11}", "1.\u{0665}",
+                       "1e\u{0662}"];
+    foreach string input in inputs {
+        decimal|error result = decimal:fromString(input);
+        assertEquality(true, result is error);
+        if (result is error) {
+            assertEquality("{ballerina/lang.decimal}NumberParsingError", result.message());
+            assertEquality("'string' value '" + input + "' cannot be converted to 'decimal'",
+                    <string> checkpanic result.detail()["message"]);
+        }
+    }
+}
+
 function testFromStringFunctionWithInvalidValues() {
     decimal|error a1 = decimal:fromString("123f");
     assertEquality(true, a1 is error);

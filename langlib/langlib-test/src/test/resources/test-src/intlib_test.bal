@@ -60,6 +60,39 @@ function testFromHexString() returns [int|error, int|error] {
     return [v1, v2];
 }
 
+function testFromStringNonAscii() {
+    // U+0661..U+0663 ARABIC-INDIC DIGIT ONE..THREE
+    assertNumberParsingError(ints:fromString("\u{0661}\u{0662}\u{0663}"),
+            "'string' value '\u{0661}\u{0662}\u{0663}' cannot be converted to 'int'");
+    // U+0967, U+0968 DEVANAGARI DIGIT ONE, TWO
+    assertNumberParsingError(ints:fromString("\u{0967}\u{0968}"),
+            "'string' value '\u{0967}\u{0968}' cannot be converted to 'int'");
+    // U+FF11 FULLWIDTH DIGIT ONE
+    assertNumberParsingError(ints:fromString("-\u{FF11}"), "'string' value '-\u{FF11}' cannot be converted to 'int'");
+    // Mixed ASCII and non-ASCII digits
+    assertNumberParsingError(ints:fromString("1\u{0662}3"), "'string' value '1\u{0662}3' cannot be converted to 'int'");
+
+    assert(checkpanic ints:fromString("+123"), 123);
+    assert(checkpanic ints:fromString("-123"), -123);
+}
+
+function testFromHexStringNonAscii() {
+    // U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
+    assertNumberParsingError(ints:fromHexString("\u{FF21}"), "For input string: \"\u{FF21}\" under radix 16");
+    // U+0661 ARABIC-INDIC DIGIT ONE
+    assertNumberParsingError(ints:fromHexString("a\u{0661}"), "For input string: \"a\u{0661}\" under radix 16");
+
+    assert(checkpanic ints:fromHexString("-fF"), -255);
+}
+
+function assertNumberParsingError(int|error result, string expectedDetailMessage) {
+    if result is int {
+        panic error("expected a NumberParsingError, but found [" + result.toString() + "]");
+    }
+    assert(result.message(), "{ballerina/lang.int}NumberParsingError");
+    assert(<string> checkpanic result.detail()["message"], expectedDetailMessage);
+}
+
 function testChainedIntFunctions() returns int {
     var e = 0;
     int a = e.max(1).min(2);

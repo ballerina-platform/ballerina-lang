@@ -82,6 +82,16 @@ public class LangLibIntTest {
     }
 
     @Test
+    public void testFromStringNonAscii() {
+        BRunUtil.invoke(compileResult, "testFromStringNonAscii");
+    }
+
+    @Test
+    public void testFromHexStringNonAscii() {
+        BRunUtil.invoke(compileResult, "testFromHexStringNonAscii");
+    }
+
+    @Test
     public void testSum() {
         Object returns = BRunUtil.invoke(compileResult, "testSum");
         assertEquals(returns, 110L);

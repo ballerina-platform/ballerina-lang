@@ -349,6 +349,11 @@ public class LangLibDecimalTest {
     }
 
     @Test
+    public void testFromStringNonAscii() {
+        BRunUtil.invoke(compileResult, "testFromStringNonAscii");
+    }
+
+    @Test
     public void testQuantize() {
         BRunUtil.invoke(compileResult, "testQuantize");
     }

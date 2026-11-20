@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.integer;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeConverter;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
@@ -37,8 +38,12 @@ public final class FromHexString {
     }
 
     public static Object fromHexString(BString s) {
+        String value = s.getValue();
         try {
-            return Long.parseLong(s.getValue(), 16);
+            if (!TypeConverter.isAsciiString(value)) {
+                throw new NumberFormatException("For input string: \"" + value + "\" under radix 16");
+            }
+            return Long.parseLong(value, 16);
         } catch (NumberFormatException e) {
             return ErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
                                             StringUtils.fromString(e.getMessage()));
