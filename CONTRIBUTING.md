@@ -13,7 +13,7 @@ We appreciate your help!
 ## Get started
 
 - Download [Ballerina](https://ballerina.io/downloads/) and go through the [learning resources](https://ballerina.io/learn/).
-- Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
+- Read the [Ballerina Code of Conduct](https://ballerina.io/code-of-conduct).
 
 - Join the [Ballerina community](https://ballerina.io/community/).
 
@@ -25,7 +25,7 @@ We appreciate your help!
 
 ## Build the source code 
 
-For instructions, see <a href="https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/build-ballerina-from-source.md">Building from source</a>.
+For instructions, see [Building from source](https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/build-ballerina-from-source.md).
 
 ## Set up the development environment
 
