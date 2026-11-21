@@ -19,6 +19,7 @@
 package io.ballerina.semtype.port.test;
 
 import java.nio.file.Paths;
+import org.testng.Assert;
 
 /**
  * Subtype test.
@@ -37,8 +38,8 @@ public record TypeAssertion<SemType>(TypeTestContext<SemType> context, String fi
 
     public TypeAssertion {
         if (kind != null) {
-            assert lhs != null;
-            assert rhs != null;
+            Assert.assertNotNull(lhs);
+            Assert.assertNotNull(rhs);
         }
     }
 

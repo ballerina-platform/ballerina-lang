@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 import org.testng.annotations.Test;
+import org.testng.Assert;
 
 public class CoreTests {
 
@@ -35,11 +36,11 @@ public class CoreTests {
         Context cx = Context.from(env);
         SemType intTy = Builder.getIntType();
         SemType readonlyInt = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
-        assert Core.isSubType(cx, readonlyInt, readonlyInt);
+        Assert.assertTrue(Core.isSubType(cx, readonlyInt, readonlyInt));
         SemType mutableInt = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
-        assert Core.isSubType(cx, mutableInt, mutableInt);
-        assert Core.isSubType(cx, readonlyInt, mutableInt);
-        assert !Core.isSubType(cx, mutableInt, readonlyInt);
+        Assert.assertTrue(Core.isSubType(cx, mutableInt, mutableInt));
+        Assert.assertTrue(Core.isSubType(cx, readonlyInt, mutableInt));
+        Assert.assertTrue(!Core.isSubType(cx, mutableInt, readonlyInt));
     }
 
     @Test
@@ -48,7 +49,7 @@ public class CoreTests {
         SemType intTy = Builder.getIntType();
         SemType readonlyInt1 = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
         SemType readonlyInt2 = Builder.getCellContaining(env, intTy, CellAtomicType.CellMutability.CELL_MUT_NONE);
-        assert readonlyInt1 == readonlyInt2;
+        Assert.assertEquals(readonlyInt1, readonlyInt2);
     }
 
     @Test
@@ -69,6 +70,6 @@ public class CoreTests {
                         CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
 
         Context cx = Context.from(env);
-        assert Core.isSubType(cx, intListTy1, intListTy);
+        Assert.assertTrue(Core.isSubType(cx, intListTy1, intListTy));
     }
 }

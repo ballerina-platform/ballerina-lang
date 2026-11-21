@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.testng.Assert;
 
 import static org.ballerinalang.model.tree.NodeKind.CONSTANT;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
@@ -251,8 +252,8 @@ public class CompilerSemTypeResolver extends SemTypeResolver<SemType> {
     private static ObjectQualifiers getQualifiers(BLangObjectTypeNode td) {
         Set<Flag> flags = td.symbol.getFlags();
         ObjectQualifiers.NetworkQualifier networkQualifier;
-        assert !(flags.contains(Flag.CLIENT) && flags.contains(Flag.SERVICE)) :
-                "object can't be both client and service";
+        Assert.assertFalse(flags.contains(Flag.CLIENT) && flags.contains(Flag.SERVICE), 
+                   "object can't be both client and service");
         if (flags.contains(Flag.CLIENT)) {
             networkQualifier = ObjectQualifiers.NetworkQualifier.Client;
         } else if (flags.contains(Flag.SERVICE)) {
@@ -689,7 +690,7 @@ public class CompilerSemTypeResolver extends SemTypeResolver<SemType> {
             case NIL -> PredefinedType.NIL;
             case BOOLEAN -> SemTypes.booleanConst((Boolean) value);
             case INT, BYTE -> {
-                assert !(value instanceof Byte);
+                Assert.assertFalse(value instanceof Byte);
                 yield SemTypes.intConst(((Number) value).longValue());
             }
             case FLOAT -> {
