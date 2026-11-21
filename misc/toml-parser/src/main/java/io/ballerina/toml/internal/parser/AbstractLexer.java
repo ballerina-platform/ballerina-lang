@@ -99,8 +99,12 @@ public abstract class AbstractLexer {
      * End the current mode the mode of the lexer and fall back the previous mode.
      */
     public void endMode() {
-        this.modeStack.pop();
-        this.mode = this.modeStack.peek();
+        if (!this.modeStack.isEmpty()) {
+            this.modeStack.pop();
+            if (!this.modeStack.isEmpty()) {
+                this.mode = this.modeStack.peek();
+            }
+        }
     }
 
     private void resetDiagnosticList() {
