@@ -21,7 +21,9 @@ package toml.parser.test.api.errors;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -32,6 +34,22 @@ import java.util.List;
  * Test cases for Key Value pair Syntax errors in TOML.
  */
 public class KeyValuePairTest {
+
+    @Test
+    public void testDuplicateQuotedKeyInTable() {
+        Toml toml = Toml.read("""
+                [id-types]
+                "Book.isbn" = "float"
+                "Book.isbn" = "int"
+                """, "duplicate-quoted-key.toml");
+
+        List<Diagnostic> diagnostics = toml.diagnostics();
+        Assert.assertEquals(diagnostics.size(), 1);
+        LineRange duplicate = LineRange.from("duplicate-quoted-key.toml",
+                LinePosition.from(2, 0), LinePosition.from(2, 19));
+        ErrorTestUtils.validateDiagnostic(diagnostics.getFirst(), duplicate, "existing node '\"Book.isbn\"'",
+                DiagnosticSeverity.ERROR);
+    }
 
     @Test
     public void testMissingEquals() throws IOException {
