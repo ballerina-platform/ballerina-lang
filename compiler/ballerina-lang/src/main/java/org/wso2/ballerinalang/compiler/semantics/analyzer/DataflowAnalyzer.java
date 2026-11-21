@@ -324,6 +324,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.functionToDependency = new HashMap<>();
         this.possibleFailureUnInitVars = new LinkedHashMap<>();
         this.enclosingOnFailClause = new ArrayDeque<>();
+        this.symbolOwner.clear();
+        this.dependsOnLambda.clear();
+        this.invocationToDependent.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);

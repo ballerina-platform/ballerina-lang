@@ -161,19 +161,19 @@ public class SymbolTable {
     public BObjectType naturalGeneratorType;
 
     // builtin subtypes
-    public final BIntSubType signed32IntType = BIntSubType.SIGNED32;
-    public final BIntSubType signed16IntType = BIntSubType.SIGNED16;
-    public final BIntSubType signed8IntType = BIntSubType.SIGNED8;
-    public final BIntSubType unsigned32IntType = BIntSubType.UNSIGNED32;
-    public final BIntSubType unsigned16IntType = BIntSubType.UNSIGNED16;
-    public final BIntSubType unsigned8IntType = BIntSubType.UNSIGNED8;
+    public final BIntSubType signed32IntType = BIntSubType.newSigned32();
+    public final BIntSubType signed16IntType = BIntSubType.newSigned16();
+    public final BIntSubType signed8IntType = BIntSubType.newSigned8();
+    public final BIntSubType unsigned32IntType = BIntSubType.newUnsigned32();
+    public final BIntSubType unsigned16IntType = BIntSubType.newUnsigned16();
+    public final BIntSubType unsigned8IntType = BIntSubType.newUnsigned8();
 
-    public final BStringSubType charStringType = BStringSubType.CHAR;
+    public final BStringSubType charStringType = BStringSubType.newChar();
 
-    public final BXMLSubType xmlElementType = BXMLSubType.XML_ELEMENT;
-    public final BXMLSubType xmlPIType = BXMLSubType.XML_PI;
-    public final BXMLSubType xmlCommentType = BXMLSubType.XML_COMMENT;
-    public final BXMLSubType xmlTextType = BXMLSubType.XML_TEXT;
+    public final BXMLSubType xmlElementType = BXMLSubType.newElement();
+    public final BXMLSubType xmlPIType = BXMLSubType.newPI();
+    public final BXMLSubType xmlCommentType = BXMLSubType.newComment();
+    public final BXMLSubType xmlTextType = BXMLSubType.newText();
 
     public final BRegexpType regExpType = new BRegexpType();
     public final BType xmlNeverType = new BXMLType(neverType,  null);
