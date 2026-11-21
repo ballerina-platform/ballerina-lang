@@ -23,6 +23,14 @@ function testToLower() returns string {
     return str.toLowerAscii();
 }
 
+function testToUpperAscii(string value) returns string {
+    return value.toUpperAscii();
+}
+
+function testToLowerAscii(string value) returns string {
+    return value.toLowerAscii();
+}
+
 type EqualityOp "==" | "!=" | "===" | "!==";
 
 type EqualityInsn record {|

@@ -33,6 +33,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Locale;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -62,6 +64,38 @@ public class LangLibStringTest {
     public void testToLower() {
         Object returns = BRunUtil.invoke(compileResult, "testToLower");
         assertEquals(returns.toString(), "hello ballerina!");
+    }
+
+    @Test(dataProvider = "asciiCaseConversions")
+    public void testAsciiCaseConversions(String input, String upper, String lower) {
+        Object[] args = {StringUtils.fromString(input)};
+        assertEquals(BRunUtil.invoke(compileResult, "testToUpperAscii", args).toString(), upper);
+        assertEquals(BRunUtil.invoke(compileResult, "testToLowerAscii", args).toString(), lower);
+    }
+
+    @DataProvider(name = "asciiCaseConversions")
+    public Object[][] asciiCaseConversions() {
+        return new Object[][]{
+                {"", "", ""},
+                {"abcxyz ABCXYZ", "ABCXYZ ABCXYZ", "abcxyz abcxyz"},
+                {"Iiİı", "IIİı", "iiİı"},
+                {"äaß😀", "äAß😀", "äaß😀"},
+                {"ÄA", "ÄA", "Äa"},
+                {"éÉßẞΣσςKſ", "éÉßẞΣσςKſ", "éÉßẞΣσςKſ"},
+                {"𐐨𐐀", "𐐨𐐀", "𐐨𐐀"},
+                {"0123!?_", "0123!?_", "0123!?_"}
+        };
+    }
+
+    @Test
+    public void testAsciiCaseConversionsWithTurkishLocale() {
+        Locale original = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            testAsciiCaseConversions("Iiİı", "IIİı", "iiİı");
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 
     @Test
