@@ -306,7 +306,8 @@ public class MappingConstructorExprTest {
                 { "testMappingConstrExprAsSpreadExpr" },
                 { "testSpreadFieldWithRecordTypeHavingNeverField" },
                 { "testSpreadFieldWithRecordTypeHavingRestDescriptor" },
-                { "testSpreadFieldWithRecordTypeReference" }
+                { "testSpreadFieldWithRecordTypeReference" },
+                { "testSpreadOpWithNumericLiteralContextualTyping" }
         };
     }
 

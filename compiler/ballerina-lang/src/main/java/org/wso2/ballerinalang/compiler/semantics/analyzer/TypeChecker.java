@@ -7896,7 +7896,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     fieldName = getKeyValueFieldName(keyValField);
                 } else if (spreadOpField) {
                     BLangExpression spreadExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
-                    checkExpr(spreadExpr, data);
+                    if (spreadExpr instanceof BLangRecordLiteral) {
+                        checkSpreadRecordLiteral((BLangRecordLiteral) spreadExpr, mappingType, data);
+                    } else {
+                        checkExpr(spreadExpr, data);
+                    }
 
                     BRecordType mappingRecordType = (BRecordType) mappingType;
                     BType spreadExprType = Types.getImpliedType(spreadExpr.getBType());
@@ -7965,7 +7969,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.MAP:
                 if (spreadOpField) {
                     BLangExpression spreadExp = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
-                    BType spreadOpType = checkExpr(spreadExp, data);
+                    if (spreadExp instanceof BLangRecordLiteral) {
+                        checkSpreadRecordLiteral((BLangRecordLiteral) spreadExp, mappingType, data);
+                    } else {
+                        checkExpr(spreadExp, data);
+                    }
+                    BType spreadOpType = spreadExp.getBType();
                     BType spreadOpMemberType = checkSpreadFieldWithMapType(spreadOpType);
                     if (spreadOpMemberType.tag == symTable.semanticError.tag) {
                         dlog.error(spreadExp.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_SPREAD_OP,
@@ -9513,7 +9522,35 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return BUnionType.create(typeEnv, null, inferredTypeList.toArray(new BType[0]));
     }
 
+    private void checkSpreadRecordLiteral(BLangRecordLiteral spreadLiteral, BType mappingType, AnalyzerData data) {
+        BType inferredType = defineInferredRecordType(spreadLiteral, symTable.noType, mappingType, data);
+        spreadLiteral.setBType(inferredType);
+        spreadLiteral.typeChecked = true;
+    }
+
+    private BType getSpreadFieldExpectedType(String fieldName, BType mappingType) {
+        BType impliedType = Types.getImpliedType(mappingType);
+        if (impliedType.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) impliedType;
+            if (recordType.fields.containsKey(fieldName)) {
+                return recordType.fields.get(fieldName).type;
+            }
+            if (recordType.restFieldType != null && recordType.restFieldType != symTable.noType) {
+                return recordType.restFieldType;
+            }
+            return getAllFieldType(recordType);
+        } else if (impliedType.tag == TypeTags.MAP) {
+            return ((BMapType) impliedType).constraint;
+        }
+        return symTable.noType;
+    }
+
     public BType defineInferredRecordType(BLangRecordLiteral recordLiteral, BType expType, AnalyzerData data) {
+        return defineInferredRecordType(recordLiteral, expType, null, data);
+    }
+
+    public BType defineInferredRecordType(BLangRecordLiteral recordLiteral, BType expType,
+                                          BType contextualMappingType, AnalyzerData data) {
         SymbolEnv env = data.env;
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos, VIRTUAL, data);
@@ -9534,14 +9571,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         restFieldTypes.add(exprType);
                     }
                 } else {
-                    addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(keyExpr),
+                    String keyName = getKeyName(keyExpr);
+                    BType fieldExpType = expType;
+                    if (fieldExpType == symTable.noType && contextualMappingType != null && keyName != null) {
+                        fieldExpType = getSpreadFieldExpectedType(keyName, contextualMappingType);
+                    }
+                    addToNonRestFieldTypes(nonRestFieldTypes, keyName,
                                            keyValue.readonly ? checkExpr(expression, symTable.readonlyType, data) :
-                                                   checkExpr(expression, expType, data),
+                                                   checkExpr(expression, fieldExpType, data),
                                            true, keyValue.readonly);
                 }
             } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
-                BType spreadOpType = checkExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr,
-                                               expType, data);
+                BLangExpression innerSpreadExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+                BType spreadOpType;
+                if (innerSpreadExpr instanceof BLangRecordLiteral && contextualMappingType != null) {
+                    checkSpreadRecordLiteral((BLangRecordLiteral) innerSpreadExpr, contextualMappingType, data);
+                    spreadOpType = innerSpreadExpr.getBType();
+                } else {
+                    spreadOpType = checkExpr(innerSpreadExpr, expType, data);
+                }
                 BType type = Types.getImpliedType(spreadOpType);
 
                 if (type.tag == TypeTags.MAP) {
@@ -9570,9 +9618,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             } else {
                 BLangRecordVarNameField varNameField = (BLangRecordVarNameField) field;
-                addToNonRestFieldTypes(nonRestFieldTypes, getKeyName(varNameField), varNameField.readonly ?
+                String keyName = getKeyName(varNameField);
+                BType fieldExpType = expType;
+                if (fieldExpType == symTable.noType && contextualMappingType != null && keyName != null) {
+                    fieldExpType = getSpreadFieldExpectedType(keyName, contextualMappingType);
+                }
+                addToNonRestFieldTypes(nonRestFieldTypes, keyName, varNameField.readonly ?
                                        checkExpr(varNameField, symTable.readonlyType, data) :
-                                       checkExpr(varNameField, expType, data),
+                                       checkExpr(varNameField, fieldExpType, data),
                                        true, varNameField.readonly);
             }
         }

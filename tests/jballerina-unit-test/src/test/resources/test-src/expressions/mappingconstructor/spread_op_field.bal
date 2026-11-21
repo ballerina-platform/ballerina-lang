@@ -324,6 +324,33 @@ function testSpreadFieldWithRecordTypeReference() {
     assertEquality(0, re.statusCodes.length());
 }
 
+type Wrapper record {|
+    float x;
+|};
+
+type DecimalWrapper record {|
+    decimal d;
+    float f;
+|};
+
+function testSpreadOpWithNumericLiteralContextualTyping() {
+    Wrapper direct = {x: 1};
+    Wrapper spreadFloat = {...{x: 1.0}};
+    Wrapper spreadInt = {...{x: 1}};
+
+    assertEquality(1.0, direct.x);
+    assertEquality(1.0, spreadFloat.x);
+    assertEquality(1.0, spreadInt.x);
+
+    DecimalWrapper dw = {...{d: 10, f: 20}};
+    assertEquality(10d, dw.d);
+    assertEquality(20.0, dw.f);
+
+    map<float> mf = {...{x: 2, y: 3}};
+    assertEquality(2.0, mf.get("x"));
+    assertEquality(3.0, mf.get("y"));
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
