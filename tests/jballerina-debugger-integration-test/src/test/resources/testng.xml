@@ -52,6 +52,7 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationNegativeTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.DependencyEvaluationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.StackFrameEvaluationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.EvaluationTimeoutTest"/>
 
             <!--Other tests-->
             <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
