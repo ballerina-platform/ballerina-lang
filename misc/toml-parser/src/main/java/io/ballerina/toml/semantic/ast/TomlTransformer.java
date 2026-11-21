@@ -253,6 +253,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             tableChild.addDiagnostic(nodeExist);
             return;
         }
+        newTableNode.diagnostics.addAll(tableChild.diagnostics);
         if (topLevelNode == null) {
             addChildToTableAST(parentTable, newTableNode);
         } else {
