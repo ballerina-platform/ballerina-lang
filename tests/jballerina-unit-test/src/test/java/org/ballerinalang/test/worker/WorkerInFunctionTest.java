@@ -18,6 +18,7 @@
 package org.ballerinalang.test.worker;
 
 import io.ballerina.runtime.api.utils.StringUtils;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -45,6 +46,13 @@ public class WorkerInFunctionTest {
         Assert.assertTrue(returns instanceof Long);
         final String expected = "1103";
         Assert.assertEquals(returns.toString(), expected);
+    }
+
+    @Test(description = "Worker without return must use 'worker' in must-return diagnostic")
+    public void testWorkerMustReturnErrorMessage() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/worker_must_return_negative.bal");
+        BAssertUtil.validateError(result, 0, "this worker must return a result", 5, 5);
+        Assert.assertEquals(result.getErrorCount(), 1);
     }
 
 }
