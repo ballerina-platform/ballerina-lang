@@ -374,6 +374,9 @@ public class PullCommand implements BLauncherCmd {
             } catch (IOException e) {
                 throw createLauncherException(
                         "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
+            } catch (ProjectException e) {
+                errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
+                CommandUtil.exitError(this.exitWhenFinish);
             }
             PrintStream out = System.out;
             out.println("Successfully pulled the package from the custom repository.");

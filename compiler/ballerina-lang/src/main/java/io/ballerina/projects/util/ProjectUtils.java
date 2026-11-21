@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.AnyTarget;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
@@ -191,6 +192,23 @@ public final class ProjectUtils {
         return validateDotSeparatedIdentifiers(packageName)
                 && validateUnderscoresOfName(packageName)
                 && validateInitialNumericsOfName(packageName);
+    }
+
+    /**
+     * Validates that a bala's {@code platform} identifier (read from {@code package.json}) is one of the
+     * known target platforms. This value is untrusted (it comes from bala metadata that may originate from a
+     * third-party repository) and must never be interpreted as a filesystem path, so it is checked against an
+     * allowlist rather than sanitized.
+     *
+     * @param platform the platform identifier read from the bala's {@code package.json}
+     * @throws ProjectException if the platform identifier is not a known target platform
+     */
+    public static void validatePlatformIdentifier(String platform) {
+        boolean valid = AnyTarget.ANY.code().equals(platform)
+                || Stream.of(JvmTarget.values()).anyMatch(jvmTarget -> jvmTarget.code().equals(platform));
+        if (!valid) {
+            throw new ProjectException("invalid platform identifier in bala metadata: '" + platform + "'");
+        }
     }
 
     public static Set<String> getPackageImports(Package pkg) {
@@ -1018,6 +1036,15 @@ public final class ProjectUtils {
                     String fileName = zipEntry.getName();
                     // Construct the output file.
                     Path outputPath = balaFileDestPath.resolve(fileName);
+                    // Reject zip entries (absolute paths, or relative paths containing '..') that would
+                    // otherwise cause a file to be written outside the intended extraction directory (Zip Slip).
+                    Path canonicalDestPath = outputPath.toAbsolutePath().normalize();
+                    Path canonicalRootPath = balaFileDestPath.toAbsolutePath().normalize();
+                    if (!canonicalDestPath.startsWith(canonicalRootPath)) {
+                        throw new ProjectException(
+                                "invalid bala: zip entry '" + fileName + "' resolves outside the extraction " +
+                                        "directory");
+                    }
                     // If the zip entry is for a directory, we create the directory and continue with the next entry.
                     if (zipEntry.isDirectory()) {
                         Files.createDirectories(outputPath);
