@@ -84,6 +84,7 @@ public class ConfigSchemaGenTaskTest {
     public Object[][] dpMethod() {
         return new Object[][]{{"DefaultModuleProjects", "SimpleTypeConfigs", false},
                 {"DefaultModuleProjects", "ComplexTypeConfigs", false},
+                {"DefaultModuleProjects", "RecordTypeConfigs", false},
                 {"MultiModuleProjects", "SimpleTypeConfigs", false},
                 {"MultiModuleProjects", "UnusedConfigs", false},
                 {"SingleFileProject", "testconfig.bal", true}};
@@ -93,7 +94,8 @@ public class ConfigSchemaGenTaskTest {
     public Object[][] dpMethod2() {
         return new Object[][]{{"DefaultModuleProjects", "ComplexTypeConfigs2", false},
                 {"DefaultModuleProjects", "ComplexTypeConfigs3", false},
-                {"MultiModuleProjects", "IndirectImports", false}};
+                {"MultiModuleProjects", "IndirectImports", false},
+                {"DefaultModuleProjects", "RecordTypeConfigs", false}};
     }
 
     static Project loadBuildProject(Path projectPath, boolean isSingleFileProject) {
