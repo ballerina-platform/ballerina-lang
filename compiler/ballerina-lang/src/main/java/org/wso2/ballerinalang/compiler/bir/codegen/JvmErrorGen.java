@@ -26,9 +26,13 @@ import org.wso2.ballerinalang.compiler.bir.codegen.model.CatchIns;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -147,10 +151,75 @@ public class JvmErrorGen {
         BIRNode.BIRVariableDcl varDcl = currentEE.errorOp.variableDcl;
         int lhsIndex = this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
         jvmInstructionGen.generateVarStore(this.mv, varDcl);
+
+        // Clear block-local reference variables in the try block on exception paths.
+        // When an exception is caught, variables declared in the protected region are
+        // no longer needed. Clearing their JVM slots allows GC to collect them.
+        genExceptionPathCleanup(func, currentEE);
+
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         this.mv.visitLabel(otherErrorLabel);
         this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, TRAP_ERROR_METHOD, CREATE_ERROR_FROM_THROWABLE, false);
         this.mv.visitVarInsn(ASTORE, lhsIndex);
         this.mv.visitLabel(jumpLabel);
+    }
+
+    /**
+     * Clear block-local reference variables on exception paths. When an exception
+     * is caught in a try block, variables declared in the protected region are no
+     * longer needed. Clearing their JVM slots allows GC to collect them.
+     *
+     * <p>For each variable whose startBB is within the trap region [trapBB, endBB],
+     * and whose endBB is at or after the catch handler, emit ACONST_NULL + ASTORE.
+     */
+    private void genExceptionPathCleanup(BIRNode.BIRFunction func, BIRNode.BIRErrorEntry errorEntry) {
+        int trapBBIndex = func.basicBlocks.indexOf(errorEntry.trapBB);
+        int endBBIndex = func.basicBlocks.indexOf(errorEntry.endBB);
+        if (trapBBIndex < 0 || endBBIndex < 0) {
+            return;
+        }
+
+        for (BIRNode.BIRVariableDcl localVar : func.localVars) {
+            if (localVar.kind != VarKind.LOCAL || localVar.startBB == null || localVar.endBB == null) {
+                continue;
+            }
+            BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
+            if (!isReferenceType(bType)) {
+                continue;
+            }
+            int index = this.indexMap.get(localVar.name.value);
+            if (index == -1) {
+                continue;
+            }
+
+            int startBBIndex = func.basicBlocks.indexOf(localVar.startBB);
+            int varEndBBIndex = func.basicBlocks.indexOf(localVar.endBB);
+
+            if (startBBIndex < 0 || varEndBBIndex < 0) {
+                continue;
+            }
+
+            // Variable is in the try block if its startBB is within [trapBB, endBB]
+            if (startBBIndex >= trapBBIndex && startBBIndex <= endBBIndex) {
+                this.mv.visitInsn(ACONST_NULL);
+                this.mv.visitVarInsn(ASTORE, index);
+            }
+        }
+    }
+
+    private boolean isReferenceType(BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
+        if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)
+                || TypeTags.REGEXP == bType.tag) {
+            return true;
+        }
+        return switch (bType.tag) {
+            case TypeTags.MAP, TypeTags.ARRAY, TypeTags.STREAM, TypeTags.TABLE, TypeTags.ERROR,
+                 TypeTags.NIL, TypeTags.NEVER, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.OBJECT,
+                 TypeTags.DECIMAL, TypeTags.UNION, TypeTags.RECORD, TypeTags.TUPLE, TypeTags.FUTURE,
+                 TypeTags.JSON, TypeTags.INVOKABLE, TypeTags.FINITE, TypeTags.HANDLE, TypeTags.TYPEDESC,
+                 TypeTags.READONLY -> true;
+            default -> false;
+        };
     }
 }
