@@ -47,6 +47,9 @@ public final class IndexOf {
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     ErrorCodes.INDEX_NUMBER_TOO_LARGE, startIndx);
         }
+        if (startIndx > bStr.length()) {
+            return null;
+        }
         return bStr.indexOf(subString, (int) startIndx);
     }
 }

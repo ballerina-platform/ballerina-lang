@@ -447,6 +447,7 @@ public class LangLibStringTest {
                 "testPadZero",
                 "testMatches",
                 "testIncludesMatch",
+                "testIndexOfAndIncludesWithStartIndexPastEnd",
                 "testFromBytesAsync",
                 "testEqualsIgnoreCaseAsciiAsync"
         };
