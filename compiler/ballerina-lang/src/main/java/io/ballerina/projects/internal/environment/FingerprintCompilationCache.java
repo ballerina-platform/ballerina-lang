@@ -27,6 +27,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -34,9 +35,11 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,6 +58,9 @@ import java.util.UUID;
  * partly written. A variant is only read if it has the BIR and the JAR of every module of the package. Otherwise, e.g.
  * if a build was interrupted, the package is compiled again and the build overwrites the variant.
  * <p>
+ * A package without a fingerprint, i.e. one that depends on a package of the workspace, is compiled in every build. Its
+ * artifacts are kept in a temporary directory for the build.
+ * <p>
  * As with other compilation caches, artifacts are only written when code is generated, i.e. by the compiler backend
  * for a build, and a compilation without code generation, e.g. the language server recompiling a package on an edit,
  * only reads the cache. A build that generates code also records when it uses a variant, i.e. when it reads or writes
@@ -72,6 +78,8 @@ public final class FingerprintCompilationCache extends CompilationCache {
     public static final String LAST_USED_FILE = ".last-used";
 
     private static final String JAR_EXTENSION = ".jar";
+    // How often the time a variant is used is recorded.
+    private static final Duration LAST_USED_RESOLUTION = Duration.ofDays(1);
 
     private final Path cacheDir;
     private final Path distributionCacheDir;
@@ -84,6 +92,9 @@ public final class FingerprintCompilationCache extends CompilationCache {
     private Boolean complete;
     // Whether this cache recorded the use of the variant.
     private boolean useRecorded;
+    // Holds the artifacts of a package without a fingerprint for the build, e.g. a package that depends on a
+    // workspace package. Such a package is compiled in every build and never cached.
+    private TempDirCompilationCache buildCache;
 
     /**
      * Creates the cache of a package from a home repository.
@@ -127,6 +138,9 @@ public final class FingerprintCompilationCache extends CompilationCache {
         if (usesFixedCache()) {
             return fixedCache.getBir(moduleName);
         }
+        if (fingerprint().isEmpty()) {
+            return new byte[0];
+        }
         Optional<Path> dir = readDir();
         if (dir.isEmpty()) {
             return new byte[0];
@@ -146,6 +160,10 @@ public final class FingerprintCompilationCache extends CompilationCache {
             fixedCache.cacheBir(moduleName, birContent);
             return;
         }
+        if (fingerprint().isEmpty()) {
+            buildCache().cacheBir(moduleName, birContent);
+            return;
+        }
         writeDir().ifPresent(dir -> {
             write(birDir(dir), moduleName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT, birContent);
             markWritten();
@@ -156,6 +174,10 @@ public final class FingerprintCompilationCache extends CompilationCache {
     public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName) {
         if (usesFixedCache()) {
             return fixedCache.getPlatformSpecificLibrary(compilerBackend, libraryName);
+        }
+        if (fingerprint().isEmpty()) {
+            TempDirCompilationCache cache = existingBuildCache();
+            return cache == null ? Optional.empty() : cache.getPlatformSpecificLibrary(compilerBackend, libraryName);
         }
         Optional<Path> library = readDir().map(dir -> platformDir(dir, compilerBackend)
                         .resolve(libraryName + compilerBackend.libraryFileExtension()))
@@ -171,6 +193,10 @@ public final class FingerprintCompilationCache extends CompilationCache {
                                              ByteArrayOutputStream libraryContent) {
         if (usesFixedCache()) {
             fixedCache.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent);
+            return;
+        }
+        if (fingerprint().isEmpty()) {
+            buildCache().cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent);
             return;
         }
         writeDir().ifPresent(dir -> {
@@ -248,6 +274,18 @@ public final class FingerprintCompilationCache extends CompilationCache {
             }
         }
         return Optional.ofNullable(dir);
+    }
+
+    /** The build cache of a package without a fingerprint, created when the build first writes an artifact. */
+    private synchronized TempDirCompilationCache buildCache() {
+        if (buildCache == null) {
+            buildCache = TempDirCompilationCache.from(project);
+        }
+        return buildCache;
+    }
+
+    private synchronized TempDirCompilationCache existingBuildCache() {
+        return buildCache;
     }
 
     private synchronized void markWritten() {
@@ -330,12 +368,20 @@ public final class FingerprintCompilationCache extends CompilationCache {
         }
     }
 
-    /** Creates the given file, or updates its modification time to now. */
+    /**
+     * Creates the given file, or updates its modification time to now. A time recorded less than a day ago is kept,
+     * as unused variants are removed by the day, so that most builds do not write.
+     */
     private static void touch(Path file) {
         try {
-            if (Files.exists(file)) {
-                Files.setLastModifiedTime(file, FileTime.from(Instant.now()));
+            Instant now = Instant.now();
+            try {
+                if (Files.getLastModifiedTime(file).toInstant().isBefore(now.minus(LAST_USED_RESOLUTION))) {
+                    Files.setLastModifiedTime(file, FileTime.from(now));
+                }
                 return;
+            } catch (NoSuchFileException e) {
+                // Not used before.
             }
             Path parent = file.getParent();
             if (parent != null) {
@@ -386,14 +432,27 @@ public final class FingerprintCompilationCache extends CompilationCache {
         return dir.resolve(compilerBackend.targetPlatform().code());
     }
 
-    /** Writes a file through a temporary file, so that a concurrent build never reads a partial file. */
+    /**
+     * Writes a file through a temporary file, so that a concurrent build never reads a partial file.
+     * <p>
+     * A file that another process holds open, e.g. the JAR of a running program on Windows, cannot be replaced. Such a
+     * file was written by another build of the same variant, i.e. from the same sources and dependency versions, so
+     * it is kept.
+     */
     private static void write(Path dir, String fileName, ByteArrayOutputStream content) {
         Path file = dir.resolve(fileName);
         Path tempFile = dir.resolve(fileName + "." + UUID.randomUUID() + ".tmp");
         try {
             Files.createDirectories(dir);
             Files.write(tempFile, content.toByteArray());
-            Files.move(tempFile, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            try {
+                Files.move(tempFile, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException e) {
+                if (!Files.isRegularFile(file)) {
+                    throw e;
+                }
+                Files.deleteIfExists(tempFile);
+            }
         } catch (IOException e) {
             try {
                 Files.deleteIfExists(tempFile);

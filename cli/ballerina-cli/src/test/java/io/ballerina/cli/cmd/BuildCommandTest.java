@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -53,12 +54,19 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -758,6 +766,14 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertNotEquals(Files.getLastModifiedTime(lastUsed), markerTime,
                     "A build should update the time it used the variant");
 
+            // A time of use recorded less than a day ago is kept, so that most builds do not write it.
+            FileTime recentTime = FileTime.from(Instant.now().minus(Duration.ofHours(1)));
+            Files.setLastModifiedTime(lastUsed, recentTime);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            executeBuild(appPath);
+            Assert.assertEquals(Files.getLastModifiedTime(lastUsed), recentTime,
+                    "A time of use recorded within a day should be kept");
+
             // A variant that misses its JAR, e.g. after an interrupted build, is compiled again.
             Files.delete(jar);
             deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
@@ -770,6 +786,138 @@ public class BuildCommandTest extends BaseCommandTest {
             deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("variantlib"));
             deleteDirectory(root);
         }
+    }
+
+    @Test(description = "A bala package that depends on a workspace package is compiled against its sources in every "
+            + "build and never cached")
+    public void testDependencyOnWorkspacePackageIsNotCached() throws IOException {
+        Path root = this.tmpDir.resolve("bala-on-workspace-package");
+        deleteDirectory(root);
+        Path published = root.resolve("published");
+        Path memberSource = published.resolve("wsmember");
+        writePackage(memberSource, "wsmember", "", "public function value() returns int => 1;\n");
+        Path dependantSource = published.resolve("wsdependant");
+        writePackage(dependantSource, "wsdependant", "import wsorg/wsmember;\n",
+                "public function value() returns int => wsmember:value();\n");
+        Path workspace = root.resolve("workspace");
+        FileUtils.copyDirectory(memberSource.toFile(), workspace.resolve("wsmember").toFile());
+        writePackage(workspace.resolve("app"), "app", "import wsorg/wsdependant;\n",
+                "public function main() {\n    int _ = wsdependant:value();\n}\n");
+        Path homeDependantCache = homeDistributionCache().resolve("wsorg").resolve("wsdependant");
+        Path distributionDependantCache = testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("wsorg")
+                .resolve("wsdependant");
+        try {
+            BCompileUtil.compileAndCacheBala(memberSource, testDistCacheDirectory, projectEnvironmentBuilder);
+            BCompileUtil.compileAndCacheBala(dependantSource, testDistCacheDirectory, projectEnvironmentBuilder);
+            deleteDirectory(homeDependantCache);
+            deleteDirectory(distributionDependantCache);
+            setWorkspacePackages(workspace, "wsmember", "app");
+            executeBuild(workspace);
+
+            Assert.assertFalse(Files.exists(homeDependantCache), "A package compiled against the sources of a "
+                    + "workspace package should not be cached");
+            Assert.assertFalse(Files.exists(distributionDependantCache), "A package compiled against the sources of "
+                    + "a workspace package should not be cached");
+
+            // The workspace package changes without a new version. The dependant is compiled against the change.
+            Files.writeString(workspace.resolve("wsmember").resolve("main.bal"),
+                    "public function value() returns string => \"one\";\n");
+            // The incremental build check does not see that 'app' depends on 'wsmember' through a bala package.
+            for (String member : List.of("wsmember", "app")) {
+                Files.deleteIfExists(workspace.resolve(member).resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            }
+            System.setProperty(USER_DIR_PROPERTY, workspace.toString());
+            BuildCommand buildCommand = new BuildCommand(workspace, printStream, printStream, false, false);
+            try {
+                buildCommand.execute();
+                Assert.fail("The dependant should be compiled against the changed workspace package: "
+                        + readOutput(true));
+            } catch (BLauncherException e) {
+                String log = readOutput(true);
+                Assert.assertTrue(log.contains("wsorg/wsdependant"), log);
+            }
+            Assert.assertFalse(Files.exists(homeDependantCache));
+        } finally {
+            for (String name : List.of("wsmember", "wsdependant")) {
+                deleteDirectory(testDistCacheDirectory.resolve("bala").resolve("wsorg").resolve(name));
+                deleteDirectory(testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("wsorg").resolve(name));
+                deleteDirectory(homeDistributionCache().resolve("wsorg").resolve(name));
+            }
+            deleteDirectory(root);
+        }
+    }
+
+    @Test(description = "Concurrent builds that compile the same dependency write one usable variant")
+    public void testConcurrentBuildsWriteTheSameVariant() throws Exception {
+        Path root = this.tmpDir.resolve("concurrent-variant");
+        deleteDirectory(root);
+        Path libPath = root.resolve("concurrentlib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"concurrentlib\"\nversion = \"1.0.0\"\n");
+        Files.writeString(libPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        List<Path> apps = new ArrayList<>();
+        for (String name : List.of("concurrentapp1", "concurrentapp2", "concurrentapp3")) {
+            Path appPath = root.resolve(name);
+            Files.createDirectories(appPath);
+            Files.writeString(appPath.resolve(BALLERINA_TOML),
+                    "[package]\norg = \"testorg\"\nname = \"" + name + "\"\nversion = \"0.1.0\"\n");
+            Files.writeString(appPath.resolve("main.bal"), "import testorg/concurrentlib;\n\n"
+                    + "public function main() {\n    string _ = concurrentlib:hello();\n}\n");
+            apps.add(appPath);
+        }
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        Path libCache = homeCache.resolve("testorg").resolve("concurrentlib");
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            BCompileUtil.compileAndCacheBala(libPath.toString(), testCentralRepoCache);
+            deleteDirectory(libCache);
+
+            // Two builds, each with its own environment, compile the dependency and write its variant at once.
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<Boolean>> builds = new ArrayList<>();
+            for (Path appPath : apps.subList(0, 2)) {
+                builds.add(executor.submit(() -> {
+                    start.await();
+                    Project project = ProjectLoader.load(appPath).project();
+                    JBallerinaBackend backend = JBallerinaBackend.from(project.currentPackage().getCompilation(),
+                            JvmTarget.JAVA_25);
+                    return !backend.diagnosticResult().hasErrors();
+                }));
+            }
+            start.countDown();
+            for (Future<Boolean> build : builds) {
+                Assert.assertTrue(build.get(5, TimeUnit.MINUTES), "Each concurrent build should succeed");
+            }
+
+            List<Path> variants = variantDirs(homeCache, "testorg", "concurrentlib", "1.0.0");
+            Assert.assertEquals(variants.size(), 1, "Both builds should use the same variant: " + variants);
+            Path bir = variants.get(0).resolve("bir").resolve("concurrentlib.bir");
+            Path jar = variants.get(0).resolve(JvmTarget.JAVA_25.code()).resolve("testorg-concurrentlib-1.0.0.jar");
+            Assert.assertTrue(Files.exists(bir) && Files.exists(jar), "The variant should be complete");
+            try (Stream<Path> files = Files.walk(variants.get(0))) {
+                Assert.assertTrue(files.noneMatch(file -> file.toString().endsWith(".tmp")),
+                        "No temporary file should be left");
+            }
+
+            // Another build reuses the variant.
+            FileTime markerTime = FileTime.fromMillis(0);
+            Files.setLastModifiedTime(bir, markerTime);
+            executeBuild(apps.get(2));
+            Assert.assertEquals(Files.getLastModifiedTime(bir), markerTime, "The variant should be reused");
+        } finally {
+            executor.shutdownNow();
+            deleteDirectory(libCache);
+            deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("concurrentlib"));
+            deleteDirectory(root);
+        }
+    }
+
+    private static void writePackage(Path packagePath, String name, String imports, String body) throws IOException {
+        Files.createDirectories(packagePath);
+        Files.writeString(packagePath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"wsorg\"\nname = \"" + name + "\"\nversion = \"0.1.0\"\n");
+        Files.writeString(packagePath.resolve("main.bal"), imports + body);
     }
 
 

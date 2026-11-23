@@ -218,6 +218,48 @@ public class PushCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Pushing a version to the local repository again removes the dependencies compiled "
+            + "against its previous contents")
+    public void testPushToLocalRemovesDependantCaches() throws IOException {
+        Path validBalProject = Path.of("build/validProjectWithTargetDependants");
+        FileUtils.deleteDirectory(validBalProject.toFile());
+        FileUtils.copyDirectory(
+                this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
+        Path balaPath = validBalProject.resolve("target-dir/bala/foo-winery-any-0.1.0.bala");
+        Path mockRepo = Path.of("build/ballerina-home-dependants");
+        Path cache = mockRepo.resolve("repositories/central.ballerina.io/cache-1.0.0");
+        // A package compiled against foo/winery 0.1.0, and one that does not use it.
+        Path dependant = cache.resolve("foo/app/1.0.0/aaaaaaaaaaaaaaaa");
+        Path unrelated = cache.resolve("foo/other/1.0.0/bbbbbbbbbbbbbbbb");
+        Files.createDirectories(dependant.resolve("bir"));
+        Files.writeString(dependant.resolve(".dependencies"), "ballerina/io:1.8.2\nfoo/winery:0.1.0");
+        Files.createDirectories(unrelated.resolve("bir"));
+        Files.writeString(unrelated.resolve(".dependencies"), "foo/winery:0.2.0");
+
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false, balaPath);
+        new CommandLine(pushCommand).parseArgs("--repository=local");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+            pushCommand.execute();
+        } finally {
+            String buildLog = readOutput(true).replaceAll("\r", "");
+            Assert.assertTrue(buildLog.contains("Successfully pushed " + balaPath + " to 'local' repository."),
+                    buildLog);
+        }
+
+        try {
+            Assert.assertFalse(Files.exists(dependant),
+                    "A package compiled against the previous contents of the version should be removed");
+            Assert.assertFalse(Files.exists(cache.resolve("foo/app")), "Emptied directories should be removed");
+            Assert.assertTrue(Files.exists(unrelated), "Packages compiled against other versions should be kept");
+        } finally {
+            FileUtils.deleteDirectory(mockRepo.toFile());
+            FileUtils.deleteDirectory(validBalProject.toFile());
+        }
+    }
+
     @Test(description = "Push a bala with a path-traversal platformDependencies path is rejected")
     public void testPushWithPathTraversalBalaRejected() throws IOException {
         Path testRoot = Files.createTempDirectory("push-path-traversal-test");

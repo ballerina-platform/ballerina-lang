@@ -31,6 +31,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.environment.DependencyCachePruner;
 import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -408,6 +409,8 @@ public class PushCommand implements BLauncherCmd {
             if (Files.exists(balaCachesPath)) {
                 ProjectUtils.deleteDirectory(balaCachesPath);
             }
+            // Packages compiled against the previous contents of this version are cached with the same fingerprint.
+            DependencyCachePruner.removeDependants(RepoUtils.createAndGetHomeReposPath(), org, packageName, version);
             ProjectUtils.extractBala(balaFilePath, balaDestPath);
             createLocalToolsJsonIfLocalTool(balaDestPath, org, packageName, repoPath.resolve(
                     ProjectConstants.BALA_DIR_NAME));

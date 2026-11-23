@@ -95,6 +95,41 @@ public final class DependencyCachePruner {
         return new Result(removed, freed);
     }
 
+    /**
+     * Removes the variants compiled against the given package version, in all repositories of the given user home.
+     * Used when a version is published to the local repository again with other contents, as variants compiled
+     * against the previous contents have the same fingerprint.
+     *
+     * @param userHome Ballerina user home, e.g. {@code ~/.ballerina}
+     * @param org      organization of the package
+     * @param name     name of the package
+     * @param version  version of the package
+     * @return number of variants removed
+     */
+    public static int removeDependants(Path userHome, String org, String name, String version) {
+        String dependency = org + "/" + name + ":" + version;
+        int removed = 0;
+        for (Path cacheRoot : cacheRoots(userHome)) {
+            for (Path variant : variants(cacheRoot)) {
+                if (dependsOn(variant, dependency) && remove(cacheRoot, variant)) {
+                    removed++;
+                    removeEmptyParents(cacheRoot, variant.getParent());
+                }
+            }
+        }
+        return removed;
+    }
+
+    private static boolean dependsOn(Path variant, String dependency) {
+        Path dependencies = variant.resolve(FingerprintCompilationCache.DEPENDENCIES_FILE);
+        try {
+            return Files.isRegularFile(dependencies)
+                    && Files.readAllLines(dependencies).stream().anyMatch(dependency::equals);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     /** Cache directories of all repositories, e.g. {@code repositories/central.ballerina.io/cache-2201.14.1}. */
     private static List<Path> cacheRoots(Path userHome) {
         Path repositories = userHome.resolve(ProjectConstants.REPOSITORIES_DIR);

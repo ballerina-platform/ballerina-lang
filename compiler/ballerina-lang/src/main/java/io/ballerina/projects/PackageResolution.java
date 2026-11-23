@@ -151,6 +151,10 @@ public class PackageResolution {
     /**
      * Records the fingerprint of the dependency versions each bala package is compiled against, so that its compiled
      * artifacts are cached per fingerprint. Runs before any module decides whether to load from the cache.
+     * <p>
+     * A bala package that depends on a package of the workspace, directly or transitively, is compiled against the
+     * sources of that package, which change without a new version. Such a package gets no fingerprint, so it is
+     * compiled in every build and never cached.
      */
     private void recordDependencyFingerprints() {
         DependencyFingerprints fingerprints = rootPackageContext.project().projectEnvironmentContext()
@@ -163,9 +167,13 @@ public class PackageResolution {
             if (packageInstance.project().kind() != ProjectKind.BALA_PROJECT) {
                 continue;
             }
+            Collection<ResolvedPackageDependency> dependencies = dependencyGraph.getAllDependencies(node);
+            if (dependencies.stream().anyMatch(dependency ->
+                    dependency.packageInstance().project().kind() != ProjectKind.BALA_PROJECT)) {
+                continue;
+            }
             fingerprints.record(rootPackageContext.project(), packageInstance.descriptor(),
-                    dependencyGraph.getAllDependencies(node).stream()
-                            .map(dependency -> dependency.packageInstance().descriptor()).toList());
+                    dependencies.stream().map(dependency -> dependency.packageInstance().descriptor()).toList());
         }
     }
 
