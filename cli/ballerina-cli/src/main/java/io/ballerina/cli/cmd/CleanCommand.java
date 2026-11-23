@@ -30,7 +30,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ResolutionOptions;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -195,14 +195,18 @@ public class CleanCommand implements BLauncherCmd {
                 }
                 ProjectUtils.deleteDirectory(dependency.sourceRoot());
                 this.outStream.println("Successfully deleted " + dependency.sourceRoot());
-                // Compiled dependencies are cached in the project target, which is cleaned with the project.
-                // Clean the repository cache of the dependency as well.
-                CompilationCache repositoryCache = ProjectDependencyCache.repositoryCache(
-                        dependency.projectEnvironmentContext().getService(CompilationCache.class));
-                if (!(repositoryCache instanceof FileSystemCache fileSystemCache)) {
+                // Delete the compiled dependency for the versions this project resolves. Other variants may be
+                // used by other projects.
+                CompilationCache compilationCache = dependency.projectEnvironmentContext()
+                        .getService(CompilationCache.class);
+                Path birPath;
+                if (compilationCache instanceof FingerprintCompilationCache fingerprintCache) {
+                    birPath = fingerprintCache.variantDir().orElse(null);
+                } else if (compilationCache instanceof FileSystemCache fileSystemCache) {
+                    birPath = fileSystemCache.cachePath();
+                } else {
                     continue;
                 }
-                Path birPath = fileSystemCache.cachePath();
                 if (birPath == null || Files.notExists(birPath)) {
                     continue;
                 }

@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -33,13 +34,11 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -48,11 +47,10 @@ import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -136,11 +134,6 @@ import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
  * @since 2.0.0
  */
 public final class CommandUtil {
-
-    static ProjectLoadResult loadProjectForBuild(Path projectPath, BuildOptions buildOptions) {
-        return ProjectLoader.load(projectPath,
-                ProjectEnvironmentBuilder.getDefaultBuilder().enableProjectDependencyCacheWrites(), buildOptions);
-    }
 
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
@@ -1279,14 +1272,12 @@ public final class CommandUtil {
      * @param version version of the dependent package
      * @param buildOptions build options {sticky, offline}
      * @param repository repository name
-     * @param targetDir project target directory to write the compiled caches to, or null to use the
-     *                  home repository cache
      * @param dependencyGraph dependency graph JSON to compile the package against, or null to use the graph
      *                        recorded in its bala
      * @return true if the dependent package compilation has errors
      */
     static boolean pullDependencyPackages(String orgName, String packageName, String version,
-                                          BuildOptions buildOptions, String repository, Path targetDir,
+                                          BuildOptions buildOptions, String repository,
                                           Path dependencyGraph) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
@@ -1297,29 +1288,20 @@ public final class CommandUtil {
         Path cacheDir = centralRepositoryDirPath.resolve(
                 ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion);
 
-        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-        Path packageCacheDir;
-        if (targetDir == null) {
-            defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
-            packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
-        } else {
-            // Compiling on behalf of a project build. The package and its dependencies are cached in the
-            // project target, the same way as an in-process build.
-            ProjectDependencyCache projectDependencyCache = new ProjectDependencyCache(targetDir, true);
-            defaultBuilder.enableProjectDependencyCacheWrites()
-                    .setProjectDependencyCache(projectDependencyCache)
-                    .addCompilationCacheFactory(project -> projectDependencyCache.wrap(project,
-                            new FileSystemCache(project, cacheDir)));
-            packageCacheDir = targetDir.resolve(ProjectConstants.CACHES_DIR_NAME).resolve(orgName)
-                    .resolve(packageName).resolve(version);
-        }
+        // The package is cached per fingerprint of the dependency versions it is compiled against, like the
+        // dependencies of a project build.
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder()
+                .addCompilationCacheFactory(project -> new FingerprintCompilationCache(project, cacheDir));
         BalaProject balaProject = dependencyGraph == null ?
                 BalaProject.loadProject(defaultBuilder, balaPath, buildOptions) :
                 BalaProject.loadProject(defaultBuilder, balaPath, buildOptions, dependencyGraph);
 
-        // Delete package cache if available
-        if (packageCacheDir.toFile().exists()) {
-            deleteDirectory(packageCacheDir);
+        // Compile the package again, replacing its cache for the resolved dependency versions if available.
+        // The fingerprint is known once the dependencies are resolved.
+        balaProject.currentPackage().getResolution();
+        CompilationCache compilationCache = balaProject.projectEnvironmentContext().getService(CompilationCache.class);
+        if (compilationCache instanceof FingerprintCompilationCache fingerprintCache) {
+            fingerprintCache.variantDir().filter(Files::exists).ifPresent(ProjectUtils::deleteDirectory);
         }
 
         // getResolution pulls all dependencies of the pulled package

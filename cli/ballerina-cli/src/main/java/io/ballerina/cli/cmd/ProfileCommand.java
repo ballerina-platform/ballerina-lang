@@ -30,7 +30,6 @@ import io.ballerina.cli.task.RunProfilerTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
@@ -181,9 +180,7 @@ public class ProfileCommand implements BLauncherCmd {
 
     private Project loadBuildProject(BuildOptions buildOptions) {
         try {
-            ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder()
-                    .enableProjectDependencyCacheWrites();
-            return BuildProject.load(environmentBuilder, this.projectPath, buildOptions);
+            return BuildProject.load(this.projectPath, buildOptions);
         } catch (ProjectException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), PROFILE_CMD, false);
             return null;

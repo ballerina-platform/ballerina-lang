@@ -19,7 +19,6 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
 
@@ -38,11 +37,7 @@ public class CleanTargetDirTask implements Task {
     public void execute(Project project) {
         try {
             Target target = new Target(project.targetDir());
-            if (project.kind() == ProjectKind.BUILD_PROJECT || project.kind() == ProjectKind.WORKSPACE_PROJECT) {
-                target.cleanPreservingDependencyCaches(project.currentPackage());
-            } else {
-                target.clean();
-            }
+            target.clean();
         } catch (IOException | ProjectException e) {
             throw createLauncherException("unable to clean the target directory: " + e.getMessage());
         }

@@ -31,6 +31,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.util.ProjectConstants;
@@ -185,7 +186,7 @@ public class DocCommand implements BLauncherCmd {
 
         // load project
         BuildOptions buildOptions = constructBuildOptions();
-        ProjectLoadResult loadResult = CommandUtil.loadProjectForBuild(projectPath, buildOptions);
+        ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
         DiagnosticResult diagnosticResult = loadResult.diagnostics();
         Project project = loadResult.project();
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {

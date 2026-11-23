@@ -20,9 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
-import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultProjectEnvironment;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import io.ballerina.projects.repos.BuildProjectCompilationCache;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 
@@ -35,12 +33,9 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class ProjectEnvironmentBuilder {
-    private Environment environment;
+    private final Environment environment;
     private final Map<Class<?>, Object> services = new HashMap<>();
     private CompilationCacheFactory compilationCacheFactory;
-    private boolean projectDependencyCacheWritable;
-    private ProjectDependencyCache projectDependencyCache;
-    private boolean defaultEnvironment;
 
     private ProjectEnvironmentBuilder(Environment environment) {
         this.environment = environment;
@@ -51,9 +46,7 @@ public class ProjectEnvironmentBuilder {
     }
 
     public static ProjectEnvironmentBuilder getDefaultBuilder() {
-        ProjectEnvironmentBuilder builder = new ProjectEnvironmentBuilder(null);
-        builder.defaultEnvironment = true;
-        return builder;
+        return new ProjectEnvironmentBuilder(EnvironmentBuilder.buildDefault());
     }
 
     public ProjectEnvironmentBuilder addCompilationCacheFactory(CompilationCacheFactory compilationCacheFactory) {
@@ -61,43 +54,7 @@ public class ProjectEnvironmentBuilder {
         return this;
     }
 
-    /** Enables writes to the project target dependency cache. */
-    public ProjectEnvironmentBuilder enableProjectDependencyCacheWrites() {
-        this.projectDependencyCacheWritable = true;
-        return this;
-    }
-
-    public boolean isProjectDependencyCacheWritable() {
-        return projectDependencyCacheWritable;
-    }
-
-    /**
-     * Uses the given project dependency cache for the project being built, regardless of the project kind.
-     * Used when a dependency is compiled separately on behalf of a project, e.g. in a dependency
-     * compilation subprocess, so that its artifacts go to the project target instead of the home cache.
-     *
-     * @param projectDependencyCache project dependency cache
-     * @return this builder
-     */
-    public ProjectEnvironmentBuilder setProjectDependencyCache(ProjectDependencyCache projectDependencyCache) {
-        this.projectDependencyCache = projectDependencyCache;
-        return this;
-    }
-
     public ProjectEnvironment build(Project project) {
-        boolean isBuildProject = project.kind() == ProjectKind.BUILD_PROJECT
-                || project.kind() == ProjectKind.WORKSPACE_PROJECT;
-        ProjectDependencyCache dependencyCache = this.projectDependencyCache;
-        if (dependencyCache == null && isBuildProject) {
-            dependencyCache = new ProjectDependencyCache(project.targetDir(), projectDependencyCacheWritable);
-        }
-        if (environment == null && defaultEnvironment) {
-            environment = EnvironmentBuilder.buildDefault();
-        }
-        if (dependencyCache != null && environment instanceof DefaultEnvironment defaultEnvironment
-                && defaultEnvironment.getService(ProjectDependencyCache.class) == null) {
-            defaultEnvironment.addService(ProjectDependencyCache.class, dependencyCache);
-        }
         CompilationCache compilationCache;
         if (compilationCacheFactory != null) {
             compilationCache = compilationCacheFactory.createCompilationCache(project);

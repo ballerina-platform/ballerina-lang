@@ -36,7 +36,8 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.BalaFiles;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
@@ -110,14 +111,42 @@ public class FileSystemRepository extends AbstractPackageRepository {
         }
 
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        environmentBuilder = environmentBuilder.addCompilationCacheFactory(project -> {
-            CompilationCache repositoryCache = new FileSystemCache.FileSystemCacheFactory(cacheDir)
-                    .createCompilationCache(project);
-            ProjectDependencyCache projectCache = environment.getService(ProjectDependencyCache.class);
-            return projectCache == null ? repositoryCache : projectCache.wrap(project, repositoryCache);
-        });
+        environmentBuilder = environmentBuilder.addCompilationCacheFactory(this::createCompilationCache);
         Project project = BalaProject.loadProject(environmentBuilder, balaPath);
         return Optional.of(project.currentPackage());
+    }
+
+    /**
+     * Creates the compilation cache of a package of this repository. Compiled packages are cached per fingerprint of
+     * the dependency versions they are compiled against, when the environment resolves dependencies with
+     * fingerprints.
+     *
+     * @param project project of the package
+     * @return compilation cache of the package
+     */
+    protected CompilationCache createCompilationCache(Project project) {
+        if (environment.getService(DependencyFingerprints.class) == null) {
+            return new FileSystemCache(project, cacheDir);
+        }
+        return new FingerprintCompilationCache(project, cacheDir);
+    }
+
+    /**
+     * Returns the directory where this repository caches compiled packages.
+     *
+     * @return cache directory
+     */
+    protected Path cacheDir() {
+        return cacheDir;
+    }
+
+    /**
+     * Returns whether the environment of this repository caches compiled packages per dependency fingerprint.
+     *
+     * @return true if packages are cached per fingerprint
+     */
+    protected boolean cachesPerFingerprint() {
+        return environment.getService(DependencyFingerprints.class) != null;
     }
 
     /**

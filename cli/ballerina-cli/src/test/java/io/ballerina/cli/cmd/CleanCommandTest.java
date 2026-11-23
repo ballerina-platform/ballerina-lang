@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -159,7 +160,7 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.notExists(projectPath.resolve("tests/main_test.bal")));
     }
 
-    @Test(description = "Clean the caches of dependencies that are compiled into the project target")
+    @Test(description = "Clean the downloaded dependencies and the compiled variants the project uses")
     public void testDependencyCacheDeleteWithProjectCache() throws IOException {
         Path root = this.tmpDir.resolve("clean-project-dependency-cache");
         Path dependencyPath = root.resolve("cleandep");
@@ -177,12 +178,24 @@ public class CleanCommandTest extends BaseCommandTest {
         Path dependencyBala = testCentralRepoCache.resolve("bala").resolve("testorg").resolve("cleandep")
                 .resolve("1.0.0").resolve("any");
 
+        Path dependencyVersionCache = testCentralRepoCache.resolve("cache-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("cleandep").resolve("1.0.0");
+        // A variant compiled against other dependency versions, e.g. for another project.
+        Path otherVariant = dependencyVersionCache.resolve("0000000000000000");
+        Files.createDirectories(otherVariant.resolve("bir"));
+
         String userDir = System.getProperty(USER_DIR_PROPERTY);
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        Path variant = null;
         try {
             new BuildCommand(projectPath, printStream, printStream, false).execute();
-            Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("cache").resolve("testorg")
-                    .resolve("cleandep").resolve("1.0.0")), "The dependency should be cached in the project target");
+            try (Stream<Path> variants = Files.list(dependencyVersionCache)) {
+                variant = variants.filter(path -> !path.equals(otherVariant)).findFirst().orElseThrow();
+            }
+            Assert.assertTrue(Files.exists(variant.resolve("bir").resolve("cleandep.bir")),
+                    "The dependency should be cached in the home cache");
+            Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("cache").resolve("testorg")
+                    .resolve("cleandep")), "The dependency should not be cached in the project target");
 
             new CleanCommand(projectPath, printStream, true, false).execute();
         } catch (BLauncherException e) {
@@ -195,6 +208,10 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(dependencyBala), "The dependency bala should be deleted");
         Assert.assertTrue(cleanLog.contains("Successfully deleted " + dependencyBala), cleanLog);
         Assert.assertFalse(Files.exists(projectPath.resolve("target")), "The project target should be deleted");
+        Assert.assertFalse(Files.exists(variant), "The variant the project uses should be deleted");
+        Assert.assertTrue(cleanLog.contains("Successfully deleted " + variant), cleanLog);
+        Assert.assertTrue(Files.exists(otherVariant), "Variants other projects may use should be kept");
+        FileUtils.deleteDirectory(dependencyVersionCache.toFile());
     }
 
     @Test (enabled = false)

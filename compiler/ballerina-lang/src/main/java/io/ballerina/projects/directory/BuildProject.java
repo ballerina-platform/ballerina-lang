@@ -42,7 +42,6 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageLockingMode;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
@@ -228,20 +227,10 @@ public class BuildProject extends Project implements Comparable<Project> {
 
     @Override
     public void clearCaches() {
-        boolean projectDependencyCacheWritable = false;
-        if (projectEnvironment != null) {
-            ProjectDependencyCache projectDependencyCache = projectEnvironment.environment()
-                    .getService(ProjectDependencyCache.class);
-            projectDependencyCacheWritable = projectDependencyCache != null && projectDependencyCache.isWritable();
-        }
         resetPackage(this);
         if (this.workspaceProject == null) {
             // We assume that the project environment is already set via the #setEnvironment method
-            ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-            if (projectDependencyCacheWritable) {
-                projectEnvironmentBuilder.enableProjectDependencyCacheWrites();
-            }
-            this.projectEnvironment = projectEnvironmentBuilder.build(this);
+            this.projectEnvironment = ProjectEnvironmentBuilder.getDefaultBuilder().build(this);
         }
     }
 

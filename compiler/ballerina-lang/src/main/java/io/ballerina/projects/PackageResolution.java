@@ -39,7 +39,7 @@ import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
@@ -78,7 +78,6 @@ import static io.ballerina.projects.util.ProjectConstants.EQUAL;
 import static io.ballerina.projects.util.ProjectConstants.LOCKING_MODE_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORY_FLAG;
-import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_OPTION;
 import static io.ballerina.projects.util.ProjectUtils.getWarningForHigherDistribution;
 import static io.ballerina.projects.util.ProjectUtils.isNewUpdateDistribution;
 
@@ -117,7 +116,7 @@ public class PackageResolution {
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
         this.dependencyGraph = buildDependencyGraph();
-        validateProjectDependencyCache();
+        recordDependencyFingerprints();
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -142,7 +141,7 @@ public class PackageResolution {
         moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
         this.dependencyGraph = cloneDependencyGraphNewRoot(packageResolution.dependencyGraph,
                 rootPackageContext.project().currentPackage());
-        validateProjectDependencyCache();
+        recordDependencyFingerprints();
         this.dependencyGraphDump = packageResolution.dependencyGraphDump;
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
@@ -150,13 +149,13 @@ public class PackageResolution {
     }
 
     /**
-     * Drops cached artifacts of dependencies that were compiled against different dependency versions than
-     * the ones resolved now. Runs before any module decides whether to load from the cache.
+     * Records the fingerprint of the dependency versions each bala package is compiled against, so that its compiled
+     * artifacts are cached per fingerprint. Runs before any module decides whether to load from the cache.
      */
-    private void validateProjectDependencyCache() {
-        ProjectDependencyCache projectDependencyCache = rootPackageContext.project().projectEnvironmentContext()
-                .environment().getService(ProjectDependencyCache.class);
-        if (projectDependencyCache == null) {
+    private void recordDependencyFingerprints() {
+        DependencyFingerprints fingerprints = rootPackageContext.project().projectEnvironmentContext()
+                .environment().getService(DependencyFingerprints.class);
+        if (fingerprints == null) {
             return;
         }
         for (ResolvedPackageDependency node : dependencyGraph.getNodes()) {
@@ -164,20 +163,9 @@ public class PackageResolution {
             if (packageInstance.project().kind() != ProjectKind.BALA_PROJECT) {
                 continue;
             }
-            String dependencyFingerprint = dependencyGraph.getAllDependencies(node).stream()
-                    .map(dependency -> dependency.packageInstance().descriptor().toString())
-                    .sorted()
-                    .distinct()
-                    .collect(Collectors.joining("\n"));
-            projectDependencyCache.validatePackage(rootPackageContext.project(), packageInstance.descriptor(),
-                    dependencyFingerprint);
-        }
-        // Only a build of a source package knows the complete graph of its target. A dependency compiled in a
-        // subprocess only sees its part of the graph.
-        if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
-            projectDependencyCache.removeSupersededVersions(rootPackageContext.project(),
-                    dependencyGraph.getNodes().stream()
-                            .map(node -> node.packageInstance().descriptor()).toList());
+            fingerprints.record(rootPackageContext.project(), packageInstance.descriptor(),
+                    dependencyGraph.getAllDependencies(node).stream()
+                            .map(dependency -> dependency.packageInstance().descriptor()).toList());
         }
     }
 
@@ -187,11 +175,6 @@ public class PackageResolution {
      * This is typically useful for large packages to avoid OOM issues.
      */
     private void generateCaches() {
-        // When the project caches compiled dependencies in its target, the subprocess must write there as well.
-        ProjectDependencyCache projectDependencyCache = rootPackageContext.project().projectEnvironmentContext()
-                .environment().getService(ProjectDependencyCache.class);
-        Optional<Path> targetDir = projectDependencyCache != null && projectDependencyCache.isWritable() ?
-                Optional.of(projectDependencyCache.targetDir(rootPackageContext.project())) : Optional.empty();
         for (ResolvedPackageDependency resolvedPackageDependency : this.dependencyGraph.toTopologicallySortedList()) {
             Package packageInstance = resolvedPackageDependency.packageInstance();
 
@@ -225,13 +208,10 @@ public class PackageResolution {
             String balExecutable = isWindows ? "bal.bat" : "bal";
             cmdArgs.add(Paths.get(System.getProperty(BALLERINA_HOME), "bin", balExecutable).toString());
             cmdArgs.add("pull");
-            // When compiling into the project target, the dependency is compiled against the versions resolved
-            // for this project. HARD locking makes the subprocess use the given graph as is.
-            Optional<Path> dependencyGraphJson = targetDir.map(dir -> writeDependencyGraph(resolvedPackageDependency,
-                    dir));
-            PackageLockingMode lockingMode = dependencyGraphJson.isPresent() ? PackageLockingMode.HARD :
-                    resolutionOptions.packageLockingMode();
-            cmdArgs.add(LOCKING_MODE_OPTION + EQUAL + lockingMode.toString());
+            // The dependency is compiled against the versions resolved for this project, so that the subprocess
+            // caches it under the same fingerprint. HARD locking makes the subprocess use the given graph as is.
+            Path dependencyGraphJson = writeDependencyGraph(resolvedPackageDependency);
+            cmdArgs.add(LOCKING_MODE_OPTION + EQUAL + PackageLockingMode.HARD);
             cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
 
             // Specify which repository to resolve the dependency from
@@ -240,8 +220,7 @@ public class PackageResolution {
             if (dependency.isPresent() && dependency.get().repository() != null) {
                 cmdArgs.add(REPOSITORY_FLAG + EQUAL + dependency.get().repository());
             }
-            targetDir.ifPresent(dir -> cmdArgs.add(TARGET_DIR_OPTION + EQUAL + dir));
-            dependencyGraphJson.ifPresent(graph -> cmdArgs.add(DEPENDENCY_GRAPH_OPTION + EQUAL + graph));
+            cmdArgs.add(DEPENDENCY_GRAPH_OPTION + EQUAL + dependencyGraphJson);
             cmdArgs.add(packageDescriptor.toString());
 
             // The subprocess output is not needed: on failure, the dependency is compiled in this process, which
@@ -258,7 +237,7 @@ public class PackageResolution {
                 Thread.currentThread().interrupt();
                 throw new ProjectException(e);
             } finally {
-                dependencyGraphJson.ifPresent(PackageResolution::deleteDependencyGraph);
+                deleteDependencyGraph(dependencyGraphJson);
             }
             if (!compiled) {
                 // Compile this dependency and the remaining ones in this process, so that the build reports the
@@ -280,7 +259,8 @@ public class PackageResolution {
     }
 
     private boolean hasProvidedPlatformLibraries(ResolvedPackageDependency dependency) {
-        Collection<ResolvedPackageDependency> packages = new ArrayList<>(dependencyGraph.getAllDependencies(dependency));
+        Collection<ResolvedPackageDependency> packages =
+                new ArrayList<>(dependencyGraph.getAllDependencies(dependency));
         packages.add(dependency);
         return packages.stream()
                 .flatMap(pkg -> pkg.packageInstance().manifest().platforms().values().stream())
@@ -293,7 +273,7 @@ public class PackageResolution {
         try {
             Files.deleteIfExists(dependencyGraphFile);
         } catch (IOException e) {
-            // The file is a temporary input of the subprocess. A leftover file in the target is harmless.
+            // The file is a temporary input of the subprocess. A leftover temporary file is harmless.
         }
     }
 
@@ -301,7 +281,7 @@ public class PackageResolution {
      * Writes the part of the resolved dependency graph rooted at the given dependency, in the format of a bala's
      * dependency-graph.json.
      */
-    private Path writeDependencyGraph(ResolvedPackageDependency dependency, Path targetDir) {
+    private Path writeDependencyGraph(ResolvedPackageDependency dependency) {
         DependencyGraphBuilder<ResolvedPackageDependency> subGraphBuilder =
                 DependencyGraphBuilder.getBuilder(dependency);
         Collection<ResolvedPackageDependency> subGraphNodes = new LinkedHashSet<>();
@@ -314,8 +294,7 @@ public class PackageResolution {
         DependencyGraphJson dependencyGraphJson = new DependencyGraphJson(
                 BalaWriter.getPackageDependencies(subGraphBuilder.build()), List.of());
         try {
-            Files.createDirectories(targetDir);
-            Path dependencyGraphFile = Files.createTempFile(targetDir, "dependency-graph-", ".json");
+            Path dependencyGraphFile = Files.createTempFile("dependency-graph-", ".json");
             Files.writeString(dependencyGraphFile, new Gson().toJson(dependencyGraphJson), StandardCharsets.UTF_8);
             return dependencyGraphFile;
         } catch (IOException e) {

@@ -22,8 +22,11 @@ import io.ballerina.projects.CompilationCacheFactory;
 import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 
@@ -54,6 +57,7 @@ public class FileSystemCache extends CompilationCache {
     private final Path cacheDirPath;
     private Path birPath;
     private Path packageCacheDirPath;
+    private boolean fingerprintRecorded;
 
     public FileSystemCache(Project project, Path cacheDirPath) {
         super(project);
@@ -78,6 +82,7 @@ public class FileSystemCache extends CompilationCache {
     @Override
     public void cacheBir(ModuleName moduleName, ByteArrayOutputStream birContent) {
         Path birFilePath = getBirPath().resolve(moduleName.toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
+        recordFingerprint();
         if (!Files.exists(birFilePath)) {
             try {
                 Files.createDirectories(birPath);
@@ -108,6 +113,7 @@ public class FileSystemCache extends CompilationCache {
         Path targetPlatformCacheDirPath = getTargetPlatformCacheDirPath(compilerBackend);
         // Create directories
         createDirectories(targetPlatformCacheDirPath);
+        recordFingerprint();
         Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
 
         // TODO Can we improve this logic
@@ -128,6 +134,28 @@ public class FileSystemCache extends CompilationCache {
      */
     public Path cachePath() {
         return getBirPath().getParent();
+    }
+
+    /**
+     * Records the fingerprint of the dependency versions the package is compiled against, e.g. when the distribution
+     * cache is generated. A build reads the cache in place only if it resolves the same versions.
+     */
+    private void recordFingerprint() {
+        if (fingerprintRecorded || project.projectEnvironmentContext() == null) {
+            return;
+        }
+        DependencyFingerprints fingerprints = project.projectEnvironmentContext().environment()
+                .getService(DependencyFingerprints.class);
+        if (fingerprints == null) {
+            return;
+        }
+        PackageDescriptor descriptor = project.currentPackage().descriptor();
+        fingerprints.fingerprint(descriptor).ifPresent(fingerprint -> {
+            FingerprintCompilationCache.writeFingerprint(packageCacheDirPath(), fingerprint);
+            fingerprints.dependencies(descriptor).ifPresent(
+                    dependencies -> FingerprintCompilationCache.writeDependencies(packageCacheDirPath(), dependencies));
+            fingerprintRecorded = true;
+        });
     }
 
     private Path getTargetPlatformCacheDirPath(CompilerBackend compilerBackend) {

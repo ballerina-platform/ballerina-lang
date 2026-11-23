@@ -40,6 +40,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -260,7 +261,7 @@ public class RunCommand implements BLauncherCmd {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
-            ProjectLoadResult loadResult = CommandUtil.loadProjectForBuild(projectPath, buildOptions);
+            ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
             diagnosticResult = loadResult.diagnostics();
             if (diagnosticResult.hasErrors()) {
                 exitCode = 1;

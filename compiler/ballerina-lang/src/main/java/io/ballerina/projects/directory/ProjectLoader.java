@@ -73,8 +73,7 @@ public final class ProjectLoader {
             Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
             if (workspaceRoot.isPresent()) {
                 // If the path is in a workspace, load the workspace project
-                return WorkspaceProject.loadProject(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions,
-                        projectEnvironmentBuilder.isProjectDependencyCacheWritable());
+                return WorkspaceProject.loadProject(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions);
             }
             Path packageRoot = ProjectPaths.packageRoot(path);
             if (ProjectPaths.isBuildProjectRoot(packageRoot)) {

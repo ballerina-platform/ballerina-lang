@@ -19,11 +19,8 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
-import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
@@ -49,7 +46,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,6 +73,7 @@ import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CAC
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -159,143 +156,49 @@ public class BuildCommandTest extends BaseCommandTest {
         BCompileUtil.compileAndCacheBala(depC250.toString(), testCentralRepoCache);
     }
 
-    @Test
-    public void testCleanTargetPreservesDependencyCache() throws IOException {
-        // Work on a copy: cleaning the shared project's target would remove caches other tests depend on.
-        Path projectPath = this.tmpDir.resolve("clean-target-validApplicationProject");
-        deleteDirectory(projectPath);
-        FileUtils.copyDirectory(this.testResources.resolve("validApplicationProject").toFile(), projectPath.toFile());
-        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
-        Project project = ProjectLoader.load(projectPath).project();
-        Path targetPath = project.targetDir();
-        Path dependencyBir = targetPath.resolve("cache/testorg/dependency/1.0.0/bir/dependency.bir");
-        Path rootBir = targetPath.resolve("cache").resolve(project.currentPackage().packageOrg().value())
-                .resolve(project.currentPackage().packageName().value())
-                .resolve(project.currentPackage().packageVersion().toString()).resolve("bir/root.bir");
-        Files.createDirectories(dependencyBir.getParent());
-        Files.createDirectories(rootBir.getParent());
-        Files.writeString(dependencyBir, "dependency");
-        Files.writeString(rootBir, "root");
 
-        new CleanTargetDirTask().execute(project);
-
-        Assert.assertTrue(Files.exists(dependencyBir), "Dependency compilation caches should survive a target clean");
-        Assert.assertFalse(Files.exists(rootBir), "The current package compilation cache should be cleaned");
-    }
-
-    @Test(description = "Dependency compilation for a project build writes the caches to the project target")
-    public void testPullDependencyPackagesWritesToProjectTarget() throws IOException {
-        Path targetDir = this.tmpDir.resolve("dependency-compilation-target");
+    @Test(description = "bal pull caches the compiled package per fingerprint of its dependency versions")
+    public void testPullDependencyPackagesWritesFingerprintedHomeCache() throws IOException {
         Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
         deleteDirectory(homeCache.resolve("testorg").resolve("dep_b"));
-        deleteDirectory(homeCache.resolve("testorg").resolve("dep_c"));
 
         boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0",
-                BuildOptions.builder().setOffline(true).build(), CENTRAL_REPOSITORY_CACHE_NAME, targetDir, null);
+                BuildOptions.builder().setOffline(true).build(), CENTRAL_REPOSITORY_CACHE_NAME, null);
 
         Assert.assertFalse(hasErrors, readOutput(true));
-        Path targetCache = targetDir.resolve(CACHES_DIR_NAME);
-        Path depBCache = targetCache.resolve("testorg").resolve("dep_b").resolve("2.0.0");
-        Assert.assertTrue(Files.exists(depBCache.resolve("bir").resolve("dep_b.bir")),
-                "The compiled package BIR should be written to the project target");
-        Assert.assertTrue(Files.exists(depBCache.resolve(JvmTarget.JAVA_25.code()).resolve("testorg-dep_b-2.0.0.jar")),
-                "The compiled package JAR should be written to the project target");
-        Assert.assertTrue(Files.isDirectory(targetCache.resolve("testorg").resolve("dep_c")),
-                "Transitive dependencies should be cached in the project target");
-        Assert.assertEquals(Files.readString(targetCache.resolve(".distribution-version")),
-                RepoUtils.getBallerinaShortVersion());
-        Assert.assertFalse(Files.exists(homeCache.resolve("testorg").resolve("dep_b")),
-                "The home repository cache must not be written for a project build");
-        Assert.assertFalse(Files.exists(homeCache.resolve("testorg").resolve("dep_c")),
-                "The home repository cache must not be written for a project build");
+        List<Path> variants = variantDirs(homeCache, "testorg", "dep_b", "2.0.0");
+        Assert.assertEquals(variants.size(), 1, variants.toString());
+        Path variant = variants.get(0);
+        Assert.assertTrue(Files.exists(variant.resolve("bir").resolve("dep_b.bir")));
+        Assert.assertTrue(Files.exists(variant.resolve(JvmTarget.JAVA_25.code()).resolve("testorg-dep_b-2.0.0.jar")));
+        Assert.assertTrue(Files.readString(variant.resolve(".dependencies")).startsWith("testorg/dep_c:"),
+                "The variant should record the dependency versions it is compiled against");
+        Assert.assertFalse(Files.exists(homeCache.resolve("testorg").resolve("dep_b").resolve("2.0.0")
+                .resolve("bir")), "Packages should not be cached without a fingerprint");
     }
 
-    @Test(description = "bal pull without a project target writes the caches to the home repository cache")
-    public void testPullDependencyPackagesWritesToHomeCache() throws IOException {
-        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
-        Path depBHomeCache = homeCache.resolve("testorg").resolve("dep_b").resolve("2.0.0");
-        deleteDirectory(depBHomeCache);
 
-        boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0",
-                BuildOptions.builder().setOffline(true).build(), CENTRAL_REPOSITORY_CACHE_NAME, null, null);
 
-        Assert.assertFalse(hasErrors, readOutput(true));
-        Assert.assertTrue(Files.exists(depBHomeCache.resolve("bir").resolve("dep_b.bir")),
-                "bal pull should cache the BIR in the home repository");
-    }
-
-    @Test(description = "Project dependency caches are reused when Dependencies.toml is missing and the cache " +
-            "was produced by the current distribution")
-    public void testDependencyCacheReusedWithoutDependenciesToml() throws IOException {
-        Path projectPath = buildDumpGraphPackageA();
-        Path dependencyBir = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME).resolve("foo")
-                .resolve("package_b").resolve("0.1.0").resolve("bir").resolve("package_b.bir");
-        Assert.assertTrue(Files.exists(dependencyBir));
-        FileTime markerTime = FileTime.fromMillis(0);
-        Files.setLastModifiedTime(dependencyBir, markerTime);
-
-        // A failed build leaves no Dependencies.toml. The cache is then validated with the target marker.
-        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
-        forceRebuild(projectPath);
-        Assert.assertEquals(Files.getLastModifiedTime(dependencyBir), markerTime,
-                "A valid project dependency cache should be reused");
-
-        Path marker = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME).resolve(".distribution-version");
-        Files.writeString(marker, "0.0.0");
-        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
-        forceRebuild(projectPath);
-        Assert.assertNotEquals(Files.getLastModifiedTime(dependencyBir), markerTime,
-                "A cache produced by another distribution should be regenerated");
-        Assert.assertEquals(Files.readString(marker), RepoUtils.getBallerinaShortVersion());
-
-        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
-    }
-
-    @Test(description = "Read-only project loads (e.g. the language server) never modify the project cache")
-    public void testReadOnlyLoadDoesNotModifyDependencyCache() throws IOException {
-        Path projectPath = buildDumpGraphPackageA();
-        Path targetCache = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
-        Path dependencyBir = targetCache.resolve("foo").resolve("package_b").resolve("0.1.0")
-                .resolve("bir").resolve("package_b.bir");
-        FileTime markerTime = FileTime.fromMillis(0);
-        Files.setLastModifiedTime(dependencyBir, markerTime);
-        Path marker = targetCache.resolve(".distribution-version");
-        Files.writeString(marker, "0.0.0");
-        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
-
-        Project project = ProjectLoader.load(projectPath).project();
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend backend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
-
-        Assert.assertFalse(backend.diagnosticResult().hasErrors(), backend.diagnosticResult().toString());
-        Assert.assertTrue(Files.exists(dependencyBir), "A read-only load must not clear the project cache");
-        Assert.assertEquals(Files.getLastModifiedTime(dependencyBir), markerTime,
-                "A read-only load must not rewrite the project cache");
-        Assert.assertEquals(Files.readString(marker), "0.0.0", "A read-only load must not update the cache marker");
-
-        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
-    }
 
     @Test(description = "Dependency compilation for a project build uses the dependency versions resolved by the build")
     public void testPullDependencyPackagesUsesGivenDependencyGraph() throws IOException {
         BuildOptions hardLocking = BuildOptions.builder().setOffline(true)
                 .setLockingMode(PackageLockingMode.HARD).build();
-        Path depCVersions = Path.of("testorg", "dep_c");
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        deleteDirectory(homeCache.resolve("testorg").resolve("dep_b"));
 
         // Without a graph, dep_b is compiled against the dep_c version recorded in its bala.
-        Path balaGraphTarget = this.tmpDir.resolve("dependency-compilation-bala-graph");
-        deleteDirectory(balaGraphTarget);
         boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0", hardLocking,
-                CENTRAL_REPOSITORY_CACHE_NAME, balaGraphTarget, null);
+                CENTRAL_REPOSITORY_CACHE_NAME, null);
         Assert.assertFalse(hasErrors, readOutput(true));
-        Assert.assertFalse(Files.exists(balaGraphTarget.resolve(CACHES_DIR_NAME).resolve(depCVersions)
-                .resolve("2.1.1")), "The version pinned below must differ from the one recorded in the bala");
+        Assert.assertFalse(variantRecords(homeCache, "testorg", "dep_b", "2.0.0").contains("testorg/dep_c:2.1.1"),
+                "The version pinned below must differ from the one recorded in the bala");
 
-        // With a graph, dep_b is compiled against the versions in the graph.
-        Path targetDir = this.tmpDir.resolve("dependency-compilation-project-graph");
-        deleteDirectory(targetDir);
-        Files.createDirectories(targetDir);
-        Path dependencyGraph = targetDir.resolve("dependency-graph.json");
+        // With a graph, dep_b is compiled against the versions in the graph, as a separate variant.
+        Path graphDir = this.tmpDir.resolve("dependency-compilation-project-graph");
+        deleteDirectory(graphDir);
+        Files.createDirectories(graphDir);
+        Path dependencyGraph = graphDir.resolve("dependency-graph.json");
         Files.writeString(dependencyGraph, """
                 {"packages": [
                   {"org": "testorg", "name": "dep_b", "version": "2.0.0",
@@ -304,17 +207,16 @@ public class BuildCommandTest extends BaseCommandTest {
                 ], "modules": []}
                 """);
         hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0", hardLocking,
-                CENTRAL_REPOSITORY_CACHE_NAME, targetDir, dependencyGraph);
+                CENTRAL_REPOSITORY_CACHE_NAME, dependencyGraph);
 
         Assert.assertFalse(hasErrors, readOutput(true));
-        Path targetCache = targetDir.resolve(CACHES_DIR_NAME);
-        Assert.assertTrue(Files.exists(targetCache.resolve(depCVersions).resolve("2.1.1").resolve("bir")
-                .resolve("dep_c.bir")), "The dependency should be compiled at the version given in the graph");
-        Assert.assertEquals(Files.readString(targetCache.resolve("testorg").resolve("dep_b").resolve("2.0.0")
-                .resolve(".dependencies")), "testorg/dep_c:2.1.1");
+        List<String> records = variantRecords(homeCache, "testorg", "dep_b", "2.0.0");
+        Assert.assertTrue(records.contains("testorg/dep_c:2.1.1"), records.toString());
+        Assert.assertEquals(records.size(), 2, "Each set of dependency versions should get its own variant");
+        Assert.assertFalse(variantDirs(homeCache, "testorg", "dep_c", "2.1.1").isEmpty(),
+                "The dependency should be compiled at the version given in the graph");
 
-        deleteDirectory(balaGraphTarget);
-        deleteDirectory(targetDir);
+        deleteDirectory(graphDir);
     }
 
     @Test(description = "Dependency compilation errors are reported the same with --optimize-dependency-compilation")
@@ -403,26 +305,27 @@ public class BuildCommandTest extends BaseCommandTest {
             copyLock(workspace, "older", "olderdependent");
             publishPackageC011();
             setWorkspacePackages(workspace, "older", "olderdependent", "newer");
+            clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
 
-            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
-            Assert.assertEquals(packageBRecord(workspace, "olderdependent"), "foo/package_c:0.1.0",
-                    "A package of the group should get the dependencies compiled for the group");
-            Assert.assertEquals(packageBRecord(workspace, "newer"), "foo/package_c:0.1.1",
-                    "An independent package should compile its own variant of the dependency");
-            Assert.assertFalse(Files.exists(workspace.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
-                    .resolve("foo")), "Dependencies should be cached in the package targets");
+            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
+                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+                    "Each set of dependency versions should get its own variant of the shared dependency");
+            Assert.assertFalse(Files.exists(workspace.resolve("older").resolve(TARGET_DIR_NAME)
+                    .resolve(CACHES_DIR_NAME).resolve("foo")), "Dependencies should not be cached in package targets");
 
-            // A second build reuses the cached variants.
+            // A build after the targets are deleted reuses the cached variants.
             FileTime markerTime = FileTime.fromMillis(0);
-            for (String member : List.of("older", "olderdependent", "newer")) {
-                Files.setLastModifiedTime(packageBBir(workspace, member), markerTime);
-                Files.deleteIfExists(workspace.resolve(member).resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            for (Path bir : distributionPackageBirs("package_b", "0.1.0")) {
+                Files.setLastModifiedTime(bir, markerTime);
             }
-            executeBuild(workspace, "--locking-mode=hard");
             for (String member : List.of("older", "olderdependent", "newer")) {
-                Assert.assertEquals(Files.getLastModifiedTime(packageBBir(workspace, member)), markerTime,
-                        "The cached dependency of '" + member + "' should be reused");
+                deleteDirectory(workspace.resolve(member).resolve(TARGET_DIR_NAME));
+            }
+            deleteDirectory(workspace.resolve(TARGET_DIR_NAME));
+            executeBuild(workspace, "--locking-mode=hard");
+            for (Path bir : distributionPackageBirs("package_b", "0.1.0")) {
+                Assert.assertEquals(Files.getLastModifiedTime(bir), markerTime, "The variant should be reused: " + bir);
             }
         } finally {
             removePackageC011();
@@ -431,7 +334,7 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Independent workspace packages that resolve their shared dependencies alike are compiled "
-            + "together, and each gets the compiled dependencies in its target")
+            + "together and share one compiled variant")
     public void testWorkspacePackagesShareCompatibleDependencies() throws IOException {
         Path workspace = this.tmpDir.resolve("workspace-compatible-dependencies");
         deleteDirectory(workspace);
@@ -444,14 +347,11 @@ public class BuildCommandTest extends BaseCommandTest {
             BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
                     projectEnvironmentBuilder);
             setWorkspacePackages(workspace, "first", "second");
+            clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
 
-            Assert.assertEquals(packageBRecord(workspace, "first"), "foo/package_c:0.1.0");
-            Assert.assertEquals(packageBRecord(workspace, "second"), "foo/package_c:0.1.0");
-            Assert.assertEquals(Files.readAllBytes(packageBBir(workspace, "second")),
-                    Files.readAllBytes(packageBBir(workspace, "first")));
-            Assert.assertFalse(Files.exists(workspace.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
-                    .resolve("foo")), "Dependencies should be cached in the package targets");
+            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"), List.of("foo/package_c:0.1.0"),
+                    "Packages that resolve the shared dependency alike should share one compiled variant");
         } finally {
             deleteDirectory(workspace);
         }
@@ -526,13 +426,14 @@ public class BuildCommandTest extends BaseCommandTest {
             // Both packages lock package_c 0.1.0. 'older' was built just now, so it keeps the locked version, while
             // 'newer', which was never built, resolves with medium locking and picks the patch 0.1.1. The workspace
             // resolution before the build sees this and compiles them in separate environments.
+            clearDistributionPackageCaches("package_b");
             executeBuild(workspace);
 
             Assert.assertEquals(lockedVersion(workspace, "newer", "package_c"), "0.1.1");
             Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
-            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
-            Assert.assertEquals(packageBRecord(workspace, "newer"), "foo/package_c:0.1.1",
-                    "The package should be compiled with its own variant of the shared dependency");
+            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
+                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+                    "Each package should be compiled with its own variant of the shared dependency");
         } finally {
             removePackageC011();
             deleteDirectory(workspace);
@@ -563,12 +464,10 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertNotSame(memberEnvironment(project, "third"), memberEnvironment(project, "older"),
                     "Only the package that resolves a shared dependency differently should be compiled apart");
 
+            clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
-            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
-            Assert.assertEquals(packageBRecord(workspace, "second"), "foo/package_c:0.1.0");
-            Assert.assertEquals(Files.readAllBytes(packageBBir(workspace, "second")),
-                    Files.readAllBytes(packageBBir(workspace, "older")));
-            Assert.assertEquals(packageBRecord(workspace, "third"), "foo/package_c:0.1.1");
+            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
+                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"));
         } finally {
             removePackageC011();
             deleteDirectory(workspace);
@@ -585,8 +484,8 @@ public class BuildCommandTest extends BaseCommandTest {
         return workspaceMember(workspaceProject, name).projectEnvironmentContext().environment();
     }
 
-    @Test(description = "A dependency compiled for a group of workspace packages is cached only in the targets of "
-            + "the packages that resolved it against the same dependency versions")
+    @Test(description = "A dependency compiled for a group of workspace packages is cached once, for the versions it "
+            + "is compiled against")
     public void testWorkspaceGroupCachesDependencyOnlyForMatchingPackages() throws IOException {
         Path workspace = this.tmpDir.resolve("workspace-group-variants");
         deleteDirectory(workspace);
@@ -598,11 +497,11 @@ public class BuildCommandTest extends BaseCommandTest {
             lockOlderToPackageC010(workspace);
             publishPackageC011();
             setWorkspacePackages(workspace, "older", "groupnewer");
+            clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
 
-            Assert.assertEquals(packageBRecord(workspace, "older"), "foo/package_c:0.1.0");
-            Assert.assertFalse(Files.exists(packageBDir(workspace, "groupnewer")),
-                    "A dependency compiled against other versions should not be cached for the package");
+            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"), List.of("foo/package_c:0.1.0"),
+                    "The dependency should be cached only for the versions it is compiled against");
             // The dependency versions of the packages in a group are resolved as before.
             Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
             Assert.assertEquals(lockedVersion(workspace, "groupnewer", "package_c"), "0.1.1");
@@ -612,49 +511,6 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Read-only loads of a workspace (e.g. the language server) use the package caches without "
-            + "modifying them")
-    public void testReadOnlyWorkspaceLoadDoesNotModifyPackageCaches() throws IOException {
-        Path workspace = this.tmpDir.resolve("workspace-read-only");
-        deleteDirectory(workspace);
-        writeWorkspacePackage(workspace, "older", "0.1.0", "");
-        writeWorkspacePackage(workspace, "olderdependent", "0.1.0", "import wsorg/older as _;\n");
-        writeWorkspacePackage(workspace, "newer", "0.1.1", "");
-        try {
-            lockOlderToPackageC010(workspace);
-            copyLock(workspace, "older", "olderdependent");
-            publishPackageC011();
-            setWorkspacePackages(workspace, "older", "olderdependent", "newer");
-            executeBuild(workspace, "--locking-mode=hard");
-
-            FileTime markerTime = FileTime.fromMillis(0);
-            for (String member : List.of("older", "olderdependent", "newer")) {
-                Files.setLastModifiedTime(packageBBir(workspace, member), markerTime);
-            }
-            Path staleRecord = packageBDir(workspace, "newer").resolve(".dependencies");
-            Files.writeString(staleRecord, "foo/package_c:0.0.9");
-            List<Path> cachedFiles = dependencyCacheFiles(workspace);
-
-            WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace).project();
-            for (BuildProject member : project.projects()) {
-                JBallerinaBackend backend = JBallerinaBackend.from(member.currentPackage().getCompilation(),
-                        JvmTarget.JAVA_25);
-                Assert.assertFalse(backend.diagnosticResult().hasErrors(), backend.diagnosticResult().toString());
-            }
-
-            Assert.assertEquals(dependencyCacheFiles(workspace), cachedFiles,
-                    "A read-only load must not add or remove cached dependencies");
-            for (String member : List.of("older", "olderdependent", "newer")) {
-                Assert.assertEquals(Files.getLastModifiedTime(packageBBir(workspace, member)), markerTime,
-                        "A read-only load must not rewrite the cache of '" + member + "'");
-            }
-            Assert.assertEquals(Files.readString(staleRecord), "foo/package_c:0.0.9",
-                    "A read-only load must not update a stale record");
-        } finally {
-            removePackageC011();
-            deleteDirectory(workspace);
-        }
-    }
 
     /** Builds a workspace with only 'older', before package_c 0.1.1 is published, to lock it to 0.1.0. */
     private void lockOlderToPackageC010(Path workspace) throws IOException {
@@ -707,22 +563,6 @@ public class BuildCommandTest extends BaseCommandTest {
         return matcher.group(1);
     }
 
-    private static List<Path> dependencyCacheFiles(Path workspace) throws IOException {
-        List<Path> files = new ArrayList<>();
-        for (Path cacheDir : List.of(workspace.resolve(TARGET_DIR_NAME), workspace.resolve("older")
-                .resolve(TARGET_DIR_NAME), workspace.resolve("olderdependent").resolve(TARGET_DIR_NAME),
-                workspace.resolve("newer").resolve(TARGET_DIR_NAME))) {
-            Path dependencies = cacheDir.resolve(CACHES_DIR_NAME).resolve("foo");
-            if (Files.exists(dependencies)) {
-                try (Stream<Path> paths = Files.walk(dependencies)) {
-                    paths.filter(Files::isRegularFile).forEach(files::add);
-                }
-            }
-        }
-        files.sort(null);
-        return files;
-    }
-
     private static void writeWorkspacePackage(Path workspace, String name, String packageCVersion,
                                               String extraImports) throws IOException {
         Path packagePath = workspace.resolve(name);
@@ -746,17 +586,67 @@ public class BuildCommandTest extends BaseCommandTest {
                 """);
     }
 
-    private static Path packageBDir(Path workspace, String member) {
-        return workspace.resolve(member).resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME).resolve("foo")
-                .resolve("package_b").resolve("0.1.0");
+    /** Cached variants of a package in the given cache: one directory per fingerprint. */
+    private static List<Path> variantDirs(Path cache, String org, String name, String version) throws IOException {
+        Path versionDir = cache.resolve(org).resolve(name).resolve(version);
+        if (!Files.isDirectory(versionDir)) {
+            return List.of();
+        }
+        try (Stream<Path> paths = Files.list(versionDir)) {
+            return paths.filter(path -> Files.isRegularFile(path.resolve(".dependencies"))).sorted().toList();
+        }
     }
 
-    private static Path packageBBir(Path workspace, String member) {
-        return packageBDir(workspace, member).resolve("bir").resolve("package_b.bir");
+    /** Dependency versions each cached variant of a package is compiled against. */
+    private static List<String> variantRecords(Path cache, String org, String name, String version)
+            throws IOException {
+        List<String> records = new ArrayList<>();
+        for (Path variant : variantDirs(cache, org, name, version)) {
+            records.add(Files.readString(variant.resolve(".dependencies")));
+        }
+        return records;
     }
 
-    private static String packageBRecord(Path workspace, String member) throws IOException {
-        return Files.readString(packageBDir(workspace, member).resolve(".dependencies"));
+    private Path homeDistributionCache() {
+        return testDotBallerina.resolve(REPOSITORIES_DIR).resolve("distribution")
+                .resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+    }
+
+    /**
+     * Caches of a package of the test distribution: the distribution cache, if a build wrote it, and the variants
+     * compiled against other versions in the user home.
+     */
+    private List<Path> distributionPackageCaches(String name, String version) throws IOException {
+        List<Path> caches = new ArrayList<>();
+        Path distributionCache = testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("foo").resolve(name)
+                .resolve(version);
+        if (Files.isRegularFile(distributionCache.resolve(".dependencies"))) {
+            caches.add(distributionCache);
+        }
+        caches.addAll(variantDirs(homeDistributionCache(), "foo", name, version));
+        return caches;
+    }
+
+    private List<String> distributionPackageRecords(String name, String version) throws IOException {
+        List<String> records = new ArrayList<>();
+        for (Path cache : distributionPackageCaches(name, version)) {
+            records.add(Files.readString(cache.resolve(".dependencies")));
+        }
+        records.sort(null);
+        return records;
+    }
+
+    private List<Path> distributionPackageBirs(String name, String version) throws IOException {
+        List<Path> birs = new ArrayList<>();
+        for (Path cache : distributionPackageCaches(name, version)) {
+            birs.add(cache.resolve("bir").resolve(name + ".bir"));
+        }
+        return birs;
+    }
+
+    private void clearDistributionPackageCaches(String name) throws IOException {
+        deleteDirectory(testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("foo").resolve(name));
+        deleteDirectory(homeDistributionCache().resolve("foo").resolve(name));
     }
 
     private void executeBuild(Path projectPath, String... args) throws IOException {
@@ -770,31 +660,63 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Builds remove versions of dependencies that are no longer used from the project target")
-    public void testDependencyCacheRemovesSupersededVersions() throws IOException {
+
+    @Test(description = "Cached dependencies record the dependency versions they were compiled against")
+    public void testDependencyCacheRecordsResolvedDependencies() throws IOException {
+        clearDistributionPackageCaches("package_b");
         Path projectPath = buildDumpGraphPackageA();
-        Path targetCache = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
-        Path packageC = targetCache.resolve("foo").resolve("package_c");
-        Assert.assertTrue(Files.exists(packageC.resolve("0.1.0")));
-        // A package not in the graph of this build, e.g. one only used by builds with other options.
-        Path unusedPackage = targetCache.resolve("foo").resolve("unused").resolve("1.0.0");
-        Files.createDirectories(unusedPackage.resolve("bir"));
+
+        Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"), List.of("foo/package_c:0.1.0"));
+        List<String> packageCRecords = distributionPackageRecords("package_c", "0.1.0");
+        Assert.assertFalse(packageCRecords.isEmpty());
+        for (String record : packageCRecords) {
+            Assert.assertFalse(record.contains("foo/"), record);
+        }
+
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+    }
+
+    @Test(description = "A build after the project target is deleted reuses the compiled dependencies")
+    public void testDependencyCacheReusedAfterTargetDeleted() throws IOException {
+        clearDistributionPackageCaches("package_b");
+        Path projectPath = buildDumpGraphPackageA();
+        List<Path> birs = distributionPackageBirs("package_b", "0.1.0");
+        Assert.assertEquals(birs.size(), 1, birs.toString());
+        FileTime markerTime = FileTime.fromMillis(0);
+        Files.setLastModifiedTime(birs.get(0), markerTime);
+
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        executeBuild(projectPath);
+
+        Assert.assertEquals(Files.getLastModifiedTime(birs.get(0)), markerTime,
+                "The compiled dependency should be reused");
+        Assert.assertFalse(Files.exists(projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                .resolve("foo").resolve("package_b")), "Dependencies should not be cached in the project target");
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+    }
+
+
+    @Test(description = "A dependency is compiled as a new variant when a transitive dependency resolves to a new "
+            + "version, and the previous variant is kept")
+    public void testDependencyCacheInvalidatedOnDependencyVersionChange() throws IOException {
+        clearDistributionPackageCaches("package_b");
+        Path projectPath = buildDumpGraphPackageA();
+        List<Path> previousBirs = distributionPackageBirs("package_b", "0.1.0");
+        Assert.assertEquals(previousBirs.size(), 1, previousBirs.toString());
+        FileTime markerTime = FileTime.fromMillis(0);
+        Files.setLastModifiedTime(previousBirs.get(0), markerTime);
+
         try {
             publishPackageC011();
             Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
             forceRebuild(projectPath);
 
-            Assert.assertTrue(Files.exists(packageC.resolve("0.1.1").resolve("bir").resolve("package_c.bir")));
-            Assert.assertFalse(Files.exists(packageC.resolve("0.1.0")),
-                    "The version of package_c that is no longer used should be removed");
-            Assert.assertTrue(Files.exists(targetCache.resolve("foo").resolve("package_b").resolve("0.1.0")));
-            Assert.assertTrue(Files.exists(unusedPackage), "Packages not in the graph should be kept");
-
-            // Read-only loads (e.g. the language server) remove nothing.
-            Path oldVersion = packageC.resolve("0.0.9");
-            Files.createDirectories(oldVersion.resolve("bir"));
-            ProjectLoader.load(projectPath).project().currentPackage().getCompilation();
-            Assert.assertTrue(Files.exists(oldVersion), "A read-only load must not remove cached versions");
+            Assert.assertFalse(distributionPackageCaches("package_c", "0.1.1").isEmpty());
+            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
+                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+                    "package_b should be compiled against the new package_c version");
+            Assert.assertEquals(Files.getLastModifiedTime(previousBirs.get(0)), markerTime,
+                    "The variant for the previous versions should be kept for other projects");
         } finally {
             removePackageC011();
             Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
@@ -802,119 +724,6 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Cached dependencies record the dependency versions they were compiled against")
-    public void testDependencyCacheRecordsResolvedDependencies() throws IOException {
-        Path projectPath = buildDumpGraphPackageA();
-        Path targetCache = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
-        Path packageBMarker = targetCache.resolve("foo").resolve("package_b").resolve("0.1.0")
-                .resolve(".dependencies");
-        Path packageCMarker = targetCache.resolve("foo").resolve("package_c").resolve("0.1.0")
-                .resolve(".dependencies");
-
-        Assert.assertTrue(Files.readString(packageBMarker).lines().toList().contains("foo/package_c:0.1.0"),
-                Files.readString(packageBMarker));
-        Assert.assertTrue(Files.exists(packageCMarker));
-        Assert.assertFalse(Files.readString(packageCMarker).contains("foo/"), Files.readString(packageCMarker));
-
-        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
-    }
-
-    @Test(description = "Only the dependencies whose recorded dependency versions differ are recompiled")
-    public void testDependencyCacheInvalidatedOnStaleDependencyMarker() throws IOException {
-        Path projectPath = buildDumpGraphPackageA();
-        Path targetCache = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
-        Path packageBDir = targetCache.resolve("foo").resolve("package_b").resolve("0.1.0");
-        Path packageBBir = packageBDir.resolve("bir").resolve("package_b.bir");
-        Path packageBMarker = packageBDir.resolve(".dependencies");
-        Path packageCBir = targetCache.resolve("foo").resolve("package_c").resolve("0.1.0")
-                .resolve("bir").resolve("package_c.bir");
-        String expectedMarker = Files.readString(packageBMarker);
-        FileTime markerTime = FileTime.fromMillis(0);
-
-        // Compiled against another version of package_c.
-        Files.setLastModifiedTime(packageBBir, markerTime);
-        Files.setLastModifiedTime(packageCBir, markerTime);
-        Files.writeString(packageBMarker, "foo/package_c:0.0.9");
-        forceRebuild(projectPath);
-        Assert.assertNotEquals(Files.getLastModifiedTime(packageBBir), markerTime,
-                "A dependency compiled against other dependency versions should be recompiled");
-        Assert.assertEquals(Files.readString(packageBMarker), expectedMarker);
-        Assert.assertEquals(Files.getLastModifiedTime(packageCBir), markerTime,
-                "Dependencies with matching dependency versions should be reused");
-
-        // Caches written before dependency versions were recorded have no marker.
-        Files.setLastModifiedTime(packageBBir, markerTime);
-        Files.delete(packageBMarker);
-        forceRebuild(projectPath);
-        Assert.assertNotEquals(Files.getLastModifiedTime(packageBBir), markerTime,
-                "A dependency without recorded dependency versions should be recompiled");
-        Assert.assertEquals(Files.readString(packageBMarker), expectedMarker);
-
-        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
-    }
-
-    @Test(description = "Cached dependencies are recompiled when a transitive dependency resolves to a new version")
-    public void testDependencyCacheInvalidatedOnDependencyVersionChange() throws IOException {
-        Path projectPath = buildDumpGraphPackageA();
-        Path targetCache = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
-        Path packageBDir = targetCache.resolve("foo").resolve("package_b").resolve("0.1.0");
-        Path packageBBir = packageBDir.resolve("bir").resolve("package_b.bir");
-        FileTime markerTime = FileTime.fromMillis(0);
-        Files.setLastModifiedTime(packageBBir, markerTime);
-
-        // Publish package_c 0.1.1 so that package_a resolves it in place of 0.1.0.
-        Path newPackageC = tmpDir.resolve("package_c_0_1_1");
-        FileUtils.copyDirectory(this.testResources.resolve("projectsForDumpGraph").resolve("package_c").toFile(),
-                newPackageC.toFile());
-        Path newPackageCToml = newPackageC.resolve("Ballerina.toml");
-        Files.writeString(newPackageCToml,
-                Files.readString(newPackageCToml).replace("version = \"0.1.0\"", "version = \"0.1.1\""));
-        try {
-            BCompileUtil.compileAndCacheBala(newPackageC, testDistCacheDirectory, projectEnvironmentBuilder);
-            Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
-            forceRebuild(projectPath);
-
-            Assert.assertTrue(Files.exists(targetCache.resolve("foo").resolve("package_c").resolve("0.1.1")
-                    .resolve("bir").resolve("package_c.bir")));
-            Assert.assertTrue(Files.readString(packageBDir.resolve(".dependencies")).lines().toList()
-                    .contains("foo/package_c:0.1.1"));
-            Assert.assertNotEquals(Files.getLastModifiedTime(packageBBir), markerTime,
-                    "package_b should be recompiled against the new package_c version");
-        } finally {
-            // Other tests resolve package_c 0.1.0 from the shared test repository.
-            try (Stream<Path> paths = Files.walk(testDistCacheDirectory)) {
-                for (Path path : paths.filter(p -> p.endsWith(Path.of("foo", "package_c", "0.1.1"))).toList()) {
-                    deleteDirectory(path);
-                }
-            }
-            Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
-            deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
-        }
-    }
-
-    @Test(description = "Read-only loads ignore stale cached dependencies without modifying them")
-    public void testReadOnlyLoadIgnoresStaleDependencyCache() throws IOException {
-        Path projectPath = buildDumpGraphPackageA();
-        Path packageBDir = projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME).resolve("foo")
-                .resolve("package_b").resolve("0.1.0");
-        Path packageBBir = packageBDir.resolve("bir").resolve("package_b.bir");
-        Path packageBMarker = packageBDir.resolve(".dependencies");
-        FileTime markerTime = FileTime.fromMillis(0);
-        Files.setLastModifiedTime(packageBBir, markerTime);
-        Files.writeString(packageBMarker, "foo/package_c:0.0.9");
-
-        Project project = ProjectLoader.load(projectPath).project();
-        JBallerinaBackend backend = JBallerinaBackend.from(project.currentPackage().getCompilation(),
-                JvmTarget.JAVA_25);
-
-        Assert.assertFalse(backend.diagnosticResult().hasErrors(), backend.diagnosticResult().toString());
-        Assert.assertEquals(Files.getLastModifiedTime(packageBBir), markerTime,
-                "A read-only load must not rewrite the project cache");
-        Assert.assertEquals(Files.readString(packageBMarker), "foo/package_c:0.0.9",
-                "A read-only load must not update the dependency marker");
-
-        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
-    }
 
     private Path buildDumpGraphPackageA() throws IOException {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
@@ -1933,28 +1742,8 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_25.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
-        Path dependencyCache = projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_b").resolve("0.1.0");
-        Assert.assertTrue(dependencyCache.resolve("bir").resolve("package_b.bir").toFile().exists(),
-                "Dependency BIR should be populated in the project cache");
-        Assert.assertTrue(dependencyCache.resolve(JvmTarget.JAVA_25.code())
-                        .resolve("foo-package_b-0.1.0.jar").toFile().exists(),
-                "Dependency JAR should be populated in the project cache");
-
-        Path dependencyBir = dependencyCache.resolve("bir").resolve("package_b.bir");
-        byte[] staleBir = "stale BIR".getBytes(StandardCharsets.UTF_8);
-        Files.write(dependencyBir, staleBir);
-        Path dependenciesToml = projectPath.resolve("Dependencies.toml");
-        String dependenciesContent = Files.readString(dependenciesToml).replaceFirst(
-                "(?m)^(distribution-version\\s*=\\s*)\"[^\"]+\"$", "$1\"0.0.0\"");
-        Files.writeString(dependenciesToml, dependenciesContent);
-        BuildCommand rebuildCommand = new BuildCommand(projectPath, printStream, printStream, false,
-                optimizeDependencyCompilation);
-        new CommandLine(rebuildCommand).parseArgs("--dump-graph");
-        rebuildCommand.execute();
-        Assert.assertTrue(!Files.exists(dependencyBir) || !Arrays.equals(Files.readAllBytes(dependencyBir),
-                        staleBir),
-                "A distribution-version mismatch must discard stale project BIR cache entries");
+        Assert.assertFalse(distributionPackageBirs("package_b", "0.1.0").isEmpty(),
+                "The dependency should be cached in the distribution or home cache");
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }

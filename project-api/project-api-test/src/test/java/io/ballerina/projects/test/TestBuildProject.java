@@ -168,15 +168,6 @@ public class TestBuildProject extends BaseTest {
 
     }
 
-    @Test(description = "project dependency cache writes are opt-in")
-    public void testProjectDependencyCacheWriteOption() {
-        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(
-                EnvironmentBuilder.getBuilder().build());
-        Assert.assertFalse(environmentBuilder.isProjectDependencyCacheWritable());
-        environmentBuilder.enableProjectDependencyCacheWrites();
-        Assert.assertTrue(environmentBuilder.isProjectDependencyCacheWritable());
-    }
-
     @Test (description = "tests loading a build project containing invalid platform dependency paths")
     public void testBuildProjectWithInvalidDependencyPaths() {
         Path projectPath = tempResourceDir.resolve("myproject_invalidDependencyPath");

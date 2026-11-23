@@ -35,8 +35,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
-import io.ballerina.projects.internal.environment.DefaultEnvironment;
-import io.ballerina.projects.internal.environment.ProjectDependencyCache;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
 import io.ballerina.projects.internal.repositories.WorkspaceRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -60,7 +59,6 @@ public class WorkspaceProject extends Project {
     private final BuildOptions buildOptions;
     private WorkspaceManifest workspaceManifest;
     private WorkspaceResolution workspaceResolution;
-    private boolean dependencyCacheWritable;
     // Source roots of the packages that depend on one another, directly or transitively. The packages of a group
     // are always compiled in one environment.
     private List<List<Path>> packageGroups = List.of();
@@ -87,17 +85,11 @@ public class WorkspaceProject extends Project {
 
     static ProjectLoadResult loadProject(Path path, EnvironmentBuilder environmentBuilder,
                                                   BuildOptions buildOptions) {
-        return loadProject(path, environmentBuilder, buildOptions, false);
-    }
-
-    static ProjectLoadResult loadProject(Path path, EnvironmentBuilder environmentBuilder,
-                                         BuildOptions buildOptions, boolean dependencyCacheWritable) {
         if (ProjectPaths.isWorkspaceProjectRoot(path)) {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(path.resolve(BALLERINA_TOML)));
                 WorkspaceProject workspaceProject = new WorkspaceProject(path, buildOptions, tomlDocument);
-                workspaceProject.dependencyCacheWritable = dependencyCacheWritable;
                 Environment environment = environmentBuilder.setWorkspace(workspaceProject).build();
                 List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
                 String org = null;
@@ -113,7 +105,7 @@ public class WorkspaceProject extends Project {
                     }
                     workspaceProject.projectList.add((BuildProject) buildProjectLoadResult.project());
                 }
-                workspaceProject.assignEnvironments(environment);
+                workspaceProject.assignEnvironments();
                 return new ProjectLoadResult(workspaceProject, new DefaultDiagnosticResult(diagnostics));
             } catch (IOException e) {
                 throw new ProjectException("Error reading " + BALLERINA_TOML + " file in workspace: "
@@ -166,10 +158,9 @@ public class WorkspaceProject extends Project {
      * Assigns the environment the packages are loaded into to all of them. The dependency versions of the packages
      * are not known before they are resolved, so they start in one environment.
      */
-    private void assignEnvironments(Environment loadEnvironment) {
+    private void assignEnvironments() {
         groupPackages();
         this.contexts = List.of(this.projectList.stream().map(BuildProject::sourceRoot).toList());
-        addDependencyCache(loadEnvironment, this.projectList, this.dependencyCacheWritable);
     }
 
     /**
@@ -206,9 +197,9 @@ public class WorkspaceProject extends Project {
         if (buildProject.projectEnvironmentContext() == null) {
             return Map.of();
         }
-        ProjectDependencyCache dependencyCache = buildProject.projectEnvironmentContext().environment()
-                .getService(ProjectDependencyCache.class);
-        return dependencyCache == null ? Map.of() : dependencyCache.resolvedVariants(buildProject);
+        DependencyFingerprints fingerprints = buildProject.projectEnvironmentContext().environment()
+                .getService(DependencyFingerprints.class);
+        return fingerprints == null ? Map.of() : fingerprints.resolvedVariants(buildProject);
     }
 
     private static boolean compatible(Map<String, String> contextVariants, Map<String, String> groupVariants) {
@@ -364,7 +355,7 @@ public class WorkspaceProject extends Project {
 
     /**
      * Creates the environment of the given packages. When the workspace has several environments, the environment
-     * only provides its own packages. It caches the compiled dependencies in the targets of its packages.
+     * only provides its own packages.
      */
     private static Environment createEnvironment(EnvironmentBuilder environmentBuilder, WorkspaceProject workspace,
                                                  List<BuildProject> group, boolean restrictToGroup) {
@@ -373,23 +364,7 @@ public class WorkspaceProject extends Project {
             environment.getService(WorkspaceRepository.class)
                     .restrictTo(group.stream().map(BuildProject::sourceRoot).toList());
         }
-        addDependencyCache(environment, group, workspace.dependencyCacheWritable);
         return environment;
-    }
-
-    private static void addDependencyCache(Environment environment, List<BuildProject> group, boolean writable) {
-        if (group.isEmpty() || !(environment instanceof DefaultEnvironment defaultEnvironment)) {
-            return;
-        }
-        ProjectDependencyCache dependencyCache = new ProjectDependencyCache(
-                group.stream().map(BuildProject::targetDir).toList(), writable);
-        defaultEnvironment.addService(ProjectDependencyCache.class, dependencyCache);
-        for (BuildProject buildProject : group) {
-            if (buildProject.currentPackage() != null) {
-                dependencyCache.updateDistributionVersion(buildProject,
-                        buildProject.currentPackage().dependencyManifest());
-            }
-        }
     }
 
     @Override
@@ -402,7 +377,6 @@ public class WorkspaceProject extends Project {
         List<BuildProject> projects = new ArrayList<>();
         WorkspaceProject duplicateWp = new WorkspaceProject(this.sourceRoot, this.buildOptions,
                 this.workspaceBallerinaToml.tomlDocument(), projects);
-        duplicateWp.dependencyCacheWritable = this.dependencyCacheWritable;
         duplicateWp.packageGroups = this.packageGroups;
         duplicateWp.contexts = this.contexts;
         // Build one environment per environment of this workspace for the copy, and duplicate each member into the

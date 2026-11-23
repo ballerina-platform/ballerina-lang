@@ -135,6 +135,15 @@ public final class BallerinaUserHome {
         return from(environment, homeRepoPath);
     }
 
+    /**
+     * Returns the Ballerina user home directory, e.g. {@code ~/.ballerina}.
+     *
+     * @return user home directory
+     */
+    public Path homePath() {
+        return ballerinaUserHomeDirPath;
+    }
+
     public RemotePackageRepository remotePackageRepository() {
         return this.remotePackageRepository;
     }

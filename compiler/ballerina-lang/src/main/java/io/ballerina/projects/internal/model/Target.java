@@ -248,40 +248,6 @@ public class Target {
         // Remove cache directory
         ProjectUtils.deleteDirectory(this.cache);
 
-        cleanBuildOutputs();
-    }
-
-    /**
-     * Clean generated build outputs while retaining compiled dependency package caches.
-     *
-     * @param currentPackage the package being built
-     */
-    public void cleanPreservingDependencyCaches(Package currentPackage) {
-        cleanCachePreservingDependencyCaches(currentPackage);
-        cleanBuildOutputs();
-    }
-
-    /**
-     * Clean target caches while retaining compiled dependency package caches.
-     *
-     * @param currentPackage the package being built
-     */
-    public void cleanCachePreservingDependencyCaches(Package currentPackage) {
-        if (Files.exists(this.cache)) {
-            Path currentPackageCache = this.cache.resolve(currentPackage.packageOrg().value())
-                    .resolve(currentPackage.packageName().value())
-                    .resolve(currentPackage.packageVersion().toString());
-            ProjectUtils.deleteDirectory(currentPackageCache);
-            ProjectUtils.deleteDirectory(this.cache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME));
-            ProjectUtils.deleteDirectory(this.cache.resolve(ProjectConstants.BIR_CACHE_DIR_NAME));
-            ProjectUtils.deleteDirectory(this.cache.resolve(ProjectConstants.JAR_CACHE_DIR_NAME));
-            ProjectUtils.deleteDirectory(this.cache.resolve(ProjectConstants.JSON_CACHE_DIR_NAME));
-            ProjectUtils.deleteDirectory(this.cache.resolve(ProjectConstants.TESTS_CACHE_DIR_NAME));
-        }
-    }
-
-    private void cleanBuildOutputs() {
-
         // Remove any generated bala
         ProjectUtils.deleteDirectory(this.balaCachePath);
         ProjectUtils.deleteDirectory(this.binPath);

@@ -21,6 +21,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
@@ -200,7 +201,7 @@ public class PackCommand implements BLauncherCmd {
                 throw new ProjectException("invalid package path: " + absProjectPath +
                         ". Please provide a valid Ballerina package or a workspace.");
             }
-            ProjectLoadResult loadResult = CommandUtil.loadProjectForBuild(projectPath, buildOptions);
+            ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
             diagnosticResult = loadResult.diagnostics();
             if (diagnosticResult.hasErrors()) {
                 exitCode = 1;
@@ -365,7 +366,7 @@ public class PackCommand implements BLauncherCmd {
                 BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
                 cleanTargetDirs(successfullyBuilt, failedProject);
                 WorkspaceProject recoveredProject = (WorkspaceProject)
-                        CommandUtil.loadProjectForBuild(workspaceProject.sourceRoot(), recoveryOptions).project();
+                        ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
                 executeWorkspaceFromRoot(recoveredProject, recoveryOptions, true);
             } else {
                 throw e;
@@ -414,7 +415,7 @@ public class PackCommand implements BLauncherCmd {
                 BuildOptions recoveryOptions = repairedRecoveryOptions(buildOptions);
                 cleanTargetDirs(allDependencies, resolvedTarget);
                 WorkspaceProject recoveredProject = (WorkspaceProject)
-                        CommandUtil.loadProjectForBuild(workspaceProject.sourceRoot(), recoveryOptions).project();
+                        ProjectLoader.load(workspaceProject.sourceRoot(), recoveryOptions).project();
                 executeWorkspaceFromProjectPath(recoveredProject, absProjectPath, recoveryOptions, true);
             } else {
                 throw e;

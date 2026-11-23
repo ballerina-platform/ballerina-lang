@@ -98,14 +98,8 @@ public class PullCommand implements BLauncherCmd {
             description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
     private PackageLockingMode lockingMode;
 
-    // Set when a build compiles a dependency in a subprocess (--optimize-dependency-compilation). The compiled
-    // artifacts then go to the project's target cache instead of the home repository cache.
-    @CommandLine.Option(names = "--target-dir", hidden = true,
-            description = "project target directory to write the compiled dependency caches to.")
-    private Path targetDir;
-
-    // Set together with --target-dir. The dependency is compiled against the versions resolved by the project
-    // build instead of the versions recorded in its bala.
+    // Set when a build compiles a dependency in a subprocess (--optimize-dependency-compilation). The dependency is
+    // compiled against the versions resolved by the project build instead of the versions recorded in its bala.
     @CommandLine.Option(names = "--dependency-graph", hidden = true,
             description = "dependency graph JSON to compile the package against.")
     private Path dependencyGraph;
@@ -421,7 +415,7 @@ public class PullCommand implements BLauncherCmd {
             BuildOptions buildOptions = BuildOptions.builder().setLockingMode(packageLockingMode).setOffline(offline)
                     .build();
             boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
-                    orgName, packageName, version, buildOptions, repositoryName, targetDir, dependencyGraph);
+                    orgName, packageName, version, buildOptions, repositoryName, dependencyGraph);
             if (hasCompilationErrors) {
                 CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
                 return false;
