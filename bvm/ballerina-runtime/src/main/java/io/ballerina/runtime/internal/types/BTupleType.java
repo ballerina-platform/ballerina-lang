@@ -69,7 +69,6 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     private IntersectionType intersectionType = null;
     public boolean isCyclic = false;
     private boolean resolving;
-    private boolean resolvingReadonly;
     private String cachedToString;
     private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
@@ -106,10 +105,8 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     public BTupleType(List<Type> typeList, Type restType, int typeFlags, boolean isCyclic, boolean readonly) {
         super(null, null, Object.class);
         if (readonly) {
-            this.resolvingReadonly = true;
             this.tupleTypes = getReadOnlyTypes(typeList);
             this.restType = restType != null ? ReadOnlyUtils.getReadOnlyType(restType) : null;
-            this.resolvingReadonly = false;
         } else {
             this.tupleTypes = typeList;
             this.restType = restType;
@@ -133,7 +130,6 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             return;
         }
         this.resolving = true;
-        this.resolvingReadonly = true;
         boolean isAllMembersPure = true;
         boolean isAllMembersAnydata = true;
         for (Type memberType : tupleTypes) {
@@ -144,7 +140,6 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             isAllMembersPure &= restType.isPureType();
             isAllMembersAnydata &= restType.isAnydata();
         }
-        this.resolvingReadonly = false;
         this.resolving = false;
         if (isAllMembersPure) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
@@ -182,10 +177,8 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             return;
         }
         if (readonly) {
-            this.resolvingReadonly = true;
             this.tupleTypes = getReadOnlyTypes(members);
             this.restType = restType != null ? ReadOnlyUtils.getReadOnlyType(restType) : null;
-            this.resolvingReadonly = false;
         } else {
             this.tupleTypes = members;
             this.restType = restType;
@@ -306,9 +299,6 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
 
     @Override
     public boolean isReadOnly() {
-        if (this.resolvingReadonly) {
-            return true;
-        }
         return this.readonly;
     }
 
