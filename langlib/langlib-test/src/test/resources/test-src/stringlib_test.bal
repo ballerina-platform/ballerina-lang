@@ -224,6 +224,32 @@ function testIncludes() returns boolean {
     return strings:includes(str1, str, 6);
 }
 
+function testIndexOfAndIncludesWithStartIndexPastEnd() {
+    string s = "abc";
+    assertEquals(3, s.indexOf("", 3));
+    assertEquals((), s.indexOf("", 4));
+    assertEquals((), s.indexOf("", 100));
+    assertEquals((), s.indexOf("c", 4));
+    assertTrue(s.includes("", 3));
+    assertFalse(s.includes("", 4));
+    assertFalse(s.includes("", 100));
+    assertFalse(s.includes("c", 4));
+
+    string nonBmp = "a😀c";
+    assertEquals(3, nonBmp.indexOf("", 3));
+    assertEquals((), nonBmp.indexOf("", 4));
+    assertEquals((), nonBmp.indexOf("", 100));
+    assertTrue(nonBmp.includes("", 3));
+    assertFalse(nonBmp.includes("", 4));
+    assertFalse(nonBmp.includes("", 100));
+
+    string empty = "";
+    assertEquals(0, empty.indexOf(""));
+    assertEquals((), empty.indexOf("", 1));
+    assertTrue(empty.includes(""));
+    assertFalse(empty.includes("", 1));
+}
+
 function testChainedStringFunctions() returns string {
     string foo = "foo1";
     foo = foo.concat("foo2").concat("foo3").concat("foo4");

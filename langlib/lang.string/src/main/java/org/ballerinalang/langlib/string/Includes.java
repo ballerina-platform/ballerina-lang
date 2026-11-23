@@ -40,6 +40,9 @@ public final class Includes {
                     ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
         }
         try {
+            if (index > str.length()) {
+                return false;
+            }
             return str.indexOf(substr, (int) index) >= 0;
         } catch (NullPointerException e) {
             return false;
