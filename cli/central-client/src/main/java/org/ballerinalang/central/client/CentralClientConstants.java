@@ -40,6 +40,8 @@ public final class CentralClientConstants {
     static final String CONTENT_DISPOSITION = "Content-Disposition";
     static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     static final String APPLICATION_JSON = "application/json";
+    static final String SIGSTORE_BUNDLE_MEDIA_TYPE = "application/vnd.dev.sigstore.bundle.v0.3+json";
+    public static final String SIGSTORE_BUNDLE_EXT = ".sigstore.json";
     static final String ORGANIZATION = "organization";
     static final String VERSION = "version";
     static final String BALA_URL = "balaURL";
