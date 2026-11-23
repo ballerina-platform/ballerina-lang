@@ -15,6 +15,10 @@ DESCRIPTION
        Additionally, the caches of the dependencies of the current package or
        workspace can also be cleaned.
 
+       Compiled dependencies are cached in the user home and shared by all
+       projects. Use '--prune-dependency-cache' to remove the ones that no build
+       used for a number of days.
+
 
 OPTIONS
        --target-dir <path>
@@ -23,6 +27,16 @@ OPTIONS
        --dependency-cache
            Clean the caches of the dependencies of the current package
            or workspace.
+
+       --prune-dependency-cache
+           Remove the compiled dependencies that no build used for a number
+           of days, from the caches of all projects. This does not clean the
+           current package or workspace.
+
+       --unused-days <days>
+           Number of days without use after which '--prune-dependency-cache'
+           removes a compiled dependency. The default is 30. '0' removes all
+           compiled dependencies.
 
 EXAMPLES
        Clean the default target directory of the current package or workspace.
@@ -33,3 +47,9 @@ EXAMPLES
 
        Clean the caches of the dependencies of the current package or workspace.
            $ bal clean --dependency-cache
+
+       Remove the compiled dependencies that no build used for 30 days.
+           $ bal clean --prune-dependency-cache
+
+       Remove the compiled dependencies that no build used for 7 days.
+           $ bal clean --prune-dependency-cache --unused-days 7

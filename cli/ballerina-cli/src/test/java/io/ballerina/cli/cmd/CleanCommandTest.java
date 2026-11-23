@@ -25,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,6 +33,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -268,5 +272,55 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(depFromCentralCachePath), depFromCentralCachePath.toString());
         Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("Successfully deleted " + depFromCentralCachePath), buildLog);
+    }
+
+    @Test(description = "Remove the compiled dependencies that no build used for a number of days")
+    public void testPruneDependencyCache() throws IOException {
+        Path versionCache = testCentralRepoCache.resolve("cache-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("prunedep").resolve("1.0.0");
+        Path recent = pruneTestVariant(versionCache.resolve("aaaaaaaaaaaaaaaa"), 2);
+        Path old = pruneTestVariant(versionCache.resolve("bbbbbbbbbbbbbbbb"), 20);
+        try {
+            CleanCommand cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+            new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "10");
+            cleanCommand.execute();
+
+            String log = readOutput();
+            Assert.assertTrue(log.contains("Removed 1 compiled dependencies unused for 10 days"), log);
+            Assert.assertFalse(Files.exists(old), "A variant unused for longer than the period should be removed");
+            Assert.assertTrue(Files.exists(recent), "A recently used variant should be kept");
+
+            cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+            new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "0");
+            cleanCommand.execute();
+            Assert.assertFalse(Files.exists(recent), "A zero period should remove every variant");
+        } finally {
+            FileUtils.deleteDirectory(versionCache.toFile());
+        }
+    }
+
+    @Test(description = "The number of days requires --prune-dependency-cache and must not be negative")
+    public void testPruneDependencyCacheOptionValidation() throws IOException {
+        CleanCommand cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+        new CommandLine(cleanCommand).parseArgs("--unused-days", "10");
+        cleanCommand.execute();
+        String log = readOutput();
+        Assert.assertTrue(log.contains("'--unused-days' can only be used with '--prune-dependency-cache'"), log);
+
+        cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+        new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "-1");
+        cleanCommand.execute();
+        log = readOutput();
+        Assert.assertTrue(log.contains("'--unused-days' must not be negative"), log);
+    }
+
+    /** Creates a compiled dependency variant last used the given number of days ago. */
+    private static Path pruneTestVariant(Path variant, int daysAgo) throws IOException {
+        Files.createDirectories(variant.resolve("bir"));
+        Files.writeString(variant.resolve("bir").resolve("prunedep.bir"), "bir");
+        Path lastUsed = variant.resolve(".last-used");
+        Files.writeString(lastUsed, "");
+        Files.setLastModifiedTime(lastUsed, FileTime.from(Instant.now().minus(Duration.ofDays(daysAgo))));
+        return variant;
     }
 }

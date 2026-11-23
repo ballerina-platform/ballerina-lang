@@ -19,12 +19,16 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayOutputStream;
@@ -32,6 +36,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,6 +50,15 @@ import java.util.UUID;
  * A package from the distribution is read from the distribution cache when that was compiled against the same
  * dependency versions, which the distribution records in a fingerprint file. Otherwise it is compiled and cached in
  * the user home like any other package. Lang libs and the test package are always read from the distribution cache.
+ * <p>
+ * A variant is shared by concurrent builds. Each file is written through a temporary file, so a file is never read
+ * partly written. A variant is only read if it has the BIR and the JAR of every module of the package. Otherwise, e.g.
+ * if a build was interrupted, the package is compiled again and the build overwrites the variant.
+ * <p>
+ * As with other compilation caches, artifacts are only written when code is generated, i.e. by the compiler backend
+ * for a build, and a compilation without code generation, e.g. the language server recompiling a package on an edit,
+ * only reads the cache. A build that generates code also records when it uses a variant, i.e. when it reads or writes
+ * the JAR of the package, so that variants no build uses any more can be removed.
  *
  * @since 2201.14.1
  */
@@ -53,12 +68,22 @@ public final class FingerprintCompilationCache extends CompilationCache {
     public static final String FINGERPRINT_FILE = ".fingerprint";
     /** File in a package cache that lists the dependency versions the package is compiled against. */
     public static final String DEPENDENCIES_FILE = ".dependencies";
+    /** File in a variant directory whose modification time is the last time a build used the variant. */
+    public static final String LAST_USED_FILE = ".last-used";
+
+    private static final String JAR_EXTENSION = ".jar";
 
     private final Path cacheDir;
     private final Path distributionCacheDir;
     private final FileSystemCache fixedCache;
     private Path dir;
     private boolean recorded;
+    // Whether this cache wrote artifacts of the package, which it may read back before the variant is complete.
+    private boolean written;
+    // Whether the variant had all artifacts when it was first read, or null if not checked yet.
+    private Boolean complete;
+    // Whether this cache recorded the use of the variant.
+    private boolean useRecorded;
 
     /**
      * Creates the cache of a package from a home repository.
@@ -121,8 +146,10 @@ public final class FingerprintCompilationCache extends CompilationCache {
             fixedCache.cacheBir(moduleName, birContent);
             return;
         }
-        writeDir().ifPresent(dir -> write(birDir(dir), moduleName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT,
-                birContent));
+        writeDir().ifPresent(dir -> {
+            write(birDir(dir), moduleName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT, birContent);
+            markWritten();
+        });
     }
 
     @Override
@@ -130,9 +157,13 @@ public final class FingerprintCompilationCache extends CompilationCache {
         if (usesFixedCache()) {
             return fixedCache.getPlatformSpecificLibrary(compilerBackend, libraryName);
         }
-        return readDir().map(dir -> platformDir(dir, compilerBackend)
+        Optional<Path> library = readDir().map(dir -> platformDir(dir, compilerBackend)
                         .resolve(libraryName + compilerBackend.libraryFileExtension()))
                 .filter(Files::isRegularFile);
+        if (library.isPresent()) {
+            recordUse();
+        }
+        return library;
     }
 
     @Override
@@ -142,13 +173,43 @@ public final class FingerprintCompilationCache extends CompilationCache {
             fixedCache.cachePlatformSpecificLibrary(compilerBackend, libraryName, libraryContent);
             return;
         }
-        writeDir().ifPresent(dir -> write(platformDir(dir, compilerBackend),
-                libraryName + compilerBackend.libraryFileExtension(), libraryContent));
+        writeDir().ifPresent(dir -> {
+            write(platformDir(dir, compilerBackend), libraryName + compilerBackend.libraryFileExtension(),
+                    libraryContent);
+            markWritten();
+            recordUse();
+        });
     }
 
-    /** Directory to read the artifacts from, or empty if the package is not resolved against known versions. */
-    private Optional<Path> readDir() {
-        return dir();
+    /**
+     * Directory to read the artifacts from, or empty if the package is not resolved against known versions or its
+     * variant is not complete yet.
+     */
+    private synchronized Optional<Path> readDir() {
+        Optional<Path> dir = dir();
+        if (dir.isEmpty() || written || isDistributionDir(dir.get())) {
+            return dir;
+        }
+        if (complete == null) {
+            complete = isComplete(dir.get());
+        }
+        return complete ? dir : Optional.empty();
+    }
+
+    /** Whether the variant has the BIR and the JAR of every module of the package. */
+    private boolean isComplete(Path dir) {
+        Package currentPackage = project.currentPackage();
+        Path jarDir = dir.resolve(JvmTarget.JAVA_25.code());
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            String moduleName = currentPackage.module(moduleId).moduleName().toString();
+            String jarName = ProjectUtils.getThinJarFileName(currentPackage.packageOrg(), moduleName,
+                    currentPackage.packageVersion()) + JAR_EXTENSION;
+            if (!Files.exists(birDir(dir).resolve(moduleName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT))
+                    || !Files.exists(jarDir.resolve(jarName))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Directory to write the artifacts to, or empty if the package is not resolved against known versions. */
@@ -169,6 +230,10 @@ public final class FingerprintCompilationCache extends CompilationCache {
         return dir;
     }
 
+    private boolean isDistributionDir(Path dir) {
+        return distributionCacheDir != null && dir.startsWith(distributionCacheDir);
+    }
+
     /**
      * Directory of the artifacts of this package for the versions it is compiled against. A distribution package
      * uses the distribution cache if that is compiled against the same versions, or if it has no cache of the
@@ -183,6 +248,19 @@ public final class FingerprintCompilationCache extends CompilationCache {
             }
         }
         return Optional.ofNullable(dir);
+    }
+
+    private synchronized void markWritten() {
+        written = true;
+    }
+
+    /** Records that a build uses the variant, once per build, so that it is not removed while builds use it. */
+    private synchronized void recordUse() {
+        if (useRecorded || dir == null || isDistributionDir(dir)) {
+            return;
+        }
+        touch(dir.resolve(LAST_USED_FILE));
+        useRecorded = true;
     }
 
     private Path resolveDir(String fingerprint) {
@@ -249,6 +327,23 @@ public final class FingerprintCompilationCache extends CompilationCache {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to write the fingerprint of the package cache: "
                     + packageCacheDir, e);
+        }
+    }
+
+    /** Creates the given file, or updates its modification time to now. */
+    private static void touch(Path file) {
+        try {
+            if (Files.exists(file)) {
+                Files.setLastModifiedTime(file, FileTime.from(Instant.now()));
+                return;
+            }
+            Path parent = file.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.write(file, new byte[0]);
+        } catch (IOException e) {
+            // The time of use is a hint for removing unused variants. Failing to record it does not affect the build.
         }
     }
 

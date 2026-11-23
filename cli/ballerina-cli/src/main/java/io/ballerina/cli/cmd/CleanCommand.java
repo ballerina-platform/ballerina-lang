@@ -30,6 +30,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.internal.environment.DependencyCachePruner;
 import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
@@ -39,7 +40,9 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -63,6 +66,14 @@ public class CleanCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--dependency-cache", description = "clean the caches of project dependencies")
     private boolean depCache;
+
+    @CommandLine.Option(names = "--prune-dependency-cache", description = "remove the compiled dependencies that " +
+            "no build used for a number of days, from the caches of all projects")
+    private boolean pruneDependencyCache;
+
+    @CommandLine.Option(names = "--unused-days", description = "number of days without use after which " +
+            "--prune-dependency-cache removes a compiled dependency (default: 30)")
+    private Integer unusedDays;
 
     public CleanCommand(Path projectPath, boolean exitWhenFinish) {
         this.projectPath = projectPath;
@@ -95,6 +106,17 @@ public class CleanCommand implements BLauncherCmd {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CLEAN_COMMAND);
             this.outStream.println(commandUsageInfo);
+            return;
+        }
+
+        if (this.unusedDays != null && !this.pruneDependencyCache) {
+            CommandUtil.printError(this.outStream, "'--unused-days' can only be used with '--prune-dependency-cache'",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (this.pruneDependencyCache) {
+            pruneDependencyCaches();
             return;
         }
 
@@ -171,6 +193,28 @@ public class CleanCommand implements BLauncherCmd {
             }
             cleanProject(project);
         }
+    }
+
+    /**
+     * Removes compiled dependencies that no build used for the given number of days. Compiled dependencies are shared
+     * by all projects, so this does not depend on the current project.
+     */
+    private void pruneDependencyCaches() {
+        int days = this.unusedDays == null ? (int) DependencyCachePruner.DEFAULT_UNUSED_PERIOD.toDays() :
+                this.unusedDays;
+        if (days < 0) {
+            CommandUtil.printError(this.outStream, "'--unused-days' must not be negative", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        DependencyCachePruner.Result result = DependencyCachePruner.prune(ProjectUtils.createAndGetHomeReposPath(),
+                Duration.ofDays(days));
+        if (result.removedVariants() == 0) {
+            this.outStream.println("No compiled dependencies unused for " + days + " days to remove");
+            return;
+        }
+        this.outStream.println(String.format(Locale.ROOT, "Removed %d compiled dependencies unused for %d days " +
+                "(%.1f MB)", result.removedVariants(), days, result.freedBytes() / (1024.0 * 1024.0)));
     }
 
     private void cleanDependencyCaches(Project project) {

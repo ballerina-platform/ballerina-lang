@@ -55,7 +55,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -586,6 +588,17 @@ public class BuildCommandTest extends BaseCommandTest {
                 """);
     }
 
+    /** Files under the given directory, with their modification times. */
+    private static Map<Path, FileTime> fileTimes(Path dir) throws IOException {
+        Map<Path, FileTime> times = new HashMap<>();
+        try (Stream<Path> paths = Files.walk(dir)) {
+            for (Path path : paths.filter(Files::isRegularFile).toList()) {
+                times.put(path, Files.getLastModifiedTime(path));
+            }
+        }
+        return times;
+    }
+
     /** Cached variants of a package in the given cache: one directory per fingerprint. */
     private static List<Path> variantDirs(Path cache, String org, String name, String version) throws IOException {
         Path versionDir = cache.resolve(org).resolve(name).resolve(version);
@@ -693,6 +706,70 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
                 .resolve("foo").resolve("package_b")), "Dependencies should not be cached in the project target");
         deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+    }
+
+    @Test(description = "A cached variant that misses an artifact is compiled again and overwritten, and builds "
+            + "that generate code record when they use a variant")
+    public void testIncompleteDependencyVariantIsRegenerated() throws IOException {
+        Path root = this.tmpDir.resolve("incomplete-variant");
+        deleteDirectory(root);
+        Path libPath = root.resolve("variantlib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"variantlib\"\nversion = \"1.0.0\"\n");
+        Files.writeString(libPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        Path appPath = root.resolve("variantapp");
+        Files.createDirectories(appPath);
+        Files.writeString(appPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"variantapp\"\nversion = \"0.1.0\"\n");
+        Files.writeString(appPath.resolve("main.bal"),
+                "import testorg/variantlib;\n\npublic function main() {\n    string _ = variantlib:hello();\n}\n");
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        Path libCache = homeCache.resolve("testorg").resolve("variantlib");
+        try {
+            BCompileUtil.compileAndCacheBala(libPath.toString(), testCentralRepoCache);
+            deleteDirectory(libCache);
+            executeBuild(appPath);
+
+            List<Path> variants = variantDirs(homeCache, "testorg", "variantlib", "1.0.0");
+            Assert.assertEquals(variants.size(), 1, variants.toString());
+            Path variant = variants.get(0);
+            Path lastUsed = variant.resolve(".last-used");
+            Assert.assertTrue(Files.exists(lastUsed), "A build should record when it uses a variant");
+            Path jar = variant.resolve(JvmTarget.JAVA_25.code()).resolve("testorg-variantlib-1.0.0.jar");
+            Path bir = variant.resolve("bir").resolve("variantlib.bir");
+            Assert.assertTrue(Files.exists(jar));
+
+            // Compiling without generating code, as the language server does on an edit, writes nothing.
+            FileTime markerTime = FileTime.fromMillis(0);
+            Files.setLastModifiedTime(lastUsed, markerTime);
+            Map<Path, FileTime> cachedFiles = fileTimes(libCache);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            Assert.assertFalse(ProjectLoader.load(appPath).project().currentPackage().getCompilation()
+                    .diagnosticResult().hasErrors());
+            Assert.assertEquals(fileTimes(libCache), cachedFiles,
+                    "A compilation without code generation should not write to the dependency cache");
+
+            // A complete variant is reused.
+            Files.setLastModifiedTime(bir, markerTime);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            executeBuild(appPath);
+            Assert.assertEquals(Files.getLastModifiedTime(bir), markerTime, "A complete variant should be reused");
+            Assert.assertNotEquals(Files.getLastModifiedTime(lastUsed), markerTime,
+                    "A build should update the time it used the variant");
+
+            // A variant that misses its JAR, e.g. after an interrupted build, is compiled again.
+            Files.delete(jar);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            executeBuild(appPath);
+            Assert.assertTrue(Files.exists(jar), "The missing JAR should be generated");
+            Assert.assertNotEquals(Files.getLastModifiedTime(bir), markerTime,
+                    "The incomplete variant should be compiled again and overwritten");
+        } finally {
+            deleteDirectory(libCache);
+            deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("variantlib"));
+            deleteDirectory(root);
+        }
     }
 
 
