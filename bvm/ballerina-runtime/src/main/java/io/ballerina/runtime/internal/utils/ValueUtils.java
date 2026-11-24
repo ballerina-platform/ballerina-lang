@@ -191,7 +191,7 @@ public final class ValueUtils {
             }
             recordValue.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }
-        validateRequiredFields(recordValue);
+        validateRequiredFields(recordValue, valueMap.keySet());
         return recordValue;
     }
 
@@ -214,16 +214,19 @@ public final class ValueUtils {
         for (Map.Entry<BString, Object> fieldEntry : valueMap.entrySet()) {
             recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
         }
-        validateRequiredFields(recordValue);
+        validateRequiredFields(recordValue, keySet);
         return recordValue;
     }
 
-    private static void validateRequiredFields(BMap<BString, Object> recordValue) {
-        // Runs after default values are populated, so only fields with neither a value nor a default are reported.
+    private static void validateRequiredFields(BMap<BString, Object> recordValue, Set<String> providedFields) {
+        // Generated record classes report every non-optional field as present via `containsKey`, so presence is
+        // decided from the provided keys and the type's default values instead.
         BRecordType recordType = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
+        Map<String, BFunctionPointer> defaultValues = recordType.getDefaultValues();
         for (Field field : recordType.getFields().values()) {
+            String fieldName = field.getFieldName();
             if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED)
-                    && !recordValue.containsKey(StringUtils.fromString(field.getFieldName()))) {
+                    && !providedFields.contains(fieldName) && !defaultValues.containsKey(fieldName)) {
                 throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         ErrorHelper.getErrorDetails(ErrorCodes.MISSING_REQUIRED_RECORD_FIELD,
