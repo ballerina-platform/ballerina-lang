@@ -864,7 +864,8 @@ public final class ValueCreator {
      * @param recordTypeName name of the record type
      * @param valueMap       values to be used for fields when creating the record
      * @return               value of the populated record
-     * @throws BError        if given record type is not defined in the ballerina module.
+     * @throws BError        if given record type is not defined in the ballerina module, or if a required field
+     *                       has neither a value in the given map nor a default value.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) throws BError {
@@ -880,7 +881,8 @@ public final class ValueCreator {
      * @param recordTypeName name of the record type
      * @param valueMap       values to be used for fields when creating the record
      * @return               value of the populated record
-     * @throws BError        if given record type is not defined in the ballerina module.
+     * @throws BError        if given record type is not defined in the ballerina module, or if a required field
+     *                       has neither a value in the given map nor a default value.
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
                                                                   Map<String, Object> valueMap) throws BError {
@@ -899,7 +901,8 @@ public final class ValueCreator {
      * @param recordTypeName name of the record type
      * @param valueMap       {@link BMap} of fields and values to initialize the record
      * @return               value of the populated record
-     * @throws BError        if given record type is not defined in the ballerina module.
+     * @throws BError        if given record type is not defined in the ballerina module, or if a required field
+     *                       has neither a value in the given map nor a default value.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           BMap<BString, Object> valueMap) throws BError {
@@ -915,7 +918,8 @@ public final class ValueCreator {
      * @param recordTypeName name of the record type
      * @param valueMap       {@link BMap} of fields and values to initialize the record
      * @return               value of the populated record
-     * @throws BError        if given record type is not defined in the ballerina module.
+     * @throws BError        if given record type is not defined in the ballerina module, or if a required field
+     *                       has neither a value in the given map nor a default value.
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
                                                                   BMap<BString, Object> valueMap) throws BError {

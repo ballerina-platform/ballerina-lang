@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.utils;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
@@ -33,6 +34,8 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -46,6 +49,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Class @{@link ValueUtils} provides utils to create Ballerina Values.
@@ -184,6 +191,7 @@ public final class ValueUtils {
             }
             recordValue.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }
+        validateRequiredFields(recordValue);
         return recordValue;
     }
 
@@ -206,7 +214,22 @@ public final class ValueUtils {
         for (Map.Entry<BString, Object> fieldEntry : valueMap.entrySet()) {
             recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
         }
+        validateRequiredFields(recordValue);
         return recordValue;
+    }
+
+    private static void validateRequiredFields(BMap<BString, Object> recordValue) {
+        // Runs after default values are populated, so only fields with neither a value nor a default are reported.
+        BRecordType recordType = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
+        for (Field field : recordType.getFields().values()) {
+            if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED)
+                    && !recordValue.containsKey(StringUtils.fromString(field.getFieldName()))) {
+                throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                        ErrorHelper.getErrorDetails(ErrorCodes.MISSING_REQUIRED_RECORD_FIELD,
+                                field.getFieldName(), field.getFieldType(), recordType));
+            }
+        }
     }
 
     /**

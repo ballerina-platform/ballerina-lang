@@ -112,6 +112,25 @@ public final class Values {
         return ValueCreator.createRecordValue(recordModule, "Address", address);
     }
 
+    public static BMap<BString, Object> getContactWithOmittedOptionalAndDefaultFields() {
+        HashMap<String, Object> contact = new HashMap<>();
+        contact.put("name", StringUtils.fromString("Jane"));
+        contact.put("email", null);
+        return ValueCreator.createRecordValue(recordModule, "Contact", contact);
+    }
+
+    public static BMap<BString, Object> getContactWithMissingRequiredField() {
+        HashMap<String, Object> contact = new HashMap<>();
+        contact.put("name", StringUtils.fromString("Jane"));
+        return ValueCreator.createRecordValue(recordModule, "Contact", contact);
+    }
+
+    public static BMap<BString, Object> getContactWithMissingRequiredFieldFromBMap() {
+        BMap<BString, Object> contact = ValueCreator.createMapValue();
+        contact.put(StringUtils.fromString("name"), StringUtils.fromString("Jane"));
+        return ValueCreator.createRecordValue(recordModule, "Contact", contact);
+    }
+
     public static BMap<BString, Object> getRecordWithInvalidInitialValues() {
         BMap<BString, Object> address = ValueCreator.createMapValue();
         address.put(StringUtils.fromString("city"), StringUtils.fromString("Nugegoda"));
