@@ -151,6 +151,17 @@ public abstract class Project {
         return project;
     }
 
+    /**
+     * Moves the current package to an environment whose compiled dependencies match the dependency versions
+     * resolved for it, if its environment does not. Called before the package is compiled. Only a package of a
+     * workspace shares its environment with other packages, so other projects never move.
+     *
+     * @return true if the current package moved, i.e. it was replaced by a package of the new environment
+     */
+    protected boolean ensureCompatibleEnvironment() {
+        return false;
+    }
+
     public abstract DocumentId documentId(Path file);
 
     public abstract Optional<Path> documentPath(DocumentId documentId);

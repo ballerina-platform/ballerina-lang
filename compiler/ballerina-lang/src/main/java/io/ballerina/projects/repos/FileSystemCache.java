@@ -152,8 +152,6 @@ public class FileSystemCache extends CompilationCache {
         PackageDescriptor descriptor = project.currentPackage().descriptor();
         fingerprints.fingerprint(descriptor).ifPresent(fingerprint -> {
             FingerprintCompilationCache.writeFingerprint(packageCacheDirPath(), fingerprint);
-            fingerprints.dependencies(descriptor).ifPresent(
-                    dependencies -> FingerprintCompilationCache.writeDependencies(packageCacheDirPath(), dependencies));
             fingerprintRecorded = true;
         });
     }

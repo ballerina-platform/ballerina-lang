@@ -49,6 +49,10 @@ public class Package {
     private final Map<DocumentId, Resource> resources;
     private final Map<DocumentId, Resource> testResources;
     private final Function<DocumentId, Resource> populateResourceFunc;
+    // Whether the environment of the package was found to match its resolved dependency versions.
+    private volatile boolean environmentChecked;
+    // The package that replaced this one when it moved to another environment before it was compiled.
+    private volatile Package movedPackage;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -154,14 +158,49 @@ public class Package {
     }
 
     public PackageCompilation getCompilation() {
+        Package packageToCompile = packageToCompile();
+        if (packageToCompile != this) {
+            return packageToCompile.getCompilation();
+        }
         return this.packageContext.getPackageCompilation();
     }
 
     PackageCompilation getCompilation(CompilationOptions compilationOptions) {
+        Package packageToCompile = packageToCompile();
+        if (packageToCompile != this) {
+            return packageToCompile.getCompilation(compilationOptions);
+        }
         return this.packageContext.getPackageCompilation(compilationOptions);
     }
 
+    /**
+     * Returns the package to compile in place of this one. A package of a workspace shares its environment, and
+     * so its compiled dependencies, with other packages. If it resolved a dependency to other versions than they
+     * did, it moves to another environment before it is first compiled, and the project gets a new current package.
+     * This package then refers to the moved package, so that a caller that holds it compiles the moved package.
+     */
+    private Package packageToCompile() {
+        Package movedPackage = this.movedPackage;
+        if (movedPackage != null) {
+            return movedPackage;
+        }
+        if (this.environmentChecked || this.packageContext.cachedCompilation() != null
+                || this.project.currentPackage() != this) {
+            return this;
+        }
+        if (this.project.ensureCompatibleEnvironment()) {
+            this.movedPackage = this.project.currentPackage();
+            return this.movedPackage;
+        }
+        this.environmentChecked = true;
+        return this;
+    }
+
     public PackageResolution getResolution() {
+        Package movedPackage = this.movedPackage;
+        if (movedPackage != null) {
+            return movedPackage.getResolution();
+        }
         return this.packageContext.getResolution();
     }
 
@@ -357,6 +396,10 @@ public class Package {
      * @return a {@code CodeGeneratorResult} instance
      */
     public CodeGeneratorResult runCodeGeneratorPlugins() {
+        Package packageToCompile = packageToCompile();
+        if (packageToCompile != this) {
+            return packageToCompile.runCodeGeneratorPlugins();
+        }
         PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
         if (cachedCompilation != null) {
             // Check whether there are engaged code generators, if not return
@@ -400,6 +443,10 @@ public class Package {
      * @return a {@code CodeModifierResult} instance
      */
     public CodeModifierResult runCodeModifierPlugins() {
+        Package packageToCompile = packageToCompile();
+        if (packageToCompile != this) {
+            return packageToCompile.runCodeModifierPlugins();
+        }
         PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
         if (cachedCompilation != null) {
             // Check whether there are engaged code modifiers, if not return
@@ -704,7 +751,7 @@ public class Package {
             if (this.project.kind() == ProjectKind.BUILD_PROJECT && this.project.workspaceProject().isPresent()) {
                 // An edit that changes the dependency versions of the package may require compiling it apart from
                 // the other packages of its environment.
-                this.project.workspaceProject().get().ensureCompatibleEnvironment((BuildProject) this.project);
+                this.project.ensureCompatibleEnvironment();
                 Collection<BuildProject> wpDependents = this.project.workspaceProject().get().getResolution()
                         .dependencyGraph().getDirectDependents((BuildProject) this.project);
                 for (BuildProject dependent : wpDependents) {

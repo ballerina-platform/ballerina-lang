@@ -247,6 +247,16 @@ public class BuildProject extends Project implements Comparable<Project> {
     }
 
     @Override
+    protected boolean ensureCompatibleEnvironment() {
+        if (this.workspaceProject == null) {
+            return false;
+        }
+        // The dependency versions of the package are known once it is resolved.
+        currentPackage().getResolution();
+        return this.workspaceProject.ensureCompatibleEnvironment(this);
+    }
+
+    @Override
     public Project duplicate() {
         if (workspaceProject != null) {
             // A package of a workspace is compiled with the packages of its group.

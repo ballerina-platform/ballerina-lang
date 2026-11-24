@@ -22,6 +22,10 @@ import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
@@ -31,6 +35,8 @@ import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
@@ -166,7 +172,6 @@ public class BuildCommandTest extends BaseCommandTest {
         BCompileUtil.compileAndCacheBala(depC250.toString(), testCentralRepoCache);
     }
 
-
     @Test(description = "bal pull caches the compiled package per fingerprint of its dependency versions")
     public void testPullDependencyPackagesWritesFingerprintedHomeCache() throws IOException {
         Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
@@ -181,14 +186,11 @@ public class BuildCommandTest extends BaseCommandTest {
         Path variant = variants.get(0);
         Assert.assertTrue(Files.exists(variant.resolve("bir").resolve("dep_b.bir")));
         Assert.assertTrue(Files.exists(variant.resolve(JvmTarget.JAVA_25.code()).resolve("testorg-dep_b-2.0.0.jar")));
-        Assert.assertTrue(Files.readString(variant.resolve(".dependencies")).startsWith("testorg/dep_c:"),
-                "The variant should record the dependency versions it is compiled against");
+        Assert.assertTrue(variant.getFileName().toString().matches("[0-9a-f]{16}"),
+                "The variant should be named by the fingerprint of the dependency versions it is compiled against");
         Assert.assertFalse(Files.exists(homeCache.resolve("testorg").resolve("dep_b").resolve("2.0.0")
                 .resolve("bir")), "Packages should not be cached without a fingerprint");
     }
-
-
-
 
     @Test(description = "Dependency compilation for a project build uses the dependency versions resolved by the build")
     public void testPullDependencyPackagesUsesGivenDependencyGraph() throws IOException {
@@ -201,7 +203,8 @@ public class BuildCommandTest extends BaseCommandTest {
         boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0", hardLocking,
                 CENTRAL_REPOSITORY_CACHE_NAME, null);
         Assert.assertFalse(hasErrors, readOutput(true));
-        Assert.assertFalse(variantRecords(homeCache, "testorg", "dep_b", "2.0.0").contains("testorg/dep_c:2.1.1"),
+        Assert.assertFalse(variantFingerprints(homeCache, "testorg", "dep_b", "2.0.0")
+                        .contains(fingerprint("testorg/dep_c:2.1.1")),
                 "The version pinned below must differ from the one recorded in the bala");
 
         // With a graph, dep_b is compiled against the versions in the graph, as a separate variant.
@@ -220,9 +223,9 @@ public class BuildCommandTest extends BaseCommandTest {
                 CENTRAL_REPOSITORY_CACHE_NAME, dependencyGraph);
 
         Assert.assertFalse(hasErrors, readOutput(true));
-        List<String> records = variantRecords(homeCache, "testorg", "dep_b", "2.0.0");
-        Assert.assertTrue(records.contains("testorg/dep_c:2.1.1"), records.toString());
-        Assert.assertEquals(records.size(), 2, "Each set of dependency versions should get its own variant");
+        List<String> fingerprints = variantFingerprints(homeCache, "testorg", "dep_b", "2.0.0");
+        Assert.assertTrue(fingerprints.contains(fingerprint("testorg/dep_c:2.1.1")), fingerprints.toString());
+        Assert.assertEquals(fingerprints.size(), 2, "Each set of dependency versions should get its own variant");
         Assert.assertFalse(variantDirs(homeCache, "testorg", "dep_c", "2.1.1").isEmpty(),
                 "The dependency should be compiled at the version given in the graph");
 
@@ -318,8 +321,8 @@ public class BuildCommandTest extends BaseCommandTest {
             clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
 
-            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
-                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
                     "Each set of dependency versions should get its own variant of the shared dependency");
             Assert.assertFalse(Files.exists(workspace.resolve("older").resolve(TARGET_DIR_NAME)
                     .resolve(CACHES_DIR_NAME).resolve("foo")), "Dependencies should not be cached in package targets");
@@ -360,7 +363,8 @@ public class BuildCommandTest extends BaseCommandTest {
             clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
 
-            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"), List.of("foo/package_c:0.1.0"),
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0"),
                     "Packages that resolve the shared dependency alike should share one compiled variant");
         } finally {
             deleteDirectory(workspace);
@@ -441,8 +445,8 @@ public class BuildCommandTest extends BaseCommandTest {
 
             Assert.assertEquals(lockedVersion(workspace, "newer", "package_c"), "0.1.1");
             Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
-            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
-                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
                     "Each package should be compiled with its own variant of the shared dependency");
         } finally {
             removePackageC011();
@@ -476,12 +480,55 @@ public class BuildCommandTest extends BaseCommandTest {
 
             clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
-            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
-                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"));
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"));
         } finally {
             removePackageC011();
             deleteDirectory(workspace);
         }
+    }
+
+    @Test(description = "A workspace package that moves to an environment of its own when it is compiled dumps its "
+            + "dependency graphs as often as the other packages")
+    public void testMovedWorkspacePackageDumpsGraphsAsOthers() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-dump-moved");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "second", "0.1.0", "");
+        writeWorkspacePackage(workspace, "third", "0.1.1", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "second");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "second", "third");
+            clearDistributionPackageCaches("package_b");
+            readOutput(true);
+
+            executeBuild(workspace, "--locking-mode=hard", "--dump-raw-graphs");
+
+            String output = readOutput(true);
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"), "'third' should be compiled apart");
+            // A build dumps the graphs of each package after resolving it, and again after running the compiler
+            // plugins, as for a single package.
+            Assert.assertEquals(initialGraphDumps(output, "wsorg/second"), 2, output);
+            Assert.assertEquals(initialGraphDumps(output, "wsorg/third"), initialGraphDumps(output, "wsorg/second"),
+                    "Moving to another environment should not change the graphs dumped for 'third':\n" + output);
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    /** Number of raw graph dumps of the given package, each starting with its initial graph. */
+    private static int initialGraphDumps(String output, String packageName) {
+        Matcher matcher = Pattern.compile("digraph \"Initial\" \\{\\R\\s*node \\[shape=record]\\R\\s*\""
+                + Pattern.quote(packageName) + "\"").matcher(output);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
     }
 
     private static BuildProject workspaceMember(WorkspaceProject workspaceProject, String name) {
@@ -510,7 +557,8 @@ public class BuildCommandTest extends BaseCommandTest {
             clearDistributionPackageCaches("package_b");
             executeBuild(workspace, "--locking-mode=hard");
 
-            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"), List.of("foo/package_c:0.1.0"),
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0"),
                     "The dependency should be cached only for the versions it is compiled against");
             // The dependency versions of the packages in a group are resolved as before.
             Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
@@ -520,7 +568,6 @@ public class BuildCommandTest extends BaseCommandTest {
             deleteDirectory(workspace);
         }
     }
-
 
     /** Builds a workspace with only 'older', before package_c 0.1.1 is published, to lock it to 0.1.0. */
     private void lockOlderToPackageC010(Path workspace) throws IOException {
@@ -614,18 +661,31 @@ public class BuildCommandTest extends BaseCommandTest {
             return List.of();
         }
         try (Stream<Path> paths = Files.list(versionDir)) {
-            return paths.filter(path -> Files.isRegularFile(path.resolve(".dependencies"))).sorted().toList();
+            return paths.filter(path -> path.getFileName().toString().matches("[0-9a-f]{16}")
+                    && Files.isDirectory(path)).sorted().toList();
         }
     }
 
-    /** Dependency versions each cached variant of a package is compiled against. */
-    private static List<String> variantRecords(Path cache, String org, String name, String version)
+    /** Fingerprints of the cached variants of a package, sorted. */
+    private static List<String> variantFingerprints(Path cache, String org, String name, String version)
             throws IOException {
-        List<String> records = new ArrayList<>();
-        for (Path variant : variantDirs(cache, org, name, version)) {
-            records.add(Files.readString(variant.resolve(".dependencies")));
-        }
-        return records;
+        return variantDirs(cache, org, name, version).stream().map(variant -> variant.getFileName().toString())
+                .sorted().toList();
+    }
+
+    /** Fingerprint of the given dependency versions, each written as {@code org/name:version}. */
+    private static String fingerprint(String... dependencies) {
+        return DependencyFingerprints.of(Arrays.stream(dependencies).map(dependency -> {
+            String[] packageAndVersion = dependency.split(":");
+            String[] orgAndName = packageAndVersion[0].split("/");
+            return PackageDescriptor.from(PackageOrg.from(orgAndName[0]), PackageName.from(orgAndName[1]),
+                    PackageVersion.from(packageAndVersion[1]));
+        }).toList());
+    }
+
+    /** Fingerprints of packages that each depend only on one of the given versions, sorted. */
+    private static List<String> fingerprints(String... dependencies) {
+        return Arrays.stream(dependencies).map(dependency -> fingerprint(dependency)).sorted().toList();
     }
 
     private Path homeDistributionCache() {
@@ -641,20 +701,26 @@ public class BuildCommandTest extends BaseCommandTest {
         List<Path> caches = new ArrayList<>();
         Path distributionCache = testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("foo").resolve(name)
                 .resolve(version);
-        if (Files.isRegularFile(distributionCache.resolve(".dependencies"))) {
+        if (Files.isRegularFile(distributionCache.resolve(FingerprintCompilationCache.FINGERPRINT_FILE))) {
             caches.add(distributionCache);
         }
         caches.addAll(variantDirs(homeDistributionCache(), "foo", name, version));
         return caches;
     }
 
-    private List<String> distributionPackageRecords(String name, String version) throws IOException {
-        List<String> records = new ArrayList<>();
+    /**
+     * Fingerprints of the caches of a package of the test distribution, sorted: the one the distribution cache
+     * records, and the names of the variants in the user home.
+     */
+    private List<String> distributionPackageFingerprints(String name, String version) throws IOException {
+        List<String> fingerprints = new ArrayList<>();
         for (Path cache : distributionPackageCaches(name, version)) {
-            records.add(Files.readString(cache.resolve(".dependencies")));
+            Path fingerprintFile = cache.resolve(FingerprintCompilationCache.FINGERPRINT_FILE);
+            fingerprints.add(Files.isRegularFile(fingerprintFile) ? Files.readString(fingerprintFile).trim()
+                    : cache.getFileName().toString());
         }
-        records.sort(null);
-        return records;
+        fingerprints.sort(null);
+        return fingerprints;
     }
 
     private List<Path> distributionPackageBirs(String name, String version) throws IOException {
@@ -681,18 +747,14 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-
-    @Test(description = "Cached dependencies record the dependency versions they were compiled against")
+    @Test(description = "Cached dependencies are keyed by the dependency versions they were compiled against")
     public void testDependencyCacheRecordsResolvedDependencies() throws IOException {
         clearDistributionPackageCaches("package_b");
         Path projectPath = buildDumpGraphPackageA();
 
-        Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"), List.of("foo/package_c:0.1.0"));
-        List<String> packageCRecords = distributionPackageRecords("package_c", "0.1.0");
-        Assert.assertFalse(packageCRecords.isEmpty());
-        for (String record : packageCRecords) {
-            Assert.assertFalse(record.contains("foo/"), record);
-        }
+        Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                fingerprints("foo/package_c:0.1.0"));
+        Assert.assertFalse(distributionPackageFingerprints("package_c", "0.1.0").isEmpty());
 
         deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
     }
@@ -920,7 +982,6 @@ public class BuildCommandTest extends BaseCommandTest {
         Files.writeString(packagePath.resolve("main.bal"), imports + body);
     }
 
-
     @Test(description = "A dependency is compiled as a new variant when a transitive dependency resolves to a new "
             + "version, and the previous variant is kept")
     public void testDependencyCacheInvalidatedOnDependencyVersionChange() throws IOException {
@@ -937,8 +998,8 @@ public class BuildCommandTest extends BaseCommandTest {
             forceRebuild(projectPath);
 
             Assert.assertFalse(distributionPackageCaches("package_c", "0.1.1").isEmpty());
-            Assert.assertEquals(distributionPackageRecords("package_b", "0.1.0"),
-                    List.of("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
                     "package_b should be compiled against the new package_c version");
             Assert.assertEquals(Files.getLastModifiedTime(previousBirs.get(0)), markerTime,
                     "The variant for the previous versions should be kept for other projects");
@@ -948,7 +1009,6 @@ public class BuildCommandTest extends BaseCommandTest {
             deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
         }
     }
-
 
     private Path buildDumpGraphPackageA() throws IOException {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");

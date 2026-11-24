@@ -257,13 +257,17 @@ public class WorkspaceProject extends Project {
      * packages of their environment, i.e. when they share a dependency resolved to another version, or compiled
      * against other dependency versions.
      * <p>
-     * Call this after resolving the package and before compiling it, e.g. after an edit changes its dependencies.
-     * The other packages keep their environments and compiled state.
+     * Called after resolving the package and before compiling it, e.g. after an edit changes its dependencies.
+     * The other packages keep their environments and compiled state. A copy of a package, e.g. one the language
+     * server compiles, stays in the environment it was copied into.
      *
      * @param buildProject package of this workspace
      * @return true if the package moved to a new environment
      */
-    public boolean ensureCompatibleEnvironment(BuildProject buildProject) {
+    synchronized boolean ensureCompatibleEnvironment(BuildProject buildProject) {
+        if (this.projectList.stream().noneMatch(member -> member == buildProject)) {
+            return false;
+        }
         Path root = buildProject.sourceRoot();
         Optional<List<Path>> context = this.contexts.stream().filter(roots -> roots.contains(root)).findFirst();
         if (context.isEmpty()) {

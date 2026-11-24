@@ -73,7 +73,6 @@ import java.util.stream.Collectors;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.EQUAL;
 import static io.ballerina.projects.util.ProjectConstants.LOCKING_MODE_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
@@ -104,6 +103,8 @@ public class PackageResolution {
 
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
+    // Option of bal pull that gives the dependency graph to compile a dependency against.
+    private static final String DEPENDENCY_GRAPH_OPTION = "--dependency-graph";
     private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();

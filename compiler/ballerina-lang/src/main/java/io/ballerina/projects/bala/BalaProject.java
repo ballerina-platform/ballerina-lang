@@ -78,24 +78,6 @@ public class BalaProject extends Project {
         return balaProject;
     }
 
-    /**
-     * Loads a BalaProject whose package dependency graph is read from the given dependency graph JSON in place
-     * of the one packed in the bala. Used to compile a dependency against the versions resolved by the project
-     * that depends on it.
-     *
-     * @param balaPath            Bala path
-     * @param buildOptions        Build options
-     * @param dependencyGraphJson dependency graph JSON, in the format of the bala's dependency-graph.json
-     * @return bala project
-     */
-    public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath,
-                                          BuildOptions buildOptions, Path dependencyGraphJson) {
-        PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath, dependencyGraphJson);
-        BalaProject balaProject = new BalaProject(environmentBuilder, balaPath, buildOptions);
-        balaProject.addPackage(packageConfig);
-        return balaProject;
-    }
-
     private BalaProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath, BuildOptions buildOptions) {
         super(ProjectKind.BALA_PROJECT, balaPath, environmentBuilder, buildOptions, null);
         this.platform = BalaFiles.readPackageJson(balaPath).getPlatform();

@@ -42,6 +42,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
@@ -1292,9 +1293,11 @@ public final class CommandUtil {
         // dependencies of a project build.
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder()
                 .addCompilationCacheFactory(project -> new FingerprintCompilationCache(project, cacheDir));
-        BalaProject balaProject = dependencyGraph == null ?
-                BalaProject.loadProject(defaultBuilder, balaPath, buildOptions) :
-                BalaProject.loadProject(defaultBuilder, balaPath, buildOptions, dependencyGraph);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath, buildOptions);
+        if (dependencyGraph != null) {
+            // Compile against the given dependency versions in place of those recorded in the bala.
+            balaProject.addPackage(PackageConfigCreator.createBalaProjectConfig(balaPath, dependencyGraph));
+        }
 
         // Compile the package again, replacing its cache for the resolved dependency versions if available.
         // The fingerprint is known once the dependencies are resolved.

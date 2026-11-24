@@ -22,6 +22,8 @@ OPTIONS
        --repository
            Push the BALA of the current package to a custom repository.
            Only 'local' and repositories specified in the Settings.toml are allowed.
+           After republishing a version to the local repository, run
+           'bal clean --dependency-cache' in each project that uses it.
 
 EXAMPLES
        Push the BALA of the current package to Ballerina Central.
@@ -29,6 +31,8 @@ EXAMPLES
            $ bal push
 
        Push the BALA of the current package to the local repository for testing.
+       After republishing a version, run 'bal clean --dependency-cache' in each
+       project that uses it.
            $ bal push --repository=local
 
        Push the provided BALA file. The file path can be relative or absolute.

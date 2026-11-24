@@ -72,8 +72,6 @@ public final class FingerprintCompilationCache extends CompilationCache {
 
     /** File in a distribution package cache that records the fingerprint the package is compiled against. */
     public static final String FINGERPRINT_FILE = ".fingerprint";
-    /** File in a package cache that lists the dependency versions the package is compiled against. */
-    public static final String DEPENDENCIES_FILE = ".dependencies";
     /** File in a variant directory whose modification time is the last time a build used the variant. */
     public static final String LAST_USED_FILE = ".last-used";
 
@@ -244,14 +242,12 @@ public final class FingerprintCompilationCache extends CompilationCache {
         if (dir.isEmpty() || recorded) {
             return dir;
         }
-        // Record what the package is compiled against: the readable dependency versions, and for a distribution
-        // package cached while the distribution is built, the fingerprint a build compares with.
+        // Record the fingerprint a build compares with, for a distribution package cached while the distribution is
+        // built.
         if (distributionCacheDir != null && dir.get().startsWith(distributionCacheDir)) {
             fingerprint().filter(fingerprint -> !fingerprint.equals(readFingerprint(dir.get())))
                     .ifPresent(fingerprint -> writeFingerprint(dir.get(), fingerprint));
         }
-        fingerprints().flatMap(fingerprints -> fingerprints.dependencies(descriptor()))
-                .ifPresent(dependencies -> writeDependencies(dir.get(), dependencies));
         recorded = true;
         return dir;
     }
@@ -390,22 +386,6 @@ public final class FingerprintCompilationCache extends CompilationCache {
             Files.write(file, new byte[0]);
         } catch (IOException e) {
             // The time of use is a hint for removing unused variants. Failing to record it does not affect the build.
-        }
-    }
-
-    /**
-     * Records the dependency versions a package cache is compiled against, one {@code org/name:version} per line.
-     *
-     * @param dir          cache directory of the package
-     * @param dependencies dependency versions
-     */
-    public static void writeDependencies(Path dir, String dependencies) {
-        try {
-            Files.createDirectories(dir);
-            Files.writeString(dir.resolve(DEPENDENCIES_FILE), dependencies);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to record the dependency versions of the package cache: " + dir,
-                    e);
         }
     }
 

@@ -51,8 +51,6 @@ public final class DependencyFingerprints {
 
     // Keyed by org/name/version.
     private final Map<String, String> compiledFingerprints = new HashMap<>();
-    // The dependency versions behind each compiled fingerprint, keyed by org/name/version.
-    private final Map<String, String> compiledDependencies = new HashMap<>();
     // The version and fingerprint of each dependency resolved for a root package, keyed by its source root and then
     // by the org/name of the dependency.
     private final Map<Path, Map<String, String>> resolvedVariants = new HashMap<>();
@@ -66,11 +64,8 @@ public final class DependencyFingerprints {
      */
     public synchronized void record(Project rootProject, PackageDescriptor descriptor,
                                     Collection<PackageDescriptor> dependencies) {
-        String versions = versions(dependencies);
-        String fingerprint = hash(versions);
-        if (compiledFingerprints.putIfAbsent(packageKey(descriptor), fingerprint) == null) {
-            compiledDependencies.put(packageKey(descriptor), versions);
-        }
+        String fingerprint = hash(versions(dependencies));
+        compiledFingerprints.putIfAbsent(packageKey(descriptor), fingerprint);
         resolvedVariants.computeIfAbsent(rootKey(rootProject), root -> new HashMap<>())
                 .put(descriptor.org().value() + "/" + descriptor.name().value(),
                         descriptor.version() + "/" + fingerprint);
@@ -84,17 +79,6 @@ public final class DependencyFingerprints {
      */
     public synchronized Optional<String> fingerprint(PackageDescriptor descriptor) {
         return Optional.ofNullable(compiledFingerprints.get(packageKey(descriptor)));
-    }
-
-    /**
-     * Returns the dependency versions the given package version is compiled against in this environment, one
-     * {@code org/name:version} per line.
-     *
-     * @param descriptor package
-     * @return dependency versions, or empty if the package was not resolved in this environment
-     */
-    public synchronized Optional<String> dependencies(PackageDescriptor descriptor) {
-        return Optional.ofNullable(compiledDependencies.get(packageKey(descriptor)));
     }
 
     /**

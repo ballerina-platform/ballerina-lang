@@ -35,6 +35,7 @@ import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -222,42 +223,50 @@ public class CleanCommand implements BLauncherCmd {
                 .setSticky(project.buildOptions().sticky()).setPackageLockingMode(project.buildOptions().lockingMode())
                 .build();
         PackageResolution packageResolution = project.currentPackage().getResolution(resolutionOptions);
+        Path distributionRepository = ProjectUtils.getBallerinaHomePath().resolve(DIST_CACHE_DIRECTORY);
+        Path localRepository = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.LOCAL_REPOSITORY_NAME).resolve(ProjectConstants.BALA_DIR_NAME);
         for (ResolvedPackageDependency packageDependency : packageResolution.allDependencies()) {
             Project dependency = packageDependency.packageInstance().project();
-            if (dependency.kind().equals(ProjectKind.BALA_PROJECT)) {
-                if (ProjectUtils.isBuiltInPackage(packageDependency.packageInstance().packageOrg(),
-                        packageDependency.packageInstance().packageName().toString())) {
-                    continue;
-                }
-                if (Files.notExists(dependency.sourceRoot())) {
-                    continue;
-                }
-                // if the cache is in the distribution, do not delete
-                if (dependency.sourceRoot().startsWith(ProjectUtils.getBallerinaHomePath()
-                        .resolve(DIST_CACHE_DIRECTORY))) {
-                    continue;
-                }
-                ProjectUtils.deleteDirectory(dependency.sourceRoot());
-                this.outStream.println("Successfully deleted " + dependency.sourceRoot());
-                // Delete the compiled dependency for the versions this project resolves. Other variants may be
-                // used by other projects.
-                CompilationCache compilationCache = dependency.projectEnvironmentContext()
-                        .getService(CompilationCache.class);
-                Path birPath;
-                if (compilationCache instanceof FingerprintCompilationCache fingerprintCache) {
-                    birPath = fingerprintCache.variantDir().orElse(null);
-                } else if (compilationCache instanceof FileSystemCache fileSystemCache) {
-                    birPath = fileSystemCache.cachePath();
-                } else {
-                    continue;
-                }
-                if (birPath == null || Files.notExists(birPath)) {
-                    continue;
-                }
-                ProjectUtils.deleteDirectory(birPath);
-                this.outStream.println("Successfully deleted " + birPath);
+            if (!dependency.kind().equals(ProjectKind.BALA_PROJECT)
+                    || ProjectUtils.isBuiltInPackage(packageDependency.packageInstance().packageOrg(),
+                    packageDependency.packageInstance().packageName().toString())) {
+                continue;
+            }
+            Path bala = dependency.sourceRoot();
+            boolean fromDistribution = bala.startsWith(distributionRepository);
+            boolean fromLocalRepository = bala.startsWith(localRepository);
+            // Balas of the distribution and the local repository cannot be pulled again, so they are kept.
+            if (!fromDistribution && !fromLocalRepository && Files.exists(bala)) {
+                ProjectUtils.deleteDirectory(bala);
+                this.outStream.println("Successfully deleted " + bala);
+            }
+            // Delete the compiled dependency for the versions this project resolves, which is in the user home for
+            // packages of all repositories. Other variants may be used by other projects.
+            Path compiledDependency = compiledDependency(dependency, fromDistribution);
+            if (compiledDependency != null && Files.exists(compiledDependency)) {
+                ProjectUtils.deleteDirectory(compiledDependency);
+                this.outStream.println("Successfully deleted " + compiledDependency);
+            }
+            if (fromLocalRepository) {
+                this.outStream.println("Kept the local repository package " + bala);
             }
         }
+    }
+
+    /**
+     * Returns the compiled dependency of the given package in the user home, or null if it has none. The cache the
+     * distribution is shipped with is never returned.
+     */
+    private static Path compiledDependency(Project dependency, boolean fromDistribution) {
+        CompilationCache compilationCache = dependency.projectEnvironmentContext().getService(CompilationCache.class);
+        if (compilationCache instanceof FingerprintCompilationCache fingerprintCache) {
+            return fingerprintCache.variantDir().orElse(null);
+        }
+        if (compilationCache instanceof FileSystemCache fileSystemCache && !fromDistribution) {
+            return fileSystemCache.cachePath();
+        }
+        return null;
     }
 
     private void cleanProject(Project project) {

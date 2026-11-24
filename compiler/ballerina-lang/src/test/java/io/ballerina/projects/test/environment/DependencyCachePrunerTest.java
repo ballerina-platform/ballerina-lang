@@ -133,24 +133,6 @@ public class DependencyCachePrunerTest {
         Assert.assertTrue(Files.exists(recent.resolve("bir").resolve("http.bir")));
     }
 
-    @Test(description = "Variants compiled against a package version are removed when the version is replaced")
-    public void testRemovesDependantsOfAPackageVersion() throws IOException {
-        Path dependant = variant("myorg", "app", "1.0.0", RECENT, Duration.ZERO);
-        Files.writeString(dependant.resolve(FingerprintCompilationCache.DEPENDENCIES_FILE),
-                "ballerina/io:1.8.2\nmyorg/lib:1.0.0");
-        Path otherVersion = variant("myorg", "app", "1.0.0", OLD, Duration.ZERO);
-        Files.writeString(otherVersion.resolve(FingerprintCompilationCache.DEPENDENCIES_FILE), "myorg/lib:1.0.1");
-        Path prefixOnly = variant("myorg", "tool", "1.0.0", RECENT, Duration.ZERO);
-        Files.writeString(prefixOnly.resolve(FingerprintCompilationCache.DEPENDENCIES_FILE), "myorg/lib:1.0.0-beta");
-
-        int removed = DependencyCachePruner.removeDependants(userHome, "myorg", "lib", "1.0.0");
-
-        Assert.assertEquals(removed, 1);
-        Assert.assertFalse(Files.exists(dependant));
-        Assert.assertTrue(Files.exists(otherVersion), "Variants compiled against other versions should be kept");
-        Assert.assertTrue(Files.exists(prefixOnly), "Only the exact version should match");
-    }
-
     /** Creates a variant whose last use was the given period ago. */
     private Path variant(String org, String name, String version, String fingerprint, Duration lastUsedAgo)
             throws IOException {

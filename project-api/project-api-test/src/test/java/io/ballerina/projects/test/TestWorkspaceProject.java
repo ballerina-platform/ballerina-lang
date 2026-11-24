@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -24,8 +25,10 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.WorkspaceBallerinaToml;
@@ -33,23 +36,35 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.internal.repositories.WorkspaceRepository;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public class TestWorkspaceProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/workspaces");
+    private static final Path DISTRIBUTION_REPOSITORY = Path.of("build").resolve(ProjectConstants.DIST_CACHE_DIRECTORY)
+            .toAbsolutePath();
     private static Path tempResourceDir;
     static final PrintStream OUT = System.out;
 
@@ -549,6 +564,130 @@ public class TestWorkspaceProject extends BaseTest {
                 .replace("import testorg/depB as _;\n\n", "");
         return defaultModule.document(documentId).modify().withContent(imports + content).apply()
                 .module().packageInstance();
+    }
+
+    @Test(description = "A package that resolves a shared dependency to other versions than the other packages is "
+            + "compiled in an environment of its own, when it is compiled with the project API alone")
+    public void testPackageWithConflictingDependencyCompiledApart() throws IOException {
+        // 'shared_lib' depends on 'versioned_lib'. 'older' and 'second' lock 'versioned_lib' 0.1.0, while 'third'
+        // requires 0.1.1, so 'shared_lib' must be compiled against each version.
+        Path fixture = tempResourceDir.resolve("wp-conflicting-dependency");
+        publishConflictingDependencies(fixture.resolve("deps"));
+        Path workspace = fixture.resolve("workspace");
+        for (String name : List.of("older", "second")) {
+            TestUtils.replaceDistributionVersionOfDependenciesToml(workspace.resolve(name),
+                    RepoUtils.getBallerinaShortVersion());
+        }
+        WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                BuildOptions.builder().setOffline(true).setLockingMode(PackageLockingMode.HARD).build()).project();
+        Environment loadedEnvironment = memberEnvironment(project, "older");
+        Assert.assertSame(memberEnvironment(project, "third"), loadedEnvironment,
+                "Packages start in one environment, as their dependency versions are not known yet");
+
+        // A copy of a package is compiled in the environment it was copied into, and moves no workspace package.
+        Project thirdCopy = member(project, "third").duplicate();
+        Assert.assertFalse(thirdCopy.currentPackage().getCompilation().diagnosticResult().hasErrors());
+        Assert.assertSame(memberEnvironment(project, "third"), loadedEnvironment,
+                "Compiling a copy should not move the package it was copied from");
+
+        // A tool holds the packages it compiles, which may be replaced when they move.
+        Map<String, Package> heldPackages = new HashMap<>();
+        for (String name : List.of("older", "second", "third")) {
+            Package heldPackage = member(project, name).currentPackage();
+            heldPackages.put(name, heldPackage);
+            PackageCompilation compilation = heldPackage.getCompilation();
+            Assert.assertFalse(compilation.diagnosticResult().hasErrors(),
+                    name + ": " + compilation.diagnosticResult().errors());
+            JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
+        }
+
+        Assert.assertEquals(resolvedVersion(member(project, "older"), "versioned_lib"), "0.1.0");
+        Assert.assertEquals(resolvedVersion(member(project, "third"), "versioned_lib"), "0.1.1");
+        Environment thirdEnvironment = memberEnvironment(project, "third");
+        Assert.assertSame(memberEnvironment(project, "second"), memberEnvironment(project, "older"),
+                "Packages that resolve their shared dependencies alike should share an environment");
+        Assert.assertNotSame(thirdEnvironment, memberEnvironment(project, "older"),
+                "The package that resolves a shared dependency differently should be compiled apart");
+        Assert.assertEquals(compiledVariants("shared_lib"),
+                Stream.of("0.1.0", "0.1.1").map(TestWorkspaceProject::versionedLibFingerprint).sorted().toList(),
+                "The shared dependency should be compiled once against each version");
+
+        // A package held from before it moved compiles and resolves as the moved package, and compiling again
+        // moves nothing.
+        Package movedThird = member(project, "third").currentPackage();
+        Package heldThird = heldPackages.get("third");
+        Assert.assertNotSame(heldThird, movedThird, "The moved package should replace the held one");
+        Assert.assertSame(heldThird.getCompilation(), movedThird.getCompilation());
+        Assert.assertSame(heldThird.getResolution(), movedThird.getResolution());
+        for (String name : List.of("older", "second", "third")) {
+            Assert.assertFalse(heldPackages.get(name).getCompilation().diagnosticResult().hasErrors(), name);
+        }
+        Assert.assertSame(memberEnvironment(project, "third"), thirdEnvironment);
+        Assert.assertSame(member(project, "older").currentPackage(), heldPackages.get("older"),
+                "A package that does not move should not be replaced");
+    }
+
+    /**
+     * Publishes 'versioned_lib' 0.1.0, 'shared_lib' compiled against it, and then 'versioned_lib' 0.1.1 to the test
+     * distribution, and removes their compiled caches, which the test writes.
+     */
+    private static void publishConflictingDependencies(Path deps) throws IOException {
+        for (String name : List.of("versioned_lib", "shared_lib")) {
+            for (Path dir : List.of(DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.BALA_DIR_NAME),
+                    DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.CACHES_DIR_NAME), homeDistributionCache())) {
+                FileUtils.deleteDirectory(dir.resolve("testorg").resolve(name).toFile());
+            }
+        }
+        for (String dependency : List.of("versioned_lib_0_1_0", "shared_lib", "versioned_lib_0_1_1")) {
+            CompileResult result = BCompileUtil.compileAndCacheBala(deps.resolve(dependency), DISTRIBUTION_REPOSITORY,
+                    BCompileUtil.getTestProjectEnvironmentBuilder());
+            Assert.assertFalse(result.getDiagnosticResult().hasErrors(), dependency);
+        }
+        for (String name : List.of("versioned_lib", "shared_lib")) {
+            FileUtils.deleteDirectory(DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.CACHES_DIR_NAME)
+                    .resolve("testorg").resolve(name).toFile());
+        }
+    }
+
+    /**
+     * Fingerprints of the compiled variants of the given package of the test distribution, sorted: the one the
+     * distribution cache records, and the names of the variants in the user home.
+     */
+    private static List<String> compiledVariants(String name) throws IOException {
+        List<String> fingerprints = new ArrayList<>();
+        Path fingerprintFile = DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.CACHES_DIR_NAME).resolve("testorg")
+                .resolve(name).resolve("0.1.0").resolve(FingerprintCompilationCache.FINGERPRINT_FILE);
+        if (Files.isRegularFile(fingerprintFile)) {
+            fingerprints.add(Files.readString(fingerprintFile).trim());
+        }
+        Path homeVersionDir = homeDistributionCache().resolve("testorg").resolve(name).resolve("0.1.0");
+        if (Files.isDirectory(homeVersionDir)) {
+            try (Stream<Path> paths = Files.list(homeVersionDir)) {
+                paths.map(path -> path.getFileName().toString()).filter(fileName -> fileName.matches("[0-9a-f]{16}"))
+                        .forEach(fingerprints::add);
+            }
+        }
+        return fingerprints.stream().sorted().toList();
+    }
+
+    /** Fingerprint of a package that depends only on the given version of 'versioned_lib'. */
+    private static String versionedLibFingerprint(String version) {
+        return DependencyFingerprints.of(List.of(PackageDescriptor.from(PackageOrg.from("testorg"),
+                PackageName.from("versioned_lib"), PackageVersion.from(version))));
+    }
+
+    /** Cache of distribution packages compiled against other versions than the distribution, in the user home. */
+    private static Path homeDistributionCache() {
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.REPOSITORIES_DIR).resolve("distribution")
+                .resolve(ProjectConstants.CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+    }
+
+    private static String resolvedVersion(BuildProject buildProject, String packageName) {
+        return buildProject.currentPackage().getResolution().allDependencies().stream()
+                .map(dependency -> dependency.packageInstance().descriptor())
+                .filter(descriptor -> descriptor.name().toString().equals(packageName))
+                .map(descriptor -> descriptor.version().toString())
+                .findFirst().orElseThrow();
     }
 
     private static BuildProject member(WorkspaceProject workspaceProject, String packageName) {
