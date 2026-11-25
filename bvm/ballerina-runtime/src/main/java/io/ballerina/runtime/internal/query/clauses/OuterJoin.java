@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
+import io.ballerina.runtime.internal.query.utils.JoinKey;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class OuterJoin implements QueryClause {
     private final StreamPipeline pipelineToJoin;
     private final BFunctionPointer lhsKeyFunction;
     private final BFunctionPointer rhsKeyFunction;
-    private final Map<String, List<BMap<BString, Object>>> rhsFramesMap = new HashMap<>();
+    private final Map<JoinKey, List<BMap<BString, Object>>> rhsFramesMap = new HashMap<>();
     private final BMap<BString, Object> nilFrame;
     private BError failureAtJoin = null;
     private final Environment env;
@@ -97,7 +98,7 @@ public class OuterJoin implements QueryClause {
                     failureAtJoin = error;
                     return;
                 }
-                rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
+                rhsFramesMap.computeIfAbsent(new JoinKey(key), k -> new ArrayList<>()).add(frame);
             });
         } catch (QueryException e) {
             failureAtJoin = e.getError();
@@ -122,7 +123,7 @@ public class OuterJoin implements QueryClause {
                     throw new QueryException(error);
                 }
                 List<BMap<BString, Object>> rhsCandidates = rhsFramesMap
-                        .getOrDefault(lhsKey.toString(), Collections.emptyList());
+                        .getOrDefault(new JoinKey(lhsKey), Collections.emptyList());
                 if (rhsCandidates.isEmpty()) {
                     // No matching RHS frames, join with nilFrame
                     BMap<BString, Object> joinedFrame = ValueCreator.createMapValue();

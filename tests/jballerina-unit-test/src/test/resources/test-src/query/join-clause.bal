@@ -527,6 +527,127 @@ function getCommonList(string character) returns int {
     return commonList.length();
 }
 
+type NilableKeyRow record {|
+    int id;
+    string? key;
+|};
+
+type AnydataKeyRow record {|
+    int id;
+    anydata key;
+|};
+
+function innerJoinNilableKeys(NilableKeyRow[] left, NilableKeyRow[] right) returns int[][] {
+    return from NilableKeyRow l in left
+            join NilableKeyRow r in right on l.key equals r.key
+            select [l.id, r.id];
+}
+
+function outerJoinNilableKeys(NilableKeyRow[] left, NilableKeyRow[] right) returns (int?)[][] {
+    return from NilableKeyRow l in left
+            outer join var r in right on l.key equals r?.key
+            select [l.id, r?.id];
+}
+
+function innerJoinAnydataKeys(anydata leftKey, anydata rightKey) returns int[][] {
+    AnydataKeyRow[] left = [{id: 1, key: leftKey}];
+    AnydataKeyRow[] right = [{id: 2, key: rightKey}];
+    return from AnydataKeyRow l in left
+            join AnydataKeyRow r in right on l.key equals r.key
+            select [l.id, r.id];
+}
+
+function outerJoinAnydataKeys(anydata leftKey, anydata rightKey) returns (int?)[][] {
+    AnydataKeyRow[] left = [{id: 1, key: leftKey}];
+    AnydataKeyRow[] right = [{id: 2, key: rightKey}];
+    return from AnydataKeyRow l in left
+            outer join var r in right on l.key equals r?.key
+            select [l.id, r?.id];
+}
+
+function assertJoinResult((int?)[][] expected, (int?)[][] actual) {
+    assertEquality(expected, actual);
+}
+
+public function testJoinClauseWithNilKeys() {
+    assertJoinResult([], innerJoinNilableKeys([{id: 1, key: ()}], [{id: 2, key: "a"}]));
+    assertJoinResult([], innerJoinNilableKeys([{id: 1, key: "a"}], [{id: 2, key: ()}]));
+    assertJoinResult([[1, 2]], innerJoinNilableKeys([{id: 1, key: ()}], [{id: 2, key: ()}]));
+    // `().toString()` is "", but nil must not match an empty string.
+    assertJoinResult([], innerJoinNilableKeys([{id: 1, key: ()}], [{id: 2, key: ""}]));
+    assertJoinResult([], innerJoinNilableKeys([{id: 1, key: ""}], [{id: 2, key: ()}]));
+
+    NilableKeyRow[] left = [{id: 1, key: ()}, {id: 3, key: "b"}, {id: 5, key: ()}];
+    NilableKeyRow[] right = [{id: 2, key: ()}, {id: 4, key: "b"}, {id: 6, key: ()}];
+    assertJoinResult([[1, 2], [1, 6], [3, 4], [5, 2], [5, 6]], innerJoinNilableKeys(left, right));
+}
+
+public function testOuterJoinClauseWithNilKeys() {
+    assertJoinResult([[1, ()]], outerJoinNilableKeys([{id: 1, key: ()}], [{id: 2, key: "a"}]));
+    assertJoinResult([[1, ()]], outerJoinNilableKeys([{id: 1, key: "a"}], [{id: 2, key: ()}]));
+    assertJoinResult([[1, 2]], outerJoinNilableKeys([{id: 1, key: ()}], [{id: 2, key: ()}]));
+
+    NilableKeyRow[] left = [{id: 1, key: ()}, {id: 3, key: "b"}, {id: 5, key: "c"}];
+    NilableKeyRow[] right = [{id: 2, key: ()}, {id: 4, key: "b"}, {id: 6, key: ()}];
+    assertJoinResult([[1, 2], [1, 6], [3, 4], [5, ()]], outerJoinNilableKeys(left, right));
+}
+
+public function testJoinClauseWithNilKeysInStream() {
+    NilableKeyRow[] left = [{id: 1, key: ()}, {id: 3, key: "b"}, {id: 5, key: "c"}];
+    NilableKeyRow[] right = [{id: 2, key: ()}, {id: 4, key: "b"}];
+
+    stream<int[], error?> innerStream = stream from NilableKeyRow l in left
+            join NilableKeyRow r in right on l.key equals r.key
+            select [l.id, r.id];
+    int[][] innerResult = checkpanic from int[] pair in innerStream select pair;
+    assertJoinResult([[1, 2], [3, 4]], innerResult);
+
+    stream<(int?)[], error?> outerStream = stream from NilableKeyRow l in left
+            outer join var r in right on l.key equals r?.key
+            select [l.id, r?.id];
+    (int?)[][] outerResult = checkpanic from (int?)[] pair in outerStream select pair;
+    assertJoinResult([[1, 2], [3, 4], [5, ()]], outerResult);
+}
+
+public function testJoinClauseKeysUseDeepEquality() {
+    // Keys that have the same string form, but are not equal.
+    assertJoinResult([], innerJoinAnydataKeys(1, "1"));
+    assertJoinResult([], innerJoinAnydataKeys(true, "true"));
+    assertJoinResult([], innerJoinAnydataKeys(1.5, 1.5d));
+    assertJoinResult([], innerJoinAnydataKeys(1, 1.0));
+    assertJoinResult([], innerJoinAnydataKeys((), "()"));
+    assertJoinResult([], innerJoinAnydataKeys({id: ()}, {id: "null"}));
+
+    // Keys that have different string forms, but are equal.
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys(1.0d, 1.00d));
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys(-0.0, 0.0));
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys(float:NaN, float:NaN));
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys({a: 1, b: 2}, {b: 2, a: 1}));
+
+    // Structured keys with nil members.
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys([1, ()], [1, ()]));
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys({id: ()}, {id: ()}));
+
+    // Deeply nested keys.
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys([[[[1, ()]]]], [[[[1, ()]]]]));
+    assertJoinResult([], innerJoinAnydataKeys([[[[1]]]], [[[[2]]]]));
+
+    // Cyclic keys.
+    anydata[] cyclicLeft = [1];
+    cyclicLeft.push(cyclicLeft);
+    anydata[] cyclicRight = [1];
+    cyclicRight.push(cyclicRight);
+    assertJoinResult([[1, 2]], innerJoinAnydataKeys(cyclicLeft, cyclicRight));
+}
+
+public function testOuterJoinClauseKeysUseDeepEquality() {
+    assertJoinResult([[1, ()]], outerJoinAnydataKeys(1, "1"));
+    assertJoinResult([[1, ()]], outerJoinAnydataKeys((), ""));
+    assertJoinResult([[1, 2]], outerJoinAnydataKeys(1.0d, 1.00d));
+    assertJoinResult([[1, 2]], outerJoinAnydataKeys(-0.0, 0.0));
+    assertJoinResult([[1, 2]], outerJoinAnydataKeys({a: 1, b: 2}, {b: 2, a: 1}));
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
