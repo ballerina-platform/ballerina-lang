@@ -82,7 +82,6 @@ public class FileSystemCache extends CompilationCache {
     @Override
     public void cacheBir(ModuleName moduleName, ByteArrayOutputStream birContent) {
         Path birFilePath = getBirPath().resolve(moduleName.toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
-        recordFingerprint();
         if (!Files.exists(birFilePath)) {
             try {
                 Files.createDirectories(birPath);
@@ -94,6 +93,8 @@ public class FileSystemCache extends CompilationCache {
                 // TODO proper error handling
                 throw new RuntimeException("Failed to cache the bir of module: " + moduleName, e);
             }
+            // Recorded only with a written BIR, so that reusing an existing BIR never writes.
+            recordFingerprint();
         }
     }
 
@@ -113,7 +114,6 @@ public class FileSystemCache extends CompilationCache {
         Path targetPlatformCacheDirPath = getTargetPlatformCacheDirPath(compilerBackend);
         // Create directories
         createDirectories(targetPlatformCacheDirPath);
-        recordFingerprint();
         Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
 
         // TODO Can we improve this logic
@@ -123,6 +123,7 @@ public class FileSystemCache extends CompilationCache {
             // TODO improve the error handling
             throw new RuntimeException("Failed to write library: " + jarFilePath, e);
         }
+        recordFingerprint();
     }
 
     /**

@@ -51,8 +51,10 @@ import java.util.UUID;
  * against other dependency versions is never reused, and the cache can be shared by all projects.
  * <p>
  * A package from the distribution is read from the distribution cache when that was compiled against the same
- * dependency versions, which the distribution records in a fingerprint file. Otherwise it is compiled and cached in
- * the user home like any other package. Lang libs and the test package are always read from the distribution cache.
+ * dependency versions, which the distribution records in a fingerprint file, and has every artifact. Otherwise it is
+ * compiled and cached in the user home like any other package. Builds never write the distribution cache, which is
+ * generated when the distribution is built. Lang libs and the test package are always read from the distribution
+ * cache.
  * <p>
  * A variant is shared by concurrent builds. Each file is written through a temporary file, so a file is never read
  * partly written. A variant is only read if it has the BIR and the JAR of every module of the package. Otherwise, e.g.
@@ -83,7 +85,6 @@ public final class FingerprintCompilationCache extends CompilationCache {
     private final Path distributionCacheDir;
     private final FileSystemCache fixedCache;
     private Path dir;
-    private boolean recorded;
     // Whether this cache wrote artifacts of the package, which it may read back before the variant is complete.
     private boolean written;
     // Whether the variant had all artifacts when it was first read, or null if not checked yet.
@@ -236,19 +237,15 @@ public final class FingerprintCompilationCache extends CompilationCache {
         return true;
     }
 
-    /** Directory to write the artifacts to, or empty if the package is not resolved against known versions. */
+    /**
+     * Directory to write the artifacts to, or empty if the package is not resolved against known versions or is read
+     * from the distribution cache, which builds never write.
+     */
     private synchronized Optional<Path> writeDir() {
         Optional<Path> dir = dir();
-        if (dir.isEmpty() || recorded) {
-            return dir;
+        if (dir.isEmpty() || isDistributionDir(dir.get())) {
+            return Optional.empty();
         }
-        // Record the fingerprint a build compares with, for a distribution package cached while the distribution is
-        // built.
-        if (distributionCacheDir != null && dir.get().startsWith(distributionCacheDir)) {
-            fingerprint().filter(fingerprint -> !fingerprint.equals(readFingerprint(dir.get())))
-                    .ifPresent(fingerprint -> writeFingerprint(dir.get(), fingerprint));
-        }
-        recorded = true;
         return dir;
     }
 
@@ -258,9 +255,9 @@ public final class FingerprintCompilationCache extends CompilationCache {
 
     /**
      * Directory of the artifacts of this package for the versions it is compiled against. A distribution package
-     * uses the distribution cache if that is compiled against the same versions, or if it has no cache of the
-     * package yet, e.g. while the distribution is built. A distribution cache compiled against other versions is
-     * never replaced, as an installed distribution may be shared.
+     * uses the distribution cache only if that is compiled against the same versions and has every artifact.
+     * Otherwise it is compiled into the user home: builds never write the distribution cache, which is generated with
+     * the distribution and may be installed in a location that is not writable or is shared.
      */
     private synchronized Optional<Path> dir() {
         if (dir == null) {
@@ -300,7 +297,7 @@ public final class FingerprintCompilationCache extends CompilationCache {
     private Path resolveDir(String fingerprint) {
         if (distributionCacheDir != null) {
             Path distributionDir = packageDir(distributionCacheDir, descriptor());
-            if (fingerprint.equals(readFingerprint(distributionDir)) || !Files.exists(distributionDir)) {
+            if (fingerprint.equals(readFingerprint(distributionDir)) && isComplete(distributionDir)) {
                 return distributionDir;
             }
         }

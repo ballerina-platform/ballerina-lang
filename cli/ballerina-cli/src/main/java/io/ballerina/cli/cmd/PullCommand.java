@@ -423,6 +423,9 @@ public class PullCommand implements BLauncherCmd {
         } catch (ProjectException e) {
             CommandUtil.printError(this.errStream,
                     "error occurred while resolving dependencies, reason: " + e.getMessage(), null, false);
+            // A build that compiles the package in a separate 'bal pull' process reads a successful exit as the
+            // package having been compiled and cached.
+            return false;
         }
         return true;
     }

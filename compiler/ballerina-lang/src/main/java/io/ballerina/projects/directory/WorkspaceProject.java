@@ -279,15 +279,19 @@ public class WorkspaceProject extends Project {
             return false;
         }
         Map<String, String> groupVariants = new HashMap<>();
-        Map<String, String> otherVariants = new HashMap<>();
         for (BuildProject member : this.projectList) {
             if (groupRoots.contains(member.sourceRoot())) {
                 resolvedVariants(member).forEach(groupVariants::putIfAbsent);
-            } else if (context.get().contains(member.sourceRoot())) {
-                resolvedVariants(member).forEach(otherVariants::putIfAbsent);
             }
         }
-        if (compatible(otherVariants, groupVariants)) {
+        // Each other package is checked on its own. Packages start in one environment before their dependency
+        // versions are known, so the others may conflict with one another, e.g. one compiled against a version
+        // and another only resolved to a different one. Merging their variants would hide such a conflict.
+        boolean compatibleWithOthers = this.projectList.stream()
+                .filter(member -> !groupRoots.contains(member.sourceRoot())
+                        && context.get().contains(member.sourceRoot()))
+                .allMatch(member -> compatible(resolvedVariants(member), groupVariants));
+        if (compatibleWithOthers) {
             return false;
         }
         List<List<Path>> contexts = new ArrayList<>();
@@ -396,7 +400,8 @@ public class WorkspaceProject extends Project {
             groupRoots.forEach(root -> environments.put(root, environment));
         }
         for (BuildProject project : this.projectList) {
-            projects.add(project.duplicate(environments.get(project.sourceRoot())));
+            // The copies belong to the copied workspace, so that they move between its environments as needed.
+            projects.add(project.duplicate(environments.get(project.sourceRoot()), duplicateWp));
         }
         return duplicateWp;
     }
@@ -494,6 +499,9 @@ public class WorkspaceProject extends Project {
             this.projectList.add((BuildProject) buildProjectLoadResult.project());
             diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
         }
+        // The packages are loaded into one environment again, so the recorded groups and environments are reset to
+        // match it. A package whose dependency versions conflict moves again when it is compiled.
+        assignEnvironments();
         return new ProjectLoadResult(this, new DefaultDiagnosticResult(diagnostics));
     }
 

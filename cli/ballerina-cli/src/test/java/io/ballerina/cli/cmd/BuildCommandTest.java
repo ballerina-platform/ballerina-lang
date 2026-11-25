@@ -726,7 +726,10 @@ public class BuildCommandTest extends BaseCommandTest {
     private List<Path> distributionPackageBirs(String name, String version) throws IOException {
         List<Path> birs = new ArrayList<>();
         for (Path cache : distributionPackageCaches(name, version)) {
-            birs.add(cache.resolve("bir").resolve(name + ".bir"));
+            Path bir = cache.resolve("bir").resolve(name + ".bir");
+            if (Files.isRegularFile(bir)) {
+                birs.add(bir);
+            }
         }
         return birs;
     }
@@ -829,8 +832,9 @@ public class BuildCommandTest extends BaseCommandTest {
                     "A build should update the time it used the variant");
 
             // A time of use recorded less than a day ago is kept, so that most builds do not write it.
-            FileTime recentTime = FileTime.from(Instant.now().minus(Duration.ofHours(1)));
-            Files.setLastModifiedTime(lastUsed, recentTime);
+            Files.setLastModifiedTime(lastUsed, FileTime.from(Instant.now().minus(Duration.ofHours(1))));
+            // The file system may round the time it stores.
+            FileTime recentTime = Files.getLastModifiedTime(lastUsed);
             deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
             executeBuild(appPath);
             Assert.assertEquals(Files.getLastModifiedTime(lastUsed), recentTime,
@@ -931,6 +935,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
         Path libCache = homeCache.resolve("testorg").resolve("concurrentlib");
         ExecutorService executor = Executors.newFixedThreadPool(2);
+        Throwable failure = null;
         try {
             BCompileUtil.compileAndCacheBala(libPath.toString(), testCentralRepoCache);
             deleteDirectory(libCache);
@@ -967,11 +972,25 @@ public class BuildCommandTest extends BaseCommandTest {
             Files.setLastModifiedTime(bir, markerTime);
             executeBuild(apps.get(2));
             Assert.assertEquals(Files.getLastModifiedTime(bir), markerTime, "The variant should be reused");
+        } catch (Throwable t) {
+            failure = t;
+            throw t;
         } finally {
             executor.shutdownNow();
-            deleteDirectory(libCache);
-            deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("concurrentlib"));
-            deleteDirectory(root);
+            // Delete the shared files only once both builds stopped, so that a build still running cannot write
+            // them again. A build that does not stop is reported, and its files are left.
+            if (executor.awaitTermination(1, TimeUnit.MINUTES)) {
+                deleteDirectory(libCache);
+                deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("concurrentlib"));
+                deleteDirectory(root);
+            } else {
+                AssertionError notStopped = new AssertionError("The concurrent builds did not stop");
+                if (failure == null) {
+                    throw notStopped;
+                }
+                // The failure that stopped the test is reported, with the builds that did not stop.
+                failure.addSuppressed(notStopped);
+            }
         }
     }
 

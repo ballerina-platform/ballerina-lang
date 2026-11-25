@@ -163,6 +163,7 @@ public class PackageResolution {
         if (fingerprints == null) {
             return;
         }
+        fingerprints.clearResolvedVariants(rootPackageContext.project());
         for (ResolvedPackageDependency node : dependencyGraph.getNodes()) {
             Package packageInstance = node.packageInstance();
             if (packageInstance.project().kind() != ProjectKind.BALA_PROJECT) {
@@ -209,6 +210,13 @@ public class PackageResolution {
             // of such a package or of a package that depends on it. `bal pull` then skips caching but succeeds.
             // These packages are compiled in this process, where the project supplies the libraries.
             if (hasProvidedPlatformLibraries(resolvedPackageDependency)) {
+                continue;
+            }
+
+            // A package that depends on a workspace package has no fingerprint and is never cached, so a subprocess
+            // cannot compile it for this build. It is compiled in this process.
+            if (this.dependencyGraph.getAllDependencies(resolvedPackageDependency).stream().anyMatch(
+                    dependency -> dependency.packageInstance().project().kind() != ProjectKind.BALA_PROJECT)) {
                 continue;
             }
 

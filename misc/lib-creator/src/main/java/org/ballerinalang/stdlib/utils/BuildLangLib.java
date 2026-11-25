@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.utils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleName;
@@ -29,7 +30,10 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -103,6 +107,11 @@ public final class BuildLangLib {
             }
 
             PackageManifest pkgDesc = pkg.manifest();
+            Path packageCacheDir = pkgTargetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
+                    .resolve(pkgDesc.org().toString())
+                    .resolve(pkgDesc.name().value())
+                    .resolve(pkgDesc.version().toString());
+            recordFingerprint(pkg, packageCacheDir);
             Path balaDirPath = pkgTargetPath.resolve("bala");
 
             // Create bala cache directory
@@ -178,6 +187,22 @@ public final class BuildLangLib {
         if (Files.exists(targetPath)) {
             deleteDirectory(targetPath);
         }
+    }
+
+    /**
+     * Records the fingerprint of the dependency versions the package is compiled against, so that a project that
+     * resolves the same versions uses its cache from the distribution instead of compiling it again.
+     */
+    private static void recordFingerprint(Package pkg, Path packageCacheDir) {
+        if (!Files.isDirectory(packageCacheDir)) {
+            return;
+        }
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = pkg.getResolution().dependencyGraph();
+        String fingerprint = DependencyFingerprints.of(dependencyGraph
+                .getAllDependencies(dependencyGraph.getRoot()).stream()
+                .map(dependency -> dependency.packageInstance().descriptor())
+                .toList());
+        FingerprintCompilationCache.writeFingerprint(packageCacheDir, fingerprint);
     }
 
     private static ProjectEnvironmentBuilder createProjectEnvBuilder(Path targetPath) {

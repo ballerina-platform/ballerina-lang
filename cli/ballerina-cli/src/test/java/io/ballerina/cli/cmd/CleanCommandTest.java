@@ -270,10 +270,9 @@ public class CleanCommandTest extends BaseCommandTest {
         Path dependencyBala = distributionRepository.resolve("bala").resolve("testorg").resolve("cleandistdep")
                 .resolve("1.0.0").resolve("any");
         // The distribution's cache of the package is compiled against other versions, so the build compiles the
-        // package into the user home.
+        // package into the user home. The cache is not deleted, as its JAR is still loaded on Windows.
         Path distributionCache = distributionRepository.resolve("cache").resolve("testorg").resolve("cleandistdep")
                 .resolve("1.0.0");
-        FileUtils.deleteDirectory(distributionCache.toFile());
         Files.createDirectories(distributionCache);
         Files.writeString(distributionCache.resolve(".fingerprint"), "0000000000000000");
         Path homeVersionCache = testDotBallerina.resolve("repositories").resolve("distribution")
@@ -293,7 +292,8 @@ public class CleanCommandTest extends BaseCommandTest {
         } finally {
             FileUtils.deleteDirectory(distributionRepository.resolve("bala").resolve("testorg")
                     .resolve("cleandistdep").toFile());
-            FileUtils.deleteDirectory(distributionCache.toFile());
+            // The JAR of the distribution cache is still loaded on Windows.
+            FileUtils.deleteQuietly(distributionCache.toFile());
             FileUtils.deleteDirectory(homeVersionCache.toFile());
         }
     }

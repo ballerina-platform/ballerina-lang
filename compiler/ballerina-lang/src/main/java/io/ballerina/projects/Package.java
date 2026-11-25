@@ -339,6 +339,10 @@ public class Package {
      * @return a {@code DiagnosticResult} instance
      */
     public DiagnosticResult runCodeGenAndModifyPlugins() {
+        Package packageToCompile = packageToCompile();
+        if (packageToCompile != this) {
+            return packageToCompile.runCodeGenAndModifyPlugins();
+        }
         Package pkg = this;
         PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
         if (cachedCompilation != null) {

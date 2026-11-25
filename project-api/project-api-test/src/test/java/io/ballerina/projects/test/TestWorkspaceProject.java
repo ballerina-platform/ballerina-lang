@@ -66,6 +66,7 @@ public class TestWorkspaceProject extends BaseTest {
     private static final Path DISTRIBUTION_REPOSITORY = Path.of("build").resolve(ProjectConstants.DIST_CACHE_DIRECTORY)
             .toAbsolutePath();
     private static Path tempResourceDir;
+    private static boolean conflictingDependenciesPublished;
     static final PrintStream OUT = System.out;
 
     @BeforeClass
@@ -627,14 +628,118 @@ public class TestWorkspaceProject extends BaseTest {
                 "A package that does not move should not be replaced");
     }
 
+    @Test(description = "A package is compiled apart from a package of its environment compiled against other "
+            + "dependency versions, even when another package of the environment only resolved the same versions")
+    public void testPackageCompiledApartFromConflictingCompiledPackage() throws IOException {
+        Path fixture = tempResourceDir.resolve("wp-conflicting-dependency");
+        publishConflictingDependencies(fixture.resolve("deps"));
+        Path workspace = fixture.resolve("workspace");
+        for (String name : List.of("older", "second")) {
+            TestUtils.replaceDistributionVersionOfDependenciesToml(workspace.resolve(name),
+                    RepoUtils.getBallerinaShortVersion());
+        }
+        WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                BuildOptions.builder().setOffline(true).setLockingMode(PackageLockingMode.HARD).build()).project();
+
+        // 'third' is compiled first, against 'versioned_lib' 0.1.1. The other packages are not resolved yet, so it
+        // stays in the environment they share.
+        compile(member(project, "third"));
+        Assert.assertSame(memberEnvironment(project, "third"), memberEnvironment(project, "older"));
+
+        // 'older' is only resolved, to 0.1.0, so it does not move.
+        member(project, "older").currentPackage().getResolution();
+        Assert.assertSame(memberEnvironment(project, "older"), memberEnvironment(project, "third"));
+
+        // 'second' resolves 0.1.0 like 'older', but 'shared_lib' is compiled against 0.1.1 in that environment.
+        compile(member(project, "second"));
+        Assert.assertEquals(resolvedVersion(member(project, "second"), "versioned_lib"), "0.1.0");
+        Assert.assertNotSame(memberEnvironment(project, "second"), memberEnvironment(project, "third"),
+                "The package should not share the environment of a package compiled against other versions");
+        Assert.assertEquals(compiledVariants("shared_lib"),
+                Stream.of("0.1.0", "0.1.1").map(TestWorkspaceProject::versionedLibFingerprint).sorted().toList(),
+                "The shared dependency should be compiled once against each version");
+    }
+
+    private static void compile(BuildProject buildProject) {
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors(),
+                buildProject.currentPackage().packageName() + ": " + compilation.diagnosticResult().errors());
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_25);
+    }
+
+    @Test(description = "A package that resolves a shared dependency differently is compiled apart again after the "
+            + "workspace is reloaded")
+    public void testReloadedWorkspaceCompilesConflictingPackageApart() throws IOException {
+        Path fixture = tempResourceDir.resolve("wp-conflicting-dependency");
+        publishConflictingDependencies(fixture.resolve("deps"));
+        Path workspace = fixture.resolve("workspace");
+        for (String name : List.of("older", "second")) {
+            TestUtils.replaceDistributionVersionOfDependenciesToml(workspace.resolve(name),
+                    RepoUtils.getBallerinaShortVersion());
+        }
+        WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                BuildOptions.builder().setOffline(true).setLockingMode(PackageLockingMode.HARD).build()).project();
+        for (int load = 0; load < 2; load++) {
+            if (load == 1) {
+                // Reloading puts all packages in one environment again.
+                Assert.assertFalse(project.reload(project.ballerinaToml().tomlDocument()).diagnostics().hasErrors());
+                Assert.assertSame(memberEnvironment(project, "third"), memberEnvironment(project, "older"));
+            }
+            for (String name : List.of("older", "second", "third")) {
+                Assert.assertFalse(member(project, name).currentPackage().getCompilation().diagnosticResult()
+                        .hasErrors(), name);
+            }
+            Assert.assertSame(memberEnvironment(project, "second"), memberEnvironment(project, "older"));
+            Assert.assertNotSame(memberEnvironment(project, "third"), memberEnvironment(project, "older"),
+                    "The package that resolves a shared dependency differently should be compiled apart");
+        }
+    }
+
+    @Test(description = "A copy of a whole workspace places its packages by their resolution, like the workspace")
+    public void testCopiedWorkspaceCompilesConflictingPackageApart() throws IOException {
+        Path fixture = tempResourceDir.resolve("wp-conflicting-dependency");
+        publishConflictingDependencies(fixture.resolve("deps"));
+        Path workspace = fixture.resolve("workspace");
+        for (String name : List.of("older", "second")) {
+            TestUtils.replaceDistributionVersionOfDependenciesToml(workspace.resolve(name),
+                    RepoUtils.getBallerinaShortVersion());
+        }
+        WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                BuildOptions.builder().setOffline(true).setLockingMode(PackageLockingMode.HARD).build()).project();
+
+        // Copied before any package is compiled, so all copies start in one environment.
+        WorkspaceProject copy = (WorkspaceProject) project.duplicate();
+        for (BuildProject copiedMember : copy.projects()) {
+            Assert.assertSame(copiedMember.workspaceProject().orElseThrow(), copy,
+                    "A copied package should belong to the copied workspace");
+        }
+        for (String name : List.of("older", "second", "third")) {
+            Assert.assertFalse(member(copy, name).currentPackage().getCompilation().diagnosticResult().hasErrors(),
+                    name);
+        }
+
+        Assert.assertSame(memberEnvironment(copy, "second"), memberEnvironment(copy, "older"));
+        Assert.assertNotSame(memberEnvironment(copy, "third"), memberEnvironment(copy, "older"),
+                "The copied package that resolves a shared dependency differently should be compiled apart");
+        Assert.assertSame(memberEnvironment(project, "third"), memberEnvironment(project, "older"),
+                "Compiling the copy should not move the packages of the original workspace");
+    }
+
     /**
      * Publishes 'versioned_lib' 0.1.0, 'shared_lib' compiled against it, and then 'versioned_lib' 0.1.1 to the test
      * distribution, and removes their compiled caches, which the test writes.
      */
     private static void publishConflictingDependencies(Path deps) throws IOException {
         for (String name : List.of("versioned_lib", "shared_lib")) {
+            FileUtils.deleteDirectory(homeDistributionCache().resolve("testorg").resolve(name).toFile());
+        }
+        // Published once, as the JARs of the distribution cache stay loaded and cannot be replaced on Windows.
+        if (conflictingDependenciesPublished) {
+            return;
+        }
+        for (String name : List.of("versioned_lib", "shared_lib")) {
             for (Path dir : List.of(DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.BALA_DIR_NAME),
-                    DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.CACHES_DIR_NAME), homeDistributionCache())) {
+                    DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.CACHES_DIR_NAME))) {
                 FileUtils.deleteDirectory(dir.resolve("testorg").resolve(name).toFile());
             }
         }
@@ -643,10 +748,17 @@ public class TestWorkspaceProject extends BaseTest {
                     BCompileUtil.getTestProjectEnvironmentBuilder());
             Assert.assertFalse(result.getDiagnosticResult().hasErrors(), dependency);
         }
+        // Without a fingerprint, the distribution cache is not used, so the builds compile the packages themselves.
         for (String name : List.of("versioned_lib", "shared_lib")) {
-            FileUtils.deleteDirectory(DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.CACHES_DIR_NAME)
-                    .resolve("testorg").resolve(name).toFile());
+            try (Stream<Path> paths = Files.walk(DISTRIBUTION_REPOSITORY.resolve(ProjectConstants.CACHES_DIR_NAME)
+                    .resolve("testorg").resolve(name))) {
+                for (Path path : paths.filter(path -> path.endsWith(FingerprintCompilationCache.FINGERPRINT_FILE))
+                        .toList()) {
+                    Files.delete(path);
+                }
+            }
         }
+        conflictingDependenciesPublished = true;
     }
 
     /**

@@ -56,6 +56,16 @@ public final class DependencyFingerprints {
     private final Map<Path, Map<String, String>> resolvedVariants = new HashMap<>();
 
     /**
+     * Forgets the variants recorded for the given root project, before its dependencies are recorded again. Its
+     * variants are then exactly those of its current dependency graph, e.g. after an edit removed a dependency.
+     *
+     * @param rootProject project whose dependencies are resolved again
+     */
+    public synchronized void clearResolvedVariants(Project rootProject) {
+        resolvedVariants.remove(rootKey(rootProject));
+    }
+
+    /**
      * Records the fingerprint of a dependency resolved for the given root project.
      *
      * @param rootProject  project whose dependency graph contains the package

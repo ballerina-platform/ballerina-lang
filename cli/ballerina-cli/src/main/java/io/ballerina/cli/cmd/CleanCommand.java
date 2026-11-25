@@ -181,6 +181,11 @@ public class CleanCommand implements BLauncherCmd {
             } else {
                 projectList = workspaceProject.projects();
             }
+            if (depCache) {
+                // Packages may share dependencies, so resolve all of them before any bala is deleted. A package
+                // resolved after a shared bala is deleted would not find the dependency or its compiled variant.
+                projectList.forEach(CleanCommand::resolveDependencies);
+            }
             for (BuildProject buildProject : projectList) {
                 if (depCache) {
                     cleanDependencyCaches(buildProject);
@@ -218,11 +223,19 @@ public class CleanCommand implements BLauncherCmd {
                 "(%.1f MB)", result.removedVariants(), days, result.freedBytes() / (1024.0 * 1024.0)));
     }
 
-    private void cleanDependencyCaches(Project project) {
+    /**
+     * Resolves the dependencies of the given package offline, as the build that cached them did. The resolution is
+     * kept by the package, so a later call returns the same one.
+     */
+    private static PackageResolution resolveDependencies(Project project) {
         ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true)
                 .setSticky(project.buildOptions().sticky()).setPackageLockingMode(project.buildOptions().lockingMode())
                 .build();
-        PackageResolution packageResolution = project.currentPackage().getResolution(resolutionOptions);
+        return project.currentPackage().getResolution(resolutionOptions);
+    }
+
+    private void cleanDependencyCaches(Project project) {
+        PackageResolution packageResolution = resolveDependencies(project);
         Path distributionRepository = ProjectUtils.getBallerinaHomePath().resolve(DIST_CACHE_DIRECTORY);
         Path localRepository = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(ProjectConstants.LOCAL_REPOSITORY_NAME).resolve(ProjectConstants.BALA_DIR_NAME);
