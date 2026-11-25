@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -205,6 +206,7 @@ public final class TypeDefBuilderHelper {
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
         if (env != null) {
             env.enclPkg.addTypeDefinition(typeDefinition);
+            defineInPackageScope(typeDefinition, env);
         }
         return typeDefinition;
     }
@@ -219,7 +221,30 @@ public final class TypeDefBuilderHelper {
                     symbol.pos, symbol.origin);
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
         env.enclPkg.addTypeDefinition(typeDefinition);
+        defineInPackageScope(typeDefinition, env);
         return typeDefinition;
+    }
+
+    /**
+     * Defines the symbol of a compiler-generated type definition in the package scope.
+     * <p>
+     * A package loaded from its BIR defines all of its type definitions in the package scope, and the BIR of a
+     * dependent package refers to the generated types (e.g. {@code $anonType$_1}) by their names. Defining them in
+     * the package scope allows those references to be resolved when the package is compiled from sources as well.
+     *
+     * @param typeDefinition generated type definition
+     * @param env            symbol environment in which the type definition is created
+     */
+    private static void defineInPackageScope(BLangTypeDefinition typeDefinition, SymbolEnv env) {
+        BSymbol symbol = typeDefinition.symbol;
+        BPackageSymbol pkgSymbol = env.enclPkg.symbol;
+        if (symbol == null || pkgSymbol == null || pkgSymbol.scope == null) {
+            return;
+        }
+
+        if (pkgSymbol.scope.lookup(symbol.name).symbol == null) {
+            pkgSymbol.scope.define(symbol.name, symbol);
+        }
     }
 
     public static BLangClassDefinition createClassDef(Location pos, BObjectTypeSymbol classTSymbol,
