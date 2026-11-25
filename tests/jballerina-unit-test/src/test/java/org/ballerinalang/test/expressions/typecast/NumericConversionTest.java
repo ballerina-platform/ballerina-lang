@@ -374,6 +374,17 @@ public class NumericConversionTest {
     }
 
     @Test
+    public void testInvalidCastToFiniteType() {
+        BRunUtil.invoke(result, "testInvalidCastToFiniteType");
+    }
+
+    @Test
+    public void testValidCastToFiniteType() {
+        Object returns = BRunUtil.invoke(result, "testValidCastToFiniteType");
+        Assert.assertNull(returns);
+    }
+
+    @Test
     public void testNegativeExprs() {
         Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int errIndex = 0;

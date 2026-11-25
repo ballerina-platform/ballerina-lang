@@ -600,6 +600,84 @@ function testNumericConversionFromFiniteType() returns boolean {
     return conversionSuccessful && g === 2;
 }
 
+type Priority 1|2|3;
+type FloatLevel 1.0|2.0;
+type DecimalLevel 1d|2d;
+
+function testInvalidCastToFiniteType() {
+    any boxed = 7;
+    Priority|error r1 = trap <Priority>boxed;
+    assertCastError(r1);
+
+    int raw = 7;
+    assertCastError(raw.ensureType(Priority));
+
+    json payload = {"priority": 7};
+    assertCastError(getPriority(payload));
+
+    any floatSeven = 7.0;
+    assertCastError(trap <Priority>floatSeven);
+
+    any intThree = 3;
+    assertCastError(trap <FloatLevel>intThree);
+    assertCastError(trap <DecimalLevel>intThree);
+
+    assertCastError(trap <Priority|boolean>boxed);
+
+    // 3.5 rounds half-to-even to 4, which is not a Priority.
+    any threePointFive = 3.5;
+    assertCastError(trap <Priority>threePointFive);
+}
+
+function testValidCastToFiniteType() returns error? {
+    any floatTwo = 2.0;
+    Priority p1 = <Priority>floatTwo;
+    assertEquality(2, p1);
+
+    json payload = {"priority": 3};
+    Priority p2 = check getPriority(payload);
+    assertEquality(3, p2);
+
+    any intTwo = 2;
+    FloatLevel f = <FloatLevel>intTwo;
+    assertEquality(2.0, f);
+
+    DecimalLevel d = <DecimalLevel>intTwo;
+    assertEquality(2d, d);
+
+    Priority|boolean u = <Priority|boolean>floatTwo;
+    assertEquality(2, u);
+
+    // Fractional floats round half-to-even before the membership check.
+    any twoPointFive = 2.5;
+    Priority p3 = <Priority>twoPointFive;
+    assertEquality(2, p3);
+
+    any twoPointSix = 2.6;
+    Priority p4 = <Priority>twoPointSix;
+    assertEquality(3, p4);
+    return;
+}
+
+function getPriority(json payload) returns Priority|error {
+    Priority p = check payload.priority;
+    return p;
+}
+
+function assertCastError(any|error result) {
+    if result is error && result.message() == "{ballerina}TypeCastError" {
+        return;
+    }
+    panic error("expected a TypeCastError, found: " + (result is error ? result.message() : result.toString()));
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
 function getFloat(float f) returns float {
     return f;
 }
