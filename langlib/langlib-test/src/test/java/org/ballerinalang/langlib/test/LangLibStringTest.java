@@ -461,6 +461,7 @@ public class LangLibStringTest {
                 "testIterator",
                 "testFromBytesInvalidValues",
                 "testLastIndexOf",
+                "testIndexOfWithNonBmpChars",
                 "testEqualsIgnoreCaseAscii",
                 "testLangLibCallOnStringSubTypes",
                 "testLangLibCallOnFiniteType",

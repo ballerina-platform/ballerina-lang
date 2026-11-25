@@ -82,34 +82,32 @@ public class NonBmpStringValue extends StringValue {
     @Override
     public Long indexOf(BString str, int fromIndex) {
         int offset = getOffset(fromIndex);
-        long index = value.indexOf(str.getValue(), offset);
-        if (index < 0) {
+        int utf16Index = value.indexOf(str.getValue(), offset);
+        if (utf16Index < 0) {
             return null;
         }
-        for (int i = 0; i < index; i++) {
-            char c = value.charAt(i);
-            if (Character.isHighSurrogate(c)) {
-                index--;
-            }
-        }
-        return index;
+        return toCodePointIndex(utf16Index);
     }
 
     @Override
     public Long lastIndexOf(BString str, int fromIndex) {
         int offset = getOffset(fromIndex);
-        long index = value.lastIndexOf(str.getValue(), offset);
-        if (index < 0) {
+        int utf16Index = value.lastIndexOf(str.getValue(), offset);
+        if (utf16Index < 0) {
             return null;
         }
-        for (int i = 0; i < index; i++) {
-            char c = value.charAt(i);
-            if (Character.isHighSurrogate(c)) {
-                index--;
-            }
-        }
-        return index;
+        return toCodePointIndex(utf16Index);
     }
+
+    private long toCodePointIndex(int utf16Index) {
+        // The j-th surrogate pair starts at UTF-16 position surrogates[j] + j.
+        int count = 0;
+        for (int j = 0; j < surrogates.length && surrogates[j] + j < utf16Index; j++) {
+            count++;
+        }
+        return (long) utf16Index - count;
+    }
+
     @Override
     public BString substring(int beginIndex, int endIndex) {
         int beginOffset = getOffset(beginIndex);
