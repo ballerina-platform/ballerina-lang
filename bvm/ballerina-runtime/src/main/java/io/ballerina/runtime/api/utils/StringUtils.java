@@ -33,13 +33,11 @@ import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -60,38 +58,38 @@ import static io.ballerina.runtime.internal.utils.StringUtils.parseExpressionStr
 public final class StringUtils {
 
     /**
-     * Convert input stream to String.
+     * Convert input stream to String. The bytes are decoded as UTF-8. The stream is closed after reading.
      *
      * @param in Input stream to be converted to string
      * @return Converted string
      */
     public static BString getStringFromInputStream(InputStream in) {
         String result;
-        try (BufferedInputStream bis = new BufferedInputStream(in);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            int data;
-            while ((data = bis.read()) != -1) {
-                bos.write(data);
-            }
-            result = bos.toString();
+        try (InputStream stream = in) {
+            result = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException ioe) {
             throw ErrorCreator.createError(StringUtils.fromString("Error occurred when reading input stream"), ioe);
         }
         return StringUtils.fromString(result);
     }
 
+    /**
+     * Convert input stream to String using the given charset. The stream is closed after reading.
+     *
+     * @param inputStream Input stream to be converted to string
+     * @param charset     Name of the charset used to decode the bytes
+     * @return Converted string
+     */
     public static BString getStringFromInputStream(InputStream inputStream, String charset) {
-        StringBuilder textBuilder = new StringBuilder();
-        try (Reader reader = new InputStreamReader(inputStream, Charset.forName(charset))) {
-            int character;
-            while ((character = reader.read()) != -1) {
-                textBuilder.append((char) character);
-            }
+        Charset decodingCharset = Charset.forName(charset);
+        String result;
+        try (InputStream stream = inputStream) {
+            result = new String(stream.readAllBytes(), decodingCharset);
         } catch (IOException e) {
             throw ErrorCreator.createError(StringUtils.fromString(
                     "Error occurred when reading input stream with the charset" + charset), e);
         }
-        return StringUtils.fromString(textBuilder.toString());
+        return StringUtils.fromString(result);
     }
 
     public static BString getStringAt(BString s, long index) {
