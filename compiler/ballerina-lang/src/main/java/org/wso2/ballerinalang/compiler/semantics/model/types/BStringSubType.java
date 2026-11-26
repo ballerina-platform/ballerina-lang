@@ -31,10 +31,18 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BStringSubType extends BType {
 
-    public static final BStringSubType CHAR = new BStringSubType();
+    /**
+     * @deprecated Use {@code SymbolTable#charStringType}, which is created per compiler context.
+     */
+    @Deprecated(since = "2201.14.1", forRemoval = true)
+    public static final BStringSubType CHAR = newChar();
 
     private BStringSubType() {
         super(TypeTags.CHAR_STRING, null, Names.CHAR, Flags.READONLY, SemTypes.CHAR);
+    }
+
+    public static BStringSubType newChar() {
+        return new BStringSubType();
     }
 
     @Override

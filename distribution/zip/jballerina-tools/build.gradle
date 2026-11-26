@@ -15,6 +15,8 @@
  *
  */
 
+import org.gradle.api.attributes.java.TargetJvmEnvironment
+
 plugins {
     id 'base'
     id 'repositories'
@@ -51,7 +53,13 @@ configurations {
     jacocoAgentLib {
         transitive false
     }
-    docerina
+    docerina {
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+            attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                      objects.named(TargetJvmEnvironment, TargetJvmEnvironment.STANDARD_JVM))
+        }
+    }
     bin
     bir
     birJar

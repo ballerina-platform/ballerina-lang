@@ -248,11 +248,22 @@ public class BuildProject extends Project implements Comparable<Project> {
 
     @Override
     public Project duplicate() {
+        return duplicate(EnvironmentBuilder.getBuilder().setWorkspace(workspaceProject).build());
+    }
+
+    /**
+     * Duplicates this project into the given environment.
+     * <p>
+     * Used by {@link WorkspaceProject#duplicate()} to copy all members into one shared environment.
+     *
+     * @param environment the environment of the duplicated project
+     * @return the duplicated project
+     */
+    BuildProject duplicate(Environment environment) {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
-        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(workspaceProject).build();
         BuildProject buildProject = new BuildProject(ProjectEnvironmentBuilder.getBuilder(environment),
                 this.sourceRoot, duplicateBuildOptions, this.workspaceProject);
-        return resetPackage(buildProject);
+        return (BuildProject) resetPackage(buildProject);
     }
 
     @Override
