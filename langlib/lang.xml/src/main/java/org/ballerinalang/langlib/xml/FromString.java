@@ -22,18 +22,25 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
 
 /**
- * Converts a XML to the corresponding JSON representation.
+ * Parses a string as XML.
  *
  * @since 0.90
  */
 public final class FromString {
 
+    private static final char BYTE_ORDER_MARK = '﻿';
+
     private FromString() {
     }
 
     public static Object fromString(BString string) {
+        String value = string.getValue();
+        // Skip a leading byte order mark.
+        if (!value.isEmpty() && value.charAt(0) == BYTE_ORDER_MARK) {
+            value = value.substring(1);
+        }
         try {
-            return TypeConverter.stringToXml(string.getValue());
+            return TypeConverter.stringToXml(value);
         } catch (BError BError) {
             return BError;
         }
