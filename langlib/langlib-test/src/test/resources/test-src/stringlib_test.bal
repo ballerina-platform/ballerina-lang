@@ -147,6 +147,34 @@ function testLastIndexOf() {
     }
 }
 
+function testIndexOfWithNonBmpChars() {
+    assertEquals(0, "k".indexOf("k"));
+    assertEquals(1, "🎉k".indexOf("k"));
+    assertEquals(2, "🎉🎉k".indexOf("k"));
+    assertEquals(3, "🎉🎉🎉k".indexOf("k"));
+    assertEquals(6, "🎉🎉🎉🎉🎉🎉k".indexOf("k"));
+    assertEquals(3, "🎉🎉🎉k".lastIndexOf("k"));
+    assertEquals(6, "🎉🎉🎉🎉🎉🎉k".lastIndexOf("k"));
+
+    string t = "🎉🎉k🎉🎉k";
+    assertEquals(2, t.indexOf("k"));
+    assertEquals(5, t.indexOf("k", 3));
+    assertEquals(5, t.lastIndexOf("k"));
+    assertEquals(2, t.lastIndexOf("k", 4));
+
+    string s = "a🎉b🎉c🎉d:e🎉f🎉g🎉h";
+    int idx = <int>s.indexOf(":");
+    assertEquals(7, idx);
+    assertEquals("a🎉b🎉c🎉d", s.substring(0, idx));
+    assertEquals("e🎉f🎉g🎉h", s.substring(idx + 1));
+    assertEquals(14, s.lastIndexOf("h"));
+    assertEquals(s.length() - 1, s.lastIndexOf("h"));
+
+    assertEquals(3, "a🎉b🎉".indexOf("🎉", 2));
+    assertEquals(1, "🎉🎉k".lastIndexOf("🎉"));
+    assertEquals(0, "🎉k".indexOf(""));
+}
+
 function testEndsWith(string substr) returns boolean {
     return str.endsWith(substr);
 }
