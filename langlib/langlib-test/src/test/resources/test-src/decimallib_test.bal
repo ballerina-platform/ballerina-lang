@@ -96,10 +96,6 @@ function testRoundWithNamedArguments() {
     assertEquality(z.toBalString(), "5.6d");
 }
 
-function testRoundWithFractionDigits(decimal x, int fractionDigits) returns decimal {
-    return x.round(fractionDigits);
-}
-
 type RoundScaleDataPoint [decimal, int, string];
 
 function testRoundScale() {
@@ -122,10 +118,20 @@ function testRoundScale() {
         assertEquality(x.round(fractionDigits).toString(), expected);
     }
 
-    decimal a = 13.3;
-    decimal b = 3.3;
-    assertEquality(true, a.round(-2) === 0d);
-    assertEquality(true, b.round(-2) === 0d);
+    // Zero result has exponent 0
+    [decimal, int][] zeroCases = [
+        [13.3, -2],
+        [3.3, -2],
+        [5.55, -200],
+        [5.55, int:MIN_VALUE],
+        [5.55, -2147483648],
+        [0.0000005, 6],
+        [0.001, 2],
+        [0.00, 5]
+    ];
+    foreach [decimal, int] [x, fractionDigits] in zeroCases {
+        assertEquality(true, x.round(fractionDigits) === 0d);
+    }
 }
 
 function testRunnerTestRoundToZeroWithCast() {

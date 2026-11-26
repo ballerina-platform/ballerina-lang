@@ -232,29 +232,6 @@ public class LangLibDecimalTest {
         BRunUtil.invoke(compileResult, "testRoundScale");
     }
 
-    @Test(dataProvider = "roundZeroProvider", description = "Test decimal:round zero result has exponent 0")
-    public void testRoundZero(String arg, long fractionDigits) {
-        Object returns = BRunUtil.invoke(compileResult, "testRoundWithFractionDigits",
-                new Object[] {ValueCreator.createDecimalValue(arg), fractionDigits});
-        BDecimal result = (BDecimal) returns;
-        assertEquals(0, result.decimalValue().signum());
-        assertEquals(0, result.decimalValue().scale());
-    }
-
-    @DataProvider(name = "roundZeroProvider")
-    public static Object[][] roundZeroProvider() {
-        return new Object[][] {
-                {"13.3", -2},
-                {"3.3", -2},
-                {"5.55", -200},
-                {"5.55", Long.MIN_VALUE},
-                {"5.55", Integer.MIN_VALUE},
-                {"0.0000005", 6},
-                {"0.001", 2},
-                {"0.00", 5}
-        };
-    }
-
     @Test(description = "Test decimal:round with named arguments")
     public void testRoundWithNamedArguments() {
         BRunUtil.invoke(compileResult, "testRoundWithNamedArguments");

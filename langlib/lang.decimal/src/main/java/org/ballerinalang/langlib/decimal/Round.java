@@ -33,8 +33,6 @@ import java.math.RoundingMode;
 public class Round {
 
     private static final int MAX_PRECISION = MathContext.DECIMAL128.getPrecision();
-    // decimal128 minimum exponent is -6176
-    private static final int MAX_SCALE = 6176;
 
     private Round() {
     }
@@ -47,7 +45,7 @@ public class Round {
         long targetScale = fractionDigits;
         if (fractionDigits > scale) {
             // Cap the scale so the result fits in decimal128
-            long maxScale = Math.min((long) scale + MAX_PRECISION - precision, MAX_SCALE);
+            long maxScale = (long) scale + MAX_PRECISION - precision;
             targetScale = Math.min(fractionDigits, Math.max(scale, maxScale));
         } else if (fractionDigits < 0 && fractionDigits < (long) scale - precision) {
             // Rounding above the most significant digit gives zero
