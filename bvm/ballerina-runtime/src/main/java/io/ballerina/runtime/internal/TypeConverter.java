@@ -764,7 +764,7 @@ public final class TypeConverter {
             case DecimalValue decimalValue -> decimalValue.intValue();
             case String s -> {
                 try {
-                    yield Long.parseLong(s);
+                    yield stringToInt(s);
                 } catch (NumberFormatException e) {
                     throw errorFunc.get();
                 }
@@ -933,10 +933,12 @@ public final class TypeConverter {
     }
 
     public static Long stringToInt(String value) throws NumberFormatException {
+        validateAsciiNumericString(value);
         return Long.parseLong(value);
     }
 
     public static int stringToByte(String value) throws NumberFormatException, BError {
+        validateAsciiNumericString(value);
         int byteValue = Integer.parseInt(value);
         return intToByte(byteValue);
     }
@@ -970,7 +972,23 @@ public final class TypeConverter {
     }
 
     public static BDecimal stringToDecimal(String value) throws NumberFormatException {
+        validateAsciiNumericString(value);
         return new DecimalValue(value);
+    }
+
+    private static void validateAsciiNumericString(String value) throws NumberFormatException {
+        if (!isAsciiString(value)) {
+            throw new NumberFormatException("For input string: \"" + value + "\"");
+        }
+    }
+
+    public static boolean isAsciiString(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            if (value.charAt(i) > 0x7F) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static BXml stringToXml(String value) throws BError {
@@ -1032,6 +1050,7 @@ public final class TypeConverter {
             case DecimalValue decimalValue -> decimalValue.byteValue();
             case String s -> {
                 try {
+                    validateAsciiNumericString(s);
                     yield Integer.parseInt(s);
                 } catch (NumberFormatException e) {
                     throw errorFunc.get();
@@ -1091,7 +1110,10 @@ public final class TypeConverter {
             case Double d -> DecimalValue.valueOf(d);
             case Integer i -> DecimalValue.valueOf(i);
             case DecimalValue decimalValue -> decimalValue;
-            case String s -> new DecimalValue(s);
+            case String s -> {
+                validateAsciiNumericString(s);
+                yield new DecimalValue(s);
+            }
             case null, default -> throw errorFunc.get();
         };
     }
