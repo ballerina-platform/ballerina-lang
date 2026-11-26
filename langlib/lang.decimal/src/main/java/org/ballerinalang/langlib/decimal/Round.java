@@ -32,9 +32,8 @@ import java.math.RoundingMode;
  */
 public class Round {
 
-    // Maximum number of significant digits of a decimal128 value.
     private static final int MAX_PRECISION = MathContext.DECIMAL128.getPrecision();
-    // Largest scale (i.e. negated smallest exponent) of a decimal128 value.
+    // decimal128 minimum exponent is -6176
     private static final int MAX_SCALE = 6176;
 
     private Round() {
@@ -47,20 +46,16 @@ public class Round {
         int precision = value.precision();
         long targetScale = fractionDigits;
         if (fractionDigits > scale) {
-            // Increasing the scale only adds trailing zeros, so the result is exact. The exponent
-            // `-fractionDigits` cannot be represented when it needs more digits than decimal128
-            // allows, so use the largest scale that can be represented.
+            // Cap the scale so the result fits in decimal128
             long maxScale = Math.min((long) scale + MAX_PRECISION - precision, MAX_SCALE);
             targetScale = Math.min(fractionDigits, Math.max(scale, maxScale));
         } else if (fractionDigits < 0 && fractionDigits < (long) scale - precision) {
-            // Rounding position is above the most significant digit, so the result is zero. Written
-            // without negating fractionDigits, which would overflow for Long.MIN_VALUE.
+            // Rounding above the most significant digit gives zero
             return ValueCreator.createDecimalValue(BigDecimal.ZERO);
         }
-        // The checks above bound targetScale to the int range, so toIntExact cannot overflow.
         BigDecimal scaledDecimal = value.setScale(Math.toIntExact(targetScale), RoundingMode.HALF_EVEN);
         if (scaledDecimal.signum() == 0) {
-            // As per ANSI X3.274, a zero result has exponent 0 (only quantize keeps the exponent).
+            // Zero result has exponent 0
             scaledDecimal = BigDecimal.ZERO;
         }
         return ValueCreator.createDecimalValue(scaledDecimal);
