@@ -1,0 +1,1 @@
+Test project for loading a BIR that refers to the generated immutable types of another package.
