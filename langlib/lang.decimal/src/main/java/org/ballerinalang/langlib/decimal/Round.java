@@ -32,6 +32,8 @@ import java.math.RoundingMode;
  */
 public class Round {
 
+    private static final int MAX_PRECISION = MathContext.DECIMAL128.getPrecision();
+
     private Round() {
     }
 
@@ -39,21 +41,21 @@ public class Round {
 
         BigDecimal value = x.value();
         int scale = value.scale();
-        if (fractionDigits > 0) {
-            // scale is larger than current scale no change and will only add trailing zeros
-            if (fractionDigits >= scale) {
-                return x;
-            }
-        } else if (fractionDigits < 0) {
-            int precision = value.precision();
-            // negative scale is smaller than number of digits in integer-part result will be zero
-            if (Math.abs(fractionDigits) > (precision - scale)) {
-                BigDecimal scaledDecimal = new BigDecimal(0, MathContext.DECIMAL128);
-                return ValueCreator.createDecimalValue(scaledDecimal);
-            }
+        int precision = value.precision();
+        long targetScale = fractionDigits;
+        if (fractionDigits > scale) {
+            // Cap the scale so the result fits in decimal128
+            long maxScale = (long) scale + MAX_PRECISION - precision;
+            targetScale = Math.min(fractionDigits, Math.max(scale, maxScale));
+        } else if (fractionDigits < 0 && fractionDigits < (long) scale - precision) {
+            // Rounding above the most significant digit gives zero
+            return ValueCreator.createDecimalValue(BigDecimal.ZERO);
         }
-        int toIntExact = Math.toIntExact(fractionDigits); // Now no under/overflow due to previous conditions
-        BigDecimal scaledDecimal = value.setScale(toIntExact, RoundingMode.HALF_EVEN);
+        BigDecimal scaledDecimal = value.setScale(Math.toIntExact(targetScale), RoundingMode.HALF_EVEN);
+        if (scaledDecimal.signum() == 0) {
+            // Zero result has exponent 0
+            scaledDecimal = BigDecimal.ZERO;
+        }
         return ValueCreator.createDecimalValue(scaledDecimal);
     }
 }

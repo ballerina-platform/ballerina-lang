@@ -227,6 +227,11 @@ public class LangLibDecimalTest {
         BRunUtil.invoke(compileResult, "testRunnerTestRoundToFractionDigits");
     }
 
+    @Test(description = "Test decimal:round result scale")
+    public void testRoundScale() {
+        BRunUtil.invoke(compileResult, "testRoundScale");
+    }
+
     @Test(description = "Test decimal:round with named arguments")
     public void testRoundWithNamedArguments() {
         BRunUtil.invoke(compileResult, "testRoundWithNamedArguments");
