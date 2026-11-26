@@ -134,13 +134,19 @@ public final class TypeChecker {
             if (targetType instanceof BUnionType unionType) {
                 for (Type memberType : unionType.getMemberTypes()) {
                     try {
-                        return TypeConverter.castValues(memberType, sourceVal);
+                        Object converted = TypeConverter.castValues(memberType, sourceVal);
+                        if (checkIsType(converted, memberType)) {
+                            return converted;
+                        }
                     } catch (Exception e) {
                         //ignore and continue
                     }
                 }
             } else {
-                return TypeConverter.castValues(targetType, sourceVal);
+                Object converted = TypeConverter.castValues(targetType, sourceVal);
+                if (checkIsType(converted, targetType)) {
+                    return converted;
+                }
             }
         }
         throw createTypeCastError(sourceVal, targetType, List.of());
