@@ -1838,6 +1838,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildWithInvalidOrgName() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithEmptyBallerinaToml");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        String userName = System.getProperty("user.name");
         System.setProperty("user.name", "$org");
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         cleanTarget(projectPath);
@@ -1847,6 +1848,9 @@ public class BuildCommandTest extends BaseCommandTest {
         } catch (BLauncherException e) {
             String failureLog = readOutput(true);
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        } finally {
+            // Other test classes guess the organization of new packages from the user name.
+            System.setProperty("user.name", userName);
         }
         String buildLog = readOutput(true);
 

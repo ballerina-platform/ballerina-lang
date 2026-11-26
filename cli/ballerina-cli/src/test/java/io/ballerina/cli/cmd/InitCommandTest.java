@@ -1,413 +1,320 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Stream;
 
-import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 
 /**
- * Test cases for bal init command.
+ * Test cases for the bal init command, which initializes the dependencies of a package.
  *
  * @since 2.0.0
  */
 public class InitCommandTest extends BaseCommandTest {
 
-    @Test(description = "Initialize a new empty project within a directory")
-    public void testInitCommand() throws IOException {
-        Path projectPath = tmpDir.resolve("sample1");
-        Files.createDirectory(projectPath);
-        Path balFile = projectPath.resolve("data.bal");
-        Files.createFile(balFile);
+    private Path dependencyCache;
 
-        System.setProperty(USER_NAME, "testuserorg");
-        String[] args = {};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.exists(balFile));
-        Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[package]\n" +
-                "org = \"testuserorg\"\n" +
-                "name = \"" + projectPath.getFileName().toString() + "\"\n" +
-                "version = \"0.1.0\"\n" +
-                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
-                "[build-options]\n" +
-                "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
-
-        Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
-        Assert.assertFalse(Files.exists(testPath));
-
-        Path resourcePath = projectPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-        Assert.assertFalse(Files.exists(resourcePath));
-        Assert.assertTrue(Files.notExists(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertFalse(Files.exists(projectPath.resolve("main.bal")));
-
-        Assert.assertTrue(readOutput().contains("Created new package"));
+    @BeforeClass
+    public void setup() throws IOException {
+        super.setup();
+        Path dependency = writePackage(this.tmpDir.resolve("initdep"), "initdep",
+                "public function hello() returns string => \"hello\";\n");
+        BCompileUtil.compileAndCacheBala(dependency.toString(), testCentralRepoCache);
+        dependencyCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("initdep").resolve("1.0.0");
     }
 
-    @Test(description = "Initialize a new empty project within a directory has invalid characters for project name")
-    public void testInitCommandWithinInvalidCharsDir() throws IOException {
-        Path projectPath = tmpDir.resolve("hello-world");
-        Files.createDirectory(projectPath);
-        Path balFile = projectPath.resolve("data.bal");
-        Files.createFile(balFile);
+    @Test(description = "Installing the dependencies compiles them into the cache and writes Dependencies.toml")
+    public void testInitInstallsDependencies() throws IOException {
+        ProjectUtils.deleteDirectory(dependencyCache);
+        Path project = writePackage(this.tmpDir.resolve("initapp"), "initapp",
+                "import testorg/initdep;\n\npublic function main() {\n    string _ = initdep:hello();\n}\n");
 
-        System.setProperty(USER_NAME, "testuserorg");
-        String[] args = {};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
+        init(project);
 
-        Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.exists(balFile));
-        Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[package]\n" +
-                "org = \"testuserorg\"\n" +
-                "name = \"hello_world\"\n" +
-                "version = \"0.1.0\"\n" +
-                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
-                "[build-options]\n" +
-                "observabilityIncluded = true\n";
-        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Installed 1 dependency (1 compiled, 0 already cached)."), output);
+        Assert.assertTrue(Files.readString(project.resolve(DEPENDENCIES_TOML)).contains("name = \"initdep\""),
+                "Dependencies.toml should record the dependency");
+        List<Path> variants = variants();
+        Assert.assertEquals(variants.size(), 1, variants.toString());
+        Assert.assertTrue(Files.exists(variants.get(0).resolve("bir").resolve("initdep.bir")));
+        Assert.assertTrue(Files.exists(variants.get(0).resolve(JvmTarget.JAVA_25.code())
+                .resolve("testorg-initdep-1.0.0.jar")));
 
-        Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
-        Assert.assertFalse(Files.exists(testPath));
+        // An initialized package is skipped, which is not a failure.
+        String dependenciesToml = Files.readString(project.resolve(DEPENDENCIES_TOML));
+        init(project);
+        output = readOutput(true);
+        Assert.assertTrue(output.contains("Package 'testorg/initapp' is already initialized"), output);
+        Assert.assertEquals(Files.readString(project.resolve(DEPENDENCIES_TOML)), dependenciesToml);
 
-        Path resourcePath = projectPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-        Assert.assertFalse(Files.exists(resourcePath));
-        Assert.assertTrue(Files.notExists(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertFalse(Files.exists(projectPath.resolve("main.bal")));
-
-        Assert.assertTrue(readOutput().contains("Created new package"));
+        // Without Dependencies.toml, the package is initialized again with the dependency from the cache.
+        Files.delete(project.resolve(DEPENDENCIES_TOML));
+        init(project);
+        output = readOutput(true);
+        Assert.assertTrue(output.contains("Installed 1 dependency (0 compiled, 1 already cached)."), output);
     }
 
-    @Test(description = "Test init command with main template", enabled = false)
-    public void testInitCommandWithMain() throws IOException {
-        // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("sample2");
-        Files.createDirectory(packageDir);
-        String[] args = {"myproject", "-t", "main"};
-        InitCommand initCommand = new InitCommand(packageDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-        // Check with spec
-        // foo/
-        // - Ballerina.toml
-        // - main.bal
-        // - tests
-        //      - main_test.bal
-        // - .gitignore       <- git ignore file
+    @Test(description = "An import of a package that cannot be resolved fails the initialization")
+    public void testInitWithUnresolvedImport() throws IOException {
+        Path project = writePackage(this.tmpDir.resolve("initappmissing"), "initappmissing",
+                "import testorg/initmissing;\n\npublic function main() {\n    initmissing:hello();\n}\n");
 
-        Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.isDirectory(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[package]\n" +
-                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
-                "[build-options]\n" +
-                "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedContent));
+        String error = "";
+        try {
+            init(project);
+        } catch (BLauncherException e) {
+            error = String.join("\n", e.getDetailedMessages());
+        }
 
-        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
-        Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-        Assert.assertFalse(Files.exists(resourcePath));
-
-        Assert.assertTrue(readOutput().contains("Created new package"));
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("cannot resolve module 'testorg/initmissing'"), output);
+        Assert.assertTrue(error.contains("compilation of dependencies contains errors"), error);
+        Assert.assertFalse(Files.exists(project.resolve(DEPENDENCIES_TOML)),
+                "Dependencies.toml should not be written without the unresolved package");
     }
 
-    @Test(description = "Test init command with service template", enabled = false)
-    public void testInitCommandWithService() throws IOException {
-        // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("sample3");
-        Files.createDirectory(packageDir);
-        String[] args = {"myproject", "-t", "service"};
-        InitCommand initCommand = new InitCommand(packageDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-        // Check with spec
-        // foo/
-        // - Ballerina.toml
-        // - Package.md
-        // - service.bal
-        // - tests
-        //      - service_test.bal
-        // - .gitignore       <- git ignore file
+    @Test(description = "Errors in the package do not stop installing its dependencies")
+    public void testInitWithErrorsInPackage() throws IOException {
+        Path project = writePackage(this.tmpDir.resolve("initapperror"), "initapperror",
+                "import testorg/initdep;\n\npublic function main() {\n    int _ = initdep:hello();\n}\n");
 
-        Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.isDirectory(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[package]\n" +
-                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
-                "[build-options]\n" +
-                "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedContent));
+        init(project);
 
-        Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
-        Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-        Assert.assertFalse(Files.exists(resourcePath));
-        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-
-        Assert.assertTrue(readOutput().contains("Created new package"));
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Installed"), output);
+        Assert.assertFalse(output.contains("incompatible types"), "Errors in the package are reported by the build");
+        Assert.assertTrue(Files.readString(project.resolve(DEPENDENCIES_TOML)).contains("name = \"initdep\""),
+                "Dependencies.toml should record the dependency");
+        Assert.assertFalse(variants().isEmpty(), "The dependency should be cached");
     }
 
-    @Test(description = "Test init command with lib template", enabled = false)
-    public void testInitCommandWithLib() throws IOException {
-        // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("sample4");
-        Files.createDirectory(packageDir);
-        String[] args = {"myproject", "-t", "lib"};
-        InitCommand initCommand = new InitCommand(packageDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-        // Check with spec
-        // foo/
-        // - Ballerina.toml
-        // - Package.md
-        // - Module.md
-        // - lib.bal
-        // - resources
-        // - tests
-        //      - lib_test.bal
-        // - .gitignore       <- git ignore file
+    @Test(description = "A dependency is resolved to the latest version with the major version in Ballerina.toml")
+    public void testInitHonorsMajorVersionInBallerinaToml() throws IOException {
+        for (String version : List.of("1.0.0", "1.1.0", "2.0.0")) {
+            Path dependency = writePackage(this.tmpDir.resolve("initver-" + version), "initver", version, "",
+                    "public function hello() returns string => \"hello\";\n");
+            BCompileUtil.compileAndCacheBala(dependency.toString(), testCentralRepoCache);
+        }
+        Path project = writePackage(this.tmpDir.resolve("initappver"), "initappver", "1.0.0",
+                "\n[[dependency]]\norg = \"testorg\"\nname = \"initver\"\nversion = \"1.0.0\"\n",
+                "import testorg/initver;\n\npublic function main() {\n    string _ = initver:hello();\n}\n");
 
-        Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.isDirectory(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedTomlContent = "[package]\n" +
-                "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
-                "name = \"myproject\"\n" +
-                "version = \"0.1.0\"\n" +
-                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n" +
-                "\n";
-        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+        init(project);
 
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve("lib.bal")));
-
-        Assert.assertTrue(readOutput().contains("Created new package"));
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Installed"), output);
+        Assert.assertEquals(dependencyVersion(project, "initver"), "1.1.0");
     }
 
-    @Test(description = "Test init command with invalid template", enabled = false)
-    public void testInitCommandWithInvalidTemplate() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"myproject", "-t", "invalid"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-        Assert.assertTrue(readOutput().contains("template not found"));
+    @Test(description = "Initializing a workspace initializes each of its packages that is not initialized")
+    public void testInitWorkspace() throws IOException {
+        Path workspace = workspace("initws");
+
+        init(workspace);
+
+        String output = readOutput(true);
+        for (String member : List.of("wslib", "wsapp", "wsother")) {
+            Assert.assertTrue(output.contains("Initializing testorg/" + member), output);
+            Assert.assertTrue(Files.exists(workspace.resolve(member).resolve(DEPENDENCIES_TOML)), member);
+        }
+        Assert.assertTrue(Files.readString(workspace.resolve("wsapp").resolve(DEPENDENCIES_TOML))
+                .contains("name = \"initdep\""), "The dependencies of a workspace package should be recorded");
+
+        // Only the packages that are not initialized are initialized again.
+        Files.delete(workspace.resolve("wsapp").resolve(DEPENDENCIES_TOML));
+        init(workspace);
+        output = readOutput(true);
+        Assert.assertTrue(output.contains("Initializing testorg/wsapp"), output);
+        Assert.assertTrue(output.contains("Package 'testorg/wslib' is already initialized"), output);
+        Assert.assertFalse(output.contains("Initializing testorg/wslib"), output);
     }
 
-    @Test(description = "Test init command with multiple arguments")
-    public void testInitCommandMultipleArgs() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"sample2", "sample3"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
+    @Test(description = "Initializing a workspace package initializes it and the workspace packages it depends on")
+    public void testInitWorkspacePackage() throws IOException {
+        Path workspace = workspace("initwsmember");
 
-        Assert.assertTrue(readOutput().contains("too many arguments"));
+        init(workspace.resolve("wsapp"));
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Initializing testorg/wslib"), output);
+        Assert.assertTrue(output.contains("Initializing testorg/wsapp"), output);
+        Assert.assertTrue(Files.exists(workspace.resolve("wslib").resolve(DEPENDENCIES_TOML)));
+        Assert.assertTrue(Files.exists(workspace.resolve("wsapp").resolve(DEPENDENCIES_TOML)));
+        Assert.assertFalse(Files.exists(workspace.resolve("wsother").resolve(DEPENDENCIES_TOML)),
+                "A package the initialized package does not depend on should not be initialized");
     }
 
-    @Test(description = "Test init command with argument and a help")
-    public void testInitCommandArgAndHelp() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"sample2", "--help"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
+    @Test(description = "A package that fails to initialize does not stop the other packages of the workspace")
+    public void testInitWorkspaceWithFailingPackage() throws IOException {
+        Path workspace = Files.createDirectories(this.tmpDir.resolve("initwsfailing"));
+        Files.writeString(workspace.resolve(ProjectConstants.BALLERINA_TOML),
+                "[workspace]\npackages = [\"wsbroken\", \"wsok\"]\n");
+        writePackage(workspace.resolve("wsbroken"), "wsbroken",
+                "import testorg/initmissing;\n\npublic function main() {\n    initmissing:hello();\n}\n");
+        writePackage(workspace.resolve("wsok"), "wsok",
+                "import testorg/initdep;\n\npublic function main() {\n    string _ = initdep:hello();\n}\n");
+
+        String error = "";
+        try {
+            init(workspace);
+        } catch (BLauncherException e) {
+            error = String.join("\n", e.getDetailedMessages());
+        }
+
+        String output = readOutput(true);
+        Assert.assertTrue(error.contains("failed to initialize the dependencies of testorg/wsbroken"), error);
+        Assert.assertFalse(error.contains("testorg/wsok"), error);
+        Assert.assertTrue(output.contains("cannot resolve module 'testorg/initmissing'"), output);
+        Assert.assertFalse(Files.exists(workspace.resolve("wsbroken").resolve(DEPENDENCIES_TOML)),
+                "Dependencies.toml should not be written for the package that failed");
+        Assert.assertTrue(Files.readString(workspace.resolve("wsok").resolve(DEPENDENCIES_TOML))
+                .contains("name = \"initdep\""), "The other packages should be initialized");
+    }
+
+    @Test(description = "Initializing from a directory inside a package initializes the package")
+    public void testInitFromPackageSubdirectory() throws IOException {
+        Path project = writePackage(this.tmpDir.resolve("initappsub"), "initappsub",
+                "import testorg/initdep;\n\npublic function main() {\n    string _ = initdep:hello();\n}\n");
+        Path module = Files.createDirectories(project.resolve("modules").resolve("util"));
+        Files.writeString(module.resolve("util.bal"), "public function util() {\n}\n");
+
+        init(module);
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Installed"), output);
+        Assert.assertTrue(Files.readString(project.resolve(DEPENDENCIES_TOML)).contains("name = \"initdep\""),
+                "Dependencies.toml should be written at the root of the package");
+        Assert.assertFalse(Files.exists(module.resolve(DEPENDENCIES_TOML)));
+    }
+
+    @Test(description = "Installing the dependencies outside a package fails")
+    public void testInitOutsidePackage() throws IOException {
+        Path directory = Files.createDirectories(this.tmpDir.resolve("not-a-package"));
+
+        new InitCommand(directory, printStream, false).execute();
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("not a Ballerina package"), output);
+        Assert.assertTrue(output.contains("Use 'bal new .' to create one."), output);
+    }
+
+    @Test(description = "Initializing the dependencies of a standalone Ballerina file fails")
+    public void testInitStandaloneFile() throws IOException {
+        Path directory = Files.createDirectories(this.tmpDir.resolve("init-standalone-file"));
+        Files.writeString(directory.resolve("main.bal"), "public function main() {\n}\n");
+        InitCommand initCommand = new InitCommand(directory, printStream, false);
+        new CommandLine(initCommand).parseArgs("main.bal");
+
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains(
-                " ballerina-init - Initialize a Ballerina package inside the current\n"));
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("initializing the dependencies of a standalone Ballerina file is not "
+                + "supported"), output);
+        Assert.assertFalse(Files.exists(directory.resolve(DEPENDENCIES_TOML)));
+    }
 
+    @Test(description = "The init command takes no arguments")
+    public void testInitWithArguments() throws IOException {
+        InitCommand initCommand = new InitCommand(this.tmpDir, printStream, false);
+        new CommandLine(initCommand).parseArgs("foo", "bar");
+
+        initCommand.execute();
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("too many arguments"), output);
+        Assert.assertTrue(output.contains("bal init"), output);
     }
 
     @Test(description = "Test init command with help flag")
     public void testInitCommandWithHelp() throws IOException {
-        // Test if no arguments was passed in
-        String[] args = {"-h"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
+        InitCommand initCommand = new InitCommand(this.tmpDir, printStream, false);
+        new CommandLine(initCommand).parseArgs("--help");
+
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains(
-                "ballerina-init - Initialize a Ballerina package inside the current\n"));
+        Assert.assertTrue(readOutput(true).contains("ballerina-init - Initialize the dependencies"));
     }
 
-    @Test(description = "Test init command inside a directory with invalid package name")
-    public void testInitCommandInsideDirectoryWithInvalidPackageName() throws IOException {
-        // Test if no arguments was passed in
-        Path projectPath = tmpDir.resolve("my-app");
-        Files.createDirectory(projectPath);
-        String[] args = {};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-        Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
-
-        String initLog = readOutput().replace("\r", "");
-        Assert.assertTrue(initLog.contains("""
-                package name is derived as 'my_app'. Edit the Ballerina.toml to change it.
-
-                Created new package 'my_app'.
-                """));
+    /** A workspace in which 'wsapp' depends on 'wslib', which depends on 'initdep', and 'wsother' is unrelated. */
+    private Path workspace(String name) throws IOException {
+        Path workspace = Files.createDirectories(this.tmpDir.resolve(name));
+        Files.writeString(workspace.resolve(ProjectConstants.BALLERINA_TOML),
+                "[workspace]\npackages = [\"wsapp\", \"wslib\", \"wsother\"]\n");
+        writePackage(workspace.resolve("wslib"), "wslib",
+                "import testorg/initdep;\n\npublic function greet() returns string => initdep:hello();\n");
+        writePackage(workspace.resolve("wsapp"), "wsapp",
+                "import testorg/wslib;\n\npublic function main() {\n    string _ = wslib:greet();\n}\n");
+        writePackage(workspace.resolve("wsother"), "wsother", "public function main() {\n}\n");
+        return workspace;
     }
 
-    @Test(description = "Test init command with invalid project name")
-    public void testInitCommandWithInvalidProjectName() throws IOException {
-        // Test if no arguments was passed in
-        Path projectPath = tmpDir.resolve("sample5");
-        if (Files.notExists(projectPath)) {
-            Files.createDirectory(projectPath);
+    /** Runs the command with the dependencies resolved from the local repositories of the test home. */
+    private void init(Path project) {
+        new InitCommand(project, printStream, false, true).execute();
+    }
+
+    private List<Path> variants() throws IOException {
+        if (!Files.isDirectory(dependencyCache)) {
+            return List.of();
         }
-        String[] args = {"hello-app"};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("invalid package name :"));
-    }
-
-    @Test(description = "Test init command with project name has more than 256 characters")
-    public void testInitCommandWithProjectNameHasMoreThan256Chars() throws IOException {
-        Path projectPath = tmpDir.resolve("sample5");
-        if (Files.notExists(projectPath)) {
-            Files.createDirectory(projectPath);
+        try (Stream<Path> paths = Files.list(dependencyCache)) {
+            return paths.filter(path -> path.getFileName().toString().matches("[0-9a-f]{16}")).toList();
         }
-        String packageName = "thisIsVeryLongPackageJustUsingItForTesting"
-                + "thisIsVeryLongPackageJustUsingItForTesting"
-                + "thisIsVeryLongPackageJustUsingItForTesting"
-                + "thisIsVeryLongPackageJustUsingItForTesting"
-                + "thisIsVeryLongPackageJustUsingItForTesting"
-                + "thisIsVeryLongPackageJustUsingItForTesting"
-                + "thisIsVeryLongPackageJustUsingItForTesting";
-        String[] args = {packageName};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n"
-                + "Maximum length of package name is 256 characters."));
     }
 
-    @DataProvider(name = "packageNamesHasInvalidUnderscores")
-    public Object[][] providePackageNamesHasInvalidUnderscores() {
-        return new Object[][] {
-                { "_my_package", "Package name cannot have initial underscore characters." },
-                { "my_package_", "Package name cannot have trailing underscore characters." },
-                { "my__package", "Package name cannot have consecutive underscore characters." }
-        };
+    private static Path writePackage(Path packagePath, String name, String source) throws IOException {
+        return writePackage(packagePath, name, "1.0.0", "", source);
     }
 
-    @Test(description = "Test init command with package name has invalid underscores",
-            dataProvider = "packageNamesHasInvalidUnderscores")
-    public void testInitCommandWithPackageNameHasInvalidUnderscores(String pkgName, String errMessage)
+    private static Path writePackage(Path packagePath, String name, String version, String extraToml, String source)
             throws IOException {
-        Path projectPath = tmpDir.resolve("sample5");
-        if (Files.notExists(projectPath)) {
-            Files.createDirectory(projectPath);
-        }
-
-        String[] args = { pkgName };
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n" + errMessage));
+        Files.createDirectories(packagePath);
+        Files.writeString(packagePath.resolve(ProjectConstants.BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"" + name + "\"\nversion = \"" + version + "\"\n"
+                        + extraToml);
+        Files.writeString(packagePath.resolve("main.bal"), source);
+        return packagePath;
     }
 
-    @DataProvider(name = "PackageNameHasOnlyDots")
-    public Object[][] providePackageNameHasOnlyDots() {
-        return new Object[][] {
-                { ".", "Package name can only contain alphanumerics and underscores." },
-                { "..", "Package name can only contain alphanumerics and underscores." }
-        };
-    }
-    @Test(description = "Test init command with package name has only dots",
-            dataProvider = "PackageNameHasOnlyDots")
-    public void testInitCommandWithPackageNameHasOnlyDots(String pkgName, String errMessage)
-            throws IOException {
-        Path projectPath = tmpDir.resolve("sample5");
-        if (Files.notExists(projectPath)) {
-            Files.createDirectory(projectPath);
-        }
-
-        String[] args = { pkgName };
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n" + errMessage));
-    }
-
-    @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")
-    public void testInitCommandInsideProject() throws IOException {
-        // Test if no arguments was passed in
-        Path projectPath = tmpDir.resolve("sample1");
-        String[] args = {};
-        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-
-        //initialize a project again
-        Assert.assertTrue(readOutput().contains("directory is already a Ballerina project."));
-    }
-
-    @Test(description = "Test init command within a ballerina project", dependsOnMethods = "testInitCommand")
-    public void testInitCommandWithinBallerinaProject() throws IOException {
-        // Test if no arguments was passed in
-        Path projectPath = tmpDir.resolve("sample1");
-        String[] args = {};
-
-        Path projectDir = projectPath.resolve("project1");
-        Files.createDirectory(projectDir);
-        //initialize a project again
-        InitCommand initCommand = new InitCommand(projectDir, printStream, false);
-        new CommandLine(initCommand).parseArgs(args);
-        initCommand.execute();
-        Assert.assertTrue(readOutput().contains("directory is already within a Ballerina project"));
+    private static String dependencyVersion(Path project, String name) throws IOException {
+        String dependenciesToml = Files.readString(project.resolve(DEPENDENCIES_TOML));
+        int nameIndex = dependenciesToml.indexOf("name = \"" + name + "\"");
+        Assert.assertTrue(nameIndex >= 0, dependenciesToml);
+        int versionIndex = dependenciesToml.indexOf("version = \"", nameIndex) + "version = \"".length();
+        return dependenciesToml.substring(versionIndex, dependenciesToml.indexOf('"', versionIndex));
     }
 }
