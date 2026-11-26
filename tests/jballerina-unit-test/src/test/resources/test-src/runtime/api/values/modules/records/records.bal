@@ -46,6 +46,13 @@ public type Bar readonly & record {|
 
 type DetailsInUnion Details|map<anydata>|table<map<json>>;
 
+public type Contact record {|
+    string name;
+    string? email;
+    string phone?;
+    int priority = 1;
+|};
+
 public function validateAPI() {
     anydata recordVal1 = getRecordValue();
     test:assertTrue(recordVal1 is Student);
@@ -77,6 +84,24 @@ public function validateAPI() {
         <string> checkpanic addressRec2.detail()["message"]);
     }
 
+    Contact contactRec1 = getContactWithOmittedOptionalAndDefaultFields();
+    test:assertEquals(contactRec1, {"name": "Jane", "email": (), "priority": 1});
+
+    Contact|error contactRec2 = trap getContactWithMissingRequiredField();
+    test:assertTrue(contactRec2 is error);
+    if contactRec2 is error {
+        test:assertEquals("{ballerina/lang.map}InherentTypeViolation", contactRec2.message());
+        test:assertEquals("missing required field 'email' of type 'string?' in record 'values.records:Contact'",
+        <string> checkpanic contactRec2.detail()["message"]);
+    }
+
+    Contact|error contactRec3 = trap getContactWithMissingRequiredFieldFromBMap();
+    test:assertTrue(contactRec3 is error);
+    if contactRec3 is error {
+        test:assertEquals("missing required field 'email' of type 'string?' in record 'values.records:Contact'",
+        <string> checkpanic contactRec3.detail()["message"]);
+    }
+
     Student & readonly studentRec1 =  getReadOnlyRecordWithInitialValues();
     test:assertTrue(studentRec1.isReadOnly());
     test:assertEquals(studentRec1, {"name":"NameOfStudent1"});
@@ -91,6 +116,18 @@ public function validateAPI() {
 }
 
 function getRecordWithInitialValues() returns Address = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getContactWithOmittedOptionalAndDefaultFields() returns Contact = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getContactWithMissingRequiredField() returns Contact = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getContactWithMissingRequiredFieldFromBMap() returns Contact = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
