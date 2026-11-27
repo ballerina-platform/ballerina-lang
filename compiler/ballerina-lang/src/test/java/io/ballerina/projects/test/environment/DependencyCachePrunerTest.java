@@ -133,6 +133,22 @@ public class DependencyCachePrunerTest {
         Assert.assertTrue(Files.exists(recent.resolve("bir").resolve("http.bir")));
     }
 
+    @Test(description = "Variants that an earlier removal moved out but could not delete are removed")
+    public void testRemovesLeftoverTrash() throws IOException {
+        Path recent = variant("ballerina", "http", "2.18.2", RECENT, Duration.ofDays(1));
+        // A removal moves a variant out of its version directory before deleting it, e.g. while another process
+        // still holds one of its files open.
+        Path trash = cache.resolve(".trash-0123");
+        Files.createDirectories(trash.resolve("bir"));
+        Files.writeString(trash.resolve("bir").resolve("http.bir"), "bir");
+
+        DependencyCachePruner.Result result = DependencyCachePruner.prune(userHome, Duration.ofDays(30));
+
+        Assert.assertEquals(result.removedVariants(), 0, "Leftover trash is not counted as a removed variant");
+        Assert.assertFalse(Files.exists(trash), "Leftover trash should be removed");
+        Assert.assertTrue(Files.exists(recent), "A recently used variant should be kept");
+    }
+
     /** Creates a variant whose last use was the given period ago. */
     private Path variant(String org, String name, String version, String fingerprint, Duration lastUsedAgo)
             throws IOException {

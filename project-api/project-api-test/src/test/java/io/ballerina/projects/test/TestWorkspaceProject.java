@@ -626,6 +626,44 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertSame(memberEnvironment(project, "third"), thirdEnvironment);
         Assert.assertSame(member(project, "older").currentPackage(), heldPackages.get("older"),
                 "A package that does not move should not be replaced");
+
+        // Compiler plugins run on a held package run on the moved package, in its environment.
+        Assert.assertFalse(heldThird.runCodeGeneratorPlugins().reportedDiagnostics().hasErrors());
+        Assert.assertFalse(heldThird.runCodeModifierPlugins().reportedDiagnostics().hasErrors());
+        Assert.assertFalse(heldThird.runCodeGenAndModifyPlugins().hasErrors());
+        Assert.assertSame(memberEnvironment(project, "third"), thirdEnvironment);
+    }
+
+    @Test(description = "An edit that adds an import between packages compiled in different environments moves them "
+            + "to an environment of their own")
+    public void testEditMergingPackagesOfDifferentEnvironments() throws IOException {
+        Path fixture = tempResourceDir.resolve("wp-conflicting-dependency");
+        publishConflictingDependencies(fixture.resolve("deps"));
+        Path workspace = fixture.resolve("workspace");
+        for (String name : List.of("older", "second")) {
+            TestUtils.replaceDistributionVersionOfDependenciesToml(workspace.resolve(name),
+                    RepoUtils.getBallerinaShortVersion());
+        }
+        WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                BuildOptions.builder().setOffline(true).setLockingMode(PackageLockingMode.HARD).build()).project();
+        for (String name : List.of("older", "second", "third")) {
+            compile(member(project, name));
+        }
+        Environment olderEnvironment = memberEnvironment(project, "older");
+        Environment thirdEnvironment = memberEnvironment(project, "third");
+        Assert.assertSame(memberEnvironment(project, "second"), olderEnvironment);
+        Assert.assertNotSame(thirdEnvironment, olderEnvironment);
+
+        // 'second' starts importing 'third', so the two must be compiled in one environment. Neither of their
+        // environments holds both, so they move to a new one, and 'older' keeps its environment.
+        editDefaultModule(project, "second", "import testorg1/third as _;\n\n");
+        project.getResolution();
+
+        Environment mergedEnvironment = memberEnvironment(project, "second");
+        Assert.assertSame(memberEnvironment(project, "third"), mergedEnvironment);
+        Assert.assertNotSame(mergedEnvironment, olderEnvironment);
+        Assert.assertNotSame(mergedEnvironment, thirdEnvironment);
+        Assert.assertSame(memberEnvironment(project, "older"), olderEnvironment);
     }
 
     @Test(description = "A package is compiled apart from a package of its environment compiled against other "

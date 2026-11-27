@@ -994,6 +994,50 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "A dependency that cannot be compiled in a separate process is compiled in the build")
+    public void testOptimizedDependencyCompilationFallsBackToTheBuild() throws IOException {
+        Path root = this.tmpDir.resolve("optimized-dependency-fallback");
+        deleteDirectory(root);
+        Path libPath = root.resolve("fallbacklib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"fallbacklib\"\nversion = \"1.0.0\"\n");
+        Files.writeString(libPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        Path appPath = root.resolve("fallbackapp");
+        Files.createDirectories(appPath);
+        Files.writeString(appPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"fallbackapp\"\nversion = \"0.1.0\"\n");
+        Files.writeString(appPath.resolve("main.bal"), "import testorg/fallbacklib;\n\n"
+                + "public function main() {\n    string _ = fallbacklib:hello();\n}\n");
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        Path libCache = homeCache.resolve("testorg").resolve("fallbacklib");
+        try {
+            BCompileUtil.compileAndCacheBala(libPath.toString(), testCentralRepoCache);
+            deleteDirectory(libCache);
+            // The test distribution has no 'bal' executable, so the separate 'bal pull' process cannot start.
+            Assert.assertFalse(Files.exists(Path.of(System.getProperty("ballerina.home")).resolve("bin")));
+
+            System.setProperty(USER_DIR_PROPERTY, appPath.toString());
+            // A Boolean selects the constructor that takes the option; a boolean would select 'dumpBuildTime'.
+            BuildCommand buildCommand = new BuildCommand(appPath, printStream, printStream, false, Boolean.TRUE);
+            try {
+                buildCommand.execute();
+            } catch (BLauncherException e) {
+                Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+            }
+
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Generating executable"), buildLog);
+            List<Path> variants = variantDirs(homeCache, "testorg", "fallbacklib", "1.0.0");
+            Assert.assertEquals(variants.size(), 1, "The build should compile and cache the dependency: " + variants);
+            Assert.assertTrue(Files.exists(variants.get(0).resolve("bir").resolve("fallbacklib.bir")));
+        } finally {
+            deleteDirectory(libCache);
+            deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("fallbacklib"));
+            deleteDirectory(root);
+        }
+    }
+
     private static void writePackage(Path packagePath, String name, String imports, String body) throws IOException {
         Files.createDirectories(packagePath);
         Files.writeString(packagePath.resolve(BALLERINA_TOML),

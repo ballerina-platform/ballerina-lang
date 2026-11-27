@@ -219,6 +219,43 @@ public class CleanCommandTest extends BaseCommandTest {
         FileUtils.deleteDirectory(dependencyVersionCache.toFile());
     }
 
+    @Test(description = "Clean the downloaded dependencies and the compiled variants of all packages of a workspace, "
+            + "including a dependency the packages share")
+    public void testDependencyCacheDeleteInWorkspace() throws IOException {
+        Path root = this.tmpDir.resolve("clean-workspace-dependency-cache");
+        Path dependencyPath = writePackage(root.resolve("cleanwsdep"), "cleanwsdep", "1.0.0", "",
+                "public function hello() returns string => \"hello\";\n");
+        BCompileUtil.compileAndCacheBala(dependencyPath.toString(), testCentralRepoCache);
+        Path workspace = root.resolve("workspace");
+        Files.createDirectories(workspace);
+        Files.writeString(workspace.resolve("Ballerina.toml"), "[workspace]\npackages = [\"wsfirst\", \"wssecond\"]\n");
+        for (String name : List.of("wsfirst", "wssecond")) {
+            writePackage(workspace.resolve(name), name, "0.1.0", "",
+                    "import testorg/cleanwsdep;\n\npublic function main() {\n    string _ = cleanwsdep:hello();\n}\n");
+        }
+        Path dependencyBala = testCentralRepoCache.resolve("bala").resolve("testorg").resolve("cleanwsdep")
+                .resolve("1.0.0").resolve("any");
+        Path dependencyVersionCache = testCentralRepoCache.resolve("cache-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("cleanwsdep").resolve("1.0.0");
+        try {
+            Path variant = buildAndFindVariant(workspace, dependencyVersionCache);
+
+            cleanDependencyCache(workspace);
+
+            String cleanLog = readOutput().replace("\r", "");
+            Assert.assertFalse(Files.exists(dependencyBala), "The shared dependency bala should be deleted");
+            Assert.assertFalse(Files.exists(variant), "The variant the packages use should be deleted");
+            Assert.assertTrue(cleanLog.contains("Successfully deleted " + variant), cleanLog);
+            for (String name : List.of("wsfirst", "wssecond")) {
+                Assert.assertFalse(Files.exists(workspace.resolve(name).resolve("target")),
+                        "The target of each package should be deleted: " + name);
+            }
+        } finally {
+            FileUtils.deleteDirectory(dependencyVersionCache.toFile());
+            FileUtils.deleteDirectory(root.toFile());
+        }
+    }
+
     @Test(description = "A dependency from the local repository keeps its bala, which cannot be pulled again, and "
             + "only its compiled variant is deleted")
     public void testDependencyCacheKeepsLocalRepositoryBala() throws IOException {
@@ -408,6 +445,13 @@ public class CleanCommandTest extends BaseCommandTest {
             String log = readOutput();
             Assert.assertTrue(log.contains("Removed 1 compiled dependencies unused for 10 days"), log);
             Assert.assertFalse(Files.exists(old), "A variant unused for longer than the period should be removed");
+            Assert.assertTrue(Files.exists(recent), "A recently used variant should be kept");
+
+            cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+            new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "10");
+            cleanCommand.execute();
+            log = readOutput();
+            Assert.assertTrue(log.contains("No compiled dependencies unused for 10 days to remove"), log);
             Assert.assertTrue(Files.exists(recent), "A recently used variant should be kept");
 
             cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);

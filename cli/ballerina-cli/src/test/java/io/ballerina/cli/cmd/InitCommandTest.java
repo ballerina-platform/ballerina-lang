@@ -221,6 +221,83 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(module.resolve(DEPENDENCIES_TOML)));
     }
 
+    @Test(description = "An error in the code of a dependency fails the initialization")
+    public void testInitWithErrorInDependency() throws IOException {
+        Path dependency = writePackage(this.tmpDir.resolve("initbroken"), "initbroken",
+                "public function hello() returns string => \"hello\";\n");
+        BCompileUtil.compileAndCacheBala(dependency.toString(), testCentralRepoCache);
+        // The published bala is compiled from its sources, which no longer compile.
+        Path balaSource = testCentralRepoCache.resolve("bala").resolve("testorg").resolve("initbroken")
+                .resolve("1.0.0").resolve("any").resolve("modules").resolve("initbroken").resolve("main.bal");
+        Files.writeString(balaSource, "public function hello() returns string => 1;\n");
+        ProjectUtils.deleteDirectory(testCentralRepoCache.resolve(CACHES_DIR_NAME + "-"
+                + RepoUtils.getBallerinaShortVersion()).resolve("testorg").resolve("initbroken"));
+        Path project = writePackage(this.tmpDir.resolve("initappbroken"), "initappbroken",
+                "import testorg/initbroken;\n\npublic function main() {\n    string _ = initbroken:hello();\n}\n");
+
+        String error = initWithError(project);
+
+        String output = readOutput(true);
+        Assert.assertTrue(error.contains("compilation of dependencies contains errors"), error);
+        Assert.assertTrue(output.contains("incompatible types"), output);
+        Assert.assertFalse(Files.exists(project.resolve(DEPENDENCIES_TOML)),
+                "Dependencies.toml should not be written when a dependency does not compile");
+    }
+
+    @Test(description = "An error in resolving the dependencies fails the initialization")
+    public void testInitWithResolutionError() throws IOException {
+        // 'inituser' depends on 'initpin' 2.0.0, while the package asks for 'initpin' 1.0.0.
+        for (String version : List.of("1.0.0", "2.0.0")) {
+            Path pin = writePackage(this.tmpDir.resolve("initpin-" + version), "initpin", version, "",
+                    "public function hello() returns string => \"hello\";\n");
+            BCompileUtil.compileAndCacheBala(pin.toString(), testCentralRepoCache);
+        }
+        Path user = writePackage(this.tmpDir.resolve("inituser"), "inituser", "1.0.0",
+                "\n[[dependency]]\norg = \"testorg\"\nname = \"initpin\"\nversion = \"2.0.0\"\n",
+                "import testorg/initpin;\n\npublic function hello() returns string => initpin:hello();\n");
+        BCompileUtil.compileAndCacheBala(user.toString(), testCentralRepoCache);
+        Path project = writePackage(this.tmpDir.resolve("initappunresolved"), "initappunresolved", "1.0.0",
+                "\n[[dependency]]\norg = \"testorg\"\nname = \"initpin\"\nversion = \"1.0.0\"\n",
+                "import testorg/initpin;\nimport testorg/inituser;\n\npublic function main() {\n"
+                        + "    string _ = initpin:hello() + inituser:hello();\n}\n");
+
+        String error = initWithError(project);
+
+        String output = readOutput(true);
+        Assert.assertTrue(error.contains("package resolution contains errors"), error + "\n" + output);
+        Assert.assertFalse(Files.exists(project.resolve(DEPENDENCIES_TOML)),
+                "Dependencies.toml should not be written when the dependencies are not resolved");
+    }
+
+    @Test(description = "An import of a missing module of the package itself does not fail the initialization")
+    public void testInitWithMissingModuleOfPackage() throws IOException {
+        Path project = writePackage(this.tmpDir.resolve("initappownmodule"), "initappownmodule",
+                "import initappownmodule.missing as _;\nimport testorg/initappownmodule.other as _;\n"
+                        + "import testorg/initdep;\n\npublic function main() {\n    string _ = initdep:hello();\n}\n");
+
+        init(project);
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Installed"), output);
+        Assert.assertTrue(Files.readString(project.resolve(DEPENDENCIES_TOML)).contains("name = \"initdep\""),
+                "Errors in the code of the package are reported by the build");
+    }
+
+    @Test(description = "A workspace that fails to load is not initialized")
+    public void testInitWorkspaceWithLoadErrors() throws IOException {
+        Path workspace = Files.createDirectories(this.tmpDir.resolve("initwsloaderror"));
+        Files.writeString(workspace.resolve(ProjectConstants.BALLERINA_TOML),
+                "[workspace]\npackages = [\"wsapp\", \"wsmissing\"]\n");
+        writePackage(workspace.resolve("wsapp"), "wsapp", "public function main() {\n}\n");
+
+        init(workspace);
+
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("ERROR"), output);
+        Assert.assertFalse(Files.exists(workspace.resolve("wsapp").resolve(DEPENDENCIES_TOML)),
+                "No package of a workspace that fails to load should be initialized");
+    }
+
     @Test(description = "Installing the dependencies outside a package fails")
     public void testInitOutsidePackage() throws IOException {
         Path directory = Files.createDirectories(this.tmpDir.resolve("not-a-package"));
@@ -285,6 +362,17 @@ public class InitCommandTest extends BaseCommandTest {
     /** Runs the command with the dependencies resolved from the local repositories of the test home. */
     private void init(Path project) {
         new InitCommand(project, printStream, false, true).execute();
+    }
+
+    /** Runs the command, which is expected to fail, and returns its error. */
+    private String initWithError(Path project) {
+        try {
+            init(project);
+        } catch (BLauncherException e) {
+            return String.join("\n", e.getDetailedMessages());
+        }
+        Assert.fail("The initialization should fail");
+        return "";
     }
 
     private List<Path> variants() throws IOException {
