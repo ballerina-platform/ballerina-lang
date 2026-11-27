@@ -23,17 +23,12 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.DecimalValue;
-import io.ballerina.runtime.internal.values.DecimalValueKind;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Wraps the value of a join key so that it can be used as a key of a hash map.
- * <p>
- * Two join keys are equal when their values are equal according to DeepEquals (the same check as {@code ==}), as
- * required by the join clause. The hash code is consistent with DeepEquals, so equal values always have the same
- * hash code. The value can be {@code null}, which represents the nil value {@code ()}.
+ * A join key that compares with DeepEquals, for use as a hash map key.
  *
  * @since 2201.14.2
  */
@@ -80,7 +75,8 @@ public final class JoinKey {
             return floatValue == 0.0 ? 0 : Double.hashCode(floatValue);
         }
         if (value instanceof DecimalValue decimalValue) {
-            return hashDecimal(decimalValue);
+            // 1.0 and 1.00 are equal, so trailing zeros are removed before hashing.
+            return decimalValue.decimalValue().stripTrailingZeros().hashCode();
         }
         if (value instanceof Number intValue) {
             // int and byte values
@@ -97,16 +93,6 @@ public final class JoinKey {
         }
         // xml, table and regexp values. These are rarely used as join keys, so they share one hash code.
         return OTHER_HASH;
-    }
-
-    private static int hashDecimal(DecimalValue decimalValue) {
-        DecimalValueKind kind = decimalValue.getValueKind();
-        if (kind != DecimalValueKind.ZERO && kind != DecimalValueKind.OTHER) {
-            // A NaN or infinite decimal is not equal to any other value.
-            return OTHER_HASH;
-        }
-        // 1.0 and 1.00 are equal, so trailing zeros are removed before hashing.
-        return decimalValue.decimalValue().stripTrailingZeros().hashCode();
     }
 
     private static int hashList(BArray list, int depth) {
