@@ -98,6 +98,12 @@ public class PullCommand implements BLauncherCmd {
             description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
     private PackageLockingMode lockingMode;
 
+    // Set when a build compiles a dependency in a subprocess (--optimize-dependency-compilation). The dependency is
+    // compiled against the versions resolved by the project build instead of the versions recorded in its bala.
+    @CommandLine.Option(names = "--dependency-graph", hidden = true,
+            description = "dependency graph JSON to compile the package against.")
+    private Path dependencyGraph;
+
     public PullCommand() {
         this.outStream = System.out;
         this.errStream = System.err;
@@ -409,7 +415,7 @@ public class PullCommand implements BLauncherCmd {
             BuildOptions buildOptions = BuildOptions.builder().setLockingMode(packageLockingMode).setOffline(offline)
                     .build();
             boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
-                    orgName, packageName, version, buildOptions, repositoryName);
+                    orgName, packageName, version, buildOptions, repositoryName, dependencyGraph);
             if (hasCompilationErrors) {
                 CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
                 return false;
@@ -417,6 +423,9 @@ public class PullCommand implements BLauncherCmd {
         } catch (ProjectException e) {
             CommandUtil.printError(this.errStream,
                     "error occurred while resolving dependencies, reason: " + e.getMessage(), null, false);
+            // A build that compiles the package in a separate 'bal pull' process reads a successful exit as the
+            // package having been compiled and cached.
+            return false;
         }
         return true;
     }

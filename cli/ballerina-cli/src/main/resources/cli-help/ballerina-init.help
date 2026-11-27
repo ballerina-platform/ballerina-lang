@@ -1,38 +1,34 @@
 NAME
-       ballerina-init - Initialize a Ballerina package inside the current
-       directory
+       ballerina-init - Initialize the dependencies of a Ballerina package
 
 SYNOPSIS
-       bal init [<package>]
+       bal init
 
 
 DESCRIPTION
-       Initialize a Ballerina package inside the current directory.
+       Initialize the dependencies of the Ballerina package in the current
+       directory, or of the package that contains it. In a workspace, the
+       packages it depends on in the workspace are initialized too. At the root
+       of a workspace, all its packages are initialized.
 
-       This command is currently deprecated and will be removed in a future version.
-       It is recommended to use `bal new` instead.
+       Each dependency is resolved to the latest version with the same major
+       version as the one given in 'Ballerina.toml'.
 
-       A Ballerina package is a collection of logically-related Ballerina
-       modules that are versioned and shared as a single unit. All modules of
-       the package share the same 'Ballerina.toml' and the 'target' directory.
+       Pulls the dependencies that are not available locally, compiles them
+       into the dependency cache, and writes the resolved versions to
+       'Dependencies.toml'. Later builds use the compiled dependencies from the
+       cache.
 
-       The package directory will have the structure below.
-            .
-            ├── Ballerina.toml
-            └── main.bal
+       'Dependencies.toml' is written only if the dependencies are resolved
+       and compiled without errors, including imports of packages that cannot
+       be resolved. Other errors in the package do not fail the command;
+       'bal build' reports them.
 
-       Any directory becomes a Ballerina package if that directory has a
-       'Ballerina.toml' file. For library packages, it contains the organization
-       name, package name, and the version.
-       The package root directory is the default module directory.
-
-       The 'modules' directory contains other non-default Ballerina modules. Use
-       the 'bal add <module-name>' command to create modules.
-
-       The 'target' directory is created during the build process. It is the
-       output directory, which contains the build artifacts.
+       A package that already has a 'Dependencies.toml' is already
+       initialized, so the command skips it and succeeds. 'bal build'
+       keeps the dependencies of an initialized package up to date.
 
 
 EXAMPLES
-       Initialise a package in the current directory.
+       Initialize the dependencies of the package in the current directory.
            $ bal init

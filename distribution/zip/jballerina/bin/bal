@@ -295,4 +295,12 @@ else
     $JAVACMD \
       $CMD_LINE_ARGS \
       io.ballerina.cli.launcher.Main "$@"
+    status=$?
+    # 3 is the exit code of the JVM when -XX:+ExitOnOutOfMemoryError terminates it.
+    if [ $status -eq 3 ]; then
+        echo "error: the command ran out of memory." >&2
+        echo "Rerun with '--optimize-dependency-compilation', or set 'optimizeDependencyCompilation = true' under" >&2
+        echo "[build-options] in Ballerina.toml." >&2
+    fi
+    exit $status
 fi

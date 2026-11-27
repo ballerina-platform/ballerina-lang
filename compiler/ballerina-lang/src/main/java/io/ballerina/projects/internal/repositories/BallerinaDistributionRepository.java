@@ -17,9 +17,14 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.CompilationCache;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +35,11 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class BallerinaDistributionRepository extends FileSystemRepository {
+
+    /** Repository directory in the user home that caches distribution packages compiled against other versions. */
+    public static final String HOME_CACHE_REPOSITORY = "distribution";
+
+    private Path userHome;
 
     private BallerinaDistributionRepository(Environment environment, Path distributionRepoPath) {
         super(environment, distributionRepoPath);
@@ -42,5 +52,39 @@ public class BallerinaDistributionRepository extends FileSystemRepository {
                     distributionRepoPath);
         }
         return new BallerinaDistributionRepository(environment, distributionRepoPath);
+    }
+
+    /**
+     * Sets the Ballerina user home in which distribution packages compiled against other dependency versions are
+     * cached.
+     *
+     * @param userHome Ballerina user home directory
+     */
+    public void setUserHome(Path userHome) {
+        this.userHome = userHome;
+    }
+
+    /**
+     * Returns the cache directory in the user home for distribution packages that are compiled against dependency
+     * versions other than the ones the distribution cache is compiled against.
+     *
+     * @param userHome Ballerina user home directory
+     * @return cache directory in the user home
+     */
+    public static Path homeCacheDir(Path userHome) {
+        return userHome.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(HOME_CACHE_REPOSITORY)
+                .resolve(ProjectConstants.CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+    }
+
+    @Override
+    protected CompilationCache createCompilationCache(Project project) {
+        if (!cachesPerFingerprint()) {
+            return super.createCompilationCache(project);
+        }
+        // The distribution cache is read in place when it matches. A distribution may be installed in a location
+        // that is not writable, so other variants are cached in the user home.
+        Path home = userHome != null ? userHome : ProjectUtils.createAndGetHomeReposPath();
+        return new FingerprintCompilationCache(project, homeCacheDir(home), cacheDir());
     }
 }

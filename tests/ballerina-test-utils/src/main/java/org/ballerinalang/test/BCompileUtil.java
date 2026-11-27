@@ -19,6 +19,7 @@ package org.ballerinalang.test;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -29,9 +30,12 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -202,10 +206,32 @@ public final class BCompileUtil {
         } catch (IOException e) {
             throw new RuntimeException("bala extraction failed " + project.sourceRoot() + ". ", e);
         }
+        recordFingerprint(currentPackage, repoPath);
 
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    /**
+     * Records the fingerprint of the dependency versions the package is compiled against, so that projects importing
+     * the cached bala use its compiled artifacts instead of compiling it again.
+     */
+    private static void recordFingerprint(Package currentPackage, Path repoPath) {
+        Path packageCacheDir = repoPath.resolve(CACHES_DIR_NAME)
+                .resolve(currentPackage.packageOrg().toString())
+                .resolve(currentPackage.packageName().toString())
+                .resolve(currentPackage.packageVersion().toString());
+        if (!Files.isDirectory(packageCacheDir)) {
+            return;
+        }
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = currentPackage.getResolution().dependencyGraph();
+        String fingerprint = DependencyFingerprints.of(dependencyGraph
+                .getAllDependencies(dependencyGraph.getRoot()).stream()
+                .map(ResolvedPackageDependency::packageInstance)
+                .map(Package::descriptor)
+                .toList());
+        FingerprintCompilationCache.writeFingerprint(packageCacheDir, fingerprint);
     }
 
     private static JBallerinaBackend jBallerinaBackend(Package currentPackage) {

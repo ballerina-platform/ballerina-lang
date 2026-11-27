@@ -202,7 +202,13 @@ if "%1" == "run" if "%~2" == "--debug" if "%jar:~-4%" == ".jar" goto debugJar
 
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% io.ballerina.cli.launcher.Main %CMD%
-exit /b %ERRORLEVEL%
+set BAL_EXIT_CODE=%ERRORLEVEL%
+rem 3 is the exit code of the JVM when -XX:+ExitOnOutOfMemoryError terminates it.
+if not "%BAL_EXIT_CODE%" == "3" exit /b %BAL_EXIT_CODE%
+echo error: the command ran out of memory. 1>&2
+echo Rerun with '--optimize-dependency-compilation', or set 'optimizeDependencyCompilation = true' under 1>&2
+echo [build-options] in Ballerina.toml. 1>&2
+exit /b %BAL_EXIT_CODE%
 
 :runJar
 for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b

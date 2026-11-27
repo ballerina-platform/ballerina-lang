@@ -25,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,7 +33,12 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -159,6 +165,216 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.notExists(projectPath.resolve("tests/main_test.bal")));
     }
 
+    @Test(description = "Clean the downloaded dependencies and the compiled variants the project uses")
+    public void testDependencyCacheDeleteWithProjectCache() throws IOException {
+        Path root = this.tmpDir.resolve("clean-project-dependency-cache");
+        Path dependencyPath = root.resolve("cleandep");
+        Files.createDirectories(dependencyPath);
+        Files.writeString(dependencyPath.resolve("Ballerina.toml"),
+                "[package]\norg = \"testorg\"\nname = \"cleandep\"\nversion = \"1.0.0\"\n");
+        Files.writeString(dependencyPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        Path projectPath = root.resolve("cleanapp");
+        Files.createDirectories(projectPath);
+        Files.writeString(projectPath.resolve("Ballerina.toml"),
+                "[package]\norg = \"testorg\"\nname = \"cleanapp\"\nversion = \"0.1.0\"\n");
+        Files.writeString(projectPath.resolve("main.bal"),
+                "import testorg/cleandep;\n\npublic function main() {\n    string _ = cleandep:hello();\n}\n");
+        BCompileUtil.compileAndCacheBala(dependencyPath.toString(), testCentralRepoCache);
+        Path dependencyBala = testCentralRepoCache.resolve("bala").resolve("testorg").resolve("cleandep")
+                .resolve("1.0.0").resolve("any");
+
+        Path dependencyVersionCache = testCentralRepoCache.resolve("cache-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("cleandep").resolve("1.0.0");
+        // A variant compiled against other dependency versions, e.g. for another project.
+        Path otherVariant = dependencyVersionCache.resolve("0000000000000000");
+        Files.createDirectories(otherVariant.resolve("bir"));
+
+        String userDir = System.getProperty(USER_DIR_PROPERTY);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        Path variant = null;
+        try {
+            new BuildCommand(projectPath, printStream, printStream, false).execute();
+            try (Stream<Path> variants = Files.list(dependencyVersionCache)) {
+                variant = variants.filter(path -> !path.equals(otherVariant)).findFirst().orElseThrow();
+            }
+            Assert.assertTrue(Files.exists(variant.resolve("bir").resolve("cleandep.bir")),
+                    "The dependency should be cached in the home cache");
+            Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("cache").resolve("testorg")
+                    .resolve("cleandep")), "The dependency should not be cached in the project target");
+
+            new CleanCommand(projectPath, printStream, true, false).execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput() + "\n" + e.getDetailedMessages().get(0));
+        } finally {
+            System.setProperty(USER_DIR_PROPERTY, userDir);
+        }
+
+        String cleanLog = readOutput().replace("\r", "");
+        Assert.assertFalse(Files.exists(dependencyBala), "The dependency bala should be deleted");
+        Assert.assertTrue(cleanLog.contains("Successfully deleted " + dependencyBala), cleanLog);
+        Assert.assertFalse(Files.exists(projectPath.resolve("target")), "The project target should be deleted");
+        Assert.assertFalse(Files.exists(variant), "The variant the project uses should be deleted");
+        Assert.assertTrue(cleanLog.contains("Successfully deleted " + variant), cleanLog);
+        Assert.assertTrue(Files.exists(otherVariant), "Variants other projects may use should be kept");
+        FileUtils.deleteDirectory(dependencyVersionCache.toFile());
+    }
+
+    @Test(description = "Clean the downloaded dependencies and the compiled variants of all packages of a workspace, "
+            + "including a dependency the packages share")
+    public void testDependencyCacheDeleteInWorkspace() throws IOException {
+        Path root = this.tmpDir.resolve("clean-workspace-dependency-cache");
+        Path dependencyPath = writePackage(root.resolve("cleanwsdep"), "cleanwsdep", "1.0.0", "",
+                "public function hello() returns string => \"hello\";\n");
+        BCompileUtil.compileAndCacheBala(dependencyPath.toString(), testCentralRepoCache);
+        Path workspace = root.resolve("workspace");
+        Files.createDirectories(workspace);
+        Files.writeString(workspace.resolve("Ballerina.toml"), "[workspace]\npackages = [\"wsfirst\", \"wssecond\"]\n");
+        for (String name : List.of("wsfirst", "wssecond")) {
+            writePackage(workspace.resolve(name), name, "0.1.0", "",
+                    "import testorg/cleanwsdep;\n\npublic function main() {\n    string _ = cleanwsdep:hello();\n}\n");
+        }
+        Path dependencyBala = testCentralRepoCache.resolve("bala").resolve("testorg").resolve("cleanwsdep")
+                .resolve("1.0.0").resolve("any");
+        Path dependencyVersionCache = testCentralRepoCache.resolve("cache-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("cleanwsdep").resolve("1.0.0");
+        try {
+            Path variant = buildAndFindVariant(workspace, dependencyVersionCache);
+
+            cleanDependencyCache(workspace);
+
+            String cleanLog = readOutput().replace("\r", "");
+            Assert.assertFalse(Files.exists(dependencyBala), "The shared dependency bala should be deleted");
+            Assert.assertFalse(Files.exists(variant), "The variant the packages use should be deleted");
+            Assert.assertTrue(cleanLog.contains("Successfully deleted " + variant), cleanLog);
+            for (String name : List.of("wsfirst", "wssecond")) {
+                Assert.assertFalse(Files.exists(workspace.resolve(name).resolve("target")),
+                        "The target of each package should be deleted: " + name);
+            }
+        } finally {
+            FileUtils.deleteDirectory(dependencyVersionCache.toFile());
+            FileUtils.deleteDirectory(root.toFile());
+        }
+    }
+
+    @Test(description = "A dependency from the local repository keeps its bala, which cannot be pulled again, and "
+            + "only its compiled variant is deleted")
+    public void testDependencyCacheKeepsLocalRepositoryBala() throws IOException {
+        Path root = this.tmpDir.resolve("clean-local-dependency-cache");
+        Path dependencyPath = writePackage(root.resolve("cleanlocaldep"), "cleanlocaldep", "1.0.0", "",
+                "public function hello() returns string => \"hello\";\n");
+        Path projectPath = writePackage(root.resolve("cleanlocalapp"), "cleanlocalapp", "0.1.0", """
+
+                [[dependency]]
+                org = "testorg"
+                name = "cleanlocaldep"
+                version = "1.0.0"
+                repository = "local"
+                """, "import testorg/cleanlocaldep;\n\npublic function main() {\n"
+                + "    string _ = cleanlocaldep:hello();\n}\n");
+        Path localRepository = testDotBallerina.resolve("repositories").resolve("local");
+        BCompileUtil.compileAndCacheBala(dependencyPath.toString(), localRepository);
+        Path dependencyBala = localRepository.resolve("bala").resolve("testorg").resolve("cleanlocaldep")
+                .resolve("1.0.0").resolve("any");
+        Path dependencyVersionCache = localRepository.resolve("cache-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("cleanlocaldep").resolve("1.0.0");
+        try {
+            Path variant = buildAndFindVariant(projectPath, dependencyVersionCache);
+
+            cleanDependencyCache(projectPath);
+
+            String cleanLog = readOutput().replace("\r", "");
+            Assert.assertTrue(Files.exists(dependencyBala), "The local repository bala should be kept");
+            Assert.assertTrue(cleanLog.contains("Kept the local repository package " + dependencyBala), cleanLog);
+            Assert.assertFalse(Files.exists(variant), "The variant the project uses should be deleted");
+            Assert.assertTrue(cleanLog.contains("Successfully deleted " + variant), cleanLog);
+        } finally {
+            FileUtils.deleteDirectory(localRepository.resolve("bala").resolve("testorg").resolve("cleanlocaldep")
+                    .toFile());
+            FileUtils.deleteDirectory(dependencyVersionCache.toFile());
+        }
+    }
+
+    @Test(description = "A dependency from the distribution keeps its bala and the cache the distribution is shipped "
+            + "with, and its variant compiled into the user home is deleted")
+    public void testDependencyCacheDeletesDistributionVariantInUserHome() throws IOException {
+        Path root = this.tmpDir.resolve("clean-distribution-dependency-cache");
+        Path dependencyPath = writePackage(root.resolve("cleandistdep"), "cleandistdep", "1.0.0", "",
+                "public function hello() returns string => \"hello\";\n");
+        Path projectPath = writePackage(root.resolve("cleandistapp"), "cleandistapp", "0.1.0", "",
+                "import testorg/cleandistdep;\n\npublic function main() {\n    string _ = cleandistdep:hello();\n}\n");
+        Path distributionRepository = Path.of(System.getProperty("ballerina.home")).resolve(DIST_CACHE_DIRECTORY);
+        BCompileUtil.compileAndCacheBala(dependencyPath.toString());
+        Path dependencyBala = distributionRepository.resolve("bala").resolve("testorg").resolve("cleandistdep")
+                .resolve("1.0.0").resolve("any");
+        // The distribution's cache of the package is compiled against other versions, so the build compiles the
+        // package into the user home. The cache is not deleted, as its JAR is still loaded on Windows.
+        Path distributionCache = distributionRepository.resolve("cache").resolve("testorg").resolve("cleandistdep")
+                .resolve("1.0.0");
+        Files.createDirectories(distributionCache);
+        Files.writeString(distributionCache.resolve(".fingerprint"), "0000000000000000");
+        Path homeVersionCache = testDotBallerina.resolve("repositories").resolve("distribution")
+                .resolve("cache-" + RepoUtils.getBallerinaShortVersion()).resolve("testorg").resolve("cleandistdep")
+                .resolve("1.0.0");
+        try {
+            Path variant = buildAndFindVariant(projectPath, homeVersionCache);
+
+            cleanDependencyCache(projectPath);
+
+            String cleanLog = readOutput().replace("\r", "");
+            Assert.assertTrue(Files.exists(dependencyBala), "The distribution bala should be kept");
+            Assert.assertTrue(Files.exists(distributionCache.resolve(".fingerprint")),
+                    "The cache the distribution is shipped with should be kept");
+            Assert.assertFalse(Files.exists(variant), "The variant in the user home should be deleted");
+            Assert.assertTrue(cleanLog.contains("Successfully deleted " + variant), cleanLog);
+        } finally {
+            FileUtils.deleteDirectory(distributionRepository.resolve("bala").resolve("testorg")
+                    .resolve("cleandistdep").toFile());
+            // The JAR of the distribution cache is still loaded on Windows.
+            FileUtils.deleteQuietly(distributionCache.toFile());
+            FileUtils.deleteDirectory(homeVersionCache.toFile());
+        }
+    }
+
+    private static Path writePackage(Path packagePath, String name, String version, String extraToml, String source)
+            throws IOException {
+        Files.createDirectories(packagePath);
+        Files.writeString(packagePath.resolve("Ballerina.toml"),
+                "[package]\norg = \"testorg\"\nname = \"" + name + "\"\nversion = \"" + version + "\"\n" + extraToml);
+        Files.writeString(packagePath.resolve("main.bal"), source);
+        return packagePath;
+    }
+
+    /** Builds the project and returns the only variant of a dependency in the given cache of its version. */
+    private Path buildAndFindVariant(Path projectPath, Path dependencyVersionCache) throws IOException {
+        String userDir = System.getProperty(USER_DIR_PROPERTY);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        try {
+            new BuildCommand(projectPath, printStream, printStream, false).execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput() + "\n" + e.getDetailedMessages().get(0));
+        } finally {
+            System.setProperty(USER_DIR_PROPERTY, userDir);
+        }
+        Assert.assertTrue(Files.isDirectory(dependencyVersionCache), readOutput());
+        try (Stream<Path> variants = Files.list(dependencyVersionCache)) {
+            List<Path> found = variants.filter(Files::isDirectory).toList();
+            Assert.assertEquals(found.size(), 1, found.toString());
+            return found.get(0);
+        }
+    }
+
+    private void cleanDependencyCache(Path projectPath) throws IOException {
+        String userDir = System.getProperty(USER_DIR_PROPERTY);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        try {
+            new CleanCommand(projectPath, printStream, true, false).execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput() + "\n" + e.getDetailedMessages().get(0));
+        } finally {
+            System.setProperty(USER_DIR_PROPERTY, userDir);
+        }
+    }
+
     @Test (enabled = false)
     public void testDependencyCacheDelete() throws IOException {
         Path projectsRoot = this.testResources.resolve("clean-cache-project");
@@ -213,5 +429,62 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(depFromCentralCachePath), depFromCentralCachePath.toString());
         Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("Successfully deleted " + depFromCentralCachePath), buildLog);
+    }
+
+    @Test(description = "Remove the compiled dependencies that no build used for a number of days")
+    public void testPruneDependencyCache() throws IOException {
+        Path versionCache = testCentralRepoCache.resolve("cache-" + RepoUtils.getBallerinaShortVersion())
+                .resolve("testorg").resolve("prunedep").resolve("1.0.0");
+        Path recent = pruneTestVariant(versionCache.resolve("aaaaaaaaaaaaaaaa"), 2);
+        Path old = pruneTestVariant(versionCache.resolve("bbbbbbbbbbbbbbbb"), 20);
+        try {
+            CleanCommand cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+            new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "10");
+            cleanCommand.execute();
+
+            String log = readOutput();
+            Assert.assertTrue(log.contains("Removed 1 compiled dependencies unused for 10 days"), log);
+            Assert.assertFalse(Files.exists(old), "A variant unused for longer than the period should be removed");
+            Assert.assertTrue(Files.exists(recent), "A recently used variant should be kept");
+
+            cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+            new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "10");
+            cleanCommand.execute();
+            log = readOutput();
+            Assert.assertTrue(log.contains("No compiled dependencies unused for 10 days to remove"), log);
+            Assert.assertTrue(Files.exists(recent), "A recently used variant should be kept");
+
+            cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+            new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "0");
+            cleanCommand.execute();
+            Assert.assertFalse(Files.exists(recent), "A zero period should remove every variant");
+        } finally {
+            FileUtils.deleteDirectory(versionCache.toFile());
+        }
+    }
+
+    @Test(description = "The number of days requires --prune-dependency-cache and must not be negative")
+    public void testPruneDependencyCacheOptionValidation() throws IOException {
+        CleanCommand cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+        new CommandLine(cleanCommand).parseArgs("--unused-days", "10");
+        cleanCommand.execute();
+        String log = readOutput();
+        Assert.assertTrue(log.contains("'--unused-days' can only be used with '--prune-dependency-cache'"), log);
+
+        cleanCommand = new CleanCommand(this.tmpDir, printStream, false, false);
+        new CommandLine(cleanCommand).parseArgs("--prune-dependency-cache", "--unused-days", "-1");
+        cleanCommand.execute();
+        log = readOutput();
+        Assert.assertTrue(log.contains("'--unused-days' must not be negative"), log);
+    }
+
+    /** Creates a compiled dependency variant last used the given number of days ago. */
+    private static Path pruneTestVariant(Path variant, int daysAgo) throws IOException {
+        Files.createDirectories(variant.resolve("bir"));
+        Files.writeString(variant.resolve("bir").resolve("prunedep.bir"), "bir");
+        Path lastUsed = variant.resolve(".last-used");
+        Files.writeString(lastUsed, "");
+        Files.setLastModifiedTime(lastUsed, FileTime.from(Instant.now().minus(Duration.ofDays(daysAgo))));
+        return variant;
     }
 }

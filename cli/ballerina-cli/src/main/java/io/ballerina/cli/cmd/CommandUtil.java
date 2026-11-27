@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -41,15 +42,16 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -1270,10 +1272,14 @@ public final class CommandUtil {
      * @param packageName name of the dependent package
      * @param version version of the dependent package
      * @param buildOptions build options {sticky, offline}
+     * @param repository repository name
+     * @param dependencyGraph dependency graph JSON to compile the package against, or null to use the graph
+     *                        recorded in its bala
      * @return true if the dependent package compilation has errors
      */
     static boolean pullDependencyPackages(String orgName, String packageName, String version,
-                                          BuildOptions buildOptions, String repository) {
+                                          BuildOptions buildOptions, String repository,
+                                          Path dependencyGraph) {
         Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
         Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(repository);
@@ -1283,14 +1289,22 @@ public final class CommandUtil {
         Path cacheDir = centralRepositoryDirPath.resolve(
                 ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion);
 
-        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-        defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
+        // The package is cached per fingerprint of the dependency versions it is compiled against, like the
+        // dependencies of a project build.
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder()
+                .addCompilationCacheFactory(project -> new FingerprintCompilationCache(project, cacheDir));
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath, buildOptions);
+        if (dependencyGraph != null) {
+            // Compile against the given dependency versions in place of those recorded in the bala.
+            balaProject.addPackage(PackageConfigCreator.createBalaProjectConfig(balaPath, dependencyGraph));
+        }
 
-        // Delete package cache if available
-        Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
-        if (packageCacheDir.toFile().exists()) {
-            deleteDirectory(packageCacheDir);
+        // Compile the package again, replacing its cache for the resolved dependency versions if available.
+        // The fingerprint is known once the dependencies are resolved.
+        balaProject.currentPackage().getResolution();
+        CompilationCache compilationCache = balaProject.projectEnvironmentContext().getService(CompilationCache.class);
+        if (compilationCache instanceof FingerprintCompilationCache fingerprintCache) {
+            fingerprintCache.variantDir().filter(Files::exists).ifPresent(ProjectUtils::deleteDirectory);
         }
 
         // getResolution pulls all dependencies of the pulled package

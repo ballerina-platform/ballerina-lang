@@ -247,22 +247,38 @@ public class BuildProject extends Project implements Comparable<Project> {
     }
 
     @Override
+    protected boolean ensureCompatibleEnvironment() {
+        if (this.workspaceProject == null) {
+            return false;
+        }
+        // The dependency versions of the package are known once it is resolved.
+        currentPackage().getResolution();
+        return this.workspaceProject.ensureCompatibleEnvironment(this);
+    }
+
+    @Override
     public Project duplicate() {
-        return duplicate(EnvironmentBuilder.getBuilder().setWorkspace(workspaceProject).build());
+        if (workspaceProject != null) {
+            // A package of a workspace is compiled with the packages of its group.
+            return duplicate(workspaceProject.groupEnvironment(this), workspaceProject);
+        }
+        return duplicate(EnvironmentBuilder.getBuilder().build(), null);
     }
 
     /**
      * Duplicates this project into the given environment.
      * <p>
-     * Used by {@link WorkspaceProject#duplicate()} to copy all members into one shared environment.
+     * Used by {@link WorkspaceProject#duplicate()} to copy all members into the copied workspace, whose environments
+     * it creates, and by {@link #duplicate()} to copy a single member, which stays with the original workspace.
      *
      * @param environment the environment of the duplicated project
+     * @param workspace   the workspace the duplicated project belongs to, or null if it belongs to none
      * @return the duplicated project
      */
-    BuildProject duplicate(Environment environment) {
+    BuildProject duplicate(Environment environment, WorkspaceProject workspace) {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(ProjectEnvironmentBuilder.getBuilder(environment),
-                this.sourceRoot, duplicateBuildOptions, this.workspaceProject);
+                this.sourceRoot, duplicateBuildOptions, workspace);
         return (BuildProject) resetPackage(buildProject);
     }
 

@@ -19,11 +19,24 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.environment.FingerprintCompilationCache;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.FileUtils;
@@ -46,17 +59,37 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.assertTomlFilesEquals;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -137,6 +170,935 @@ public class BuildCommandTest extends BaseCommandTest {
         replaced = Files.readString(depC250.resolve(BALLERINA_TOML)).replace("<version>", "2.5.0");
         Files.writeString(depC250.resolve(BALLERINA_TOML), replaced, Charset.defaultCharset());
         BCompileUtil.compileAndCacheBala(depC250.toString(), testCentralRepoCache);
+    }
+
+    @Test(description = "bal pull caches the compiled package per fingerprint of its dependency versions")
+    public void testPullDependencyPackagesWritesFingerprintedHomeCache() throws IOException {
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        deleteDirectory(homeCache.resolve("testorg").resolve("dep_b"));
+
+        boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0",
+                BuildOptions.builder().setOffline(true).build(), CENTRAL_REPOSITORY_CACHE_NAME, null);
+
+        Assert.assertFalse(hasErrors, readOutput(true));
+        List<Path> variants = variantDirs(homeCache, "testorg", "dep_b", "2.0.0");
+        Assert.assertEquals(variants.size(), 1, variants.toString());
+        Path variant = variants.get(0);
+        Assert.assertTrue(Files.exists(variant.resolve("bir").resolve("dep_b.bir")));
+        Assert.assertTrue(Files.exists(variant.resolve(JvmTarget.JAVA_25.code()).resolve("testorg-dep_b-2.0.0.jar")));
+        Assert.assertTrue(variant.getFileName().toString().matches("[0-9a-f]{16}"),
+                "The variant should be named by the fingerprint of the dependency versions it is compiled against");
+        Assert.assertFalse(Files.exists(homeCache.resolve("testorg").resolve("dep_b").resolve("2.0.0")
+                .resolve("bir")), "Packages should not be cached without a fingerprint");
+    }
+
+    @Test(description = "Dependency compilation for a project build uses the dependency versions resolved by the build")
+    public void testPullDependencyPackagesUsesGivenDependencyGraph() throws IOException {
+        BuildOptions hardLocking = BuildOptions.builder().setOffline(true)
+                .setLockingMode(PackageLockingMode.HARD).build();
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        deleteDirectory(homeCache.resolve("testorg").resolve("dep_b"));
+
+        // Without a graph, dep_b is compiled against the dep_c version recorded in its bala.
+        boolean hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0", hardLocking,
+                CENTRAL_REPOSITORY_CACHE_NAME, null);
+        Assert.assertFalse(hasErrors, readOutput(true));
+        Assert.assertFalse(variantFingerprints(homeCache, "testorg", "dep_b", "2.0.0")
+                        .contains(fingerprint("testorg/dep_c:2.1.1")),
+                "The version pinned below must differ from the one recorded in the bala");
+
+        // With a graph, dep_b is compiled against the versions in the graph, as a separate variant.
+        Path graphDir = this.tmpDir.resolve("dependency-compilation-project-graph");
+        deleteDirectory(graphDir);
+        Files.createDirectories(graphDir);
+        Path dependencyGraph = graphDir.resolve("dependency-graph.json");
+        Files.writeString(dependencyGraph, """
+                {"packages": [
+                  {"org": "testorg", "name": "dep_b", "version": "2.0.0",
+                   "dependencies": [{"org": "testorg", "name": "dep_c", "version": "2.1.1"}]},
+                  {"org": "testorg", "name": "dep_c", "version": "2.1.1", "dependencies": []}
+                ], "modules": []}
+                """);
+        hasErrors = CommandUtil.pullDependencyPackages("testorg", "dep_b", "2.0.0", hardLocking,
+                CENTRAL_REPOSITORY_CACHE_NAME, dependencyGraph);
+
+        Assert.assertFalse(hasErrors, readOutput(true));
+        List<String> fingerprints = variantFingerprints(homeCache, "testorg", "dep_b", "2.0.0");
+        Assert.assertTrue(fingerprints.contains(fingerprint("testorg/dep_c:2.1.1")), fingerprints.toString());
+        Assert.assertEquals(fingerprints.size(), 2, "Each set of dependency versions should get its own variant");
+        Assert.assertFalse(variantDirs(homeCache, "testorg", "dep_c", "2.1.1").isEmpty(),
+                "The dependency should be compiled at the version given in the graph");
+
+        deleteDirectory(graphDir);
+    }
+
+    @Test(description = "Dependency compilation errors are reported the same with --optimize-dependency-compilation")
+    public void testOptimizeDependencyCompilationReportsDependencyErrors() throws IOException {
+        Path projectsPath = this.tmpDir.resolve("optimize-dependency-errors");
+        Path libPath = projectsPath.resolve("broken_lib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML), """
+                [package]
+                org = "foo"
+                name = "broken_lib"
+                version = "0.1.0"
+                """);
+        Files.writeString(libPath.resolve("lib.bal"), """
+                public function greet(string name) returns string {
+                    return "Hello " + name;
+                }
+                """);
+        Path appPath = projectsPath.resolve("app");
+        Files.createDirectories(appPath);
+        Files.writeString(appPath.resolve(BALLERINA_TOML), """
+                [package]
+                org = "foo"
+                name = "app"
+                version = "0.1.0"
+                """);
+        Files.writeString(appPath.resolve("main.bal"), """
+                import foo/broken_lib;
+
+                public function main() {
+                    string _ = broken_lib:greet("world");
+                    int _ = "app error";
+                }
+                """);
+        Path publishedLib = testDistCacheDirectory.resolve("bala").resolve("foo").resolve("broken_lib");
+        try {
+            BCompileUtil.compileAndCacheBala(libPath, testDistCacheDirectory, projectEnvironmentBuilder);
+            // Break the published sources, so that the dependency fails to compile when it is built from source.
+            Files.writeString(publishedLib.resolve("0.1.0").resolve("any").resolve("modules")
+                    .resolve("broken_lib").resolve("lib.bal"), """
+                    public function greet(string name) returns string {
+                        int count = "not an int";
+                        return "Hello " + name;
+                    }
+                    """);
+
+            String withoutOption = buildWithErrors(appPath, false);
+            String withOption = buildWithErrors(appPath, true);
+
+            Assert.assertTrue(withoutOption.contains("ERROR [foo/broken_lib/0.1.0::lib.bal:(2:17,2:29)]"),
+                    withoutOption);
+            Assert.assertTrue(withoutOption.contains("ERROR [main.bal:(5:13,5:24)]"), withoutOption);
+            Assert.assertEquals(withOption, withoutOption);
+        } finally {
+            deleteDirectory(publishedLib);
+            deleteDirectory(projectsPath);
+        }
+    }
+
+    private String buildWithErrors(Path projectPath, boolean optimizeDependencyCompilation) throws IOException {
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
+                optimizeDependencyCompilation);
+        try {
+            buildCommand.execute();
+            Assert.fail("The build should fail: " + readOutput(true));
+        } catch (BLauncherException e) {
+            return readOutput(true) + "error: " + String.join("\n", e.getDetailedMessages());
+        }
+        return null;
+    }
+
+    @Test(description = "Workspace packages that do not depend on one another compile and cache their own variant "
+            + "of a shared dependency")
+    public void testWorkspacePackagesCacheOwnDependencyVariants() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-dependency-variants");
+        deleteDirectory(workspace);
+        // 'older' and 'olderdependent' (which imports 'older') use package_c 0.1.0, and 'newer' uses 0.1.1.
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "olderdependent", "0.1.0", "import wsorg/older as _;\n");
+        writeWorkspacePackage(workspace, "newer", "0.1.1", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "olderdependent");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "olderdependent", "newer");
+            clearDistributionPackageCaches("package_b");
+            executeBuild(workspace, "--locking-mode=hard");
+
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+                    "Each set of dependency versions should get its own variant of the shared dependency");
+            Assert.assertFalse(Files.exists(workspace.resolve("older").resolve(TARGET_DIR_NAME)
+                    .resolve(CACHES_DIR_NAME).resolve("foo")), "Dependencies should not be cached in package targets");
+
+            // A build after the targets are deleted reuses the cached variants.
+            FileTime markerTime = FileTime.fromMillis(0);
+            for (Path bir : distributionPackageBirs("package_b", "0.1.0")) {
+                Files.setLastModifiedTime(bir, markerTime);
+            }
+            for (String member : List.of("older", "olderdependent", "newer")) {
+                deleteDirectory(workspace.resolve(member).resolve(TARGET_DIR_NAME));
+            }
+            deleteDirectory(workspace.resolve(TARGET_DIR_NAME));
+            executeBuild(workspace, "--locking-mode=hard");
+            for (Path bir : distributionPackageBirs("package_b", "0.1.0")) {
+                Assert.assertEquals(Files.getLastModifiedTime(bir), markerTime, "The variant should be reused: " + bir);
+            }
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    @Test(description = "Independent workspace packages that resolve their shared dependencies alike are compiled "
+            + "together and share one compiled variant")
+    public void testWorkspacePackagesShareCompatibleDependencies() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-compatible-dependencies");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "first", "0.1.0", "");
+        writeWorkspacePackage(workspace, "second", "0.1.0", "");
+        try {
+            Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+            BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                    projectEnvironmentBuilder);
+            BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                    projectEnvironmentBuilder);
+            setWorkspacePackages(workspace, "first", "second");
+            clearDistributionPackageCaches("package_b");
+            executeBuild(workspace, "--locking-mode=hard");
+
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0"),
+                    "Packages that resolve the shared dependency alike should share one compiled variant");
+        } finally {
+            deleteDirectory(workspace);
+        }
+    }
+
+    @Test(description = "An edit that makes a workspace package resolve a shared dependency differently moves it to "
+            + "an environment of its own, and other edits move nothing")
+    public void testWorkspaceEditChangingSharedDependencyMovesPackage() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-edit-variant");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "newer", "0.1.0", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "newer");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "newer");
+
+            // Load as the language server does, resolving with the locked versions.
+            WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                    BuildOptions.builder().setLockingMode(PackageLockingMode.HARD).build()).project();
+            for (BuildProject member : project.projects()) {
+                Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors());
+            }
+            Environment sharedEnvironment = memberEnvironment(project, "older");
+            Assert.assertSame(memberEnvironment(project, "newer"), sharedEnvironment,
+                    "Packages that resolve their shared dependencies alike should share an environment");
+
+            // An edit that changes no dependency versions moves nothing.
+            BuildProject newer = workspaceMember(project, "newer");
+            newer.currentPackage().ballerinaToml().orElseThrow().modify()
+                    .withContent(Files.readString(workspace.resolve("newer").resolve(BALLERINA_TOML)) + "\n")
+                    .apply();
+            Assert.assertSame(memberEnvironment(project, "newer"), sharedEnvironment);
+
+            // 'newer' now requires package_c 0.1.1, which 'older' does not use.
+            newer.currentPackage().ballerinaToml().orElseThrow().modify()
+                    .withContent(Files.readString(workspace.resolve("newer").resolve(BALLERINA_TOML))
+                            .replace("name = \"package_c\"\nversion = \"0.1.0\"",
+                                    "name = \"package_c\"\nversion = \"0.1.1\""))
+                    .apply();
+            Assert.assertNotSame(memberEnvironment(project, "newer"), sharedEnvironment,
+                    "A package that resolves a shared dependency differently should move");
+            Assert.assertSame(memberEnvironment(project, "older"), sharedEnvironment,
+                    "The other packages should keep their environment");
+            BuildProject movedNewer = workspaceMember(project, "newer");
+            Assert.assertTrue(movedNewer.currentPackage().getResolution().allDependencies().stream()
+                    .anyMatch(dependency -> dependency.packageInstance().descriptor().toString()
+                            .equals("foo/package_c:0.1.1")));
+            for (BuildProject member : project.projects()) {
+                Assert.assertFalse(member.currentPackage().getCompilation().diagnosticResult().hasErrors(),
+                        member.currentPackage().packageName().toString());
+            }
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    @Test(description = "Workspace packages are placed in environments by the dependency versions resolved with "
+            + "their own locking modes")
+    public void testWorkspaceBuildPlacesPackagesByTheirResolution() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-build-variant");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "newer", "0.1.0", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "newer");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "newer");
+            // Both packages lock package_c 0.1.0. 'older' was built just now, so it keeps the locked version, while
+            // 'newer', which was never built, resolves with medium locking and picks the patch 0.1.1. The workspace
+            // resolution before the build sees this and compiles them in separate environments.
+            clearDistributionPackageCaches("package_b");
+            executeBuild(workspace);
+
+            Assert.assertEquals(lockedVersion(workspace, "newer", "package_c"), "0.1.1");
+            Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+                    "Each package should be compiled with its own variant of the shared dependency");
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    @Test(description = "Of three independent workspace packages, only the one that resolves a shared dependency "
+            + "differently is compiled apart")
+    public void testWorkspaceOnlyConflictingPackageCompiledApart() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-one-conflict");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "second", "0.1.0", "");
+        writeWorkspacePackage(workspace, "third", "0.1.1", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "second");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "second", "third");
+
+            // Placement after resolving all packages, as the CLI does before building.
+            WorkspaceProject project = (WorkspaceProject) ProjectLoader.load(workspace,
+                    BuildOptions.builder().setLockingMode(PackageLockingMode.HARD).build()).project();
+            Assert.assertFalse(project.getResolution().diagnosticResult().hasErrors());
+            project.clearCaches();
+            Assert.assertSame(memberEnvironment(project, "second"), memberEnvironment(project, "older"),
+                    "Packages that resolve their shared dependencies alike should share an environment");
+            Assert.assertNotSame(memberEnvironment(project, "third"), memberEnvironment(project, "older"),
+                    "Only the package that resolves a shared dependency differently should be compiled apart");
+
+            clearDistributionPackageCaches("package_b");
+            executeBuild(workspace, "--locking-mode=hard");
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"));
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    @Test(description = "A workspace package that moves to an environment of its own when it is compiled dumps its "
+            + "dependency graphs as often as the other packages")
+    public void testMovedWorkspacePackageDumpsGraphsAsOthers() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-dump-moved");
+        deleteDirectory(workspace);
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "second", "0.1.0", "");
+        writeWorkspacePackage(workspace, "third", "0.1.1", "");
+        try {
+            lockOlderToPackageC010(workspace);
+            copyLock(workspace, "older", "second");
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "second", "third");
+            clearDistributionPackageCaches("package_b");
+            readOutput(true);
+
+            executeBuild(workspace, "--locking-mode=hard", "--dump-raw-graphs");
+
+            String output = readOutput(true);
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"), "'third' should be compiled apart");
+            // A build dumps the graphs of each package after resolving it, and again after running the compiler
+            // plugins, as for a single package.
+            Assert.assertEquals(initialGraphDumps(output, "wsorg/second"), 2, output);
+            Assert.assertEquals(initialGraphDumps(output, "wsorg/third"), initialGraphDumps(output, "wsorg/second"),
+                    "Moving to another environment should not change the graphs dumped for 'third':\n" + output);
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    /** Number of raw graph dumps of the given package, each starting with its initial graph. */
+    private static int initialGraphDumps(String output, String packageName) {
+        Matcher matcher = Pattern.compile("digraph \"Initial\" \\{\\R\\s*node \\[shape=record]\\R\\s*\""
+                + Pattern.quote(packageName) + "\"").matcher(output);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
+    }
+
+    private static BuildProject workspaceMember(WorkspaceProject workspaceProject, String name) {
+        return workspaceProject.projects().stream()
+                .filter(member -> member.currentPackage().packageName().toString().equals(name))
+                .findFirst().orElseThrow();
+    }
+
+    private static Environment memberEnvironment(WorkspaceProject workspaceProject, String name) {
+        return workspaceMember(workspaceProject, name).projectEnvironmentContext().environment();
+    }
+
+    @Test(description = "A dependency compiled for a group of workspace packages is cached once, for the versions it "
+            + "is compiled against")
+    public void testWorkspaceGroupCachesDependencyOnlyForMatchingPackages() throws IOException {
+        Path workspace = this.tmpDir.resolve("workspace-group-variants");
+        deleteDirectory(workspace);
+        // 'groupnewer' imports 'older', so both are compiled in one compiler context, but it resolves
+        // package_c 0.1.1 while 'older' is locked to 0.1.0.
+        writeWorkspacePackage(workspace, "older", "0.1.0", "");
+        writeWorkspacePackage(workspace, "groupnewer", "0.1.1", "import wsorg/older as _;\n");
+        try {
+            lockOlderToPackageC010(workspace);
+            publishPackageC011();
+            setWorkspacePackages(workspace, "older", "groupnewer");
+            clearDistributionPackageCaches("package_b");
+            executeBuild(workspace, "--locking-mode=hard");
+
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0"),
+                    "The dependency should be cached only for the versions it is compiled against");
+            // The dependency versions of the packages in a group are resolved as before.
+            Assert.assertEquals(lockedVersion(workspace, "older", "package_c"), "0.1.0");
+            Assert.assertEquals(lockedVersion(workspace, "groupnewer", "package_c"), "0.1.1");
+        } finally {
+            removePackageC011();
+            deleteDirectory(workspace);
+        }
+    }
+
+    /** Builds a workspace with only 'older', before package_c 0.1.1 is published, to lock it to 0.1.0. */
+    private void lockOlderToPackageC010(Path workspace) throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        setWorkspacePackages(workspace, "older");
+        executeBuild(workspace, "--locking-mode=hard");
+    }
+
+    private void publishPackageC011() throws IOException {
+        Path newPackageC = this.tmpDir.resolve("workspace-package_c_0_1_1");
+        deleteDirectory(newPackageC);
+        FileUtils.copyDirectory(this.testResources.resolve("projectsForDumpGraph").resolve("package_c").toFile(),
+                newPackageC.toFile());
+        Path newPackageCToml = newPackageC.resolve(BALLERINA_TOML);
+        Files.writeString(newPackageCToml,
+                Files.readString(newPackageCToml).replace("version = \"0.1.0\"", "version = \"0.1.1\""));
+        BCompileUtil.compileAndCacheBala(newPackageC, testDistCacheDirectory, projectEnvironmentBuilder);
+    }
+
+    private void removePackageC011() throws IOException {
+        // Other tests resolve package_c 0.1.0 from the shared test repository.
+        try (Stream<Path> paths = Files.walk(testDistCacheDirectory)) {
+            for (Path path : paths.filter(p -> p.endsWith(Path.of("foo", "package_c", "0.1.1"))).toList()) {
+                deleteDirectory(path);
+            }
+        }
+        deleteDirectory(this.tmpDir.resolve("workspace-package_c_0_1_1"));
+    }
+
+    private static void setWorkspacePackages(Path workspace, String... packages) throws IOException {
+        Files.writeString(workspace.resolve(BALLERINA_TOML), "[workspace]\npackages = [" + Arrays.stream(packages)
+                .map(name -> "\"" + name + "\"").collect(Collectors.joining(", ")) + "]\n");
+    }
+
+    private static void copyLock(Path workspace, String from, String to) throws IOException {
+        Files.writeString(workspace.resolve(to).resolve(DEPENDENCIES_TOML),
+                Files.readString(workspace.resolve(from).resolve(DEPENDENCIES_TOML))
+                        .replace("name = \"" + from + "\"", "name = \"" + to + "\""));
+    }
+
+    private static String lockedVersion(Path workspace, String member, String packageName) throws IOException {
+        Matcher matcher = Pattern
+                .compile("name = \"" + packageName + "\"\\s*version = \"([^\"]+)\"")
+                .matcher(Files.readString(workspace.resolve(member).resolve(DEPENDENCIES_TOML)));
+        Assert.assertTrue(matcher.find(), packageName + " is not locked in " + member);
+        return matcher.group(1);
+    }
+
+    private static void writeWorkspacePackage(Path workspace, String name, String packageCVersion,
+                                              String extraImports) throws IOException {
+        Path packagePath = workspace.resolve(name);
+        Files.createDirectories(packagePath);
+        Files.writeString(packagePath.resolve(BALLERINA_TOML), """
+                [package]
+                org = "wsorg"
+                name = "%s"
+                version = "0.1.0"
+
+                [[dependency]]
+                org = "foo"
+                name = "package_c"
+                version = "%s"
+                """.formatted(name, packageCVersion));
+        Files.writeString(packagePath.resolve("main.bal"), extraImports + """
+                import foo/package_b as _;
+
+                public function main() {
+                }
+                """);
+    }
+
+    /** Files under the given directory, with their modification times. */
+    private static Map<Path, FileTime> fileTimes(Path dir) throws IOException {
+        Map<Path, FileTime> times = new HashMap<>();
+        try (Stream<Path> paths = Files.walk(dir)) {
+            for (Path path : paths.filter(Files::isRegularFile).toList()) {
+                times.put(path, Files.getLastModifiedTime(path));
+            }
+        }
+        return times;
+    }
+
+    /** Cached variants of a package in the given cache: one directory per fingerprint. */
+    private static List<Path> variantDirs(Path cache, String org, String name, String version) throws IOException {
+        Path versionDir = cache.resolve(org).resolve(name).resolve(version);
+        if (!Files.isDirectory(versionDir)) {
+            return List.of();
+        }
+        try (Stream<Path> paths = Files.list(versionDir)) {
+            return paths.filter(path -> path.getFileName().toString().matches("[0-9a-f]{16}")
+                    && Files.isDirectory(path)).sorted().toList();
+        }
+    }
+
+    /** Fingerprints of the cached variants of a package, sorted. */
+    private static List<String> variantFingerprints(Path cache, String org, String name, String version)
+            throws IOException {
+        return variantDirs(cache, org, name, version).stream().map(variant -> variant.getFileName().toString())
+                .sorted().toList();
+    }
+
+    /** Fingerprint of the given dependency versions, each written as {@code org/name:version}. */
+    private static String fingerprint(String... dependencies) {
+        return DependencyFingerprints.of(Arrays.stream(dependencies).map(dependency -> {
+            String[] packageAndVersion = dependency.split(":");
+            String[] orgAndName = packageAndVersion[0].split("/");
+            return PackageDescriptor.from(PackageOrg.from(orgAndName[0]), PackageName.from(orgAndName[1]),
+                    PackageVersion.from(packageAndVersion[1]));
+        }).toList());
+    }
+
+    /** Fingerprints of packages that each depend only on one of the given versions, sorted. */
+    private static List<String> fingerprints(String... dependencies) {
+        return Arrays.stream(dependencies).map(dependency -> fingerprint(dependency)).sorted().toList();
+    }
+
+    private Path homeDistributionCache() {
+        return testDotBallerina.resolve(REPOSITORIES_DIR).resolve("distribution")
+                .resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+    }
+
+    /**
+     * Caches of a package of the test distribution: the distribution cache, if a build wrote it, and the variants
+     * compiled against other versions in the user home.
+     */
+    private List<Path> distributionPackageCaches(String name, String version) throws IOException {
+        List<Path> caches = new ArrayList<>();
+        Path distributionCache = testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("foo").resolve(name)
+                .resolve(version);
+        if (Files.isRegularFile(distributionCache.resolve(FingerprintCompilationCache.FINGERPRINT_FILE))) {
+            caches.add(distributionCache);
+        }
+        caches.addAll(variantDirs(homeDistributionCache(), "foo", name, version));
+        return caches;
+    }
+
+    /**
+     * Fingerprints of the caches of a package of the test distribution, sorted: the one the distribution cache
+     * records, and the names of the variants in the user home.
+     */
+    private List<String> distributionPackageFingerprints(String name, String version) throws IOException {
+        List<String> fingerprints = new ArrayList<>();
+        for (Path cache : distributionPackageCaches(name, version)) {
+            Path fingerprintFile = cache.resolve(FingerprintCompilationCache.FINGERPRINT_FILE);
+            fingerprints.add(Files.isRegularFile(fingerprintFile) ? Files.readString(fingerprintFile).trim()
+                    : cache.getFileName().toString());
+        }
+        fingerprints.sort(null);
+        return fingerprints;
+    }
+
+    private List<Path> distributionPackageBirs(String name, String version) throws IOException {
+        List<Path> birs = new ArrayList<>();
+        for (Path cache : distributionPackageCaches(name, version)) {
+            Path bir = cache.resolve("bir").resolve(name + ".bir");
+            if (Files.isRegularFile(bir)) {
+                birs.add(bir);
+            }
+        }
+        return birs;
+    }
+
+    private void clearDistributionPackageCaches(String name) throws IOException {
+        deleteDirectory(testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("foo").resolve(name));
+        deleteDirectory(homeDistributionCache().resolve("foo").resolve(name));
+    }
+
+    private void executeBuild(Path projectPath, String... args) throws IOException {
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
+        new CommandLine(buildCommand).parseArgs(args);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+    }
+
+    @Test(description = "Cached dependencies are keyed by the dependency versions they were compiled against")
+    public void testDependencyCacheRecordsResolvedDependencies() throws IOException {
+        clearDistributionPackageCaches("package_b");
+        Path projectPath = buildDumpGraphPackageA();
+
+        Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                fingerprints("foo/package_c:0.1.0"));
+        Assert.assertFalse(distributionPackageFingerprints("package_c", "0.1.0").isEmpty());
+
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+    }
+
+    @Test(description = "A build after the project target is deleted reuses the compiled dependencies")
+    public void testDependencyCacheReusedAfterTargetDeleted() throws IOException {
+        clearDistributionPackageCaches("package_b");
+        Path projectPath = buildDumpGraphPackageA();
+        List<Path> birs = distributionPackageBirs("package_b", "0.1.0");
+        Assert.assertEquals(birs.size(), 1, birs.toString());
+        FileTime markerTime = FileTime.fromMillis(0);
+        Files.setLastModifiedTime(birs.get(0), markerTime);
+
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        executeBuild(projectPath);
+
+        Assert.assertEquals(Files.getLastModifiedTime(birs.get(0)), markerTime,
+                "The compiled dependency should be reused");
+        Assert.assertFalse(Files.exists(projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                .resolve("foo").resolve("package_b")), "Dependencies should not be cached in the project target");
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+    }
+
+    @Test(description = "A cached variant that misses an artifact is compiled again and overwritten, and builds "
+            + "that generate code record when they use a variant")
+    public void testIncompleteDependencyVariantIsRegenerated() throws IOException {
+        Path root = this.tmpDir.resolve("incomplete-variant");
+        deleteDirectory(root);
+        Path libPath = root.resolve("variantlib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"variantlib\"\nversion = \"1.0.0\"\n");
+        Files.writeString(libPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        Path appPath = root.resolve("variantapp");
+        Files.createDirectories(appPath);
+        Files.writeString(appPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"variantapp\"\nversion = \"0.1.0\"\n");
+        Files.writeString(appPath.resolve("main.bal"),
+                "import testorg/variantlib;\n\npublic function main() {\n    string _ = variantlib:hello();\n}\n");
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        Path libCache = homeCache.resolve("testorg").resolve("variantlib");
+        try {
+            BCompileUtil.compileAndCacheBala(libPath.toString(), testCentralRepoCache);
+            deleteDirectory(libCache);
+            executeBuild(appPath);
+
+            List<Path> variants = variantDirs(homeCache, "testorg", "variantlib", "1.0.0");
+            Assert.assertEquals(variants.size(), 1, variants.toString());
+            Path variant = variants.get(0);
+            Path lastUsed = variant.resolve(".last-used");
+            Assert.assertTrue(Files.exists(lastUsed), "A build should record when it uses a variant");
+            Path jar = variant.resolve(JvmTarget.JAVA_25.code()).resolve("testorg-variantlib-1.0.0.jar");
+            Path bir = variant.resolve("bir").resolve("variantlib.bir");
+            Assert.assertTrue(Files.exists(jar));
+
+            // Compiling without generating code, as the language server does on an edit, writes nothing.
+            FileTime markerTime = FileTime.fromMillis(0);
+            Files.setLastModifiedTime(lastUsed, markerTime);
+            Map<Path, FileTime> cachedFiles = fileTimes(libCache);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            Assert.assertFalse(ProjectLoader.load(appPath).project().currentPackage().getCompilation()
+                    .diagnosticResult().hasErrors());
+            Assert.assertEquals(fileTimes(libCache), cachedFiles,
+                    "A compilation without code generation should not write to the dependency cache");
+
+            // A complete variant is reused.
+            Files.setLastModifiedTime(bir, markerTime);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            executeBuild(appPath);
+            Assert.assertEquals(Files.getLastModifiedTime(bir), markerTime, "A complete variant should be reused");
+            Assert.assertNotEquals(Files.getLastModifiedTime(lastUsed), markerTime,
+                    "A build should update the time it used the variant");
+
+            // A time of use recorded less than a day ago is kept, so that most builds do not write it.
+            Files.setLastModifiedTime(lastUsed, FileTime.from(Instant.now().minus(Duration.ofHours(1))));
+            // The file system may round the time it stores.
+            FileTime recentTime = Files.getLastModifiedTime(lastUsed);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            executeBuild(appPath);
+            Assert.assertEquals(Files.getLastModifiedTime(lastUsed), recentTime,
+                    "A time of use recorded within a day should be kept");
+
+            // A variant that misses its JAR, e.g. after an interrupted build, is compiled again.
+            Files.delete(jar);
+            deleteDirectory(appPath.resolve(TARGET_DIR_NAME));
+            executeBuild(appPath);
+            Assert.assertTrue(Files.exists(jar), "The missing JAR should be generated");
+            Assert.assertNotEquals(Files.getLastModifiedTime(bir), markerTime,
+                    "The incomplete variant should be compiled again and overwritten");
+        } finally {
+            deleteDirectory(libCache);
+            deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("variantlib"));
+            deleteDirectory(root);
+        }
+    }
+
+    @Test(description = "A bala package that depends on a workspace package is compiled against its sources in every "
+            + "build and never cached")
+    public void testDependencyOnWorkspacePackageIsNotCached() throws IOException {
+        Path root = this.tmpDir.resolve("bala-on-workspace-package");
+        deleteDirectory(root);
+        Path published = root.resolve("published");
+        Path memberSource = published.resolve("wsmember");
+        writePackage(memberSource, "wsmember", "", "public function value() returns int => 1;\n");
+        Path dependantSource = published.resolve("wsdependant");
+        writePackage(dependantSource, "wsdependant", "import wsorg/wsmember;\n",
+                "public function value() returns int => wsmember:value();\n");
+        Path workspace = root.resolve("workspace");
+        FileUtils.copyDirectory(memberSource.toFile(), workspace.resolve("wsmember").toFile());
+        writePackage(workspace.resolve("app"), "app", "import wsorg/wsdependant;\n",
+                "public function main() {\n    int _ = wsdependant:value();\n}\n");
+        Path homeDependantCache = homeDistributionCache().resolve("wsorg").resolve("wsdependant");
+        Path distributionDependantCache = testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("wsorg")
+                .resolve("wsdependant");
+        try {
+            BCompileUtil.compileAndCacheBala(memberSource, testDistCacheDirectory, projectEnvironmentBuilder);
+            BCompileUtil.compileAndCacheBala(dependantSource, testDistCacheDirectory, projectEnvironmentBuilder);
+            deleteDirectory(homeDependantCache);
+            deleteDirectory(distributionDependantCache);
+            setWorkspacePackages(workspace, "wsmember", "app");
+            executeBuild(workspace);
+
+            Assert.assertFalse(Files.exists(homeDependantCache), "A package compiled against the sources of a "
+                    + "workspace package should not be cached");
+            Assert.assertFalse(Files.exists(distributionDependantCache), "A package compiled against the sources of "
+                    + "a workspace package should not be cached");
+
+            // The workspace package changes without a new version. The dependant is compiled against the change.
+            Files.writeString(workspace.resolve("wsmember").resolve("main.bal"),
+                    "public function value() returns string => \"one\";\n");
+            // The incremental build check does not see that 'app' depends on 'wsmember' through a bala package.
+            for (String member : List.of("wsmember", "app")) {
+                Files.deleteIfExists(workspace.resolve(member).resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            }
+            System.setProperty(USER_DIR_PROPERTY, workspace.toString());
+            BuildCommand buildCommand = new BuildCommand(workspace, printStream, printStream, false, false);
+            try {
+                buildCommand.execute();
+                Assert.fail("The dependant should be compiled against the changed workspace package: "
+                        + readOutput(true));
+            } catch (BLauncherException e) {
+                String log = readOutput(true);
+                Assert.assertTrue(log.contains("wsorg/wsdependant"), log);
+            }
+            Assert.assertFalse(Files.exists(homeDependantCache));
+        } finally {
+            for (String name : List.of("wsmember", "wsdependant")) {
+                deleteDirectory(testDistCacheDirectory.resolve("bala").resolve("wsorg").resolve(name));
+                deleteDirectory(testDistCacheDirectory.resolve(CACHES_DIR_NAME).resolve("wsorg").resolve(name));
+                deleteDirectory(homeDistributionCache().resolve("wsorg").resolve(name));
+            }
+            deleteDirectory(root);
+        }
+    }
+
+    @Test(description = "Concurrent builds that compile the same dependency write one usable variant")
+    public void testConcurrentBuildsWriteTheSameVariant() throws Exception {
+        Path root = this.tmpDir.resolve("concurrent-variant");
+        deleteDirectory(root);
+        Path libPath = root.resolve("concurrentlib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"concurrentlib\"\nversion = \"1.0.0\"\n");
+        Files.writeString(libPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        List<Path> apps = new ArrayList<>();
+        for (String name : List.of("concurrentapp1", "concurrentapp2", "concurrentapp3")) {
+            Path appPath = root.resolve(name);
+            Files.createDirectories(appPath);
+            Files.writeString(appPath.resolve(BALLERINA_TOML),
+                    "[package]\norg = \"testorg\"\nname = \"" + name + "\"\nversion = \"0.1.0\"\n");
+            Files.writeString(appPath.resolve("main.bal"), "import testorg/concurrentlib;\n\n"
+                    + "public function main() {\n    string _ = concurrentlib:hello();\n}\n");
+            apps.add(appPath);
+        }
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        Path libCache = homeCache.resolve("testorg").resolve("concurrentlib");
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Throwable failure = null;
+        try {
+            BCompileUtil.compileAndCacheBala(libPath.toString(), testCentralRepoCache);
+            deleteDirectory(libCache);
+
+            // Two builds, each with its own environment, compile the dependency and write its variant at once.
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<Boolean>> builds = new ArrayList<>();
+            for (Path appPath : apps.subList(0, 2)) {
+                builds.add(executor.submit(() -> {
+                    start.await();
+                    Project project = ProjectLoader.load(appPath).project();
+                    JBallerinaBackend backend = JBallerinaBackend.from(project.currentPackage().getCompilation(),
+                            JvmTarget.JAVA_25);
+                    return !backend.diagnosticResult().hasErrors();
+                }));
+            }
+            start.countDown();
+            for (Future<Boolean> build : builds) {
+                Assert.assertTrue(build.get(5, TimeUnit.MINUTES), "Each concurrent build should succeed");
+            }
+
+            List<Path> variants = variantDirs(homeCache, "testorg", "concurrentlib", "1.0.0");
+            Assert.assertEquals(variants.size(), 1, "Both builds should use the same variant: " + variants);
+            Path bir = variants.get(0).resolve("bir").resolve("concurrentlib.bir");
+            Path jar = variants.get(0).resolve(JvmTarget.JAVA_25.code()).resolve("testorg-concurrentlib-1.0.0.jar");
+            Assert.assertTrue(Files.exists(bir) && Files.exists(jar), "The variant should be complete");
+            try (Stream<Path> files = Files.walk(variants.get(0))) {
+                Assert.assertTrue(files.noneMatch(file -> file.toString().endsWith(".tmp")),
+                        "No temporary file should be left");
+            }
+
+            // Another build reuses the variant.
+            FileTime markerTime = FileTime.fromMillis(0);
+            Files.setLastModifiedTime(bir, markerTime);
+            executeBuild(apps.get(2));
+            Assert.assertEquals(Files.getLastModifiedTime(bir), markerTime, "The variant should be reused");
+        } catch (Throwable t) {
+            failure = t;
+            throw t;
+        } finally {
+            executor.shutdownNow();
+            // Delete the shared files only once both builds stopped, so that a build still running cannot write
+            // them again. A build that does not stop is reported, and its files are left.
+            if (executor.awaitTermination(1, TimeUnit.MINUTES)) {
+                deleteDirectory(libCache);
+                deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("concurrentlib"));
+                deleteDirectory(root);
+            } else {
+                AssertionError notStopped = new AssertionError("The concurrent builds did not stop");
+                if (failure == null) {
+                    throw notStopped;
+                }
+                // The failure that stopped the test is reported, with the builds that did not stop.
+                failure.addSuppressed(notStopped);
+            }
+        }
+    }
+
+    @Test(description = "A dependency that cannot be compiled in a separate process is compiled in the build")
+    public void testOptimizedDependencyCompilationFallsBackToTheBuild() throws IOException {
+        Path root = this.tmpDir.resolve("optimized-dependency-fallback");
+        deleteDirectory(root);
+        Path libPath = root.resolve("fallbacklib");
+        Files.createDirectories(libPath);
+        Files.writeString(libPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"fallbacklib\"\nversion = \"1.0.0\"\n");
+        Files.writeString(libPath.resolve("lib.bal"), "public function hello() returns string => \"hello\";\n");
+        Path appPath = root.resolve("fallbackapp");
+        Files.createDirectories(appPath);
+        Files.writeString(appPath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"testorg\"\nname = \"fallbackapp\"\nversion = \"0.1.0\"\n");
+        Files.writeString(appPath.resolve("main.bal"), "import testorg/fallbacklib;\n\n"
+                + "public function main() {\n    string _ = fallbacklib:hello();\n}\n");
+        Path homeCache = testCentralRepoCache.resolve(CACHES_DIR_NAME + "-" + RepoUtils.getBallerinaShortVersion());
+        Path libCache = homeCache.resolve("testorg").resolve("fallbacklib");
+        try {
+            BCompileUtil.compileAndCacheBala(libPath.toString(), testCentralRepoCache);
+            deleteDirectory(libCache);
+            // The test distribution has no 'bal' executable, so the separate 'bal pull' process cannot start.
+            Assert.assertFalse(Files.exists(Path.of(System.getProperty("ballerina.home")).resolve("bin")));
+
+            System.setProperty(USER_DIR_PROPERTY, appPath.toString());
+            // A Boolean selects the constructor that takes the option; a boolean would select 'dumpBuildTime'.
+            BuildCommand buildCommand = new BuildCommand(appPath, printStream, printStream, false, Boolean.TRUE);
+            try {
+                buildCommand.execute();
+            } catch (BLauncherException e) {
+                Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+            }
+
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Generating executable"), buildLog);
+            List<Path> variants = variantDirs(homeCache, "testorg", "fallbacklib", "1.0.0");
+            Assert.assertEquals(variants.size(), 1, "The build should compile and cache the dependency: " + variants);
+            Assert.assertTrue(Files.exists(variants.get(0).resolve("bir").resolve("fallbacklib.bir")));
+        } finally {
+            deleteDirectory(libCache);
+            deleteDirectory(testCentralRepoCache.resolve("bala").resolve("testorg").resolve("fallbacklib"));
+            deleteDirectory(root);
+        }
+    }
+
+    private static void writePackage(Path packagePath, String name, String imports, String body) throws IOException {
+        Files.createDirectories(packagePath);
+        Files.writeString(packagePath.resolve(BALLERINA_TOML),
+                "[package]\norg = \"wsorg\"\nname = \"" + name + "\"\nversion = \"0.1.0\"\n");
+        Files.writeString(packagePath.resolve("main.bal"), imports + body);
+    }
+
+    @Test(description = "A dependency is compiled as a new variant when a transitive dependency resolves to a new "
+            + "version, and the previous variant is kept")
+    public void testDependencyCacheInvalidatedOnDependencyVersionChange() throws IOException {
+        clearDistributionPackageCaches("package_b");
+        Path projectPath = buildDumpGraphPackageA();
+        List<Path> previousBirs = distributionPackageBirs("package_b", "0.1.0");
+        Assert.assertEquals(previousBirs.size(), 1, previousBirs.toString());
+        FileTime markerTime = FileTime.fromMillis(0);
+        Files.setLastModifiedTime(previousBirs.get(0), markerTime);
+
+        try {
+            publishPackageC011();
+            Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+            forceRebuild(projectPath);
+
+            Assert.assertFalse(distributionPackageCaches("package_c", "0.1.1").isEmpty());
+            Assert.assertEquals(distributionPackageFingerprints("package_b", "0.1.0"),
+                    fingerprints("foo/package_c:0.1.0", "foo/package_c:0.1.1"),
+                    "package_b should be compiled against the new package_c version");
+            Assert.assertEquals(Files.getLastModifiedTime(previousBirs.get(0)), markerTime,
+                    "The variant for the previous versions should be kept for other projects");
+        } finally {
+            removePackageC011();
+            Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+            deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        }
+    }
+
+    private Path buildDumpGraphPackageA() throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
+        executeBuild(projectPath);
+        return projectPath;
+    }
+
+    private void forceRebuild(Path projectPath) throws IOException {
+        // Drop the previous build metadata so that the build does not skip compilation for unchanged sources.
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        executeBuild(projectPath);
+    }
+
+    private void executeBuild(Path projectPath) throws IOException {
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(readOutput(true) + "\n error message: " + e.getDetailedMessages().get(0));
+        }
     }
 
     @Test(description = "Build a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
@@ -939,6 +1901,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildWithInvalidOrgName() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithEmptyBallerinaToml");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        String userName = System.getProperty("user.name");
         System.setProperty("user.name", "$org");
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         cleanTarget(projectPath);
@@ -948,6 +1911,9 @@ public class BuildCommandTest extends BaseCommandTest {
         } catch (BLauncherException e) {
             String failureLog = readOutput(true);
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        } finally {
+            // Other test classes guess the organization of new packages from the user name.
+            System.setProperty("user.name", userName);
         }
         String buildLog = readOutput(true);
 
@@ -1110,6 +2076,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 projectEnvironmentBuilder);
 
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
@@ -1127,6 +2094,8 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve(JvmTarget.JAVA_25.code())
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+        Assert.assertFalse(distributionPackageBirs("package_b", "0.1.0").isEmpty(),
+                "The dependency should be cached in the distribution or home cache");
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }

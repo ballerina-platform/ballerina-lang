@@ -23,6 +23,7 @@ import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
 import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
@@ -73,6 +74,8 @@ public class EnvironmentBuilder {
 
     public Environment build() {
         DefaultEnvironment environment = new DefaultEnvironment();
+        // Compiled dependencies are cached per fingerprint of the dependency versions resolved in this environment.
+        environment.addService(DependencyFingerprints.class, new DependencyFingerprints());
 
         // Environment creation logic needs to validate following things
         //    BallerinaDistribution
@@ -89,6 +92,8 @@ public class EnvironmentBuilder {
 
         // Creating a Ballerina user home instance
         BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
+        // Distribution packages compiled against other dependency versions are cached in the user home.
+        ballerinaDistribution.packageRepository().setUserHome(ballerinaUserHome.homePath());
         PackageRepository ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
         if (ballerinaCentralRepo == null) {
             ballerinaCentralRepo = ballerinaUserHome.centralProxyMavenRepository();

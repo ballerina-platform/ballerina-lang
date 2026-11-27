@@ -173,6 +173,9 @@ test {
         showStandardStreams = true
     }
     systemProperty "ballerina.home", "$buildDir"
+    // Keep the caches and repositories that tests write, e.g. compiled dependencies, in the build directory
+    // instead of the user home.
+    environment 'BALLERINA_HOME_DIR', "$buildDir/user-home/.ballerina"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
     systemProperty "LANG_REPO_BUILD", "true"
     testLogging {

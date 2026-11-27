@@ -35,6 +35,8 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
+import io.ballerina.projects.internal.repositories.WorkspaceRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -44,7 +46,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -55,6 +59,12 @@ public class WorkspaceProject extends Project {
     private final BuildOptions buildOptions;
     private WorkspaceManifest workspaceManifest;
     private WorkspaceResolution workspaceResolution;
+    // Source roots of the packages that depend on one another, directly or transitively. The packages of a group
+    // are always compiled in one environment.
+    private List<List<Path>> packageGroups = List.of();
+    // Source roots of the packages compiled in each environment. An environment holds one or more groups that
+    // resolve every dependency they share to the same version and dependency versions.
+    private List<List<Path>> contexts = List.of();
 
     private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument) {
         super(ProjectKind.WORKSPACE_PROJECT, projectPath, buildOptions);
@@ -95,6 +105,7 @@ public class WorkspaceProject extends Project {
                     }
                     workspaceProject.projectList.add((BuildProject) buildProjectLoadResult.project());
                 }
+                workspaceProject.assignEnvironments();
                 return new ProjectLoadResult(workspaceProject, new DefaultDiagnosticResult(diagnostics));
             } catch (IOException e) {
                 throw new ProjectException("Error reading " + BALLERINA_TOML + " file in workspace: "
@@ -120,14 +131,248 @@ public class WorkspaceProject extends Project {
         return this.projectList.iterator().next().generatedResourcesDir();
     }
 
+    /**
+     * Clears the caches of all packages and moves them to new environments.
+     * <p>
+     * Groups of packages that depend on one another are found again from their imports, and placed in environments
+     * by the dependency versions resolved for them so far: groups that resolve every shared dependency to the same
+     * version and dependency versions share an environment, and the others get environments of their own.
+     */
     @Override
     public void clearCaches() {
-        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(this).build();
-        for (BuildProject buildProject : this.projectList) {
-            buildProject.setEnvironment(environment);
-            buildProject.clearCaches();
+        List<List<BuildProject>> groups = groupPackages();
+        List<List<BuildProject>> contextMembers = placeInContexts(groups);
+        this.contexts = toSourceRoots(contextMembers);
+        for (List<BuildProject> context : contextMembers) {
+            Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), this, context,
+                    contextMembers.size() > 1);
+            for (BuildProject buildProject : context) {
+                buildProject.setEnvironment(environment);
+                buildProject.clearCaches();
+            }
         }
         this.workspaceResolution = null;
+    }
+
+    /**
+     * Assigns the environment the packages are loaded into to all of them. The dependency versions of the packages
+     * are not known before they are resolved, so they start in one environment.
+     */
+    private void assignEnvironments() {
+        groupPackages();
+        this.contexts = List.of(this.projectList.stream().map(BuildProject::sourceRoot).toList());
+    }
+
+    /**
+     * Places the given groups of packages in environments. A group joins the first environment whose packages
+     * resolved every dependency it shares with the group to the same variant, i.e. the same version compiled
+     * against the same dependency versions. Groups not resolved yet join the first environment.
+     */
+    private List<List<BuildProject>> placeInContexts(List<List<BuildProject>> groups) {
+        List<Map<String, String>> contextVariants = new ArrayList<>();
+        List<List<BuildProject>> contextMembers = new ArrayList<>();
+        for (List<BuildProject> group : groups) {
+            Map<String, String> groupVariants = new HashMap<>();
+            for (BuildProject buildProject : group) {
+                resolvedVariants(buildProject).forEach(groupVariants::putIfAbsent);
+            }
+            int context = 0;
+            while (context < contextVariants.size() && !compatible(contextVariants.get(context), groupVariants)) {
+                context++;
+            }
+            if (context == contextVariants.size()) {
+                contextVariants.add(new HashMap<>());
+                contextMembers.add(new ArrayList<>());
+            }
+            groupVariants.forEach(contextVariants.get(context)::putIfAbsent);
+            contextMembers.get(context).addAll(group);
+        }
+        // Keep the packages in the order of the workspace.
+        contextMembers.forEach(members -> members.sort((first, second) ->
+                Integer.compare(this.projectList.indexOf(first), this.projectList.indexOf(second))));
+        return contextMembers;
+    }
+
+    private static Map<String, String> resolvedVariants(BuildProject buildProject) {
+        if (buildProject.projectEnvironmentContext() == null) {
+            return Map.of();
+        }
+        DependencyFingerprints fingerprints = buildProject.projectEnvironmentContext().environment()
+                .getService(DependencyFingerprints.class);
+        return fingerprints == null ? Map.of() : fingerprints.resolvedVariants(buildProject);
+    }
+
+    private static boolean compatible(Map<String, String> contextVariants, Map<String, String> groupVariants) {
+        for (Map.Entry<String, String> variant : groupVariants.entrySet()) {
+            String contextVariant = contextVariants.get(variant.getKey());
+            if (contextVariant != null && !contextVariant.equals(variant.getValue())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Merges groups of packages when a package now depends on a package of another group, e.g. when a build tool
+     * generated code or an edit added an import of another package of the workspace. When the merged groups were
+     * compiled in different environments, they move to a new environment of their own; the other packages keep
+     * their environments and compiled state.
+     * <p>
+     * Groups are not split when such a dependency is removed. Compiling the packages in one environment is still
+     * correct, and they are regrouped from scratch when the workspace is loaded again or its caches are cleared.
+     */
+    private void refreshPackageGroups() {
+        if (this.packageGroups.isEmpty() || withinCurrentGroups(WorkspacePackageGroups.of(this.projectList))) {
+            return;
+        }
+        List<List<BuildProject>> groups = WorkspacePackageGroups.of(this.projectList, this.packageGroups);
+        this.packageGroups = toSourceRoots(groups);
+        for (List<BuildProject> group : groups) {
+            List<Path> roots = group.stream().map(BuildProject::sourceRoot).toList();
+            if (this.contexts.stream().anyMatch(context -> context.containsAll(roots))) {
+                continue;
+            }
+            List<List<Path>> contexts = new ArrayList<>();
+            for (List<Path> context : this.contexts) {
+                List<Path> remaining = context.stream().filter(root -> !roots.contains(root)).toList();
+                if (!remaining.isEmpty()) {
+                    contexts.add(remaining);
+                }
+            }
+            contexts.add(roots);
+            this.contexts = contexts;
+            Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), this, group,
+                    this.contexts.size() > 1);
+            for (BuildProject buildProject : group) {
+                buildProject.setEnvironment(environment);
+                buildProject.clearCaches();
+            }
+        }
+        this.workspaceResolution = null;
+    }
+
+    /**
+     * Moves the given package, with the packages it is grouped with by dependencies on one another, to an
+     * environment of their own when the dependency versions last resolved for them conflict with those of the other
+     * packages of their environment, i.e. when they share a dependency resolved to another version, or compiled
+     * against other dependency versions.
+     * <p>
+     * Called after resolving the package and before compiling it, e.g. after an edit changes its dependencies.
+     * The other packages keep their environments and compiled state. A copy of a package, e.g. one the language
+     * server compiles, stays in the environment it was copied into.
+     *
+     * @param buildProject package of this workspace
+     * @return true if the package moved to a new environment
+     */
+    synchronized boolean ensureCompatibleEnvironment(BuildProject buildProject) {
+        if (this.projectList.stream().noneMatch(member -> member == buildProject)) {
+            return false;
+        }
+        Path root = buildProject.sourceRoot();
+        Optional<List<Path>> context = this.contexts.stream().filter(roots -> roots.contains(root)).findFirst();
+        if (context.isEmpty()) {
+            return false;
+        }
+        List<Path> groupRoots = this.packageGroups.stream().filter(roots -> roots.contains(root)).findFirst()
+                .orElse(List.of(root));
+        if (context.get().stream().allMatch(groupRoots::contains)) {
+            return false;
+        }
+        Map<String, String> groupVariants = new HashMap<>();
+        for (BuildProject member : this.projectList) {
+            if (groupRoots.contains(member.sourceRoot())) {
+                resolvedVariants(member).forEach(groupVariants::putIfAbsent);
+            }
+        }
+        // Each other package is checked on its own. Packages start in one environment before their dependency
+        // versions are known, so the others may conflict with one another, e.g. one compiled against a version
+        // and another only resolved to a different one. Merging their variants would hide such a conflict.
+        boolean compatibleWithOthers = this.projectList.stream()
+                .filter(member -> !groupRoots.contains(member.sourceRoot())
+                        && context.get().contains(member.sourceRoot()))
+                .allMatch(member -> compatible(resolvedVariants(member), groupVariants));
+        if (compatibleWithOthers) {
+            return false;
+        }
+        List<List<Path>> contexts = new ArrayList<>();
+        for (List<Path> roots : this.contexts) {
+            List<Path> remaining = roots.stream().filter(contextRoot -> !groupRoots.contains(contextRoot)).toList();
+            if (!remaining.isEmpty()) {
+                contexts.add(remaining);
+            }
+        }
+        contexts.add(groupRoots);
+        this.contexts = contexts;
+        List<BuildProject> group = this.projectList.stream()
+                .filter(member -> groupRoots.contains(member.sourceRoot())).toList();
+        Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), this, group, true);
+        for (BuildProject member : group) {
+            member.setEnvironment(environment);
+            member.clearCaches();
+        }
+        this.workspaceResolution = null;
+        return true;
+    }
+
+    /** Returns true if each of the given groups is part of one of the current groups. */
+    private boolean withinCurrentGroups(List<List<BuildProject>> groups) {
+        Map<Path, Integer> currentGroupOf = new HashMap<>();
+        for (int i = 0; i < this.packageGroups.size(); i++) {
+            for (Path root : this.packageGroups.get(i)) {
+                currentGroupOf.put(root, i);
+            }
+        }
+        for (List<BuildProject> group : groups) {
+            Integer currentGroup = currentGroupOf.get(group.get(0).sourceRoot());
+            for (BuildProject buildProject : group) {
+                Integer memberGroup = currentGroupOf.get(buildProject.sourceRoot());
+                if (memberGroup == null || !memberGroup.equals(currentGroup)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Creates an environment for a copy of the given package, holding the packages compiled in its environment.
+     * Used when a single package of the workspace is duplicated.
+     *
+     * @param buildProject package of this workspace
+     * @return environment for the packages compiled with the package
+     */
+    Environment groupEnvironment(BuildProject buildProject) {
+        List<BuildProject> context = this.contexts.stream()
+                .filter(roots -> roots.contains(buildProject.sourceRoot()))
+                .findFirst()
+                .map(roots -> this.projectList.stream().filter(member -> roots.contains(member.sourceRoot()))
+                        .toList())
+                .orElse(this.projectList);
+        return createEnvironment(EnvironmentBuilder.getBuilder(), this, context, this.contexts.size() > 1);
+    }
+
+    private static List<List<Path>> toSourceRoots(List<List<BuildProject>> groups) {
+        return groups.stream().map(group -> group.stream().map(BuildProject::sourceRoot).toList()).toList();
+    }
+
+    private List<List<BuildProject>> groupPackages() {
+        List<List<BuildProject>> groups = WorkspacePackageGroups.of(this.projectList);
+        this.packageGroups = toSourceRoots(groups);
+        return groups;
+    }
+
+    /**
+     * Creates the environment of the given packages. When the workspace has several environments, the environment
+     * only provides its own packages.
+     */
+    private static Environment createEnvironment(EnvironmentBuilder environmentBuilder, WorkspaceProject workspace,
+                                                 List<BuildProject> group, boolean restrictToGroup) {
+        Environment environment = environmentBuilder.setWorkspace(workspace).build();
+        if (restrictToGroup) {
+            environment.getService(WorkspaceRepository.class)
+                    .restrictTo(group.stream().map(BuildProject::sourceRoot).toList());
+        }
+        return environment;
     }
 
     @Override
@@ -140,11 +385,23 @@ public class WorkspaceProject extends Project {
         List<BuildProject> projects = new ArrayList<>();
         WorkspaceProject duplicateWp = new WorkspaceProject(this.sourceRoot, this.buildOptions,
                 this.workspaceBallerinaToml.tomlDocument(), projects);
-        // Build one environment for the copy and duplicate each member into it, instead of letting each member
-        // build its own.
-        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(duplicateWp).build();
+        duplicateWp.packageGroups = this.packageGroups;
+        duplicateWp.contexts = this.contexts;
+        // Build one environment per environment of this workspace for the copy, and duplicate each member into the
+        // environment of its packages, instead of letting each member build its own.
+        Map<Path, Environment> environments = new HashMap<>();
+        List<List<Path>> groups = this.contexts.isEmpty() ?
+                List.of(this.projectList.stream().map(BuildProject::sourceRoot).toList()) : this.contexts;
+        for (List<Path> groupRoots : groups) {
+            List<BuildProject> group = this.projectList.stream()
+                    .filter(project -> groupRoots.contains(project.sourceRoot())).toList();
+            Environment environment = createEnvironment(EnvironmentBuilder.getBuilder(), duplicateWp, group,
+                    groups.size() > 1);
+            groupRoots.forEach(root -> environments.put(root, environment));
+        }
         for (BuildProject project : this.projectList) {
-            projects.add(project.duplicate(environment));
+            // The copies belong to the copied workspace, so that they move between its environments as needed.
+            projects.add(project.duplicate(environments.get(project.sourceRoot()), duplicateWp));
         }
         return duplicateWp;
     }
@@ -176,12 +433,21 @@ public class WorkspaceProject extends Project {
         this.projectList.forEach(Project::save);
     }
 
+    /**
+     * Returns the environment of the first package of the workspace.
+     * <p>
+     * Packages that do not depend on one another are compiled in separate environments. Use
+     * {@code projectEnvironmentContext()} of a package of the workspace to get the environment it is compiled in.
+     *
+     * @return environment of the first package
+     */
     @Override
     public ProjectEnvironment projectEnvironmentContext() {
         return this.projectList.iterator().next().projectEnvironmentContext();
     }
 
     public WorkspaceResolution getResolution() {
+        refreshPackageGroups();
         if (this.workspaceResolution == null) {
             this.workspaceResolution = WorkspaceResolution.from(this);
         }
@@ -189,6 +455,7 @@ public class WorkspaceProject extends Project {
     }
 
     public WorkspaceResolution getResolution(ResolutionOptions resolutionOptions) {
+        refreshPackageGroups();
         return WorkspaceResolution.from(this, resolutionOptions);
     }
 
@@ -232,6 +499,9 @@ public class WorkspaceProject extends Project {
             this.projectList.add((BuildProject) buildProjectLoadResult.project());
             diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
         }
+        // The packages are loaded into one environment again, so the recorded groups and environments are reset to
+        // match it. A package whose dependency versions conflict moves again when it is compiled.
+        assignEnvironments();
         return new ProjectLoadResult(this, new DefaultDiagnosticResult(diagnostics));
     }
 

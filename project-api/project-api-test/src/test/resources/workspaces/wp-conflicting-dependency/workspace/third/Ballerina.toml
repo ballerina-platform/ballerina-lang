@@ -1,0 +1,9 @@
+[package]
+org = "testorg1"
+name = "third"
+version = "0.1.0"
+
+[[dependency]]
+org = "testorg"
+name = "versioned_lib"
+version = "0.1.1"

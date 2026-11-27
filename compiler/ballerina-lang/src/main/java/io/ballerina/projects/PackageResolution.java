@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
@@ -37,6 +38,8 @@ import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
+import io.ballerina.projects.internal.bala.DependencyGraphJson;
+import io.ballerina.projects.internal.environment.DependencyFingerprints;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
@@ -52,6 +55,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,6 +66,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -96,6 +103,8 @@ public class PackageResolution {
 
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
+    // Option of bal pull that gives the dependency graph to compile a dependency against.
+    private static final String DEPENDENCY_GRAPH_OPTION = "--dependency-graph";
     private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
@@ -108,6 +117,7 @@ public class PackageResolution {
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
         this.dependencyGraph = buildDependencyGraph();
+        recordDependencyFingerprints();
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -132,10 +142,41 @@ public class PackageResolution {
         moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
         this.dependencyGraph = cloneDependencyGraphNewRoot(packageResolution.dependencyGraph,
                 rootPackageContext.project().currentPackage());
+        recordDependencyFingerprints();
         this.dependencyGraphDump = packageResolution.dependencyGraphDump;
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
+    }
+
+    /**
+     * Records the fingerprint of the dependency versions each bala package is compiled against, so that its compiled
+     * artifacts are cached per fingerprint. Runs before any module decides whether to load from the cache.
+     * <p>
+     * A bala package that depends on a package of the workspace, directly or transitively, is compiled against the
+     * sources of that package, which change without a new version. Such a package gets no fingerprint, so it is
+     * compiled in every build and never cached.
+     */
+    private void recordDependencyFingerprints() {
+        DependencyFingerprints fingerprints = rootPackageContext.project().projectEnvironmentContext()
+                .environment().getService(DependencyFingerprints.class);
+        if (fingerprints == null) {
+            return;
+        }
+        fingerprints.clearResolvedVariants(rootPackageContext.project());
+        for (ResolvedPackageDependency node : dependencyGraph.getNodes()) {
+            Package packageInstance = node.packageInstance();
+            if (packageInstance.project().kind() != ProjectKind.BALA_PROJECT) {
+                continue;
+            }
+            Collection<ResolvedPackageDependency> dependencies = dependencyGraph.getAllDependencies(node);
+            if (dependencies.stream().anyMatch(dependency ->
+                    dependency.packageInstance().project().kind() != ProjectKind.BALA_PROJECT)) {
+                continue;
+            }
+            fingerprints.record(rootPackageContext.project(), packageInstance.descriptor(),
+                    dependencies.stream().map(dependency -> dependency.packageInstance().descriptor()).toList());
+        }
     }
 
     /**
@@ -165,12 +206,29 @@ public class PackageResolution {
                 continue;
             }
 
+            // 'provided' platform libraries are not packed in the bala, so the subprocess cannot generate the code
+            // of such a package or of a package that depends on it. `bal pull` then skips caching but succeeds.
+            // These packages are compiled in this process, where the project supplies the libraries.
+            if (hasProvidedPlatformLibraries(resolvedPackageDependency)) {
+                continue;
+            }
+
+            // A package that depends on a workspace package has no fingerprint and is never cached, so a subprocess
+            // cannot compile it for this build. It is compiled in this process.
+            if (this.dependencyGraph.getAllDependencies(resolvedPackageDependency).stream().anyMatch(
+                    dependency -> dependency.packageInstance().project().kind() != ProjectKind.BALA_PROJECT)) {
+                continue;
+            }
+
             // We use the pull command to generate the BIR of the dependency.
             List<String> cmdArgs = new ArrayList<>();
             String balExecutable = isWindows ? "bal.bat" : "bal";
             cmdArgs.add(Paths.get(System.getProperty(BALLERINA_HOME), "bin", balExecutable).toString());
             cmdArgs.add("pull");
-            cmdArgs.add(LOCKING_MODE_OPTION + EQUAL + resolutionOptions.packageLockingMode().toString());
+            // The dependency is compiled against the versions resolved for this project, so that the subprocess
+            // caches it under the same fingerprint. HARD locking makes the subprocess use the given graph as is.
+            Path dependencyGraphJson = writeDependencyGraph(resolvedPackageDependency);
+            cmdArgs.add(LOCKING_MODE_OPTION + EQUAL + PackageLockingMode.HARD);
             cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
 
             // Specify which repository to resolve the dependency from
@@ -179,21 +237,34 @@ public class PackageResolution {
             if (dependency.isPresent() && dependency.get().repository() != null) {
                 cmdArgs.add(REPOSITORY_FLAG + EQUAL + dependency.get().repository());
             }
+            cmdArgs.add(DEPENDENCY_GRAPH_OPTION + EQUAL + dependencyGraphJson);
             cmdArgs.add(packageDescriptor.toString());
 
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
+            // The subprocess output is not needed: on failure, the dependency is compiled in this process, which
+            // reports its diagnostics. Discarding also keeps the subprocess from blocking on a full pipe buffer.
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD);
+            boolean compiled;
             try {
-                Process process = processBuilder.start();
-                int i = process.waitFor();
-                if (i != 0) {
-                    String errMessage = packageDescriptor.toString();
-                    if (dependency.isPresent()) {
-                        errMessage += " [repository=" + dependency.get().repository() + "]";
-                    }
-                    throw new ProjectException("failed to compile " + errMessage);
-                }
-            } catch (IOException | InterruptedException e) {
+                compiled = processBuilder.start().waitFor() == 0;
+            } catch (IOException e) {
+                compiled = false;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new ProjectException(e);
+            } finally {
+                deleteDependencyGraph(dependencyGraphJson);
+            }
+            if (!compiled) {
+                // Compile this dependency and the remaining ones in this process, so that the build reports the
+                // same diagnostics, including those of the root package, as without this option. Dependencies
+                // compiled by earlier subprocesses are loaded from the cache.
+                for (ModuleId moduleId : packageInstance.moduleIds()) {
+                    packageInstance.module(moduleId).moduleContext()
+                            .setCompilationState(ModuleCompilationState.LOADED_FROM_SOURCES);
+                }
+                return;
             }
 
             // Finally, we set the compilation state of the dependency to LOADED_FROM_CACHE
@@ -201,6 +272,51 @@ public class PackageResolution {
                 packageInstance.module(moduleId).moduleContext()
                         .setCompilationState(ModuleCompilationState.LOADED_FROM_CACHE);
             }
+        }
+    }
+
+    private boolean hasProvidedPlatformLibraries(ResolvedPackageDependency dependency) {
+        Collection<ResolvedPackageDependency> packages =
+                new ArrayList<>(dependencyGraph.getAllDependencies(dependency));
+        packages.add(dependency);
+        return packages.stream()
+                .flatMap(pkg -> pkg.packageInstance().manifest().platforms().values().stream())
+                .filter(Objects::nonNull)
+                .flatMap(platform -> platform.dependencies().stream())
+                .anyMatch(library -> PlatformLibraryScope.PROVIDED.getStringValue().equals(library.get("scope")));
+    }
+
+    private static void deleteDependencyGraph(Path dependencyGraphFile) {
+        try {
+            Files.deleteIfExists(dependencyGraphFile);
+        } catch (IOException e) {
+            // The file is a temporary input of the subprocess. A leftover temporary file is harmless.
+        }
+    }
+
+    /**
+     * Writes the part of the resolved dependency graph rooted at the given dependency, in the format of a bala's
+     * dependency-graph.json.
+     */
+    private Path writeDependencyGraph(ResolvedPackageDependency dependency) {
+        DependencyGraphBuilder<ResolvedPackageDependency> subGraphBuilder =
+                DependencyGraphBuilder.getBuilder(dependency);
+        Collection<ResolvedPackageDependency> subGraphNodes = new LinkedHashSet<>();
+        subGraphNodes.add(dependency);
+        subGraphNodes.addAll(dependencyGraph.getAllDependencies(dependency));
+        for (ResolvedPackageDependency node : subGraphNodes) {
+            subGraphBuilder.add(node);
+            subGraphBuilder.addDependencies(node, dependencyGraph.getDirectDependencies(node));
+        }
+        DependencyGraphJson dependencyGraphJson = new DependencyGraphJson(
+                BalaWriter.getPackageDependencies(subGraphBuilder.build()), List.of());
+        try {
+            Path dependencyGraphFile = Files.createTempFile("dependency-graph-", ".json");
+            Files.writeString(dependencyGraphFile, new Gson().toJson(dependencyGraphJson), StandardCharsets.UTF_8);
+            return dependencyGraphFile;
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write the dependency graph of " + dependency.packageInstance()
+                    .descriptor() + ": " + e.getMessage(), e);
         }
     }
 
