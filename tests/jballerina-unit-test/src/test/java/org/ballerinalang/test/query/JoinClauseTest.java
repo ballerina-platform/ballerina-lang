@@ -124,6 +124,31 @@ public class JoinClauseTest {
     public void testJoinClauseWithLargeList() {
         BRunUtil.invoke(result, "testJoinClauseWithLargeList");
     }
+
+    @Test(description = "Test join clause with nil keys")
+    public void testJoinClauseWithNilKeys() {
+        BRunUtil.invoke(result, "testJoinClauseWithNilKeys");
+    }
+
+    @Test(description = "Test outer join clause with nil keys")
+    public void testOuterJoinClauseWithNilKeys() {
+        BRunUtil.invoke(result, "testOuterJoinClauseWithNilKeys");
+    }
+
+    @Test(description = "Test join clause with nil keys and stream")
+    public void testJoinClauseWithNilKeysInStream() {
+        BRunUtil.invoke(result, "testJoinClauseWithNilKeysInStream");
+    }
+
+    @Test(description = "Test join clause compares keys using deep equality")
+    public void testJoinClauseKeysUseDeepEquality() {
+        BRunUtil.invoke(result, "testJoinClauseKeysUseDeepEquality");
+    }
+
+    @Test(description = "Test outer join clause compares keys using deep equality")
+    public void testOuterJoinClauseKeysUseDeepEquality() {
+        BRunUtil.invoke(result, "testOuterJoinClauseKeysUseDeepEquality");
+    }
     
     @Test(description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
